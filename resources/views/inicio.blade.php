@@ -209,6 +209,8 @@
 							<li><a href="orders.html">Ordenes</a></li>
 							<li><a href="customer-reviews.html">Comentarios</a></li>
 							<li><a href="restro-setting.html">Configuraciones</a></li>
+							<li><a href="restro-setting.html">Productos</a></li>
+							<li><a href="restro-setting.html">Menu Semanal</a></li>
 							
 						</ul>
 

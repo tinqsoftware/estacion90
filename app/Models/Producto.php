@@ -14,6 +14,7 @@ class Producto extends Model
         'descripcion',
         'precio',
         'stock',
+        'id_user_create',
         'created_at',
         'updated_at'
     ];
@@ -35,4 +36,11 @@ class Producto extends Model
     {
         return $this->hasMany(PedidoDetalle::class, 'id_producto', 'id');
     }
+
+    public function creador()
+    {
+        return $this->belongsTo(User::class, 'id_user_create', 'id');
+    }
+
+    
 }
