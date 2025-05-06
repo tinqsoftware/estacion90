@@ -487,7 +487,7 @@
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Descripción</label>
-                                <textarea class="form-control" name="descripcion" id="descripcion" rows="3"></textarea>
+                                <textarea class="form-control" name="descripcion" id="descripcion" rows="3" required></textarea>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Precio</label>
