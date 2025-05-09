@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Inicio;
@@ -29,4 +30,13 @@ Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])->name('
 
 //MenuSemanal
 Route::get('/menuSemanal', [PlaneacionMenuController::class, 'menusemanal'])->name('menu.menu_semana');
+Route::get('/api/menusemana', [PlaneacionMenuController::class, 'getMenuSemanal']);
+Route::get('/api/calendario', [PlaneacionMenuController::class, 'getMesCalendario']);
 
+
+Route::get('/menusemana/agregar', [PlaneacionMenuController::class, 'agregar']);
+
+
+//Usuarios
+
+Route::get('/usuarios', [UsuarioController::class, 'prin']);
