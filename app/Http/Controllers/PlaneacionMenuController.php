@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\PlaneacionMenu;
-use App\Models\ProductoModel;
-use App\Models\CategoriasModel;
+use App\Models\Categoria;
+use App\Models\Producto;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -144,5 +144,38 @@ class PlaneacionMenuController extends Controller
         return response()->json([
             'days_with_menu' => $daysWithMenu
         ]);
+    }
+
+
+    public function getMenuSemanalById(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'id' => 'required|integer',
+        ]);
+        
+        // Fetch menu data for the given ID
+        $menuItem = PlaneacionMenu::select(
+                'planeacion_menu.id',
+                'planeacion_menu.fecha_plan',
+                'planeacion_menu.stock_diario',
+                'planeacion_menu.precio',
+                'productos.nombre as producto_nombre',
+                'productos.descripcion as producto_descripcion',
+                'categorias.nombre as categoria_nombre',
+                'categorias.id as categoria_id'
+            )
+            ->join('productos', 'planeacion_menu.id_producto', '=', 'productos.id')
+            ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+            ->where('planeacion_menu.id', $request->id)
+            ->first();
+        
+        return response()->json($menuItem);
+    }
+
+    public function agregar(){
+        $productos = Producto::all();
+        $categorias = Categoria::all(); // Updated to use the correct class name
+        return view('menu.menu_agregar', compact('productos', 'categorias'));
     }
 }
