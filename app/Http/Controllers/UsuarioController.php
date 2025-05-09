@@ -10,6 +10,13 @@ use Validator;
 
 class UsuarioController extends Controller
 {
+
+    public function prin(){
+        $usuarios = User::paginate(10);
+        return view('usuarios.usuario', compact('usuarios'));
+    }
+
+    
     public function show($id)
     {
         try {
