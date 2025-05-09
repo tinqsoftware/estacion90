@@ -30,3 +30,6 @@ Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])->name('
 //MenuSemanal
 Route::get('/menuSemanal', [PlaneacionMenuController::class, 'menusemanal'])->name('menu.menu_semana');
 
+Route::get('/api/menusemana', [PlaneacionMenuController::class, 'getMenuSemanal']);
+Route::get('/api/calendario', [PlaneacionMenuController::class, 'getMesCalendario']);
+
