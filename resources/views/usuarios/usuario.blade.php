@@ -298,9 +298,6 @@
                                             @case(1)
                                             Administrador
                                             @break
-                                            @case(2)
-                                            Cliente
-                                            @break
                                             @case(3)
                                             Repartidor
                                             @break
@@ -524,8 +521,8 @@
                             <select class="form-control" id="id_rol" name="id_rol" required>
                                 <option value="">Seleccionar rol</option>
                                 <option value="1">Administrador</option>
-                                <option value="3">Empleado</option>
-                                <option value="4">Cliente</option>
+                                <option value="3">Repartidor</option>
+                                <option value="4">Chef</option>
                             </select>
                             <span class="text-danger" id="id_rol-error"></span>
                         </div>
@@ -570,7 +567,7 @@
             formData += '&_token={{ csrf_token() }}';
 
             $.ajax({
-                url: '{{ route("usuarios.store") }}',
+                url: '/usuarios/guardar',
                 type: 'POST',
                 data: formData,
                 success: function(response) {
@@ -623,7 +620,7 @@
         // Fix the edit user form
         $('#editarUsuarioModal').on('show.bs.modal', function(e) {
             var button = $(e.relatedTarget);
-            var id = button.data('id');
+            var userId = button.data('id');
             var modal = $(this);
 
             // Restablecer formulario
@@ -631,7 +628,7 @@
 
             // Cargar datos
             $.ajax({
-                url: '/usuarios/' + id,
+                url: '/usuarios/' + userId,
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -659,7 +656,7 @@
             var formData = $(this).serialize();
 
             $.ajax({
-                url: '/usuarios/' + userId,
+                url: '/usuarios/guardar/' + userId,
                 type: 'PUT',
                 data: formData,
                 success: function(response) {
@@ -774,7 +771,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: '/usuarios/' + userId,
+                url: '/usuarios/eliminar/' + userId,
                 type: 'DELETE',
                 data: {
                     "_token": "{{ csrf_token() }}"

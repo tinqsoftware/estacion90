@@ -574,13 +574,13 @@
                 '<div class="text-center py-5"><div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando menú semanal...</p></div>';
 
             // Calcular la fecha de inicio de la semana (lunes) basada en la fecha seleccionada
-            const selectedDate = new Date(date);
-            const dayOfWeek = selectedDate.getDay() || 7; // Convertir domingo (0) a 7
-            const diff = selectedDate.getDate() - dayOfWeek + 1; // Ajustar al lunes
-            const startDate = new Date(selectedDate);
-            startDate.setDate(diff);
+            const selectedDate = new Date(date +
+            'T12:00:00'); // Usar mediodía para evitar problemas de zona horaria
+            const dayOfWeek = selectedDate.getDay();
+            const monday = new Date(selectedDate);
+            monday.setDate(selectedDate.getDate() - ((dayOfWeek === 0 ? 7 : dayOfWeek) - 1));
 
-            const formattedStartDate = startDate.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+            const formattedStartDate = monday.toISOString().split('T')[0]; // Formato YYYY-MM-DD
             const selectedFormattedDate = date; // Store the selected date for highlighting
 
             // Hacer solicitud AJAX para obtener datos del menú semanal
