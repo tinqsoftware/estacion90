@@ -13,7 +13,21 @@ class ProductoController extends Controller
     public function productos_tab()
     {
         $categorias = Categoria::all();
-        return view('productos.productos', compact('categorias'));
+    $activeTabId = request('tab_id', $categorias->first()->id ?? 0);
+    
+    // Para cada categoría, cargamos sus productos con paginación
+    foreach ($categorias as $categoria) {
+        // Usar un prefijo único para la paginación de cada categoría
+        $categoria->productosPaginados = Producto::where('id_categoria', $categoria->id)
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15, ['*'], 'categoria_'.$categoria->id);
+        
+        // Importante: Asegurarse que los links de paginación mantengan el tab activo
+        $categoria->productosPaginados->appends(['tab_id' => $activeTabId]);
+    }
+    
+    return view('productos.productos', compact('categorias', 'activeTabId'));
+
     }
 
     // Mostrar un producto específico
