@@ -102,8 +102,9 @@
                                     <ul class="nav nav-tabs" role="tablist">
                                         @foreach($categorias as $key => $categoria)
                                         <li class="nav-item">
-                                            <a class="nav-link {{ $key === 0 ? 'active' : '' }}" data-bs-toggle="tab"
-                                                href="#categoria-{{ $categoria->id }}">
+                                            <a class="nav-link {{ (isset($activeTabId) && $activeTabId == $categoria->id) || ($activeTabId == 0 && $key === 0) ? 'active' : '' }}"
+                                                data-bs-toggle="tab" href="#categoria-{{ $categoria->id }}"
+                                                data-categoria-id="{{ $categoria->id }}">
                                                 {{ $categoria->nombre }}
                                             </a>
                                         </li>
@@ -112,7 +113,7 @@
 
                                     <div class="tab-content">
                                         @foreach($categorias as $key => $categoria)
-                                        <div class="tab-pane fade {{ $key === 0 ? 'show active' : '' }}"
+                                        <div class="tab-pane fade {{ (isset($activeTabId) && $activeTabId == $categoria->id) || ($activeTabId == 0 && $key === 0) ? 'show active' : '' }}"
                                             id="categoria-{{ $categoria->id }}" role="tabpanel">
                                             <div class="pt-4">
                                                 <h4>{{ $categoria->nombre }}</h4>
@@ -134,9 +135,9 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @if(isset($categoria->productos) &&
-                                                            $categoria->productos->count() > 0)
-                                                            @foreach($categoria->productos as $producto)
+                                                            @if(isset($categoria->productosPaginados) &&
+                                                            $categoria->productosPaginados->count() > 0)
+                                                            @foreach($categoria->productosPaginados as $producto)
                                                             <tr>
                                                                 <td>{{ $producto->updated_at ? $producto->updated_at->format('d/m/Y H:i') : 'N/A' }}
                                                                 </td>
@@ -184,6 +185,12 @@
                                                             @endif
                                                         </tbody>
                                                     </table>
+                                                    <!-- Añadir links de paginación -->
+                                                    <div class="d-flex justify-content-center mt-4">
+                                                        @if(isset($categoria->productosPaginados))
+                                                        {{ $categoria->productosPaginados->withPath(request()->url())->appends(['tab_id' => $categoria->id])->links() }}
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -361,7 +368,7 @@
 
                 // Imagen del producto
                 if (response.imagen) {
-                    $('#modal-producto-imagen').attr('src', `/storage/${response.imagen}`);
+                    $('#modal-producto-imagen').attr('src', response.imagen);
                 } else {
                     $('#modal-producto-imagen').attr('src', 'access/images/product/1.jpg');
                 }
@@ -406,6 +413,21 @@
             const productoId = $(this).data('id');
             verProductoDetalle(productoId);
         });
+
+        // Cuando se cambia de tab, actualizar la URL
+        $('.nav-tabs a').on('shown.bs.tab', function(e) {
+            const categoriaId = $(this).data('categoria-id');
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('tab_id', categoriaId);
+            window.history.replaceState({}, '', currentUrl.toString());
+        });
+
+        // Si hay un tab_id en la URL, activarlo
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabId = urlParams.get('tab_id');
+        if (tabId) {
+            $('.nav-tabs a[data-categoria-id="' + tabId + '"]').tab('show');
+        }
     });
 
 
@@ -439,7 +461,7 @@
                 // Mostrar la imagen actual si existe
                 if (response.imagen) {
                     $('#imagen-preview-container').show();
-                    $('#imagen-preview').attr('src', `/storage/${response.imagen}`);
+                    $('#imagen-preview').attr('src', response.imagen);
                 } else {
                     $('#imagen-preview-container').hide();
                 }
