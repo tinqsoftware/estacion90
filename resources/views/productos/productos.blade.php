@@ -368,7 +368,7 @@
 
                 // Imagen del producto
                 if (response.imagen) {
-                    $('#modal-producto-imagen').attr('src', `/storage/${response.imagen}`);
+                    $('#modal-producto-imagen').attr('src', response.imagen);
                 } else {
                     $('#modal-producto-imagen').attr('src', 'access/images/product/1.jpg');
                 }
@@ -461,7 +461,7 @@
                 // Mostrar la imagen actual si existe
                 if (response.imagen) {
                     $('#imagen-preview-container').show();
-                    $('#imagen-preview').attr('src', `/storage/${response.imagen}`);
+                    $('#imagen-preview').attr('src', response.imagen);
                 } else {
                     $('#imagen-preview-container').hide();
                 }
