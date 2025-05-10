@@ -19,6 +19,7 @@ class ProductoController extends Controller
     foreach ($categorias as $categoria) {
         // Usar un prefijo único para la paginación de cada categoría
         $categoria->productosPaginados = Producto::where('id_categoria', $categoria->id)
+            ->where('estado', 1)  // Solo mostrar productos activos
             ->orderBy('updated_at', 'desc')
             ->paginate(15, ['*'], 'categoria_'.$categoria->id);
         
@@ -62,6 +63,7 @@ class ProductoController extends Controller
         // Corregir el nombre de la columna
         $producto->id_categoria = $request->categoria_id;
         $producto->stock = $request->stock;
+        $producto->estado = 1; // Estado activo por defecto
         // Agregar usuario que crea el producto
         $producto->id_user_create = auth()->id() ?? 1;
         
@@ -135,22 +137,20 @@ class ProductoController extends Controller
     // Eliminar el producto
     public function destroy($id)
     {
-        DB::beginTransaction();
-        try {
-            $producto = Producto::findOrFail($id);
-            
-            // Eliminar la imagen si existe
-            if ($producto->imagen && Storage::disk('public')->exists($producto->imagen)) {
-                Storage::disk('public')->delete($producto->imagen);
-            }
-            
-            $producto->delete();
-            DB::commit();
-            
-            return redirect()->route('productos_tab')->with('success', 'Producto eliminado exitosamente');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return back()->with('error', 'Error al eliminar el producto: ' . $e->getMessage());
-        }
+         DB::beginTransaction();
+    try {
+        $producto = Producto::findOrFail($id);
+        
+        // Cambiamos el estado a 0 (inactivo) en lugar de eliminar
+        $producto->estado = 0;
+        $producto->save();
+        
+        DB::commit();
+        
+        return redirect()->route('productos_tab')->with('success', 'Producto desactivado exitosamente');
+    } catch (\Exception $e) {
+        DB::rollback();
+        return back()->with('error', 'Error al desactivar el producto: ' . $e->getMessage());
+    }
     }
 }

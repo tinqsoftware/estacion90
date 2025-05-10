@@ -14,6 +14,7 @@ class Producto extends Model
         'descripcion',
         'precio',
         'stock',
+        'estado',
         'id_user_create',
         'created_at',
         'updated_at'
