@@ -570,7 +570,7 @@
             formData += '&_token={{ csrf_token() }}';
 
             $.ajax({
-                url: '{{ route("usuarios.store") }}',
+                url: '/usuarios/guardar',
                 type: 'POST',
                 data: formData,
                 success: function(response) {
