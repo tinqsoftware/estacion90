@@ -12,8 +12,8 @@ class UsuarioController extends Controller
 {
 
     public function prin(){
-        $usuarios = User::paginate(15);
-        return view('usuarios.usuario', compact('usuarios'));
+       $usuarios = User::where('id_rol', '!=', 2)->paginate(15);
+    return view('usuarios.usuario', compact('usuarios'));
     }
 
     

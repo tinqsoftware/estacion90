@@ -40,10 +40,10 @@ Route::get('/menusemana/agregar', [PlaneacionMenuController::class, 'agregar']);
 //Usuarios
 
 Route::get('/usuarios', [UsuarioController::class, 'prin']);
-Route::post('/usuarios/guardar', [UsuarioController::class, 'store'])->name('usuarios.store');
-Route::get('/usuarios/{id}', [UsuarioController::class, 'show'])->name('usuarios.show');
-Route::get('/usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
-Route::put('/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
-Route::post('/usuarios/{id}/reset-password', [UsuarioController::class, 'resetPassword'])->name('usuarios.reset_password');
+Route::post('/usuarios/guardar', [UsuarioController::class, 'store']);
+Route::get('/usuarios/{id}', [UsuarioController::class, 'show']);
+Route::get('/usuarios/{id}/edit', [UsuarioController::class, 'edit']);
+Route::put('/usuarios/guardar/{id}', [UsuarioController::class, 'update']);
+Route::delete('/usuarios/eliminar/{id}', [UsuarioController::class, 'destroy']);
+Route::post('/usuarios/{id}/reset-password', [UsuarioController::class, 'resetPassword']);
 
