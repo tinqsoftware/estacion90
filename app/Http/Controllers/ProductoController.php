@@ -60,17 +60,21 @@ class ProductoController extends Controller
         $producto->nombre = $request->nombre;
         $producto->descripcion = $request->descripcion;
         $producto->precio = $request->precio;
-        // Corregir el nombre de la columna
         $producto->id_categoria = $request->categoria_id;
         $producto->stock = $request->stock;
         $producto->estado = 1; // Estado activo por defecto
-        // Agregar usuario que crea el producto
         $producto->id_user_create = auth()->id() ?? 1;
         
         // Procesar la imagen si existe
         if ($request->hasFile('imagen')) {
-            $path = $request->file('imagen')->store('productos', 'public');
-            $producto->imagen = $path;
+            // Generar un nombre único para la imagen
+            $imageName = time().'_'.uniqid().'.'.$request->imagen->extension();
+            
+            // Guardar la imagen en access/images/popular-img/
+            $request->imagen->move(public_path('access/images/popular-img/'), $imageName);
+            
+            // Guardar la ruta relativa en la base de datos
+            $producto->imagen = 'access/images/popular-img/'.$imageName;
         }
         
         $producto->save();
@@ -109,19 +113,25 @@ class ProductoController extends Controller
         $producto->nombre = $request->nombre;
         $producto->descripcion = $request->descripcion;
         $producto->precio = $request->precio;
-        // Corregir el nombre de la columna
         $producto->id_categoria = $request->categoria_id;
         $producto->stock = $request->stock;
         
         // Procesar la imagen si existe
         if ($request->hasFile('imagen')) {
-            // Eliminar la imagen anterior si existe
-            if ($producto->imagen && Storage::disk('public')->exists($producto->imagen)) {
-                Storage::disk('public')->delete($producto->imagen);
+            // Eliminar la imagen anterior si existe y no es la imagen por defecto
+            if ($producto->imagen && file_exists(public_path($producto->imagen)) && 
+                !str_contains($producto->imagen, 'product/1.jpg')) {
+                unlink(public_path($producto->imagen));
             }
             
-            $path = $request->file('imagen')->store('productos', 'public');
-            $producto->imagen = $path;
+            // Generar un nombre único para la nueva imagen
+            $imageName = time().'_'.uniqid().'.'.$request->imagen->extension();
+            
+            // Guardar la imagen en access/images/popular-img/
+            $request->imagen->move(public_path('access/images/popular-img/'), $imageName);
+            
+            // Guardar la ruta relativa en la base de datos
+            $producto->imagen = 'access/images/popular-img/'.$imageName;
         }
         
         $producto->save();
@@ -133,7 +143,6 @@ class ProductoController extends Controller
         return back()->with('error', 'Error al actualizar el producto: ' . $e->getMessage());
     }
 }
-
     // Eliminar el producto
     public function destroy($id)
     {
