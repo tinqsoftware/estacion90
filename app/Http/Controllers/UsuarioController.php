@@ -49,9 +49,9 @@ class UsuarioController extends Controller
         $usuario->password = Hash::make('12345678'); // Default password
         $usuario->id_rol = $request->id_rol;
         $usuario->telefono = $request->telefono;
-        $usuario->id_direccion = 1; // Default direction ID
+        $usuario->id_direccion = $request->direccion ?? null; // Default direction ID
         $usuario->estado = 1; // Default active status
-        $usuario->id_user_create = auth()->id() ?? 1; // Use authenticated user or default to 1
+        $usuario->id_user_create = auth()->id() ?? null; 
         
         $usuario->save();
         
