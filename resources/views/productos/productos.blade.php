@@ -231,8 +231,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-center w-100" id="verProductoModalLabel">Detalle del Producto</h5>
-                    <a href="#" class="btn btn-info shadow btn-xs sharp me-1 btn-editar" data-id="{{ $producto->id }}"
-                        title="Editar">
+                    <a href="#" class="btn btn-info shadow btn-xs sharp me-1 btn-editar-modal" title="Editar">
                         <i class="fas fa-pencil-alt"></i>
                     </a>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -357,6 +356,7 @@
             dataType: 'json',
             success: function(response) {
                 // Nombre del producto
+                $('#verProductoModal').data('producto-id', productoId);
                 $('#modal-producto-nombre').text(response.nombre || 'SIN REGISTRO');
 
                 // Descripción del producto
@@ -428,6 +428,15 @@
         if (tabId) {
             $('.nav-tabs a[data-categoria-id="' + tabId + '"]').tab('show');
         }
+    });
+
+    $(document).on('click', '.btn-editar-modal', function() {
+        // Obtener el ID del producto actual del modal
+        const productoId = $('#verProductoModal').data('producto-id');
+        // Cerrar el modal de detalles
+        $('#verProductoModal').modal('hide');
+        // Abrir modal de edición
+        editarProducto(productoId);
     });
 
 
