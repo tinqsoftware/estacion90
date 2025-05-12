@@ -255,20 +255,16 @@
         // Load calendar for current month on initial load
         loadCalendarMonth(currentYear, currentMonth);
 
-        const today = new Date();
-        const todayFormatted = today.getFullYear() + '-' +
-            (today.getMonth() + 1).toString().padStart(2, '0') + '-' +
-            today.getDate().toString().padStart(2, '0');
+        const now = new Date();
+        // Obtiene la fecha local correctamente
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const todayFormatted = now.getFullYear() + '-' +
+            (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
+            now.getDate().toString().padStart(2, '0');
+        console.log('Fecha actual (local):', todayFormatted);
 
         // Also highlight today in the calendar
-        setTimeout(() => {
-            const todayCell = document.querySelector(`.calendar-day[data-date="${todayFormatted}"]`);
-            if (todayCell) {
-                todayCell.classList.add('active');
-            }
-            // Load the menu for the current week
-            loadMenuForDay(todayFormatted);
-        }, 500); // Small delay to ensure calendar is rendered
+        // Small delay to ensure calendar is rendered
 
         // Event listeners for navigation buttons
         prevMonthButton.addEventListener('click', function() {
@@ -314,72 +310,88 @@
         // Render calendar month locally
         function renderCalendarMonth(year, month) {
             calendarGridContainer.innerHTML = '';
-
-            const today = new Date();
             const firstDayOfMonth = new Date(year, month, 1);
             const lastDayOfMonth = new Date(year, month + 1, 0);
-
-            // Get day of week of the first day (0 = Sunday, 1 = Monday, etc.)
-            // Convert to Monday-first format (0 = Monday, 6 = Sunday)
-            let firstWeekday = firstDayOfMonth.getDay() - 1;
+            let firstWeekday = firstDayOfMonth.getDay();
             if (firstWeekday === -1) firstWeekday = 6;
-
             const totalDays = lastDayOfMonth.getDate();
 
-            // Create empty cells for days before the first day of the month
             for (let i = 0; i < firstWeekday; i++) {
                 const emptyCell = document.createElement('div');
                 emptyCell.className = 'calendar-day empty';
                 calendarGridContainer.appendChild(emptyCell);
             }
 
-            // Create cells for days of the month
             for (let day = 1; day <= totalDays; day++) {
                 const dayCell = document.createElement('div');
                 dayCell.className = 'calendar-day';
+                const nowLocal = new Date();
+                // Forzamos a usar la fecha local, no UTC
+                const todayLocal = nowLocal.getDate();
+                const monthLocal = nowLocal.getMonth();
+                const yearLocal = nowLocal.getFullYear();
 
-                // Check if this is today
-                if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                if (year === yearLocal && month === monthLocal && day === todayLocal) {
                     dayCell.classList.add('today');
+                    console.log('Marcando como hoy (ajustado):', `${year}-${month + 1}-${day}`);
                 }
-
-                // Set the day number
                 dayCell.textContent = day;
-
-                // Set data attribute for the full date
                 dayCell.dataset.date =
                     `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-
-                // Add click event
                 dayCell.addEventListener('click', function() {
-                    document.querySelectorAll('.calendar-day').forEach(el => {
-                        el.classList.remove('active');
-                    });
+                    document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove(
+                        'active'));
                     this.classList.add('active');
                     loadMenuForDay(this.dataset.date);
                 });
-
                 calendarGridContainer.appendChild(dayCell);
+            }
+
+            // Resaltar día actual y cargar su menú después de renderizar el calendario completo
+            const now = new Date();
+            const todayFormatted = now.getFullYear() + '-' +
+                (now.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                now.getDate().toString().padStart(2, '0');
+
+            console.log('Buscando día actual después de renderizar:', todayFormatted);
+
+            // Seleccionar el día actual si estamos en el mes actual
+            if (year === now.getFullYear() && month === now.getMonth()) {
+                const todayCell = document.querySelector(`.calendar-day[data-date="${todayFormatted}"]`);
+                if (todayCell) {
+                    todayCell.classList.add('active');
+                    console.log('Día actual resaltado:', todayFormatted);
+                    // Cargar el menú del día actual
+                    loadMenuForDay(todayFormatted);
+                } else {
+                    console.error('Día actual no encontrado después de renderizar:', todayFormatted);
+                }
+            } else {
+                // Si no estamos en el mes actual, no hay día actual para resaltar
+                // Cargamos el primer día del mes visualizado
+                const firstDayFormatted = `${year}-${(month + 1).toString().padStart(2, '0')}-01`;
+                const firstDayCell = document.querySelector(`.calendar-day[data-date="${firstDayFormatted}"]`);
+                if (firstDayCell) {
+                    firstDayCell.classList.add('active');
+                    loadMenuForDay(firstDayFormatted);
+                }
             }
         }
 
         // Function to load menu for a specific day
         function loadMenuForDay(date) {
             console.log(`Cargando menú para: ${date}`);
-
-            // Mostrar indicador de carga
             const contentArea = document.querySelector('.col-md-10');
             contentArea.innerHTML =
                 '<div class="text-center py-5"><div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando menú semanal...</p></div>';
 
-            // Calcular la fecha de inicio de la semana (lunes) basada en la fecha seleccionada
-            const selectedDate = new Date(date +
-                'T12:00:00'); // Usar mediodía para evitar problemas de zona horaria
+            const selectedDate = new Date(date + 'T00:00:00');
             const dayOfWeek = selectedDate.getDay();
+            console.log('Día de la semana:', dayOfWeek);
             const monday = new Date(selectedDate);
             monday.setDate(selectedDate.getDate() - ((dayOfWeek === 0 ? 7 : dayOfWeek) - 1));
-
-            const formattedStartDate = monday.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+            console.log('Lunes calculado:', monday.toISOString().split('T')[0]);
+            const formattedStartDate = monday.toISOString().split('T')[0];
             const selectedFormattedDate = date; // Store the selected date for highlighting
 
             // Hacer solicitud AJAX para obtener datos del menú semanal
