@@ -116,6 +116,30 @@ class PlaneacionMenuController extends Controller
     
     return response()->json($result);
     }
+
+    public function registrarMenu(Request $request)
+{
+    $fecha = $request->fecha;
+    $items = $request->items;
+    
+    foreach ($items as $item) {
+        // Create new menu items
+        PlaneacionMenu::create([
+            'fecha' => $fecha,
+            'categoria_id' => $item['categoria_id'],
+            'producto_id' => $item['producto_id'],
+            'stock_diario' => $item['stock_diario'],
+            'precio' => $item['precio']
+        ]);
+    }
+    
+    return response()->json(['success' => true]);
+}
+
+  public function eliminarMenu(Request $request)
+{
+    
+}
     
     /**
      * Get calendar data for a specific month

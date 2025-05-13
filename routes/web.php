@@ -36,6 +36,8 @@ Route::get('/api/calendar-month', [PlaneacionMenuController::class, 'getMesCalen
 
 
 Route::get('/menusemana/agregar/{fecha?}', [PlaneacionMenuController::class, 'agregar']);
+Route::post('/api/menu/registrar', [PlaneacionMenuController::class, 'registrarMenu']);
+Route::delete('/api/menu/eliminar', [PlaneacionMenuController::class, 'eliminarMenu']);
 
 
 //Usuarios
