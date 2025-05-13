@@ -71,138 +71,119 @@
                 <div class="row mt-4">
                     <!-- Contenido principal -->
                     <div class="col-12">
-                        <h2 class="mb-4">Lunes 5 MAYO</h2>
+                        <h2 class="mb-4">{{ $fechaFormateada }}</h2>
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Entrada S/15.00</th>
-                                        <th>Entrada S/20.00</th>
-                                        <th>Fondo S/15.00</th>
-                                        <th>Fondo S/20.00</th>
-                                        <th>Extras</th>
-                                        <th>Combos</th>
+                        <!-- Update the table to use dynamic data -->
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Entrada S/15.00</th>
+                                    <th>Entrada S/20.00</th>
+                                    <th>Fondo S/15.00</th>
+                                    <th>Fondo S/20.00</th>
+                                    <th>Extras</th>
+                                    <th>Combos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                $maxRows = max(
+                                count($menuItems[1] ?? []),
+                                count($menuItems[2] ?? []),
+                                count($menuItems[3] ?? []),
+                                count($menuItems[4] ?? []),
+                                count($menuItems[5] ?? []),
+                                count($menuItems[6] ?? [])
+                                );
+                                @endphp
+
+                                @for ($i = 0; $i < $maxRows; $i++) <tr>
+                                    @foreach ([1, 2, 3, 4, 5, 6] as $categoriaId)
+                                    <td>
+                                        @if(isset($menuItems[$categoriaId][$i]))
+                                        <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}">
+                                            <button class="delete-btn"
+                                                data-id="{{ $menuItems[$categoriaId][$i]->id }}"></button>
+                                            <span>
+                                                {{ $menuItems[$categoriaId][$i]->stock_diario }} -
+                                                {{ $menuItems[$categoriaId][$i]->producto_nombre }}
+                                                @if($categoriaId >= 5 || $menuItems[$categoriaId][$i]->precio)
+                                                (S/{{ $menuItems[$categoriaId][$i]->precio }})
+                                                @endif
+                                            </span>
+                                        </div>
+                                        @endif
+                                    </td>
+                                    @endforeach
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="menu-item">
-                                                <button class="delete-btn"></button>
-                                                <span>20 - Pollo a la braza</span>
-                                            </div>
-                                        </td>
-                                        <td>20 - Pollo a la braza</td>
-                                        <td>20 - Pollo a la braza</td>
-                                        <td>20 - Pollo a la braza</td>
-                                        <td>20 – Chupete Fresa (S/5)</td>
-                                        <td>20 – Combo 1 (S/55)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="menu-item">
-                                                <button class="delete-btn"></button>
-                                                <span>30 - Pollo a la braza</span>
-                                            </div>
-                                        </td>
-                                        <td>30 - Pollo a la braza</td>
-                                        <td>30 - Pollo a la braza</td>
-                                        <td>30 - Pollo a la braza</td>
-                                        <td>20 – Chupete Fresa (S/5)</td>
-                                        <td>20 – Combo 2 (S/50)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="menu-item">
-                                                <button class="delete-btn"></button>
-                                                <span>20 - Pollo a la braza</span>
-                                            </div>
-                                        </td>
-                                        <td>20 - Pollo a la braza</td>
-                                        <td>20 - Pollo a la braza</td>
-                                        <td>20 - Pollo a la braza</td>
-                                        <td>20 – Chupete Fresa (S/5)</td>
-                                        <td>20 – Combo 3 (S/25)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>45 - ceviche</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    @endfor
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Sección de búsqueda y añadir productos -->
+                    <div class="row mt-4">
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">Buscar producto ▼</button>
+                                <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
+                            </div>
+                            <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
                         </div>
-
-                        <!-- Sección de búsqueda y añadir productos -->
-                        <div class="row mt-4">
-                            <div class="col">
-                                <div class="input-group mb-3">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown">Buscar producto ▼</button>
-                                    <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
-                                </div>
-                                <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">Buscar producto ▼</button>
+                                <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
                             </div>
-                            <div class="col">
-                                <div class="input-group mb-3">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown">Buscar producto ▼</button>
-                                    <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
-                                </div>
-                                <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
-                            </div>
-                            <div class="col">
-                                <div class="input-group mb-3">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown">Buscar producto ▼</button>
-                                    <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
-                                </div>
-                                <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
-                            </div>
-                            <div class="col">
-                                <div class="input-group mb-3">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown">Buscar producto ▼</button>
-                                    <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
-                                </div>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" placeholder="Precio" aria-label="Precio">
-                                </div>
-                                <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
-                            </div>
-                            <div class="col">
-                                <div class="input-group mb-3">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown">Buscar producto ▼</button>
-                                    <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
-                                </div>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" placeholder="Precio" aria-label="Precio">
-                                </div>
-                                <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
-                            </div>
+                            <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
                         </div>
-
-                        <p class="mt-4 text-muted">Cuando añades que no se refrezque la página, que cargue el producto
-                            en la tabla, y que aparezca otro grupo de inputs</p>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">Buscar producto ▼</button>
+                                <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
+                            </div>
+                            <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">Buscar producto ▼</button>
+                                <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
+                            </div>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Precio" aria-label="Precio">
+                            </div>
+                            <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">Buscar producto ▼</button>
+                                <input type="text" class="form-control" placeholder="Stock" aria-label="Stock">
+                            </div>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Precio" aria-label="Precio">
+                            </div>
+                            <button class="btn btn-secondary w-100">AÑADIR EL MENU</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!--**********************************
+    <!--**********************************
             Footer start
         ***********************************-->
-        <div class="footer">
-            <div class="copyright border-top">
-                <p>estacion90 © Desarrollador por <a href="https://tinq.pe" target="_blank">Tinq Sofware</a> 2025</p>
-            </div>
+    <div class="footer">
+        <div class="copyright border-top">
+            <p>estacion90 © Desarrollador por <a href="https://tinq.pe" target="_blank">Tinq Sofware</a> 2025</p>
         </div>
-        <!--**********************************
+    </div>
+    <!--**********************************
             Footer end
         ***********************************-->
 
@@ -219,6 +200,56 @@
     <script src="{{ asset('access/js/dlabnav-init.js') }}"></script>
     <script src="{{ asset('access/js/custom.js') }}"></script>
     <script src="{{ asset('access/js/demo.js') }}"></script>
+
+
+    <script>
+    $(document).ready(function() {
+        // Add menu item without page refresh
+        $('.btn-secondary').click(function() {
+            const column = $(this).closest('.col');
+            const categoria = column.index() + 1; // Category based on column position
+            const producto = column.find('input').first().val();
+            const precio = column.find('input[placeholder="Precio"]').val() || null;
+            const fecha = '{{ $fecha }}';
+            
+            if (!producto) {
+                alert('Por favor seleccione un producto');
+                return;
+            }
+            
+            $.post('/api/menu/agregar', {
+                fecha: fecha,
+                producto_id: producto,
+                stock: 20, // Default value, can be made dynamic
+                precio: precio,
+                _token: '{{ csrf_token() }}'
+            }, function(response) {
+                // Refresh the table content without full page reload
+                location.reload(); // Temporary - should be replaced with DOM manipulation
+            });
+        });
+        
+        // Delete menu item
+        $(document).on('click', '.delete-btn', function() {
+            const id = $(this).data('id');
+            $('#confirmDialog').show();
+            
+            $('#btnEliminar').off('click').on('click', function() {
+                $.post('/api/menu/eliminar/' + id, {
+                    _token: '{{ csrf_token() }}',
+                    _method: 'DELETE'
+                }, function() {
+                    $('#confirmDialog').hide();
+                    location.reload(); // Temporary - should be replaced with DOM manipulation
+                });
+            });
+            
+            $('#btnCancelar').click(function() {
+                $('#confirmDialog').hide();
+            });
+        });
+    });
+</script>
 
 
 </body>

@@ -173,9 +173,39 @@ class PlaneacionMenuController extends Controller
         return response()->json($menuItem);
     }
 
-    public function agregar(){
-        $productos = Producto::all();
-        $categorias = Categoria::all(); // Updated to use the correct class name
-        return view('menu.menu_agregar', compact('productos', 'categorias'));
-    }
+    public function agregar(Request $request){
+    // Get date from request or default to today
+    $fecha = $request->fecha ?? Carbon::today()->toDateString();
+    $fechaObj = Carbon::parse($fecha);
+    
+    // Format the date for display (e.g., "Lunes 5 MAYO")
+    $fechaFormateada = $fechaObj->locale('es')->isoFormat('dddd D MMMM');
+    
+    // Get menu items for this date
+    $menuItems = PlaneacionMenu::select(
+        'planeacion_menu.id',
+        'planeacion_menu.fecha_plan',
+        'planeacion_menu.stock_diario',
+        'planeacion_menu.precio',
+        'productos.nombre as producto_nombre',
+        'productos.id as producto_id',
+        'categorias.id as categoria_id'
+    )
+    ->join('productos', 'planeacion_menu.id_producto', '=', 'productos.id')
+    ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+    ->where('fecha_plan', $fecha)
+    ->get()
+    ->groupBy('categoria_id');
+    
+    $productos = Producto::all();
+    $categorias = Categoria::all();
+    
+    return view('menu.menu_agregar', compact(
+        'productos', 
+        'categorias', 
+        'menuItems', 
+        'fecha', 
+        'fechaFormateada'
+    ));
+}
 }

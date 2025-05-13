@@ -87,7 +87,7 @@
                         </div>
                         <br>
                         <div class="text-start">
-                            <a href="/menusemana/agregar" class="btn btn-primary btn-lg">
+                            <a href="javascript:void(0);" id="add-menu-btn" class="btn btn-primary btn-lg">
                                 <i class="fas fa-plus-circle me-2"></i>AGREGAR MENU
                             </a>
                         </div>
@@ -246,6 +246,21 @@
         const currentMonthElement = document.getElementById('current-month');
         const calendarGridContainer = document.querySelector('.calendar-grid');
 
+
+        document.getElementById('add-menu-btn').addEventListener('click', function() {
+            // Get currently selected date from active calendar cell
+            const activeDay = document.querySelector('.calendar-day.active');
+            if (activeDay && activeDay.dataset.date) {
+                window.location.href = `/menusemana/agregar/${activeDay.dataset.date}`;
+            } else {
+                // If no date is selected, use current date
+                const today = new Date();
+                const todayFormatted = today.getFullYear() + '-' +
+                    (today.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                    today.getDate().toString().padStart(2, '0');
+                window.location.href = `/menusemana/agregar/${todayFormatted}`;
+            }
+        });
         // Month names in Spanish
         const monthNames = [
             'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
@@ -412,7 +427,8 @@
                     // Generar HTML para cada día
                     sortedDates.forEach(dateStr => {
                         const dayData = data[dateStr];
-                        const date = new Date(dateStr);
+                        // Force date interpretation without timezone shifting by adding time component:
+                        const date = new Date(dateStr + 'T12:00:00');
                         const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves',
                             'Viernes', 'Sábado'
                         ];
@@ -499,12 +515,12 @@
 
             return items.map(row => `
         <tr>
-            <td>${row.entrada_15 || '-'}</td>
-            <td>${row.entrada_20 || '-'}</td>
-            <td>${row.fondo_15 || '-'}</td>
-            <td>${row.fondo_20 || '-'}</td>
-            <td>${row.extras || '-'}</td>
-            <td>${row.combos || '-'}</td>
+            <td>${row.entrada_15 || ' '}</td>
+            <td>${row.entrada_20 || ' '}</td>
+            <td>${row.fondo_15 || ' '}</td>
+            <td>${row.fondo_20 || ' '}</td>
+            <td>${row.extras || ' '}</td>
+            <td>${row.combos || ' '}</td>
         </tr>
     `).join('');
         }
@@ -512,19 +528,19 @@
         // Función para manejar la edición de un día de menú (implementación pendiente)
         function editMenuDay(date) {
             console.log(`Editando menú para: ${date}`);
-            // Implementa aquí la lógica para editar el menú de un día
-            // Por ejemplo, podría abrir un modal o redirigir a otra página
+            // Add T12:00:00 to force correct date interpretation without timezone shifts
+            const dateObj = new Date(date + 'T12:00:00');
             Swal.fire({
                 title: 'Editar Menú',
-                text: `¿Desea editar el menú para el día ${new Date(date).toLocaleDateString()}?`,
+                text: `¿Desea editar el menú para el día ${dateObj.toLocaleDateString()}?`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Sí, editar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redirigir a la página de edición o abrir un formulario modal
-                    // window.location.href = `/editar-menu/${date}`;
+                    // Redirect to the edit page with date parameter
+                    window.location.href = `/menusemana/agregar/${date}`;
                 }
             });
         }
