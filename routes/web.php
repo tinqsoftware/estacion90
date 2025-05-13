@@ -35,7 +35,7 @@ Route::get('/api/calendario', [PlaneacionMenuController::class, 'getMesCalendari
 Route::get('/api/calendar-month', [PlaneacionMenuController::class, 'getMesCalendario']);
 
 
-Route::get('/menusemana/agregar', [PlaneacionMenuController::class, 'agregar']);
+Route::get('/menusemana/agregar/{fecha?}', [PlaneacionMenuController::class, 'agregar']);
 
 
 //Usuarios
