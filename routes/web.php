@@ -50,3 +50,8 @@ Route::put('/usuarios/guardar/{id}', [UsuarioController::class, 'update']);
 Route::delete('/usuarios/eliminar/{id}', [UsuarioController::class, 'destroy']);
 Route::post('/usuarios/{id}/reset-password', [UsuarioController::class, 'resetPassword']);
 
+
+//cambios Contraseña
+Route::post('/user/reset-password', [UsuarioController::class, 'resetPasswordLOGIN'])->name('user.reset-password');
+Route::get('/cambiarclave', [UsuarioController::class, 'showChangePasswordForm'])->name('password.change');
+Route::post('/cambiar-password', [UsuarioController::class, 'changePassword'])->name('password.change.submit');

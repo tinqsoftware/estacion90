@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Validator;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
+
 class UsuarioController extends Controller
 {
 
@@ -15,6 +18,52 @@ class UsuarioController extends Controller
        $usuarios = User::where('id_rol', '!=', 2)->paginate(15);
     return view('usuarios.usuario', compact('usuarios'));
     }
+
+    
+public function resetPasswordLOGIN(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Reset password to default (you can change this default password)
+        $user->password = Hash::make('12345678');
+        $user->save();
+        
+        // Log the user out
+        Auth::logout();
+        
+        return redirect()->route('login')
+            ->with('status', 'Tu contraseña ha sido restablecida correctamente. Por favor inicia sesión con tu nueva contraseña.');
+    }
+
+
+
+    public function showChangePasswordForm()
+{
+    return view('auth.passwords.resetPassword');
+}
+
+public function changePassword(Request $request)
+{
+    $request->validate([
+        'current_password' => ['required'],
+        'password' => ['required', 'confirmed', Password::defaults()],
+    ]);
+
+    $user = Auth::user();
+
+    // Check if current password matches
+    if (!Hash::check($request->current_password, $user->password)) {
+        return back()->withErrors([
+            'current_password' => 'La contraseña actual es incorrecta',
+        ]);
+    }
+
+    // Update password
+    $user->password = Hash::make($request->password);
+    $user->save();
+
+    return redirect()->route('/')->with('status', 'Contraseña actualizada correctamente');
+}
 
     
     public function show($id)
