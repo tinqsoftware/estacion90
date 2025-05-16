@@ -540,10 +540,14 @@
                     modal.find('.modal-body').html(content);
 
                     // Añadir botón de reset password
-                    modal.find('.modal-footer').html(`
-                    <button type="button" class="btn btn-warning" id="btn-reset-password">Restablecer Contraseña</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                `);
+                    modal.find('.modal-body').html(content);
+
+// Añadir botón de reset password
+var isAdmin = {{ auth()->check() && auth()->user()->id_rol == 1 ? 'true' : 'false' }};
+modal.find('.modal-footer').html(`
+    ${isAdmin ? '<button type="button" class="btn btn-warning" id="btn-reset-password">Restablecer Contraseña</button>' : ''}
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+`);
                 },
                 error: function(xhr) {
                     modal.find('.modal-body').html(
