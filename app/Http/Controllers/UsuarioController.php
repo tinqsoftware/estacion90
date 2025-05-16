@@ -62,7 +62,10 @@ public function changePassword(Request $request)
     $user->password = Hash::make($request->password);
     $user->save();
 
-    return redirect()->route('/')->with('status', 'Contraseña actualizada correctamente');
+   Auth::logout();
+        
+        return redirect()->route('login')
+            ->with('status', 'Tu contraseña ha sido cambiada correctamente. Por favor inicia sesión con tu nueva contraseña.');
 }
 
     

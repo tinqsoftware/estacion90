@@ -487,16 +487,26 @@
                         });
                     });
 
-                    // Scroll to the selected date's menu
                     const selectedMenu = document.getElementById(`menu-${selectedFormattedDate}`);
                     if (selectedMenu) {
                         setTimeout(() => {
+                            // Hacer scroll al menú
                             selectedMenu.scrollIntoView({
                                 behavior: 'smooth',
                                 block: 'start'
                             });
+
+                            // Ajustar hacia abajo según el alto del encabezado (ej. 100px)
+                            setTimeout(() => {
+                                window.scrollBy({
+                                    top: -
+                                    100, // Ajusta este valor según la altura real del encabezado
+                                    behavior: 'smooth'
+                                });
+                            }, 700); // Este delay ayuda a que se aplique después del scroll inicial
                         }, 100);
                     }
+
                 })
                 .catch(error => {
                     console.error('Error cargando el menú:', error);

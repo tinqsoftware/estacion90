@@ -98,8 +98,8 @@
                                         </svg>
                                         <span class="ms-2">Cambiar Contraseña</span>
                                     </a>
-
-                                    <!-- Reset Password Option -->
+                                    
+                                    <!-- Reset Password Option 
                                     <a href="#" id="reset-password-btn" class="dropdown-item ai-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="text-primary" width="18"
                                             height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -110,6 +110,8 @@
                                         </svg>
                                         <span class="ms-2">Resetear Contraseña</span>
                                     </a>
+
+                                    -->
 
                                     <a href="{{ route('logout') }}"
                                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
