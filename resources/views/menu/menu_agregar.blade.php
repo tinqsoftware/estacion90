@@ -388,36 +388,57 @@
         }
 
         // Handle delete button click for temporary items
-        $(document).on('click', '.btn-eliminar', function(e) {
-            e.preventDefault();
-            const itemId = $(this).data('id');
+       $(document).on('click', '.btn-eliminar', function(e) {
+    e.preventDefault();
+    const itemId = $(this).data('id');
+    const menuItem = $(this).closest('.menu-item');
 
-            // If it's a temporary item (starts with 'temp_')
-            if (itemId.toString().startsWith('temp_')) {
-                // Remove from our array
-                nuevosItems = nuevosItems.filter(item => item.id !== itemId);
+    // If it's a temporary item (starts with 'temp_')
+    if (itemId && itemId.toString().startsWith('temp_')) {
+        // Remove from our array
+        nuevosItems = nuevosItems.filter(item => item.id !== itemId);
 
-                // Remove from the UI
-                $(this).closest('.menu-item').remove();
-            } else {
-                // Handle existing items with confirmation dialog
-                $('#confirmDialog').show();
-
-                $('#btnEliminar').off('click').on('click', function() {
-                    $.post('/api/menu/eliminar/' + itemId, {
-                        _token: '{{ csrf_token() }}',
-                        _method: 'DELETE'
-                    }, function() {
-                        $('#confirmDialog').hide();
-                        $('.menu-item[data-id="' + itemId + '"]').remove();
-                    });
-                });
-
-                $('#btnCancelar').click(function() {
-                    $('#confirmDialog').hide();
-                });
-            }
+        // Remove from the UI
+        menuItem.fadeOut(300, function() {
+            $(this).remove();
         });
+    } else {
+        // Handle existing items with confirmation dialog
+        $('#confirmDialog').show();
+
+        $('#btnEliminar').off('click').on('click', function() {
+            // Use jQuery AJAX with proper headers and method
+            $.ajax({
+                url: '/api/menu/eliminar/' + itemId,
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    // Hide the confirmation dialog
+                    $('#confirmDialog').hide();
+                    
+                    // Remove the item from the UI with a fade effect
+                    menuItem.fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                    
+                    // Add the product back to the dropdown
+                    refreshProductDropdowns();
+                },
+                error: function(error) {
+                    alert('Error al eliminar el ítem del menú: ' + error.responseJSON?.message || 'Error desconocido');
+                    console.error(error);
+                    $('#confirmDialog').hide();
+                }
+            });
+        });
+
+        $('#btnCancelar').off('click').on('click', function() {
+            $('#confirmDialog').hide();
+        });
+    }
+});
 
         // Handle the "Registrar Menu" button click
         $('#btn-registrar-menu').click(function() {
@@ -472,26 +493,6 @@
             });
         });
 
-        // Delete menu item
-        $(document).on('click', '.delete-btn', function() {
-            const id = $(this).data('id');
-            $('#confirmDialog').show();
-
-            $('#btnEliminar').off('click').on('click', function() {
-                $.post('/api/menu/eliminar/' + id, {
-                    _token: '{{ csrf_token() }}',
-                    _method: 'DELETE'
-                }, function() {
-                    $('#confirmDialog').hide();
-                    location
-                        .reload(); // Temporary - should be replaced with DOM manipulation
-                });
-            });
-
-            $('#btnCancelar').click(function() {
-                $('#confirmDialog').hide();
-            });
-        });
     });
     </script>
 

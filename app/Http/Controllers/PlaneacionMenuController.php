@@ -136,9 +136,22 @@ class PlaneacionMenuController extends Controller
     return response()->json(['success' => true]);
 }
 
-  public function eliminarMenu(Request $request)
+public function eliminarMenu($id)
 {
-    
+    try {
+        $item = PlaneacionMenu::findOrFail($id);
+        $item->delete();
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Ítem eliminado correctamente'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al eliminar: ' . $e->getMessage()
+        ], 500);
+    }
 }
     
     /**

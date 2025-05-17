@@ -37,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/calendar-month', [PlaneacionMenuController::class, 'getMesCalendario']);
     Route::get('/menusemana/agregar/{fecha?}', [PlaneacionMenuController::class, 'agregar']);
     Route::post('/api/menu/registrar', [PlaneacionMenuController::class, 'registrarMenu']);
-    Route::delete('/api/menu/eliminar', [PlaneacionMenuController::class, 'eliminarMenu']);
+    Route::delete('/api/menu/eliminar/{id}', [PlaneacionMenuController::class, 'eliminarMenu']);
 
     //Usuarios
     Route::get('/usuarios', [UsuarioController::class, 'prin']);
