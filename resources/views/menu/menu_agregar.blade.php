@@ -276,222 +276,180 @@
     <script>
     $(document).ready(function() {
 
-        $('.producto-select').selectpicker({
-            liveSearch: true,
-            size: 10,
-            title: 'Productos'
-        });
+        $('.producto-select').each(function() {
+        // No inicializar selectpicker, usar select nativo
+        $(this).removeClass('selectpicker');
+    });
 
-        // Handle product selection
-        $('.producto-select').on('change', function() {
-            const container = $(this).closest('.col-md-2');
-            const productoId = $(this).val();
-            const productoNombre = $(this).find('option:selected').text();
-
-            // Store the selected product data in hidden inputs
-            container.find('.producto-id').val(productoId);
-            container.find('.producto-nombre').val(productoNombre);
-        });
+    // Usar el evento change nativo
+    $('.producto-select').on('change', function() {
+        const container = $(this).closest('.col-md-2');
+        const productoId = $(this).val();
+        const productoNombre = $(this).find('option:selected').text().trim();
+        
+        container.find('.producto-id').val(productoId);
+        container.find('.producto-nombre').val(productoNombre);
+    });
 
         let nuevosItems = [];
 
-        // Handle clicking on a product in the dropdown
-        $(document).on('click', '.dropdown-item', function(e) {
-            e.preventDefault();
-            const container = $(this).closest('.col-md-2');
-            const productoId = $(this).data('id');
-            const productoNombre = $(this).text();
-
-            // Update the dropdown button text
-            container.find('.dropdown-toggle').text(productoNombre);
-
-            // Store the selected product data in hidden inputs
-            container.find('.producto-id').val(productoId);
-            container.find('.producto-nombre').val(productoNombre);
-        });
+        
 
         // Handle the "AÑADIR" button click
         $('.btn-anadir').click(function() {
-            const container = $(this).closest('.col-md-2');
-            const categoriaId = container.data('categoria');
-            const productoId = container.find('.producto-id').val();
-            const productoNombre = container.find('.producto-nombre').val();
-            const stock = container.find('.stock-input').val();
-            const precio = container.find('.precio-input').val();
+    const container = $(this).closest('.col-md-2');
+    const categoriaId = container.data('categoria');
+    
+    // Obtener directamente del select en lugar de los campos ocultos
+    const select = container.find('.producto-select');
+    const productoId = select.val();
+    const productoNombre = select.find('option:selected').text().trim();
+    
+    const stock = container.find('.stock-input').val();
+    const precio = container.find('.precio-input').val();
 
-            // Validation
-            if (!productoId) {
-                alert('Por favor Productos');
-                return;
+    console.log("Datos obtenidos directamente:", {
+        categoriaId, 
+        productoId, // Ahora debería tener el valor correcto
+        productoNombre,
+        stock,
+        precio
+    });
+    // Validation
+    if (!productoId) {
+        alert('Por favor elija un producto');
+        return;
+    }
+
+    if (!stock || isNaN(stock) || stock <= 0) {
+        alert('Por favor ingrese un valor válido para stock');
+        return;
+    }
+
+    // For categories 5 and 6 (Extras and Combos), validate price
+    if ((categoriaId == 5 || categoriaId == 6) && (!precio || isNaN(precio) || precio <= 0)) {
+        alert('Por favor ingrese un precio válido');
+        return;
+    }
+
+    // Show loading state
+    $(this).prop('disabled', true);
+    $(this).html('<i class="fa fa-spinner fa-spin"></i> Añadiendo...');
+
+    // Get current date from page
+    const fecha = '{{ $fecha }}';
+
+    // Prepare data for AJAX request
+    const itemData = {
+        categoria_id: categoriaId,
+        producto_id: productoId,
+        stock_diario: stock,
+        precio: precio || null
+    };
+
+    // Send AJAX request
+    $.ajax({
+        url: '/api/menu/registrar',
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            fecha: fecha,
+            items: [itemData]
+        },
+        success: function(response) {
+            if (response.success) {
+                // Update the item with real ID from server
+                const newItem = {
+                    id: response.item_id,
+                    categoria_id: categoriaId,
+                    producto_id: productoId,
+                    producto_nombre: productoNombre,
+                    stock_diario: stock,
+                    precio: precio || null
+                };
+
+                // Add the item to the UI
+                addItemToTable(newItem);
+
+                // Remove the product from the dropdown to prevent duplicates
+                container.find('.producto-select option[value="' + productoId + '"]').remove();
+                container.find('.producto-select').selectpicker('refresh');
+
+                // Reset the form fields
+                container.find('.producto-select').val('');
+                container.find('.producto-select').selectpicker('render');
+                container.find('.producto-id').val('');
+                container.find('.producto-nombre').val('');
+                container.find('.stock-input').val('');
+                if (container.find('.precio-input').length) {
+                    container.find('.precio-input').val('');
+                }
+            } else {
+                alert('Error al guardar el producto: ' + (response.message || 'Error desconocido'));
             }
-
-            if (!stock || isNaN(stock) || stock <= 0) {
-                alert('Por favor ingrese un valor válido para stock');
-                return;
-            }
-
-            // For categories 5 and 6 (Extras and Combos), validate price
-            if ((categoriaId === 5 || categoriaId === 6) && (!precio || isNaN(precio) || precio <= 0)) {
-                alert('Por favor ingrese un precio válido');
-                return;
-            }
-
-            // Create a new menu item object
-            const newItem = {
-                id: 'temp_' + Date.now(), // Temporary ID for DOM manipulation
-                categoria_id: categoriaId,
-                producto_id: productoId,
-                producto_nombre: productoNombre,
-                stock_diario: stock,
-                precio: precio || null
-            };
-
-            // Add to our array
-            nuevosItems.push(newItem);
-
-            // Add the item to the UI
-            addItemToTable(newItem);
-
-            // Reset the form fields
-            container.find('.dropdown-toggle').text('Producto');
-            container.find('.producto-id').val('');
-            container.find('.producto-nombre').val('');
-            container.find('.stock-input').val('');
-            if (container.find('.precio-input').length) {
-                container.find('.precio-input').val('');
-            }
-        });
+        },
+        error: function(xhr) {
+            alert('Error al guardar el producto: ' + xhr.responseText);
+        },
+        complete: function() {
+            // Reset button state
+            container.find('.btn-anadir').prop('disabled', false);
+            container.find('.btn-anadir').html('AÑADIR');
+        }
+    });
+});
 
         // Function to add an item to the table
         function addItemToTable(item) {
-            const categoriaId = item.categoria_id;
+    const categoriaId = item.categoria_id;
+    
+    // Find the column in the table for this category (index is 0-based)
+    const columnIndex = categoriaId - 1;
+    
+    // Create the item HTML
+    let itemHtml = `
+        <div class="menu-item" data-id="${item.id}">
+            <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar" 
+               data-id="${item.id}" title="Eliminar">
+                <i class="fa fa-trash"></i>
+            </a>
+            <span>
+                ${item.stock_diario} - ${item.producto_nombre}
+                ${categoriaId >= 5 || item.precio ? ' (S/' + item.precio + ')' : ''}
+            </span>
+        </div>
+    `;
 
-            // Find the correct column in the table
-            const tableColumn = $('table tbody tr').eq(0).find('td').eq(categoriaId - 1);
-
-            // Create the item HTML
-            let itemHtml = `
-            <div class="menu-item" data-id="${item.id}">
-                <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar" 
-                   data-id="${item.id}" title="Eliminar">
-                    <i class="fa fa-trash"></i>
-                </a>
-                <span>
-                    ${item.stock_diario} - ${item.producto_nombre}
-                    ${categoriaId >= 5 || item.precio ? ' (S/' + item.precio + ')' : ''}
-                </span>
-            </div>
-        `;
-
-            // Add the new item to the table
-            tableColumn.append(itemHtml);
+    // Find the first empty cell in this column or create a new row if needed
+    let emptyCell = false;
+    let tableRows = $('table tbody tr');
+    
+    for(let i = 0; i < tableRows.length; i++) {
+        let cell = $(tableRows[i]).find('td').eq(columnIndex);
+        if(cell.find('.menu-item').length === 0) {
+            cell.append(itemHtml);
+            emptyCell = true;
+            break;
         }
-
-        // Handle delete button click for temporary items
-       $(document).on('click', '.btn-eliminar', function(e) {
-    e.preventDefault();
-    const itemId = $(this).data('id');
-    const menuItem = $(this).closest('.menu-item');
-
-    // If it's a temporary item (starts with 'temp_')
-    if (itemId && itemId.toString().startsWith('temp_')) {
-        // Remove from our array
-        nuevosItems = nuevosItems.filter(item => item.id !== itemId);
-
-        // Remove from the UI
-        menuItem.fadeOut(300, function() {
-            $(this).remove();
-        });
-    } else {
-        // Handle existing items with confirmation dialog
-        $('#confirmDialog').show();
-
-        $('#btnEliminar').off('click').on('click', function() {
-            // Use jQuery AJAX with proper headers and method
-            $.ajax({
-                url: '/api/menu/eliminar/' + itemId,
-                type: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    // Hide the confirmation dialog
-                    $('#confirmDialog').hide();
-                    
-                    // Remove the item from the UI with a fade effect
-                    menuItem.fadeOut(300, function() {
-                        $(this).remove();
-                    });
-                    
-                    // Add the product back to the dropdown
-                    refreshProductDropdowns();
-                },
-                error: function(error) {
-                    alert('Error al eliminar el ítem del menú: ' + error.responseJSON?.message || 'Error desconocido');
-                    console.error(error);
-                    $('#confirmDialog').hide();
-                }
-            });
-        });
-
-        $('#btnCancelar').off('click').on('click', function() {
-            $('#confirmDialog').hide();
-        });
     }
-});
+    
+    // If no empty cell was found, add a new row
+    if(!emptyCell) {
+        let newRow = $('<tr></tr>');
+        for(let i = 0; i < 6; i++) {
+            newRow.append('<td></td>');
+        }
+        $('table tbody').append(newRow);
+        
+        // Add the item to the right cell in the new row
+        newRow.find('td').eq(columnIndex).append(itemHtml);
+    }
+}
 
-        // Handle the "Registrar Menu" button click
-        $('#btn-registrar-menu').click(function() {
-            if (nuevosItems.length === 0) {
-                alert('No hay cambios para guardar');
-                return;
-            }
+    
 
-            const fecha = '{{ $fecha }}';
-
-            // Send all new items to the server
-            $.ajax({
-                url: '/api/menu/registrar',
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    fecha: fecha,
-                    items: nuevosItems
-                },
-                success: function(response) {
-                    alert('Menú registrado correctamente');
-                    location.reload(); // Refresh the page to show the updated menu
-                },
-                error: function(error) {
-                    alert('Error al registrar el menú');
-                    console.error(error);
-                }
-            });
-        });
-        // Add menu item without page refresh
-        $('.btn-secondary').click(function() {
-            const column = $(this).closest('.col');
-            const categoria = column.index() + 1; // Category based on column position
-            const producto = column.find('input').first().val();
-            const precio = column.find('input[placeholder="Precio"]').val() || null;
-            const fecha = '{{ $fecha }}';
-
-            if (!producto) {
-                alert('Por favor Productos');
-                return;
-            }
-
-            $.post('/api/menu/agregar', {
-                fecha: fecha,
-                producto_id: producto,
-                stock: 20, // Default value, can be made dynamic
-                precio: precio,
-                _token: '{{ csrf_token() }}'
-            }, function(response) {
-                // Refresh the table content without full page reload
-                location.reload(); // Temporary - should be replaced with DOM manipulation
-            });
-        });
+           
+        
 
     });
     </script>

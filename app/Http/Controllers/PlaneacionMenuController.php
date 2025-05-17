@@ -122,18 +122,24 @@ class PlaneacionMenuController extends Controller
     $fecha = $request->fecha;
     $items = $request->items;
     
+    $createdIds = [];
+    
     foreach ($items as $item) {
         // Create new menu items
-        PlaneacionMenu::create([
-            'fecha' => $fecha,
-            'categoria_id' => $item['categoria_id'],
-            'producto_id' => $item['producto_id'],
+        $menuItem = PlaneacionMenu::create([
+            'fecha_plan' => $fecha, // Corregido el nombre del campo a fecha_plan
+            'id_producto' => $item['producto_id'], // Asegurate de que estos nombres coincidan con tu BD
             'stock_diario' => $item['stock_diario'],
             'precio' => $item['precio']
         ]);
+        
+        $createdIds[] = $menuItem->id;
     }
     
-    return response()->json(['success' => true]);
+    return response()->json([
+        'success' => true,
+        'item_id' => $createdIds[0] // Devuelve el ID del primer elemento creado (solo enviamos uno a la vez)
+    ]);
 }
 
 public function eliminarMenu($id)
