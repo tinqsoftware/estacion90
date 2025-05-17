@@ -282,6 +282,9 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        @if(auth()->user()->id_rol == 1)
+                        <button type="button" class="btn btn-warning me-2" id="btn-reset-password" data-user-id="' + response.id + '">Restablecer Contraseña</button>
+                        @endif
                         <button type="submit" class="btn btn-primary">Guardar cambios</button>
                     </div>
                 </form>
@@ -438,6 +441,8 @@
                     $('#editar-rol').val(response.id_rol);
                     $('#editar-telefono').val(response.telefono || '');
                     $('#editar-direccion').val(response.id_direccion || '');
+
+                    
                 },
                 error: function(xhr) {
                     modal.find('.modal-body').prepend(
@@ -539,15 +544,7 @@
 
                     modal.find('.modal-body').html(content);
 
-                    // Añadir botón de reset password
-                    modal.find('.modal-body').html(content);
-
-// Añadir botón de reset password
-var isAdmin = {{ auth()->check() && auth()->user()->id_rol == 1 ? 'true' : 'false' }};
-modal.find('.modal-footer').html(`
-    ${isAdmin ? '<button type="button" class="btn btn-warning" id="btn-reset-password">Restablecer Contraseña</button>' : ''}
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-`);
+                    
                 },
                 error: function(xhr) {
                     modal.find('.modal-body').html(

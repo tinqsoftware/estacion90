@@ -72,13 +72,13 @@
                                         class="bi bi-chevron-right"></i></button>
                             </div>
                             <div class="calendar-weekdays mb-1">
+                                <div>D</div>
                                 <div>L</div>
                                 <div>M</div>
-                                <div>X</div>
+                                <div>M</div>
                                 <div>J</div>
                                 <div>V</div>
                                 <div>S</div>
-                                <div>D</div>
                             </div>
                             <div class="calendar-grid">
                                 <!-- Days will be loaded here via AJAX -->
@@ -86,11 +86,8 @@
                             </div>
                         </div>
                         <br>
-                        <div class="text-start">
-                            <a href="javascript:void(0);" id="add-menu-btn" class="btn btn-primary btn-lg">
-                                <i class="fas fa-plus-circle me-2"></i>AGREGAR MENU
-                            </a>
-                        </div>
+                        
+                    
                     </div>
 
 
@@ -98,105 +95,12 @@
 
                     <!-- Contenido principal -->
                     <div class="col-md-10">
-                        <!-- Día 1 
-                        <div class="day-menu mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h2>Lunes 5 MAYO</h2>
-                                <button class="btn btn-outline-dark btn-sm">EDITAR</button>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Entrada S/15.00</th>
-                                            <th>Entrada S/20.00</th>
-                                            <th>Fondo S/15.00</th>
-                                            <th>Fondo S/20.00</th>
-                                            <th>Extras</th>
-                                            <th>Combos</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 – Chupete Fresa (S/5)</td>
-                                            <td>20 – Combo 1 (S/55)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>30 - Pollo a la braza</td>
-                                            <td>30 - Pollo a la braza</td>
-                                            <td>30 - Pollo a la braza</td>
-                                            <td>30 - Pollo a la braza</td>
-                                            <td>20 – Chupete Fresa (S/5)</td>
-                                            <td>20 – Combo 2 (S/50)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 – Chupete Fresa (S/5)</td>
-                                            <td>20 – Combo 3 (S/25)</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="text-start">
+                            <a href="javascript:void(0);" id="add-menu-btn" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus-circle me-2"></i>AGREGAR MENU
+                            </a>
                         </div>
-
-                        Día 2
-                        <div class="day-menu mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h2>Martes 6 MAYO</h2>
-                                <button class="btn btn-outline-dark btn-sm">EDITAR</button>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Entrada S/15.00</th>
-                                            <th>Entrada S/20.00</th>
-                                            <th>Fondo S/15.00</th>
-                                            <th>Fondo S/20.00</th>
-                                            <th>Extras</th>
-                                            <th>Combos</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 – Chupete Fresa (S/5)</td>
-                                            <td>20 – Combo 1 (S/55)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>30 - Pollo a la braza</td>
-                                            <td>30 - Pollo a la braza</td>
-                                            <td>30 - Pollo a la braza</td>
-                                            <td>30 - Pollo a la braza</td>
-                                            <td>20 – Chupete Fresa (S/5)</td>
-                                            <td>20 – Combo 2 (S/50)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 - Pollo a la braza</td>
-                                            <td>20 – Chupete Fresa (S/5)</td>
-                                            <td>20 – Combo 3 (S/25)</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        Puedes agregar más días aquí -->
+                        
                     </div>
                 </div>
             </div>
@@ -487,25 +391,38 @@
                         });
                     });
 
-                    const selectedMenu = document.getElementById(`menu-${selectedFormattedDate}`);
-                    if (selectedMenu) {
-                        setTimeout(() => {
-                            // Hacer scroll al menú
-                            selectedMenu.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start'
-                            });
-
-                            // Ajustar hacia abajo según el alto del encabezado (ej. 100px)
-                            setTimeout(() => {
-                                window.scrollBy({
-                                    top: -
-                                    100, // Ajusta este valor según la altura real del encabezado
-                                    behavior: 'smooth'
-                                });
-                            }, 700); // Este delay ayuda a que se aplique después del scroll inicial
-                        }, 100);
-                    }
+                   const selectedMenu = document.getElementById(`menu-${selectedFormattedDate}`);
+if (selectedMenu) {
+    setTimeout(() => {
+        // Scroll menu into view
+        selectedMenu.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+        
+        // Highlight and scroll the calendar day into view
+        setTimeout(() => {
+            // First adjust for header height
+            window.scrollBy({
+                top: -100,
+                behavior: 'smooth'
+            });
+            
+            // Then make sure the calendar day is visible
+            const activeDay = document.querySelector('.calendar-day.active');
+            if (activeDay) {
+                // Scroll the sidebar to position the active day
+                const sidebar = document.querySelector('.sidebar');
+                const calendarContainer = document.querySelector('.calendar-container');
+                const dayPosition = activeDay.offsetTop;
+                
+                // Position the day in the upper portion of the calendar
+                const offset = Math.max(0, dayPosition - 100);
+                sidebar.scrollTop = offset;
+            }
+        }, 700);
+    }, 100);
+}
 
                 })
                 .catch(error => {
@@ -564,8 +481,12 @@
     }
 
     .sidebar {
-        min-height: calc(100vh - 70px);
-    }
+    /* Remove min-height: calc(100vh - 70px); */
+    position: sticky;
+    top: 20px; /* Adjust based on your header height */
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
 
     .calendar-container {
         height: 100%;
@@ -612,10 +533,34 @@
         font-weight: bold;
     }
 
-    .calendar-day.active {
-        background-color: #d1e7dd;
-        font-weight: bold;
-    }
+    .content-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.calendar-day.active {
+    background-color: #d1e7dd;
+    font-weight: bold;
+    border: 2px solid #198754;
+    position: relative; 
+    z-index: 1;
+}
+
+/* Animation for active day to improve visibility */
+@keyframes active-day-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.calendar-day.just-activated {
+    animation: active-day-pulse 0.5s ease-in-out;
+}
 
     /* Month navigation */
     .prev-month,
