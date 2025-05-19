@@ -374,7 +374,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${generateTableRows(dayData.items)}
+                        ${generateTableRows(dayData.items, dateStr)}
                     </tbody>
                 </table>
             </div>
@@ -433,14 +433,14 @@ if (selectedMenu) {
         }
 
         // Función auxiliar para generar filas de tabla desde datos
-        function generateTableRows(items) {
-            if (!items || items.length === 0) {
-                return '<tr><td colspan="6" class="text-center">No hay menú disponible para este día</td></tr>' +
-                    '<tr><td colspan="6" class="text-center mt-3"><a href="/menusemana/agregar" class="btn btn-primary mt-2">' +
-                    '<i class="fas fa-plus-circle me-2"></i>AGREGAR MENU</a></td></tr>';
-            }
+        function generateTableRows(items, date) {
+    if (!items || items.length === 0) {
+        return '<tr><td colspan="6" class="text-center">No hay menú disponible para este día</td></tr>' +
+            '<tr><td colspan="6" class="text-center mt-3"><a href="/menusemana/agregar/' + date + '" class="btn btn-primary mt-2">' +
+            '<i class="fas fa-plus-circle me-2"></i>AGREGAR MENU</a></td></tr>';
+    }
 
-            return items.map(row => `
+    return items.map(row => `
         <tr>
             <td>${row.entrada_15 || ' '}</td>
             <td>${row.entrada_20 || ' '}</td>
@@ -450,7 +450,7 @@ if (selectedMenu) {
             <td>${row.combos || ' '}</td>
         </tr>
     `).join('');
-        }
+}
 
         // Función para manejar la edición de un día de menú (implementación pendiente)
         function editMenuDay(date) {
