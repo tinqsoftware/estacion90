@@ -42,6 +42,8 @@
 
     <!-- Global Stylesheet -->
     <link href="{{ asset('access/css/style.css') }}" rel="stylesheet">
+    <!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 </head>
 
@@ -160,6 +162,7 @@
                                     {{ $producto->nombre }}</option>
                                 @endforeach
                             </select>
+                            <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
                             <input type="text" class="form-control form-control-sm mb-2 stock-input"
@@ -181,6 +184,7 @@
                                     {{ $producto->nombre }}</option>
                                 @endforeach
                             </select>
+                            <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
                             <input type="text" class="form-control form-control-sm mb-2 stock-input"
@@ -202,6 +206,7 @@
                                     {{ $producto->nombre }}</option>
                                 @endforeach
                             </select>
+                            <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
                             <input type="text" class="form-control form-control-sm mb-2 stock-input"
@@ -218,6 +223,7 @@
                                     {{ $producto->nombre }}</option>
                                 @endforeach
                             </select>
+                            <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
                             <input type="text" class="form-control form-control-sm mb-2 stock-input"
@@ -234,6 +240,7 @@
                                     {{ $producto->nombre }}</option>
                                 @endforeach
                             </select>
+                            <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
                             <input type="text" class="form-control form-control-sm mb-2 stock-input"
@@ -252,6 +259,7 @@
                                     {{ $producto->nombre }}</option>
                                 @endforeach
                             </select>
+                            <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
                             <input type="text" class="form-control form-control-sm mb-2 stock-input"
@@ -286,6 +294,8 @@
     <script src="{{ asset('access/vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('access/vendor/jquery-nice-select/js/jquery.nice-select.min.js') }}"></script>
     <script src="{{ asset('access/vendor/swiper/js/swiper-bundle.min.js') }}"></script>
+    <!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- Dashboard -->
     <script src="{{ asset('access/js/dlabnav-init.js') }}"></script>
@@ -308,19 +318,30 @@
         }
     });
 
-        $('.producto-select').each(function() {
-        // No inicializar selectpicker, usar select nativo
-        $(this).removeClass('selectpicker');
+        $('.producto-select').select2({
+        placeholder: 'Buscar producto...',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "No se encontraron resultados";
+            },
+            searching: function() {
+                return "Buscando...";
+            }
+        }
     });
 
     // Usar el evento change nativo
-    $('.producto-select').on('change', function() {
-        const container = $(this).closest('.col-md-2');
+    $('.producto-select').on('select2:select', function(e) {
+        const container = $(this).closest('div[data-categoria]');
         const productoId = $(this).val();
         const productoNombre = $(this).find('option:selected').text().trim();
         
         container.find('.producto-id').val(productoId);
         container.find('.producto-nombre').val(productoNombre);
+        
+        console.log("Producto seleccionado:", productoId, productoNombre);
     });
 
         let nuevosItems = [];
@@ -703,6 +724,53 @@ function reorganizarTabla() {
 .btn-primary:hover {
     background-color: #0069d9;
     border-color: #0062cc;
+}
+
+.select2-container--default .select2-selection--single {
+    height: 32px;
+    font-size: 0.875rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 30px;
+    padding-left: 12px;
+    color: #495057;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 30px;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #6f42c1;
+}
+
+.select2-dropdown {
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.select2-search--dropdown .select2-search__field {
+    padding: 6px;
+    border-radius: 3px;
+}
+
+/* Ajustes para móviles */
+@media (max-width: 767.98px) {
+    .select2-container {
+        font-size: 0.75rem;
+    }
+    
+    .select2-container--default .select2-selection--single {
+        height: 30px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 28px;
+    }
 }
 </style>
 
