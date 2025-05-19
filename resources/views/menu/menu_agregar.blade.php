@@ -57,32 +57,52 @@
 
         <div class="content-body">
             <div class="container-fluid">
-                <!-- Diálogo de confirmación (inicialmente oculto) -->
-                <div id="confirmDialog" class="confirmation-dialog">
-                    <div class="confirmation-content">
-                        <p>Estas seguro</p>
-                        <div class="confirmation-buttons">
-                            <button id="btnEliminar" class="btn-eliminar">Eliminar</button>
-                            <button id="btnCancelar" class="btn-cancelar">Cancelar</button>
-                        </div>
-                    </div>
-                </div>
+                <!-- Contenedor de notificaciones -->
+<div id="notification-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999; width: 300px;"></div>
+
+<!-- Botón volver -->
+<div class="row mb-3 align-items-center">
+    <div class="col-md-6">
+        <!-- Título dinámico basado en si hay datos en la tabla -->
+        <h5 class="m-0">
+            <span class="badge bg-primary p-2">
+                @php
+                    $hayProductos = false;
+                    foreach ([1, 2, 3, 4, 5, 6] as $cat) {
+                        if (isset($menuItems[$cat]) && count($menuItems[$cat]) > 0) {
+                            $hayProductos = true;
+                            break;
+                        }
+                    }
+                @endphp
+                <i class="fa {{ $hayProductos ? 'fa-edit' : 'fa-plus-circle' }}"></i>
+                {{ $hayProductos ? 'Editando menú' : 'Agregando nuevo menú' }}
+            </span>
+        </h5>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="#" id="btn-volver" class="btn btn-primary btn-sm">
+            <i class="fa fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
 
                 <div class="row mt-4">
                     <!-- Contenido principal -->
                     <div class="col-12">
+                        <div class="table-responsive"></div>
                         <h2 class="mb-4">{{ $fechaFormateada }}</h2>
 
                         <!-- Update the table to use dynamic data -->
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Entrada S/15.00</th>
-                                    <th>Entrada S/20.00</th>
-                                    <th>Fondo S/15.00</th>
-                                    <th>Fondo S/20.00</th>
-                                    <th>Extras</th>
-                                    <th>Combos</th>
+                                    <th width="16.66%">Entrada S/15.00</th>
+                        <th width="16.66%">Entrada S/20.00</th>
+                        <th width="16.66%">Fondo S/15.00</th>
+                        <th width="16.66%">Fondo S/20.00</th>
+                        <th width="16.66%">Extras</th>
+                        <th width="16.66%">Combos</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -276,6 +296,18 @@
     <script>
     $(document).ready(function() {
 
+        $('#btn-volver').on('click', function(e) {
+        e.preventDefault();
+        // Verificar si hay un referrer (página anterior)
+        if(document.referrer && document.referrer.includes('menuSemanal')) {
+            // Si la página anterior es el menú semanal, recargar esa URL
+            window.location.href = document.referrer;
+        } else {
+            // Si no hay referrer o no es el menú semanal, ir a la página de menú semanal
+            window.location.href = '/menuSemanal';
+        }
+    });
+
         $('.producto-select').each(function() {
         // No inicializar selectpicker, usar select nativo
         $(this).removeClass('selectpicker');
@@ -357,37 +389,37 @@
             items: [itemData]
         },
         success: function(response) {
-            if (response.success) {
-                // Update the item with real ID from server
-                const newItem = {
-                    id: response.item_id,
-                    categoria_id: categoriaId,
-                    producto_id: productoId,
-                    producto_nombre: productoNombre,
-                    stock_diario: stock,
-                    precio: precio || null
-                };
+    if (response.success) {
+        // Update the item with real ID from server
+        const newItem = {
+            id: response.item_id,
+            categoria_id: categoriaId,
+            producto_id: productoId,
+            producto_nombre: productoNombre,
+            stock_diario: stock,
+            precio: precio || null
+        };
 
-                // Add the item to the UI
-                addItemToTable(newItem);
+        // Add the item to the UI
+        addItemToTable(newItem);
 
-                // Remove the product from the dropdown to prevent duplicates
-                container.find('.producto-select option[value="' + productoId + '"]').remove();
-                container.find('.producto-select').selectpicker('refresh');
+        showNotification(`Producto "${productoNombre}" añadido correctamente`, 'success');
 
-                // Reset the form fields
-                container.find('.producto-select').val('');
-                container.find('.producto-select').selectpicker('render');
-                container.find('.producto-id').val('');
-                container.find('.producto-nombre').val('');
-                container.find('.stock-input').val('');
-                if (container.find('.precio-input').length) {
-                    container.find('.precio-input').val('');
-                }
-            } else {
-                alert('Error al guardar el producto: ' + (response.message || 'Error desconocido'));
-            }
-        },
+        // Remove the product from the dropdown to prevent duplicates
+        container.find('.producto-select option[value="' + productoId + '"]').remove();
+
+        // Reset the form fields - solo resetear los valores sin usar selectpicker
+        container.find('.producto-select').val('');
+        container.find('.producto-id').val('');
+        container.find('.producto-nombre').val('');
+        container.find('.stock-input').val('');
+        if (container.find('.precio-input').length) {
+            container.find('.precio-input').val('');
+        }
+    } else {
+        alert('Error al guardar el producto: ' + (response.message || 'Error desconocido'));
+    }
+},
         error: function(xhr) {
             alert('Error al guardar el producto: ' + xhr.responseText);
         },
@@ -467,6 +499,8 @@ $(document).on('click', '.btn-eliminar', function(e) {
             },
             success: function(response) {
                 if (response.success) {
+
+                    showNotification('Producto eliminado correctamente', 'danger');
                     // Eliminar el elemento de la UI con una animación suave
                     menuItem.fadeOut(300, function() {
                         // Eliminar el elemento del DOM
@@ -489,6 +523,24 @@ $(document).on('click', '.btn-eliminar', function(e) {
         });
     }
 });
+
+function showNotification(message, type = 'success') {
+    // Crear elemento de notificación
+    const notification = $(`
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `);
+    
+    // Añadir al contenedor
+    $('#notification-container').append(notification);
+    
+    // Auto-ocultar después de 2 segundos
+    setTimeout(function() {
+        notification.alert('close');
+    }, 2000);
+}
 
 // Función para reorganizar la tabla después de eliminar elementos
 function reorganizarTabla() {
@@ -615,6 +667,43 @@ function reorganizarTabla() {
             padding-right: 5px;
         }
     }
+
+
+    #notification-container .alert {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid;
+    animation: fadeIn 0.3s;
+}
+
+#notification-container .alert-success {
+    border-left-color: #28a745;
+}
+
+#notification-container .alert-danger {
+    border-left-color: #dc3545;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilo para el botón volver */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
 </style>
 
 
