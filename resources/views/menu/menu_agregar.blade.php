@@ -446,6 +446,100 @@
     }
 }
 
+$(document).on('click', '.btn-eliminar', function(e) {
+    e.preventDefault();
+    
+    // Obtener el ID del elemento a eliminar
+    const itemId = $(this).data('id');
+    const menuItem = $(this).closest('.menu-item');
+    
+    // Mostrar confirmación
+    if (confirm('¿Estás seguro que deseas eliminar este producto del menú?')) {
+        // Deshabilitar el botón para evitar clics múltiples
+        $(this).prop('disabled', true);
+        
+        // Enviar solicitud AJAX para eliminar
+        $.ajax({
+            url: '/api/menu/eliminar/' + itemId,
+            type: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Eliminar el elemento de la UI con una animación suave
+                    menuItem.fadeOut(300, function() {
+                        // Eliminar el elemento del DOM
+                        $(this).remove();
+                        
+                        // Reorganizar la tabla si es necesario
+                        reorganizarTabla();
+                    });
+                } else {
+                    alert('Error al eliminar: ' + (response.message || 'Error desconocido'));
+                    // Restaurar el botón
+                    menuItem.find('.btn-eliminar').prop('disabled', false);
+                }
+            },
+            error: function(xhr) {
+                alert('Error al eliminar: ' + xhr.responseText);
+                // Restaurar el botón
+                menuItem.find('.btn-eliminar').prop('disabled', false);
+            }
+        });
+    }
+});
+
+// Función para reorganizar la tabla después de eliminar elementos
+function reorganizarTabla() {
+    // Obtener todas las filas de la tabla
+    const tableRows = $('table tbody tr');
+    
+    // Recorrer cada columna (categoría)
+    for (let col = 0; col < 6; col++) {
+        // Obtener todos los elementos de esta columna
+        const items = [];
+        tableRows.each(function() {
+            const cell = $(this).find('td').eq(col);
+            const menuItem = cell.find('.menu-item');
+            if (menuItem.length > 0) {
+                items.push(menuItem);
+                menuItem.detach(); // Quitar temporalmente sin eliminar
+            }
+        });
+        
+        // Reinsertarlos desde arriba hacia abajo
+        for (let i = 0; i < items.length; i++) {
+            const row = i < tableRows.length ? tableRows.eq(i) : null;
+            if (!row) {
+                // Si no hay suficientes filas, ya no hay qué hacer
+                break;
+            }
+            row.find('td').eq(col).append(items[i]);
+        }
+    }
+    
+    // Eliminar filas vacías desde abajo hacia arriba
+    for (let i = tableRows.length - 1; i >= 0; i--) {
+        const row = tableRows.eq(i);
+        let isEmpty = true;
+        
+        row.find('td').each(function() {
+            if ($(this).find('.menu-item').length > 0) {
+                isEmpty = false;
+                return false; // Romper el bucle
+            }
+        });
+        
+        if (isEmpty) {
+            row.remove();
+        } else {
+            // Si encontramos una fila no vacía, podemos detenernos
+            break;
+        }
+    }
+}
+
     
 
            
