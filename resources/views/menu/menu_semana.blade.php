@@ -489,8 +489,9 @@ if (selectedMenu) {
 }
 
     .calendar-container {
-        height: 100%;
+        height: 30%;
         background-color: #f8f9fa;
+        margin-top: 90px;
     }
 
     .calendar-weekdays {
