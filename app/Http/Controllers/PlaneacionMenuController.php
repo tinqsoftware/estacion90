@@ -145,17 +145,24 @@ class PlaneacionMenuController extends Controller
 public function eliminarMenu($id)
 {
     try {
-        $item = PlaneacionMenu::findOrFail($id);
-        $item->delete();
+        // Primero recuperamos el elemento del menú para obtener su producto_id
+        $menuItem = PlaneacionMenu::findOrFail($id);
+        $producto_id = $menuItem->id_producto;
+        $categoria_id = Producto::find($producto_id)->id_categoria;
+        
+        // Luego lo eliminamos
+        $menuItem->delete();
         
         return response()->json([
-            'success' => true, 
-            'message' => 'Ítem eliminado correctamente'
+            'success' => true,
+            'message' => 'Elemento de menú eliminado correctamente',
+            'producto_id' => $producto_id,
+            'categoria_id' => $categoria_id
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Error al eliminar: ' . $e->getMessage()
+            'message' => 'Error al eliminar el elemento: ' . $e->getMessage()
         ], 500);
     }
 }

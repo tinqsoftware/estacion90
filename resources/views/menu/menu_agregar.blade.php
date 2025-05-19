@@ -123,7 +123,7 @@
                                     @foreach ([1, 2, 3, 4, 5, 6] as $categoriaId)
                                     <td>
                                         @if(isset($menuItems[$categoriaId][$i]))
-                                        <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}">
+                                        <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}" data-producto-id="{{ $menuItems[$categoriaId][$i]->producto_id }}">
                                             <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar"
                                                 data-id="{{ $menuItems[$categoriaId][$i]->id }}" title="Eliminar">
                                                 <i class="fa fa-trash"></i>
@@ -455,13 +455,11 @@
         // Function to add an item to the table
         function addItemToTable(item) {
     const categoriaId = item.categoria_id;
-    
-    // Find the column in the table for this category (index is 0-based)
     const columnIndex = categoriaId - 1;
     
-    // Create the item HTML
+    // Create the item HTML with data-producto-id attribute
     let itemHtml = `
-        <div class="menu-item" data-id="${item.id}">
+        <div class="menu-item" data-id="${item.id}" data-producto-id="${item.producto_id}">
             <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar" 
                data-id="${item.id}" title="Eliminar">
                 <i class="fa fa-trash"></i>
@@ -506,43 +504,90 @@ $(document).on('click', '.btn-eliminar', function(e) {
     const itemId = $(this).data('id');
     const menuItem = $(this).closest('.menu-item');
     
-    // Mostrar confirmación
-    if (confirm('¿Estás seguro que deseas eliminar este producto del menú?')) {
-        // Deshabilitar el botón para evitar clics múltiples
-        $(this).prop('disabled', true);
-        
-        // Enviar solicitud AJAX para eliminar
-        $.ajax({
-            url: '/api/menu/eliminar/' + itemId,
-            type: 'DELETE',
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-
-                    showNotification('Producto eliminado correctamente', 'danger');
-                    // Eliminar el elemento de la UI con una animación suave
-                    menuItem.fadeOut(300, function() {
-                        // Eliminar el elemento del DOM
-                        $(this).remove();
-                        
-                        // Reorganizar la tabla si es necesario
-                        reorganizarTabla();
-                    });
+    // Obtener el ID del producto directamente del atributo data
+    const productoId = menuItem.data('producto-id');
+    
+    // Extraer el nombre del producto de manera segura
+    let productoNombre = "producto";
+    const spanText = menuItem.find('span').text().trim();
+    
+    // Intentar extraer el nombre con manejo de errores
+    try {
+        // Primera estrategia: buscar el patrón "cantidad - nombre (precio)"
+        if (spanText.includes(' - ')) {
+            const parts = spanText.split(' - ');
+            if (parts.length > 1) {
+                // Si hay un paréntesis de precio, quitarlo
+                if (parts[1].includes(' (')) {
+                    productoNombre = parts[1].split(' (')[0].trim();
                 } else {
-                    alert('Error al eliminar: ' + (response.message || 'Error desconocido'));
-                    // Restaurar el botón
-                    menuItem.find('.btn-eliminar').prop('disabled', false);
+                    productoNombre = parts[1].trim();
                 }
-            },
-            error: function(xhr) {
-                alert('Error al eliminar: ' + xhr.responseText);
-                // Restaurar el botón
+            }
+        } else {
+            // Estrategia alternativa: usar todo el texto después de quitar números iniciales
+            productoNombre = spanText.replace(/^\d+\s*/, '').trim();
+        }
+    } catch (error) {
+        console.error("Error al extraer el nombre del producto:", error);
+    }
+    
+    // Determinar la categoría basada en la posición de la celda
+    const categoriaId = menuItem.closest('td').index() + 1;
+    
+    // Mostrar un indicador visual de que se está procesando
+    menuItem.addClass('deleting');
+    menuItem.find('.btn-eliminar').prop('disabled', true);
+    
+    // Enviar solicitud AJAX para eliminar
+    $.ajax({
+        url: '/api/menu/eliminar/' + itemId,
+        type: 'DELETE',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Usar el producto_id de la respuesta o el que obtuvimos del DOM
+                const idProducto = response.producto_id || productoId;
+                
+                if (idProducto) {
+                    // Buscar el selector correspondiente a esta categoría
+                    const select = $(`.col-md-2[data-categoria="${categoriaId}"] .producto-select`);
+                    
+                    // Verificar si ya existe esta opción para evitar duplicados
+                    if (select.find(`option[value="${idProducto}"]`).length === 0) {
+                        // Crear y añadir nueva opción
+                        const newOption = new Option(productoNombre, idProducto, false, false);
+                        $(newOption).data('nombre', productoNombre);
+                        select.append(newOption);
+                        
+                        // Refrescar Select2 si está en uso
+                        if ($.fn.select2) {
+                            select.trigger('change');
+                        }
+                    }
+                }
+                
+                showNotification(`Producto "${productoNombre}" eliminado correctamente`, 'danger');
+                
+                // Eliminar el elemento de la UI con animación
+                menuItem.fadeOut(300, function() {
+                    $(this).remove();
+                    reorganizarTabla();
+                });
+            } else {
+                menuItem.removeClass('deleting');
+                alert('Error al eliminar: ' + (response.message || 'Error desconocido'));
                 menuItem.find('.btn-eliminar').prop('disabled', false);
             }
-        });
-    }
+        },
+        error: function(xhr) {
+            menuItem.removeClass('deleting');
+            alert('Error al eliminar: ' + xhr.responseText);
+            menuItem.find('.btn-eliminar').prop('disabled', false);
+        }
+    });
 });
 
 function showNotification(message, type = 'success') {
