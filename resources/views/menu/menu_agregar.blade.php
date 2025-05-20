@@ -98,57 +98,60 @@
                         <!-- Update the table to use dynamic data -->
                         <table class="table table-bordered">
                             <thead>
-                                <tr>
-                                    <th width="16.66%">Entrada S/15.00</th>
-                        <th width="16.66%">Entrada S/20.00</th>
-                        <th width="16.66%">Fondo S/15.00</th>
-                        <th width="16.66%">Fondo S/20.00</th>
-                        <th width="16.66%">Extras</th>
-                        <th width="16.66%">Combos</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                $maxRows = max(
-                                count($menuItems[1] ?? []),
-                                count($menuItems[2] ?? []),
-                                count($menuItems[3] ?? []),
-                                count($menuItems[4] ?? []),
-                                count($menuItems[5] ?? []),
-                                count($menuItems[6] ?? [])
-                                );
-                                @endphp
+        <tr>
+            <th width="14.28%">Entrada S/15.00</th>
+            <th width="14.28%">Entrada S/20.00</th>
+            <th width="14.28%">Fondo S/15.00</th>
+            <th width="14.28%">Fondo S/20.00</th>
+            <th width="14.28%">Carta</th>
+            <th width="14.28%">Combos</th>
+            <th width="14.28%">Extra</th>
+        </tr>
+    </thead>
+                             <tbody>
+        @php
+        $maxRows = max(
+        count($menuItems[1] ?? []),
+        count($menuItems[2] ?? []),
+        count($menuItems[3] ?? []),
+        count($menuItems[4] ?? []),
+        count($menuItems[5] ?? []),
+        count($menuItems[6] ?? []),
+        count($menuItems[7] ?? [])
+        );
+        @endphp
 
-                                @for ($i = 0; $i < $maxRows; $i++) <tr>
-                                    @foreach ([1, 2, 3, 4, 5, 6] as $categoriaId)
-                                    <td>
-                                        @if(isset($menuItems[$categoriaId][$i]))
-                                        <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}" data-producto-id="{{ $menuItems[$categoriaId][$i]->producto_id }}">
-                                            <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar"
-                                                data-id="{{ $menuItems[$categoriaId][$i]->id }}" title="Eliminar">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
-                                            <span>
-                                                {{ $menuItems[$categoriaId][$i]->stock_diario }} -
-                                                {{ $menuItems[$categoriaId][$i]->producto_nombre }}
-                                                @if($categoriaId >= 5 || $menuItems[$categoriaId][$i]->precio)
-                                                (S/{{ $menuItems[$categoriaId][$i]->precio }})
-                                                @endif
-                                            </span>
-                                        </div>
-                                        @endif
-                                    </td>
-                                    @endforeach
-                                    </tr>
-                                    @endfor
-                            </tbody>
+        @for ($i = 0; $i < $maxRows; $i++)
+        <tr>
+            @foreach ([1, 2, 3, 4, 5, 7, 6] as $categoriaId)
+            <td>
+                @if(isset($menuItems[$categoriaId][$i]))
+                <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}" data-producto-id="{{ $menuItems[$categoriaId][$i]->producto_id }}">
+                    <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar"
+                        data-id="{{ $menuItems[$categoriaId][$i]->id }}" title="Eliminar">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                    <span>
+                        {{ $menuItems[$categoriaId][$i]->stock_diario }} -
+                        {{ $menuItems[$categoriaId][$i]->producto_nombre }}
+                        @if($categoriaId >= 5 || $menuItems[$categoriaId][$i]->precio)
+                        (S/{{ $menuItems[$categoriaId][$i]->precio }})
+                        @endif
+                    </span>
+                </div>
+                @endif
+            </td>
+            @endforeach
+        </tr>
+        @endfor
+    </tbody>
                         </table>
                     </div>
 
                      <!-- Sección de búsqueda y añadir productos -->
                     <div class="row mt-4 justify-content-center">
                         <!-- Columna 1 - Entrada S/15.00 -->
-                        <div class="col-md-2 mb-3" data-categoria="1">
+                        <div class="col custom-col" data-categoria="1">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @php
@@ -171,7 +174,7 @@
                         </div>
 
                         <!-- Columna 2 - Entrada S/20.00 -->
-                        <div class="col-md-2 mb-3" data-categoria="2">
+                        <div class="col custom-col" data-categoria="2">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @php
@@ -193,7 +196,7 @@
                         </div>
 
                         <!-- Columna 3 - Fondo S/15.00 -->
-                        <div class="col-md-2 mb-3" data-categoria="3">
+                        <div class="col custom-col" data-categoria="3">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @php
@@ -215,7 +218,7 @@
                         </div>
 
                         <!-- Columna 4 - Fondo S/20.00 -->
-                        <div class="col-md-2 mb-3" data-categoria="4">
+                        <div class="col custom-col" data-categoria="4">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @foreach($productos->where('id_categoria', 4) as $producto)
@@ -231,8 +234,8 @@
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
-                        <!-- Columna 5 - Extras (con campo de precio) -->
-                        <div class="col-md-2 mb-3" data-categoria="5">
+                        <!-- Columna 5 - Carta (con campo de precio) -->
+                        <div class="col custom-col" data-categoria="5">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @foreach($productos->where('id_categoria', 5) as $producto)
@@ -250,11 +253,30 @@
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
-                        <!-- Columna 6 - Combos (con campo de precio) -->
-                        <div class="col-md-2 mb-3" data-categoria="6">
+                        <!-- Columna 6 - Extras (con campo de precio) -->
+                        <div class="col custom-col" data-categoria="6">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @foreach($productos->where('id_categoria', 6) as $producto)
+                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+                                    {{ $producto->nombre }}</option>
+                                @endforeach
+                            </select>
+                            <br><br>
+                            <input type="hidden" class="producto-id" value="">
+                            <input type="hidden" class="producto-nombre" value="">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
+                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+                        </div>
+                        
+                        <!-- Columna 7 - Combos (con campo de precio) -->
+                        <div class="col custom-col" data-categoria="7">
+                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+                                <option value="" selected disabled>Productos</option>
+                                @foreach($productos->where('id_categoria', 7) as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
                                     {{ $producto->nombre }}</option>
                                 @endforeach
@@ -379,9 +401,14 @@
         return;
     }
 
-    // For categories 5 and 6 (Extras and Combos), validate price
-    if ((categoriaId == 5 || categoriaId == 6) && (!precio || isNaN(precio) || precio <= 0)) {
+    if ((categoriaId == 6 || categoriaId == 7) && (!precio || isNaN(precio) || precio <= 0)) {
         alert('Por favor ingrese un precio válido');
+        return;
+    }
+    
+    // For category 5 (Carta), also validate price
+    if (categoriaId == 5 && (!precio || isNaN(precio) || precio <= 0)) {
+        alert('Por favor ingrese un precio válido para Carta');
         return;
     }
 
@@ -815,6 +842,54 @@ function reorganizarTabla() {
     
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         line-height: 28px;
+    }
+}
+.custom-col {
+    flex: 0 0 13.28% !important;  /* More precise width calculation for 7 columns */
+    max-width: 13.28% !important; /* Must match the flex value */
+    margin-right: 0.5% !important;  
+    margin-left: 0.5% !important;   
+    padding-left: 5px !important;  /* Reduced padding to avoid overflow */
+    padding-right: 5px !important; 
+    margin-bottom: 1rem !important;
+    display: inline-block !important;
+    vertical-align: top !important;
+}
+
+/* Container adjustments */
+.row.mt-4.justify-content-center {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding: 0 15px !important;
+}
+
+/* Consistent form control spacing */
+.form-select, .form-control, select, input {
+    height: 34px !important;
+    margin-bottom: 8px !important;
+    width: 100% !important;
+}
+
+/* Select2 container width fix */
+.select2-container {
+    width: 100% !important;
+    margin-bottom: 12px !important;
+}
+
+/* Completely remove <br> tags */
+br {
+    display: none !important;
+}
+
+/* Fix for mobile displays */
+@media (max-width: 992px) {
+    .custom-col {
+        flex: 0 0 22% !important;
+        max-width: 22% !important;
+        margin-right: 1.5% !important;
+        margin-left: 1.5% !important;
     }
 }
 </style>

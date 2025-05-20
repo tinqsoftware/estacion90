@@ -64,12 +64,13 @@ class PlaneacionMenuController extends Controller
         
         // Define category mappings for frontend display
         $categoryMapping = [
-            1 => 'entrada_15',   // Assuming category 1 is for Entrada S/15.00
-            2 => 'entrada_20',   // Assuming category 2 is for Entrada S/20.00
-            3 => 'fondo_15',     // Assuming category 3 is for Fondo S/15.00
-            4 => 'fondo_20',     // Assuming category 4 is for Fondo S/20.00
-            5 => 'extras',       // Assuming category 5 is for Extras
-            6 => 'combos'        // Assuming category 6 is for Combos
+            1 => 'entrada_15',   
+            2 => 'entrada_20',   
+            3 => 'fondo_15',     
+            4 => 'fondo_20',
+            5 => 'carta',       
+            6 => 'extras',
+            7 => 'combos' 
         ];
         
         // Process each date's menu items
