@@ -116,9 +116,6 @@
                                         <div class="tab-pane fade {{ (isset($activeTabId) && $activeTabId == $categoria->id) || ($activeTabId == 0 && $key === 0) ? 'show active' : '' }}"
                                             id="categoria-{{ $categoria->id }}" role="tabpanel">
                                             <div class="pt-4">
-                                                <h4>{{ $categoria->nombre }}</h4>
-                                                <p>{{ $categoria->descripcion }}</p>
-
                                                 <!-- Tabla de productos para esta categoría -->
                                                 <div class="table-responsive">
                                                     <table class="table table-responsive-md table-hover">
@@ -145,7 +142,7 @@
                                                                 </td>
                                                                 <td>
                                                                     <img src="{{ $producto->imagen ?? 'access/images/product/1.jpg' }}"
-                                                                        class="rounded" width="50"
+                                                                        class="rounded" height="40"
                                                                         alt="{{ $producto->nombre }}">
                                                                 </td>
                                                                 <td>{{ $producto->nombre }}</td>

@@ -27537,7 +27537,7 @@ code {
     color-color: #7E808C; }
   .table th, .table td {
     border-color: #DBDBDB;
-    padding: 15px 5px; }
+    padding: 4px 5px; }
     .table th:first-child, .table td:first-child {
       padding-left: 20px; }
     .table th:last-child, .table td:last-child {
