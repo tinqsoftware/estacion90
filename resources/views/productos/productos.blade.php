@@ -43,17 +43,17 @@
     <link href="access/css/style.css" rel="stylesheet">
 
     <style>
-        .nombre-producto-header {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-        
-        .nombre-producto-cell {
-            font-weight: 800;
-            font-size: 15px;
-            color: #2c3e50;
-        }
+    .nombre-producto-header {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .nombre-producto-cell {
+        font-weight: 800;
+        font-size: 15px;
+        color: #2c3e50;
+    }
     </style>
 
 </head>
@@ -134,25 +134,26 @@
 
                                     <div class="tab-content">
 
-                                    <div class="tab-pane fade {{ (!isset($activeTabId) || $activeTabId == 'todos') ? 'show active' : '' }}"
+                                        <div class="tab-pane fade {{ (!isset($activeTabId) || $activeTabId == 'todos') ? 'show active' : '' }}"
                                             id="todos-productos" role="tabpanel">
                                             <div class="pt-4">
                                                 <!-- Filtro dinámico -->
                                                 <div class="mb-3">
-                                                    <input type="text" class="form-control" id="filtro-todos-productos" 
+                                                    <input type="text" class="form-control" id="filtro-todos-productos"
                                                         placeholder="Filtrar productos por nombre, descripción, precio o categoría...">
                                                 </div>
-                                                
+
                                                 <!-- Tabla de todos los productos -->
                                                 <div class="table-responsive">
                                                     <table class="table table-responsive-md table-hover">
                                                         <thead>
                                                             <tr>
                                                                 <th><strong>Fecha</strong></th>
-                                                                
+
                                                                 <th><strong>Categoría</strong></th>
                                                                 <th><strong>Foto</strong></th>
-                                                                <th class="nombre-producto-header"><strong>Nombre</strong></th>
+                                                                <th class="nombre-producto-header">
+                                                                    <strong>Nombre</strong></th>
                                                                 <th><strong>Descripción</strong></th>
                                                                 <th><strong>Precio</strong></th>
                                                                 <th><strong>Stock</strong></th>
@@ -164,24 +165,49 @@
                                                             @if(isset($todosProductos) && $todosProductos->count() > 0)
                                                             @foreach($todosProductos as $producto)
                                                             <tr class="fila-producto">
-                                                                <td>{{ $producto->updated_at ? $producto->updated_at->format('d/m/Y H:i') : 'N/A' }}</td>
-                                                                
+                                                                <td>{{ $producto->updated_at ? $producto->updated_at->format('d/m/Y H:i') : 'N/A' }}
+                                                                </td>
+
                                                                 <td>
                                                                     @if($producto->categoria)
-                                                                        {{ $producto->categoria->nombre }}
+                                                                    @php
+                                                                    // Create a color map based on category IDs
+                                                                    $categoryColors = [
+                                                                    1 => 'primary', // Entrada S/15.00
+                                                                    2 => 'info', // Entrada S/20.00
+                                                                    3 => 'success', // Fondo S/15.00
+                                                                    4 => 'warning', // Fondo S/20.00
+                                                                    5 => 'danger', // Carta
+                                                                    6 => 'secondary', // Extras
+                                                                    7 => 'dark', // Combos
+                                                                    // Default color for any other categories
+                                                                    'default' => 'light'
+                                                                    ];
+
+                                                                    // Get color based on category ID or use default
+                                                                    $color = $categoryColors[$producto->categoria->id]
+                                                                    ?? $categoryColors['default'];
+                                                                    @endphp
+                                                                    <span
+                                                                        class="badge bg-{{ $color }} px-2 py-1">{{ $producto->categoria->nombre }}</span>
                                                                     @else
-                                                                        Sin categoría
+                                                                    <span class="badge bg-light text-dark px-2 py-1">Sin
+                                                                        categoría</span>
                                                                     @endif
                                                                 </td>
                                                                 <td>
                                                                     <img src="{{ $producto->imagen ?? 'access/images/product/1.jpg' }}"
-                                                                        class="rounded" height="40" alt="{{ $producto->nombre }}">
+                                                                        class="rounded" height="40"
+                                                                        alt="{{ $producto->nombre }}">
                                                                 </td>
-                                                                <td class="nombre-producto-cell">{{ $producto->nombre }}</td>
-                                                                <td>{{ \Illuminate\Support\Str::limit($producto->descripcion, 50) }}</td>
+                                                                <td class="nombre-producto-cell">{{ $producto->nombre }}
+                                                                </td>
+                                                                <td>{{ \Illuminate\Support\Str::limit($producto->descripcion, 50) }}
+                                                                </td>
                                                                 <td>S/. {{ number_format($producto->precio, 2) }}</td>
                                                                 <td>{{ $producto->stock }}</td>
-                                                                <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}</td>
+                                                                <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}
+                                                                </td>
                                                                 <td>
                                                                     <div class="d-flex">
                                                                         <a href="#"
@@ -233,9 +259,10 @@
                                                         <thead>
                                                             <tr>
                                                                 <th><strong>Fecha</strong></th>
-                                                                
+
                                                                 <th><strong>Foto</strong></th>
-                                                                <th  class="nombre-producto-header"><strong>Nombre</strong></th>
+                                                                <th class="nombre-producto-header">
+                                                                    <strong>Nombre</strong></th>
                                                                 <th><strong>Descripción</strong></th>
                                                                 <th><strong>Precio</strong></th>
                                                                 <th><strong>Stock</strong></th>
@@ -250,14 +277,15 @@
                                                             <tr>
                                                                 <td>{{ $producto->updated_at ? $producto->updated_at->format('d/m/Y H:i') : 'N/A' }}
                                                                 </td>
-                                                                
+
                                                                 </td>
                                                                 <td>
                                                                     <img src="{{ $producto->imagen ?? 'access/images/product/1.jpg' }}"
                                                                         class="rounded" height="40"
                                                                         alt="{{ $producto->nombre }}">
                                                                 </td>
-                                                                <td  class="nombre-producto-cell">{{ $producto->nombre }}</td>
+                                                                <td class="nombre-producto-cell">{{ $producto->nombre }}
+                                                                </td>
                                                                 <td>{{ \Illuminate\Support\Str::limit($producto->descripcion, 50) }}
                                                                 </td>
                                                                 <td>S/. {{ number_format($producto->precio, 2) }}</td>
@@ -520,13 +548,13 @@
     $(document).ready(function() {
 
         $(document).ready(function() {
-        $("#filtro-todos-productos").on("keyup", function() {
-            var value = $(this).val().toLowerCase();
-            $("#todos-productos .fila-producto").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            $("#filtro-todos-productos").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#todos-productos .fila-producto").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
             });
         });
-    });
 
         // Modificar el evento de clic para los botones de ver detalle
         $(document).on('click', '.btn-ver-detalle', function() {
