@@ -31,7 +31,7 @@ class ProductoController extends Controller
     $todosProductos = Producto::with(['creador', 'categoria'])
         ->where('estado', 1)  // Solo mostrar productos activos 
         ->orderBy('nombre', 'asc')  // Ordenar alfabéticamente por nombre
-        ->paginate(50);  // Aumentar el número para mostrar más productos
+        ->paginate(15);  // Aumentar el número para mostrar más productos
     
     return view('productos.productos', compact('categorias', 'activeTabId', 'todosProductos'));
 }
