@@ -369,7 +369,8 @@
                             <th>Entrada S/20.00</th>
                             <th>Fondo S/15.00</th>
                             <th>Fondo S/20.00</th>
-                            <th>Extras</th>
+                            <th>Carta</th>
+                            <th>Extra</th>
                             <th>Combos</th>
                         </tr>
                     </thead>
@@ -446,6 +447,7 @@ if (selectedMenu) {
             <td>${row.entrada_20 || ' '}</td>
             <td>${row.fondo_15 || ' '}</td>
             <td>${row.fondo_20 || ' '}</td>
+            <td>${row.carta || ' '}</td>
             <td>${row.extras || ' '}</td>
             <td>${row.combos || ' '}</td>
         </tr>
