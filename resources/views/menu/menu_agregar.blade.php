@@ -70,7 +70,7 @@
             <span class="badge bg-primary p-2">
                 @php
                     $hayProductos = false;
-                    foreach ([1, 2, 3, 4, 5, 6] as $cat) {
+                    foreach ([1, 2, 3, 4, 5, 6, 7] as $cat) {
                         if (isset($menuItems[$cat]) && count($menuItems[$cat]) > 0) {
                             $hayProductos = true;
                             break;
@@ -104,8 +104,8 @@
             <th width="14.28%">Fondo S/15.00</th>
             <th width="14.28%">Fondo S/20.00</th>
             <th width="14.28%">Carta</th>
+            <th width="14.28%">Extras</th>
             <th width="14.28%">Combos</th>
-            <th width="14.28%">Extra</th>
         </tr>
     </thead>
                              <tbody>
@@ -123,7 +123,7 @@
 
         @for ($i = 0; $i < $maxRows; $i++)
         <tr>
-            @foreach ([1, 2, 3, 4, 5, 7, 6] as $categoriaId)
+            @foreach ([1, 2, 3, 4, 5, 6, 7] as $categoriaId)
             <td>
                 @if(isset($menuItems[$categoriaId][$i]))
                 <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}" data-producto-id="{{ $menuItems[$categoriaId][$i]->producto_id }}">
@@ -254,6 +254,7 @@
                         </div>
 
                         <!-- Columna 6 - Extras (con campo de precio) -->
+
                         <div class="col custom-col" data-categoria="6">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
@@ -271,9 +272,8 @@
                                 placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
-                        
-                        <!-- Columna 7 - Combos (con campo de precio) -->
-                        <div class="col custom-col" data-categoria="7">
+
+                         <div class="col custom-col" data-categoria="7">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @foreach($productos->where('id_categoria', 7) as $producto)
@@ -290,6 +290,13 @@
                                 placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
+                          
+                         <!-- Columna 7 - Combos (con campo de precio) -->
+                        
+                        
+                    
+                       
+                       
                     </div>
                 </div>
             </div>
@@ -401,16 +408,11 @@
         return;
     }
 
-    if ((categoriaId == 6 || categoriaId == 7) && (!precio || isNaN(precio) || precio <= 0)) {
+    if ((categoriaId == 6 || categoriaId == 7 || categoriaId == 5) && (!precio || isNaN(precio) || precio <= 0)) {
         alert('Por favor ingrese un precio válido');
         return;
     }
     
-    // For category 5 (Carta), also validate price
-    if (categoriaId == 5 && (!precio || isNaN(precio) || precio <= 0)) {
-        alert('Por favor ingrese un precio válido para Carta');
-        return;
-    }
 
     // Show loading state
     $(this).prop('disabled', true);
@@ -483,6 +485,8 @@
         function addItemToTable(item) {
     const categoriaId = item.categoria_id;
     const columnIndex = categoriaId - 1;
+
+    
     
     // Create the item HTML with data-producto-id attribute
     let itemHtml = `
@@ -514,7 +518,7 @@
     // If no empty cell was found, add a new row
     if(!emptyCell) {
         let newRow = $('<tr></tr>');
-        for(let i = 0; i < 6; i++) {
+        for(let i = 0; i < 7; i++) {
             newRow.append('<td></td>');
         }
         $('table tbody').append(newRow);
