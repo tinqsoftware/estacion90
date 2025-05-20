@@ -372,7 +372,7 @@
 
         // Handle the "AÑADIR" button click
         $('.btn-anadir').click(function() {
-    const container = $(this).closest('.col-md-2');
+    const container = $(this).closest('.custom-col');
     const categoriaId = container.data('categoria');
     
     // Obtener directamente del select en lugar de los campos ocultos
