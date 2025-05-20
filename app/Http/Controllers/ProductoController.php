@@ -10,26 +10,31 @@ use Storage;
 
 class ProductoController extends Controller
 {
-    public function productos_tab()
-    {
-        $categorias = Categoria::all();
-    $activeTabId = request('tab_id', $categorias->first()->id ?? 0);
+   public function productos_tab()
+{
+    $categorias = Categoria::all();
+    $activeTabId = request()->get('tab_id', 'todos');
     
     // Para cada categoría, cargamos sus productos con paginación
     foreach ($categorias as $categoria) {
         // Usar un prefijo único para la paginación de cada categoría
         $categoria->productosPaginados = Producto::where('id_categoria', $categoria->id)
             ->where('estado', 1)  // Solo mostrar productos activos
-            ->orderBy('updated_at', 'desc')
+            ->orderBy('nombre', 'asc')  // Ordenar alfabéticamente por nombre
             ->paginate(15, ['*'], 'categoria_'.$categoria->id);
         
         // Importante: Asegurarse que los links de paginación mantengan el tab activo
         $categoria->productosPaginados->appends(['tab_id' => $activeTabId]);
     }
-    
-    return view('productos.productos', compact('categorias', 'activeTabId'));
 
-    }
+    // Tab "Todos" - ordenado alfabéticamente por nombre
+    $todosProductos = Producto::with(['creador', 'categoria'])
+        ->where('estado', 1)  // Solo mostrar productos activos 
+        ->orderBy('nombre', 'asc')  // Ordenar alfabéticamente por nombre
+        ->paginate(50);  // Aumentar el número para mostrar más productos
+    
+    return view('productos.productos', compact('categorias', 'activeTabId', 'todosProductos'));
+}
 
     // Mostrar un producto específico
     public function show($id)

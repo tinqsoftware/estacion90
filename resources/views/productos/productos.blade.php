@@ -42,6 +42,20 @@
     <!-- Global Stylesheet -->
     <link href="access/css/style.css" rel="stylesheet">
 
+    <style>
+        .nombre-producto-header {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .nombre-producto-cell {
+            font-weight: 800;
+            font-size: 15px;
+            color: #2c3e50;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -100,9 +114,16 @@
                                 <!-- Tab panel dinámico -->
                                 <div class="default-tab">
                                     <ul class="nav nav-tabs" role="tablist">
+                                        <!-- Nuevo tab "Todos" al inicio -->
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ (!isset($activeTabId) || $activeTabId == 'todos') ? 'active' : '' }}"
+                                                data-bs-toggle="tab" href="#todos-productos" data-categoria-id="todos">
+                                                Todos
+                                            </a>
+                                        </li>
                                         @foreach($categorias as $key => $categoria)
                                         <li class="nav-item">
-                                            <a class="nav-link {{ (isset($activeTabId) && $activeTabId == $categoria->id) || ($activeTabId == 0 && $key === 0) ? 'active' : '' }}"
+                                            <a class="nav-link {{ (isset($activeTabId) && $activeTabId == $categoria->id) ? 'active' : '' }}"
                                                 data-bs-toggle="tab" href="#categoria-{{ $categoria->id }}"
                                                 data-categoria-id="{{ $categoria->id }}">
                                                 {{ $categoria->nombre }}
@@ -112,6 +133,96 @@
                                     </ul>
 
                                     <div class="tab-content">
+
+                                    <div class="tab-pane fade {{ (!isset($activeTabId) || $activeTabId == 'todos') ? 'show active' : '' }}"
+                                            id="todos-productos" role="tabpanel">
+                                            <div class="pt-4">
+                                                <!-- Filtro dinámico -->
+                                                <div class="mb-3">
+                                                    <input type="text" class="form-control" id="filtro-todos-productos" 
+                                                        placeholder="Filtrar productos por nombre, descripción, precio o categoría...">
+                                                </div>
+                                                
+                                                <!-- Tabla de todos los productos -->
+                                                <div class="table-responsive">
+                                                    <table class="table table-responsive-md table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th><strong>Fecha</strong></th>
+                                                                
+                                                                <th><strong>Categoría</strong></th>
+                                                                <th><strong>Foto</strong></th>
+                                                                <th class="nombre-producto-header"><strong>Nombre</strong></th>
+                                                                <th><strong>Descripción</strong></th>
+                                                                <th><strong>Precio</strong></th>
+                                                                <th><strong>Stock</strong></th>
+                                                                <th><strong>Usuario</strong></th>
+                                                                <th><strong>Opciones</strong></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @if(isset($todosProductos) && $todosProductos->count() > 0)
+                                                            @foreach($todosProductos as $producto)
+                                                            <tr class="fila-producto">
+                                                                <td>{{ $producto->updated_at ? $producto->updated_at->format('d/m/Y H:i') : 'N/A' }}</td>
+                                                                
+                                                                <td>
+                                                                    @if($producto->categoria)
+                                                                        {{ $producto->categoria->nombre }}
+                                                                    @else
+                                                                        Sin categoría
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    <img src="{{ $producto->imagen ?? 'access/images/product/1.jpg' }}"
+                                                                        class="rounded" height="40" alt="{{ $producto->nombre }}">
+                                                                </td>
+                                                                <td class="nombre-producto-cell">{{ $producto->nombre }}</td>
+                                                                <td>{{ \Illuminate\Support\Str::limit($producto->descripcion, 50) }}</td>
+                                                                <td>S/. {{ number_format($producto->precio, 2) }}</td>
+                                                                <td>{{ $producto->stock }}</td>
+                                                                <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}</td>
+                                                                <td>
+                                                                    <div class="d-flex">
+                                                                        <a href="#"
+                                                                            class="btn btn-primary shadow btn-xs sharp me-1 btn-ver-detalle"
+                                                                            data-id="{{ $producto->id }}"
+                                                                            title="Ver detalles">
+                                                                            <i class="fas fa-eye"></i>
+                                                                        </a>
+                                                                        <a href="#"
+                                                                            class="btn btn-info shadow btn-xs sharp me-1 btn-editar"
+                                                                            data-id="{{ $producto->id }}"
+                                                                            title="Editar">
+                                                                            <i class="fas fa-pencil-alt"></i>
+                                                                        </a>
+                                                                        <a href="#"
+                                                                            class="btn btn-danger shadow btn-xs sharp btn-eliminar"
+                                                                            data-id="{{ $producto->id }}"
+                                                                            title="Eliminar">
+                                                                            <i class="fa fa-trash"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            @endforeach
+                                                            @else
+                                                            <tr>
+                                                                <td colspan="9" class="text-center">No hay productos
+                                                                    disponibles</td>
+                                                            </tr>
+                                                            @endif
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- Paginación para todos los productos -->
+                                                    <div class="d-flex justify-content-center mt-4">
+                                                        @if(isset($todosProductos))
+                                                        {{ $todosProductos->withPath(request()->url())->appends(['tab_id' => 'todos'])->links() }}
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         @foreach($categorias as $key => $categoria)
                                         <div class="tab-pane fade {{ (isset($activeTabId) && $activeTabId == $categoria->id) || ($activeTabId == 0 && $key === 0) ? 'show active' : '' }}"
                                             id="categoria-{{ $categoria->id }}" role="tabpanel">
@@ -121,13 +232,14 @@
                                                     <table class="table table-responsive-md table-hover">
                                                         <thead>
                                                             <tr>
-                                                                <th><strong>Fecha de Actualización</strong></th>
-                                                                <th><strong>Usuario</strong></th>
+                                                                <th><strong>Fecha</strong></th>
+                                                                
                                                                 <th><strong>Foto</strong></th>
-                                                                <th><strong>Nombre</strong></th>
+                                                                <th  class="nombre-producto-header"><strong>Nombre</strong></th>
                                                                 <th><strong>Descripción</strong></th>
                                                                 <th><strong>Precio</strong></th>
                                                                 <th><strong>Stock</strong></th>
+                                                                <th><strong>Usuario</strong></th>
                                                                 <th><strong>Opciones</strong></th>
                                                             </tr>
                                                         </thead>
@@ -138,18 +250,19 @@
                                                             <tr>
                                                                 <td>{{ $producto->updated_at ? $producto->updated_at->format('d/m/Y H:i') : 'N/A' }}
                                                                 </td>
-                                                                <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}
+                                                                
                                                                 </td>
                                                                 <td>
                                                                     <img src="{{ $producto->imagen ?? 'access/images/product/1.jpg' }}"
                                                                         class="rounded" height="40"
                                                                         alt="{{ $producto->nombre }}">
                                                                 </td>
-                                                                <td>{{ $producto->nombre }}</td>
+                                                                <td  class="nombre-producto-cell">{{ $producto->nombre }}</td>
                                                                 <td>{{ \Illuminate\Support\Str::limit($producto->descripcion, 50) }}
                                                                 </td>
                                                                 <td>S/. {{ number_format($producto->precio, 2) }}</td>
                                                                 <td>{{ $producto->stock }}</td>
+                                                                <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}
                                                                 <td>
                                                                     <div class="d-flex">
                                                                         <a href="#"
@@ -405,6 +518,16 @@
 
     // Asignar evento a los botones de ver detalle
     $(document).ready(function() {
+
+        $(document).ready(function() {
+        $("#filtro-todos-productos").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#todos-productos .fila-producto").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+    });
+
         // Modificar el evento de clic para los botones de ver detalle
         $(document).on('click', '.btn-ver-detalle', function() {
             const productoId = $(this).data('id');
