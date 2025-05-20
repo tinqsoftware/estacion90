@@ -291,7 +291,7 @@
         <nav class="navbar navbar-expand-md shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    <i class="fas fa-broadcast-tower me-2"></i>{{ config('app.name', 'estacion90') }}
+                    <i class="fas fa-broadcast-tower me-2"></i>{{ config('', 'estacion90') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
