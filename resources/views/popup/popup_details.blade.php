@@ -1,32 +1,60 @@
 <div class="popup-details">
     <div class="row">
-        <div class="col-md-6 text-center">
-            @if($popup->imagen)
-                <img src="{{ asset('storage/' . $popup->imagen) }}" alt="{{ $popup->nombre }}" class="img-fluid mb-3">
-            @else
-                <div class="no-image p-5 bg-light text-muted">No hay imagen disponible</div>
-            @endif
-        </div>
         <div class="col-md-6">
-            <h3>{{ $popup->nombre }}</h3>
-            <hr>
-            <p><strong>Fecha de publicación:</strong> {{ \Carbon\Carbon::parse($popup->fecha_visible)->format('d M Y') }}</p>
-            
-            @if($popup->link)
-                <p><strong>Link:</strong> <a href="{{ $popup->link }}" target="_blank">{{ $popup->link }}</a></p>
-            @endif
-            
-            <p><strong>Descripción:</strong></p>
-            <div class="description-box p-2 bg-light">
-                {{ $popup->descripcion }}
-            </div>
-            
-            <p class="mt-3"><strong>Cantidad por día:</strong> 
-                {{ $popup->popupdias->first() ? $popup->popupdias->first()->cantidad : 'No especificado' }}
-            </p>
-            
-            <p><strong>Creado por:</strong> {{ optional($popup->creador)->name }}</p>
-            <p><strong>Fecha creación:</strong> {{ $popup->created_at->format('d M Y') }}</p>
+            <h5>Información del Popup</h5>
+            <table class="table table-bordered">
+                <tr>
+                    <th>Nombre:</th>
+                    <td>{{ $popup->nombre }}</td>
+                </tr>
+                <tr>
+                    <th>Fecha de publicación:</th>
+                    <td>{{ \Carbon\Carbon::parse($popup->fecha_visible)->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <th>Veces por día:</th>
+                    <td>{{ $popup->veces_dia }}</td>
+                </tr>
+                <tr>
+                    <th>Link:</th>
+                    <td>
+                        @if($popup->link)
+                            <a href="{{ $popup->link }}" target="_blank">{{ $popup->link }}</a>
+                        @else
+                            <span class="text-muted">No definido</span>
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <th>Creado por:</th>
+                    <td>
+                        @if($popup->id_user_create)
+                            {{ optional($popup->creator)->name ?? 'Usuario no encontrado' }}
+                        @else
+                            Sin registro
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <th>Fecha de creación:</th>
+                    <td>{{ $popup->created_at->format('d/m/Y H:i') }}</td>
+                </tr>
+            </table>
         </div>
+        <div class="col-md-6 text-center">
+            @if($popup->url_imagen)
+                <h5>Imagen</h5>
+                <img src="{{ asset($popup->url_imagen) }}" alt="{{ $popup->nombre }}" 
+                     class="img-fluid img-thumbnail mt-2" style="max-height: 300px;">
+            @else
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle"></i> Este popup no tiene imagen asociada.
+                </div>
+            @endif
+        </div>
+    </div>
+    
+    <div class="text-right mt-4">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
     </div>
 </div>

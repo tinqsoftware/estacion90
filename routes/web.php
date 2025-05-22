@@ -59,7 +59,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/popups', [ControllerPopup::class, 'index'])->name('popups.index');
     Route::get('/popups/create', [ControllerPopup::class, 'create'])->name('popups.create');
     Route::post('/popups/crear', [ControllerPopup::class, 'store'])->name('popups.store');
-    Route::get('/popups/{popup}/edit', [ControllerPopup::class, 'edit'])->name('popups.edit');
-    Route::put('/popups/{popup}', [ControllerPopup::class, 'update'])->name('popups.update');
-    Route::get('/popups/{popup}/view', [ControllerPopup::class, 'viewDetails'])->name('popups.view');
+    Route::get('/popups/{id}/edit', [ControllerPopup::class, 'edit'])->name('popups.edit');
+    Route::get('/popups/{id}/view', [ControllerPopup::class, 'viewDetails'])->name('popups.view');
+    Route::put('/popups/{id}', [ControllerPopup::class, 'update'])->name('popups.update');
+    Route::delete('/popups/{id}', [ControllerPopup::class, 'destroy'])->name('popups.destroy');
 });

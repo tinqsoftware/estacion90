@@ -31,7 +31,7 @@ class popup extends Model
      */
     public function creator()
     {
-        return $this->belongsTo(User::class, 'id_user_create', 'id');
+        return $this->belongsTo(User::class, 'id_user_create');
     }
 
     /**
@@ -39,6 +39,6 @@ class popup extends Model
      */
     public function viewRecords()
     {
-        return $this->hasMany(PopupDia::class, 'id_popup', 'id');
+        return $this->hasMany(PopupDia::class, 'id_popup');
     }
 }
