@@ -98,53 +98,49 @@
                         <!-- Update the table to use dynamic data -->
                         <table class="table table-bordered">
                             <thead>
-        <tr>
-            <th width="14.28%">Entrada S/15.00</th>
-            <th width="14.28%">Entrada S/20.00</th>
-            <th width="14.28%">Fondo S/15.00</th>
-            <th width="14.28%">Fondo S/20.00</th>
-            <th width="14.28%">Carta</th>
-            <th width="14.28%">Extras</th>
-            <th width="14.28%">Combos</th>
-        </tr>
-    </thead>
+                                <tr>
+                                    <th width="14.28%">Entrada S/15.00</th>
+                                    <th width="14.28%">Entrada S/20.00</th>
+                                    <th width="14.28%">Fondo S/15.00</th>
+                                    <th width="14.28%">Fondo S/20.00</th>
+                                    <th width="14.28%">Carta</th>
+                                    <th width="14.28%">Combos</th>
+                                    <th width="14.28%">Extras</th>
+                                </tr>
+                            </thead>
                              <tbody>
-        @php
-        $maxRows = max(
-        count($menuItems[1] ?? []),
-        count($menuItems[2] ?? []),
-        count($menuItems[3] ?? []),
-        count($menuItems[4] ?? []),
-        count($menuItems[5] ?? []),
-        count($menuItems[6] ?? []),
-        count($menuItems[7] ?? [])
-        );
-        @endphp
+                                @php
+                                $maxRows = max(
+                                count($menuItems[1] ?? []),
+                                count($menuItems[2] ?? []),
+                                count($menuItems[3] ?? []),
+                                count($menuItems[4] ?? []),
+                                count($menuItems[5] ?? []),
+                                count($menuItems[6] ?? []),
+                                count($menuItems[7] ?? [])
+                                );
+                                @endphp
 
-        @for ($i = 0; $i < $maxRows; $i++)
-        <tr>
-            @foreach ([1, 2, 3, 4, 5, 6, 7] as $categoriaId)
-            <td>
-                @if(isset($menuItems[$categoriaId][$i]))
-                <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}" data-producto-id="{{ $menuItems[$categoriaId][$i]->producto_id }}">
-                    <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar"
-                        data-id="{{ $menuItems[$categoriaId][$i]->id }}" title="Eliminar">
-                        <i class="fa fa-trash"></i>
-                    </a>
-                    <span>
-                        {{ $menuItems[$categoriaId][$i]->stock_diario }} -
-                        {{ $menuItems[$categoriaId][$i]->producto_nombre }}
-                        @if($categoriaId >= 5 || $menuItems[$categoriaId][$i]->precio)
-                        (S/{{ $menuItems[$categoriaId][$i]->precio }})
-                        @endif
-                    </span>
-                </div>
-                @endif
-            </td>
-            @endforeach
-        </tr>
-        @endfor
-    </tbody>
+                                @for ($i = 0; $i < $maxRows; $i++)
+                                <tr>
+                                    @foreach ([1, 2, 3, 4, 5, 6, 7] as $categoriaId)
+                                    <td>
+                                        @if(isset($menuItems[$categoriaId][$i]))
+                                        <div>{{ $menuItems[$categoriaId][$i]->producto_nombre }}</span>
+                                        <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}" data-producto-id="{{ $menuItems[$categoriaId][$i]->producto_id }}">
+                                            <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar"
+                                                data-id="{{ $menuItems[$categoriaId][$i]->id }}" title="Eliminar">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                            <span> <b>{{ $menuItems[$categoriaId][$i]->stock_diario }}</b> - (S/{{ $menuItems[$categoriaId][$i]->precio }}) </span>
+                                        </div>
+                                        
+                                        @endif
+                                    </td>
+                                    @endforeach
+                                </tr>
+                                @endfor
+                            </tbody>
                         </table>
                     </div>
 
@@ -168,8 +164,8 @@
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
-                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
@@ -190,8 +186,8 @@
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
-                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
@@ -212,8 +208,8 @@
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
-                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
@@ -229,8 +225,8 @@
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
-                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
@@ -246,14 +242,12 @@
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
-                                placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
-                                placeholder="Precio">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
-                        <!-- Columna 6 - Extras (con campo de precio) -->
+                        <!-- Columna 6 - Combo (con campo de precio) -->
 
                         <div class="col custom-col" data-categoria="6">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
@@ -266,13 +260,12 @@
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
-                                placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
-                                placeholder="Precio">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
+                        <!-- Columna 7 - Extras (con campo de precio) -->
                          <div class="col custom-col" data-categoria="7">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
@@ -284,18 +277,12 @@
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
-                                placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
-                                placeholder="Precio">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"  placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
                           
-                         <!-- Columna 7 - Combos (con campo de precio) -->
-                        
-                        
                     
-                       
                        
                     </div>
                 </div>
@@ -408,7 +395,7 @@
         return;
     }
 
-    if ((categoriaId == 6 || categoriaId == 7 || categoriaId == 5) && (!precio || isNaN(precio) || precio <= 0)) {
+    if ( (!precio || isNaN(precio) || precio <= 0)) {
         alert('Por favor ingrese un precio válido');
         return;
     }
@@ -490,15 +477,13 @@
     
     // Create the item HTML with data-producto-id attribute
     let itemHtml = `
+        <div>${item.producto_nombre}</span>
         <div class="menu-item" data-id="${item.id}" data-producto-id="${item.producto_id}">
             <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar" 
                data-id="${item.id}" title="Eliminar">
                 <i class="fa fa-trash"></i>
             </a>
-            <span>
-                ${item.stock_diario} - ${item.producto_nombre}
-                ${categoriaId >= 5 || item.precio ? ' (S/' + item.precio + ')' : ''}
-            </span>
+            <span><b> ${item.stock_diario}</b> - (S/ ${item.precio} ) </span>
         </div>
     `;
 
