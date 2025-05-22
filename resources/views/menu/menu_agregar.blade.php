@@ -607,10 +607,10 @@ $(document).on('click', '.btn-eliminar', function(e) {
                 showNotification(`Producto "${productoNombre}" eliminado correctamente`, 'danger');
                 
                 // Eliminar el elemento de la UI con animación
-                menuItem.closest('td').fadeOut(300, function() {
-                    $(this).remove();
-                    reorganizarTabla();
-                });
+                 menuItem.closest('td').children().fadeOut(300, function() {
+            $(this).remove(); // Eliminar todos los elementos hijos de la celda
+            reorganizarTabla();
+        });
             } else {
                 menuItem.removeClass('deleting');
                 alert('Error al eliminar: ' + (response.message || 'Error desconocido'));
@@ -649,7 +649,7 @@ function reorganizarTabla() {
     const tableRows = $('table tbody tr');
     
     // Recorrer cada columna (categoría)
-    for (let col = 0; col < 6; col++) {
+    for (let col = 0; col < 7; col++) {
         // Obtener todos los elementos de esta columna
         const items = [];
         tableRows.each(function() {
