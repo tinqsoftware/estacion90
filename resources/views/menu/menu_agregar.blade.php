@@ -214,73 +214,92 @@
                         </div>
 
                         <!-- Columna 4 - Fondo S/20.00 -->
-                        <div class="col custom-col" data-categoria="4">
-                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-                                <option value="" selected disabled>Productos</option>
-                                @foreach($productos->where('id_categoria', 4) as $producto)
-                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-                                    {{ $producto->nombre }}</option>
-                                @endforeach
-                            </select>
-                            <br><br>
-                            <input type="hidden" class="producto-id" value="">
-                            <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-                        </div>
+<div class="col custom-col" data-categoria="4">
+    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+        <option value="" selected disabled>Productos</option>
+        @php
+            $existingProductIds = isset($menuItems[4]) 
+                ? $menuItems[4]->pluck('producto_id')->toArray() 
+                : [];
+        @endphp
+        @foreach($productos->where('id_categoria', 4)->whereNotIn('id', $existingProductIds) as $producto)
+        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+            {{ $producto->nombre }}</option>
+        @endforeach
+    </select>
+    <br><br>
+    <input type="hidden" class="producto-id" value="">
+    <input type="hidden" class="producto-nombre" value="">
+    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+</div>
 
-                        <!-- Columna 5 - Carta (con campo de precio) -->
-                        <div class="col custom-col" data-categoria="5">
-                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-                                <option value="" selected disabled>Productos</option>
-                                @foreach($productos->where('id_categoria', 5) as $producto)
-                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-                                    {{ $producto->nombre }}</option>
-                                @endforeach
-                            </select>
-                            <br><br>
-                            <input type="hidden" class="producto-id" value="">
-                            <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-                        </div>
+<!-- Columna 5 - Carta (con campo de precio) -->
+<div class="col custom-col" data-categoria="5">
+    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+        <option value="" selected disabled>Productos</option>
+        @php
+            $existingProductIds = isset($menuItems[5]) 
+                ? $menuItems[5]->pluck('producto_id')->toArray() 
+                : [];
+        @endphp
+        @foreach($productos->where('id_categoria', 5)->whereNotIn('id', $existingProductIds) as $producto)
+        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+            {{ $producto->nombre }}</option>
+        @endforeach
+    </select>
+    <br><br>
+    <input type="hidden" class="producto-id" value="">
+    <input type="hidden" class="producto-nombre" value="">
+    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+</div>
 
-                        <!-- Columna 6 - Combo (con campo de precio) -->
+<!-- Columna 6 - Combo (con campo de precio) -->
+<div class="col custom-col" data-categoria="6">
+    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+        <option value="" selected disabled>Productos</option>
+        @php
+            $existingProductIds = isset($menuItems[6]) 
+                ? $menuItems[6]->pluck('producto_id')->toArray() 
+                : [];
+        @endphp
+        @foreach($productos->where('id_categoria', 6)->whereNotIn('id', $existingProductIds) as $producto)
+        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+            {{ $producto->nombre }}</option>
+        @endforeach
+    </select>
+    <br><br>
+    <input type="hidden" class="producto-id" value="">
+    <input type="hidden" class="producto-nombre" value="">
+    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+</div>
 
-                        <div class="col custom-col" data-categoria="6">
-                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-                                <option value="" selected disabled>Productos</option>
-                                @foreach($productos->where('id_categoria', 6) as $producto)
-                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-                                    {{ $producto->nombre }}</option>
-                                @endforeach
-                            </select>
-                            <br><br>
-                            <input type="hidden" class="producto-id" value="">
-                            <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-                        </div>
-
-                        <!-- Columna 7 - Extras (con campo de precio) -->
-                         <div class="col custom-col" data-categoria="7">
-                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-                                <option value="" selected disabled>Productos</option>
-                                @foreach($productos->where('id_categoria', 7) as $producto)
-                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-                                    {{ $producto->nombre }}</option>
-                                @endforeach
-                            </select>
-                            <br><br>
-                            <input type="hidden" class="producto-id" value="">
-                            <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input"  placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-                        </div>
+<!-- Columna 7 - Extras (con campo de precio) -->
+<div class="col custom-col" data-categoria="7">
+    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+        <option value="" selected disabled>Productos</option>
+        @php
+            $existingProductIds = isset($menuItems[7]) 
+                ? $menuItems[7]->pluck('producto_id')->toArray() 
+                : [];
+        @endphp
+        @foreach($productos->where('id_categoria', 7)->whereNotIn('id', $existingProductIds) as $producto)
+        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+            {{ $producto->nombre }}</option>
+        @endforeach
+    </select>
+    <br><br>
+    <input type="hidden" class="producto-id" value="">
+    <input type="hidden" class="producto-nombre" value="">
+    <input type="text" class="form-control form-control-sm mb-2 stock-input"  placeholder="Stock">
+    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+</div>
                           
                     
                        
@@ -413,7 +432,7 @@
         categoria_id: categoriaId,
         producto_id: productoId,
         stock_diario: stock,
-        precio: precio || null
+        precio: precio
     };
 
     // Send AJAX request
@@ -434,7 +453,7 @@
             producto_id: productoId,
             producto_nombre: productoNombre,
             stock_diario: stock,
-            precio: precio || null
+            precio: precio
         };
 
         // Add the item to the UI
@@ -588,7 +607,7 @@ $(document).on('click', '.btn-eliminar', function(e) {
                 showNotification(`Producto "${productoNombre}" eliminado correctamente`, 'danger');
                 
                 // Eliminar el elemento de la UI con animación
-                menuItem.fadeOut(300, function() {
+                menuItem.closest('td').fadeOut(300, function() {
                     $(this).remove();
                     reorganizarTabla();
                 });

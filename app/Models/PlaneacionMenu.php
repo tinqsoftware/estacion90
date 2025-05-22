@@ -12,6 +12,7 @@ class PlaneacionMenu extends Model
         'id_producto',
         'fecha_plan',
         'stock_diario',
+        'precio',
         'created_at',
         'updated_at'
     ];
