@@ -546,26 +546,6 @@ $(document).on('click', '.btn-eliminar', function(e) {
     let productoNombre = "producto";
     const spanText = menuItem.find('span').text().trim();
     
-    // Intentar extraer el nombre con manejo de errores
-    try {
-        // Primera estrategia: buscar el patrón "cantidad - nombre (precio)"
-        if (spanText.includes(' - ')) {
-            const parts = spanText.split(' - ');
-            if (parts.length > 1) {
-                // Si hay un paréntesis de precio, quitarlo
-                if (parts[1].includes(' (')) {
-                    productoNombre = parts[1].split(' (')[0].trim();
-                } else {
-                    productoNombre = parts[1].trim();
-                }
-            }
-        } else {
-            // Estrategia alternativa: usar todo el texto después de quitar números iniciales
-            productoNombre = spanText.replace(/^\d+\s*/, '').trim();
-        }
-    } catch (error) {
-        console.error("Error al extraer el nombre del producto:", error);
-    }
     
     // Determinar la categoría basada en la posición de la celda
     const categoriaId = menuItem.closest('td').index() + 1;
@@ -588,7 +568,7 @@ $(document).on('click', '.btn-eliminar', function(e) {
                 
                 if (idProducto) {
                     // Buscar el selector correspondiente a esta categoría
-                    const select = $(`.col-md-2[data-categoria="${categoriaId}"] .producto-select`);
+                    const select = $(`.custom-col[data-categoria="${categoriaId}"] .producto-select`);
                     
                     // Verificar si ya existe esta opción para evitar duplicados
                     if (select.find(`option[value="${idProducto}"]`).length === 0) {
