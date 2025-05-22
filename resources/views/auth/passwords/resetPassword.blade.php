@@ -45,13 +45,14 @@
         }
 
         .icon-container svg {
-            color: #111827;
+            color: #FC8019;
         }
 
         h1 {
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
+            color: #FC8019;
         }
 
         .subtitle {
@@ -111,7 +112,7 @@
         .btn-submit {
             width: 100%;
             padding: 0.75rem;
-            background-color: #111827;
+            background-color: #FC8019;
             color: white;
             border: none;
             border-radius: 6px;
@@ -122,7 +123,7 @@
         }
 
         .btn-submit:hover {
-            background-color: #1f2937;
+            background-color: #df6703;
         }
 
         .btn-submit:focus {
@@ -246,7 +247,7 @@
                 <button type="submit" class="btn-submit">Actualizar Contraseña</button>
             </form>
             
-            <p class="back-link">¿No quieres cambiar tu contraseña? <a href="{{ url('/') }}">Volver</a></p>
+            <p class="back-link">¿No quieres cambiar tu contraseña?<br/> <a href="{{ url('/') }}"><- Volver</a></p>
         </div>
     </div>
 

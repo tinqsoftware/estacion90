@@ -69,8 +69,8 @@ class PlaneacionMenuController extends Controller
             3 => 'fondo_15',     
             4 => 'fondo_20',
             5 => 'carta',       
-            6 => 'extras',
-            7 => 'combos' 
+            6 => 'combos',
+            7 => 'extras' 
         ];
         
         // Process each date's menu items
@@ -97,13 +97,7 @@ class PlaneacionMenuController extends Controller
                 
                 if ($item) {
                     // Always include price for Extras (category 5) and Combos (category 6)
-                    if ($categoryId == 5 || $categoryId == 6) {
-                        $row[$fieldName] = $item->stock_diario . ' - ' . $item->producto_nombre . 
-                            ' (S/' . ($item->precio ?? '0') . ')';
-                    } else {
-                        $row[$fieldName] = $item->stock_diario . ' - ' . $item->producto_nombre . 
-                            ($item->precio ? ' (S/' . $item->precio . ')' : '');
-                    }
+                    $row[$fieldName] = $item->producto_nombre .'<br/><b>'.$item->stock_diario . '</b> - ' .   ' (S/' . ($item->precio ?? '0') . ')';
                 } else {
                     $row[$fieldName] = '-';
                 }

@@ -42,6 +42,167 @@
     <!-- Global Stylesheet -->
     <link href="access/css/style.css" rel="stylesheet">
 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            /* Remove min-height: calc(100vh - 70px); */
+            position: sticky;
+            top: 20px; /* Adjust based on your header height */
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .calendar-container {
+            height: 30%;
+            background-color: #f8f9fa;
+            margin-top: 90px;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: background-color 0.2s;
+        }
+
+        .calendar-day:hover {
+            background-color: #e9ecef;
+        }
+
+        .calendar-day.empty {
+            background-color: transparent;
+            cursor: default;
+        }
+
+        .calendar-day.today {
+            background-color: #f8d7da;
+            font-weight: bold;
+        }
+
+        .content-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        .calendar-day.active {
+            background-color: #d1e7dd;
+            font-weight: bold;
+            border: 2px solid #198754;
+            position: relative; 
+            z-index: 1;
+        }
+
+        /* Animation for active day to improve visibility */
+        @keyframes active-day-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .calendar-day.just-activated {
+            animation: active-day-pulse 0.5s ease-in-out;
+        }
+
+        /* Month navigation */
+        .prev-month,
+        .next-month {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        #current-month {
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .loading {
+            color: #6c757d;
+        }
+
+        .selected-menu {
+            position: relative;
+            border-left: 5px solid #17a2b8;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            background-color: #f8fdff;
+            padding-left: 15px;
+            animation: highlight-pulse 1.5s ease-in-out;
+        }
+
+        @keyframes highlight-pulse {
+            0% {
+                background-color: #f8fdff;
+            }
+
+            50% {
+                background-color: #d1ecf1;
+            }
+
+            100% {
+                background-color: #f8fdff;
+            }
+        }
+
+        /* Indicator arrow for selected menu */
+        .selected-menu::before {
+            content: "▶";
+            position: absolute;
+            left: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #17a2b8;
+            font-size: 20px;
+            animation: arrow-pulse 1s infinite;
+        }
+
+        @keyframes arrow-pulse {
+            0% {
+                opacity: 0.5;
+                left: -25px;
+            }
+
+            50% {
+                opacity: 1;
+                left: -20px;
+            }
+
+            100% {
+                opacity: 0.5;
+                left: -25px;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -86,12 +247,8 @@
                             </div>
                         </div>
                         <br>
-                        
-                    
+                                            
                     </div>
-
-
-
 
                     <!-- Contenido principal -->
                     <div class="col-md-10">
@@ -357,29 +514,29 @@
                             `${dayNames[date.getDay()]} ${date.getDate()} ${monthNames[date.getMonth()]}`;
 
                         dayElement.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h2>${dateHeader}</h2>
-                <button class="btn btn-outline-dark btn-sm" data-date="${dateStr}">EDITAR</button>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Entrada S/15.00</th>
-                            <th>Entrada S/20.00</th>
-                            <th>Fondo S/15.00</th>
-                            <th>Fondo S/20.00</th>
-                            <th>Carta</th>
-                            <th>Extra</th>
-                            <th>Combos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${generateTableRows(dayData.items, dateStr)}
-                    </tbody>
-                </table>
-            </div>
-        `;
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h2>${dateHeader}</h2>
+                                <button class="btn btn-outline-dark btn-sm" data-date="${dateStr}">EDITAR</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Entrada S/15.00</th>
+                                            <th>Entrada S/20.00</th>
+                                            <th>Fondo S/15.00</th>
+                                            <th>Fondo S/20.00</th>
+                                            <th>Carta</th>
+                                            <th>Combos</th>
+                                            <th>Extra</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${generateTableRows(dayData.items, dateStr)}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
 
                         contentArea.appendChild(dayElement);
                     });
@@ -393,37 +550,37 @@
                     });
 
                    const selectedMenu = document.getElementById(`menu-${selectedFormattedDate}`);
-if (selectedMenu) {
-    setTimeout(() => {
-        // Scroll menu into view
-        selectedMenu.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-        
-        // Highlight and scroll the calendar day into view
-        setTimeout(() => {
-            // First adjust for header height
-            window.scrollBy({
-                top: -100,
-                behavior: 'smooth'
-            });
-            
-            // Then make sure the calendar day is visible
-            const activeDay = document.querySelector('.calendar-day.active');
-            if (activeDay) {
-                // Scroll the sidebar to position the active day
-                const sidebar = document.querySelector('.sidebar');
-                const calendarContainer = document.querySelector('.calendar-container');
-                const dayPosition = activeDay.offsetTop;
-                
-                // Position the day in the upper portion of the calendar
-                const offset = Math.max(0, dayPosition - 100);
-                sidebar.scrollTop = offset;
-            }
-        }, 700);
-    }, 100);
-}
+                    if (selectedMenu) {
+                        setTimeout(() => {
+                            // Scroll menu into view
+                            selectedMenu.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                            
+                            // Highlight and scroll the calendar day into view
+                            setTimeout(() => {
+                                // First adjust for header height
+                                window.scrollBy({
+                                    top: -100,
+                                    behavior: 'smooth'
+                                });
+                                
+                                // Then make sure the calendar day is visible
+                                const activeDay = document.querySelector('.calendar-day.active');
+                                if (activeDay) {
+                                    // Scroll the sidebar to position the active day
+                                    const sidebar = document.querySelector('.sidebar');
+                                    const calendarContainer = document.querySelector('.calendar-container');
+                                    const dayPosition = activeDay.offsetTop;
+                                    
+                                    // Position the day in the upper portion of the calendar
+                                    const offset = Math.max(0, dayPosition - 100);
+                                    sidebar.scrollTop = offset;
+                                }
+                            }, 700);
+                        }, 100);
+                    }
 
                 })
                 .catch(error => {
@@ -448,8 +605,8 @@ if (selectedMenu) {
             <td>${row.fondo_15 || ' '}</td>
             <td>${row.fondo_20 || ' '}</td>
             <td>${row.carta || ' '}</td>
-            <td>${row.extras || ' '}</td>
             <td>${row.combos || ' '}</td>
+            <td>${row.extras || ' '}</td>
         </tr>
     `).join('');
 }
@@ -477,165 +634,5 @@ if (selectedMenu) {
     </script>
 
 
-    <style>
-    body {
-        font-family: Arial, sans-serif;
-    }
-
-    .sidebar {
-    /* Remove min-height: calc(100vh - 70px); */
-    position: sticky;
-    top: 20px; /* Adjust based on your header height */
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-}
-
-    .calendar-container {
-        height: 30%;
-        background-color: #f8f9fa;
-        margin-top: 90px;
-    }
-
-    .calendar-weekdays {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-    }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 2px;
-    }
-
-    .calendar-day {
-        aspect-ratio: 1/1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 0.9rem;
-        border-radius: 4px;
-        background-color: #fff;
-        transition: background-color 0.2s;
-    }
-
-    .calendar-day:hover {
-        background-color: #e9ecef;
-    }
-
-    .calendar-day.empty {
-        background-color: transparent;
-        cursor: default;
-    }
-
-    .calendar-day.today {
-        background-color: #f8d7da;
-        font-weight: bold;
-    }
-
-    .content-body {
-    display: flex;
-    flex-direction: column;
-}
-
-.row {
-    display: flex;
-    flex-wrap: nowrap;
-}
-
-.calendar-day.active {
-    background-color: #d1e7dd;
-    font-weight: bold;
-    border: 2px solid #198754;
-    position: relative; 
-    z-index: 1;
-}
-
-/* Animation for active day to improve visibility */
-@keyframes active-day-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.calendar-day.just-activated {
-    animation: active-day-pulse 0.5s ease-in-out;
-}
-
-    /* Month navigation */
-    .prev-month,
-    .next-month {
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-    }
-
-    #current-month {
-        font-size: 1.25rem;
-        margin: 0;
-    }
-
-    .loading {
-        color: #6c757d;
-    }
-
-    .selected-menu {
-        position: relative;
-        border-left: 5px solid #17a2b8;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        background-color: #f8fdff;
-        padding-left: 15px;
-        animation: highlight-pulse 1.5s ease-in-out;
-    }
-
-    @keyframes highlight-pulse {
-        0% {
-            background-color: #f8fdff;
-        }
-
-        50% {
-            background-color: #d1ecf1;
-        }
-
-        100% {
-            background-color: #f8fdff;
-        }
-    }
-
-    /* Indicator arrow for selected menu */
-    .selected-menu::before {
-        content: "▶";
-        position: absolute;
-        left: -25px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #17a2b8;
-        font-size: 20px;
-        animation: arrow-pulse 1s infinite;
-    }
-
-    @keyframes arrow-pulse {
-        0% {
-            opacity: 0.5;
-            left: -25px;
-        }
-
-        50% {
-            opacity: 1;
-            left: -20px;
-        }
-
-        100% {
-            opacity: 0.5;
-            left: -25px;
-        }
-    }
-    </style>
 
 </body>

@@ -111,9 +111,10 @@
 								<div id="smartwizard" class="form-wizard order-create">
 									
 									<div class="tab-content">
-										<!-- Paso 1: Selección de Menús -->
+										<!-- Paso 1: Cantidad de comenzales -->
 										<div id="menu" class="tab-pane" role="tabpanel">
 											<div>
+												<!-- SELECCIONA CANTIDAD COMENZALES -->
 												<div style="text-align: center; margin-bottom:15px;">
 													<span style="font-weight: 600; font-size:16px; color:#444; margin-right:15px;">Cantidad de comenzales:</span>
 													<span class="quntity" style=" height: 28px;">
@@ -533,6 +534,7 @@
 	const entradas20 = @json($entradas20);
 	const fondos20 = @json($fondos20);
 	const platosCarta = @json($platosCarta);
+	const combos = @json($combos);
 
 	let comensalCount = 1;
 	const maxComensales = 10;
@@ -568,14 +570,17 @@
           	<div class="tab-pane fade show ${index === 0 ? 'active' : ''}" id="comensal${index}" role="tabpanel">
               	<div class="pt-4">
                   	<ul class="nav nav-pills mb-4 light" style="width: 100%;">
-                      	<li class="nav-item" style="width: 33%; text-align: center;">
+                      	<li class="nav-item" style="width:25%; text-align: center;">
                           	<a href="#menu15-${index}" class="nav-link active" data-bs-toggle="tab">Menú S/15</a>
                       	</li>
-                      	<li class="nav-item" style="width: 33%; text-align: center;">
+                      	<li class="nav-item" style="width: 25%; text-align: center;">
                           	<a href="#menu20-${index}" class="nav-link" data-bs-toggle="tab">Menú S/20</a>
                       	</li>
-					  	<li class="nav-item" style="width: 33%; text-align: center;">
+					  	<li class="nav-item" style="width: 25%; text-align: center;">
 							<a href="#menuCarta-${index}" class="nav-link" data-bs-toggle="tab">A la Carta</a>
+						</li>
+						<li class="nav-item" style="width: 25%; text-align: center;">
+							<a href="#menuCombo-${index}" class="nav-link" data-bs-toggle="tab">Combo</a>
 						</li>
                   	</ul>
                   	<div class="tab-content">
@@ -627,6 +632,16 @@
 								<div class="swiper-pagination"></div>
 							</div>
 						</div>
+						<!--  Combos -->
+						<div id="menuCombo-${index}" class="tab-pane">
+							<h4 class="cate-title">${combos.length} Combos</h4>
+							<div class="swiper mySwiper-3">
+								<div class="swiper-wrapper">
+									${ renderProductos(combos, 'combo', index) }
+								</div>
+								<div class="swiper-pagination"></div>
+							</div>
+						</div>
                   	</div>
               	</div>
           	</div>`;
@@ -641,6 +656,8 @@
 			type ='entrada';
 		}else if(typeName=='fondo15'||typeName=='fondo20'){
 			type ='fondo';
+		}else if(typeName === 'combo') {
+			type = 'combo';
 		}else if(typeName === 'carta') {
 			type = 'carta';
 		}
@@ -654,7 +671,7 @@
                       </div>
                       <div class="card-body p-0 text-center" style="cursor:pointer;" 
 					  onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
-                          <img style="width: 100%;" src="${ prod.imagen ? prod.imagen : 'access/images/popular-img/causa.jpg' }" alt="${ prod.nombre }">
+                          <img style="width: 100%;" src="${prod.imagen}" alt="${ prod.nombre }">
                       </div>
                       <div class="border-0 pt-2">
                           <div class="common d-flex justify-content-between">
@@ -664,9 +681,10 @@
 									</div>
 								</div>
 								<!-- Cada input radio es único por comensal y por tipo -->
-								<input style="display:none;" type="radio" tipo="${ typeName }[${ comensalIndex }]" name="${ type }[${ comensalIndex }]" value="${ prod.id }">
+								<input style="display:none;" type="checkbox" tipo="${ typeName }[${ comensalIndex }]" name="${ type }[${ comensalIndex }][]" value="${ prod.id }">
 								<div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
-									<h5>${ prod.nombre }</h5>
+									<h6>${ prod.nombre }</h6>
+									<h4 class="font-w700 mb-0 text-primary">s/.${ prod.precio }</h4>
 								</div>
                           </div>
                       </div>
@@ -676,6 +694,8 @@
       });
       return html;
   }
+
+
 
 	// Función que renderiza las pestañas y contenido según el número de comensales
 	function renderComensales() {
@@ -732,6 +752,30 @@
             let menuType = '';
             let entradaName = 'No seleccionado';
             let fondoName = 'No seleccionado';
+
+			let cartaSeleccionada = document.querySelectorAll(`input[tipo="carta[${i}]"]:checked`);
+			let combosSeleccionados = document.querySelectorAll(`input[tipo="combo[${i}]"]:checked`);
+			let platosCarta = [];
+			let totalCarta = 0;
+
+			cartaSeleccionada.forEach(input => {
+				let nombre = input.parentElement.querySelector('h6').innerText;
+				let precio = parseFloat(input.parentElement.querySelector('h4').innerText.replace('s/.','')) || 0;
+				platosCarta.push(nombre);
+				totalCarta += precio;
+			});
+
+			let combos = [];
+			let totalCombos = 0;
+			combosSeleccionados.forEach(input => {
+				let nombre = input.parentElement.querySelector('h6').innerText;
+				let precio = parseFloat(input.parentElement.querySelector('h4').innerText.replace('s/.','')) || 0;
+				combos.push(nombre);
+				totalCombos += precio;
+			});
+
+
+
             // Regla: si se escoge por lo menos un producto del menú S/20 se asigna menú S/20
             if ((selE20 && selF20) || (selE20 && selF15) || (selE15 && selF20)) {
                 menuPrice = 20;
@@ -755,6 +799,8 @@
                 menuType = "Incompleto";
             }
             totalMenus += menuPrice;
+			let totalComensal = menuPrice + totalCarta + totalCombos;
+			totalGeneral += totalComensal;
             resumenHTML += `
 			<div class="accordion-item">
 				<div class="accordion-header collapsed rounded-lg" id="accord-${i+1}" data-bs-toggle="collapse" data-bs-target="#collapse${i+1}" aria-controls="collapse${i+1}"   aria-expanded="true"  role="button">
@@ -786,6 +832,22 @@
 										</div>
 									</div>
 								</li>
+								<li>
+									<div class="timeline-panel">
+										<div class="media-body">
+											<span>Platos a la carta:</span>
+											<ul>${ platosCarta.map(p => `<li>${p}</li>`).join('') }</ul>
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="timeline-panel">
+										<div class="media-body">
+											<span>Combos:</span>
+											<ul>${ combos.map(p => `<li>${p}</li>`).join('') }</ul>
+										</div>
+									</div>
+								</li>
 								
 							</ul>
 						</div>
@@ -807,7 +869,7 @@
 
         // Delivery fijo
         const deliveryCost = 1.00;
-        const totalOrder = totalMenus + extrasTotal + deliveryCost;
+        const totalOrder = totalGeneral + extrasTotal + deliveryCost;
         document.getElementById("orderTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
         document.getElementById("confirmTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
 

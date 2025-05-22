@@ -23,75 +23,86 @@ class Inicio extends Controller
         $hoy = Carbon::now()->format('Y-m-d');
 
 
-        // Consultar productos para Menú S/15 (Entradas)
-        $entradas15 = Producto::with('planeacionesMenu')
-            ->whereHas('categoria', function ($q) {
-                $q->where('id', '1'); // Categoría: Entradas S/15
-            })
-            ->whereHas('planeacionesMenu', function ($q) use ($hoy) {
-                $q->where('fecha_plan', $hoy)
-                  ->where('stock_diario', '>', 0);
-            })
-            ->get();
+        $entradas15 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('categorias.id', 1)
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $hoy)
+        ->where('planeacion_menu.stock_diario', '>', 0)
+        ->get();
 
-        // Fondos S/15
-        $fondos15 = Producto::with('planeacionesMenu')
-            ->whereHas('categoria', function ($q) {
-                $q->where('id', '3'); // Categoría: Fondos S/15
-            })
-            ->whereHas('planeacionesMenu', function ($q) use ($hoy) {
-                $q->where('fecha_plan', $hoy)
-                  ->where('stock_diario', '>', 0);
-            })
-            ->get();
 
         // Entradas S/20
-        $entradas20 = Producto::with('planeacionesMenu')
-            ->whereHas('categoria', function ($q) {
-                $q->where('id', '2'); // Categoría: Entradas S/20
-            })
-            ->whereHas('planeacionesMenu', function ($q) use ($hoy) {
-                $q->where('fecha_plan', $hoy)
-                  ->where('stock_diario', '>', 0);
-            })
-            ->get();
+        $entradas20 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('categorias.id', 2)
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $hoy)
+        ->where('planeacion_menu.stock_diario', '>', 0)
+        ->get();
+
+
+        // Fondos S/15
+        $fondos15 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('categorias.id', 3)
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $hoy)
+        ->where('planeacion_menu.stock_diario', '>', 0)
+        ->get();
+
 
         // Fondos S/20
-        $fondos20 = Producto::with('planeacionesMenu')
-            ->whereHas('categoria', function ($q) {
-                $q->where('id', '4'); // Categoría: Fondos S/20
-            })
-            ->whereHas('planeacionesMenu', function ($q) use ($hoy) {
-                $q->where('fecha_plan', $hoy)
-                  ->where('stock_diario', '>', 0);
-            })
-            ->get();
+        $fondos20 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('categorias.id', 4)
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $hoy)
+        ->where('planeacion_menu.stock_diario', '>', 0)
+        ->get();
 
-        // Extras (Categoría extras, id = 6)
-        $extras = Producto::with('planeacionesMenu')
-            ->whereHas('categoria', function ($q) {
-                $q->where('id', '6'); // Categoría: Extras
-            })
-            ->whereHas('planeacionesMenu', function ($q) use ($hoy) {
-                $q->where('fecha_plan', $hoy)
-                  ->where('stock_diario', '>', 0);
-            })
-            ->get();
 
-        
-        // Platos a la carta (id=7)
-        $platosCarta = Producto::with('planeacionesMenu')
-        ->whereHas('categoria', function ($q) {
-            $q->where('id', '7');
-        })
-        ->whereHas('planeacionesMenu', function ($q) use ($hoy) {
-            $q->where('fecha_plan', $hoy)
-                ->where('stock_diario', '>', 0);
-        })
+        // Platos a la carta (id=5)
+        $platosCarta = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('categorias.id', 5)
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $hoy)
+        ->where('planeacion_menu.stock_diario', '>', 0)
+        ->get();
+
+
+        // Combos (id=6)
+        $combos = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('categorias.id', 6)
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $hoy)
+        ->where('planeacion_menu.stock_diario', '>', 0)
         ->get();
 
 
 
-        return view('inicio', compact('entradas15', 'fondos15', 'entradas20', 'fondos20', 'extras','platosCarta'));
+        // Extras (Categoría extras, id = 7)
+        $extras = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('categorias.id', 7)
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $hoy)
+        ->where('planeacion_menu.stock_diario', '>', 0)
+        ->get();
+
+
+       
+
+
+        return view('inicio', compact('entradas15', 'fondos15', 'entradas20', 'fondos20', 'extras','platosCarta','combos'));
     }
 }
