@@ -39,6 +39,6 @@ class popup extends Model
      */
     public function viewRecords()
     {
-        return $this->hasMany(popupDia::class, 'id_popup');
+        return $this->hasMany(popupdia::class, 'id_popup');
     }
 }
