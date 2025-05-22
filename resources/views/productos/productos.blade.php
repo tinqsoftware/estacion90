@@ -240,12 +240,7 @@
                                                             @endif
                                                         </tbody>
                                                     </table>
-                                                    <!-- Paginación para todos los productos -->
-                                                    <div class="d-flex justify-content-center mt-4">
-                                                        @if(isset($todosProductos))
-                                                        {{ $todosProductos->withPath(request()->url())->appends(['tab_id' => 'todos'])->links() }}
-                                                        @endif
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                         </div>

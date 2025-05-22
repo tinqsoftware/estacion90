@@ -28,7 +28,7 @@ class ProductoController extends Controller
         $categoria->productosPaginados->appends(['tab_id' => $activeTabId]);
     }
 
-    // Tab "Todos" - ordenado alfabéticamente por nombre
+    // Tab "Todos" - ordenado alfabéticamente por nombre, sin paginación
     $query = Producto::with(['creador', 'categoria'])
         ->where('estado', 1);  // Solo mostrar productos activos
     
@@ -44,14 +44,8 @@ class ProductoController extends Controller
         });
     }
     
-    $todosProductos = $query->orderBy('nombre', 'asc')
-                           ->paginate(15);
-    
-    // Mantener parámetros en los links de paginación
-    $todosProductos->appends([
-        'tab_id' => $activeTabId,
-        'search' => $search
-    ]);
+    // Obtener todos los productos sin paginación
+    $todosProductos = $query->orderBy('nombre', 'asc')->get();
     
     return view('productos.productos', compact('categorias', 'activeTabId', 'todosProductos', 'search'));
 }
