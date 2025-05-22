@@ -378,6 +378,10 @@
 
     <script>
     $(document).ready(function() {
+
+        $('.modal .close, .modal .btn-secondary[data-dismiss="modal"]').on('click', function() {
+            $(this).closest('.modal').modal('hide');
+        });
         // Image preview functionality
         $('#imagen, #edit_imagen').on('change', function() {
             const containerId = $(this).attr('id') === 'imagen' ?
@@ -594,7 +598,7 @@
                         },
                         error: function(xhr) {
                             console.error('Error deleting popup:', xhr
-                            .responseText);
+                                .responseText);
 
                             // Show error message
                             Swal.fire(
