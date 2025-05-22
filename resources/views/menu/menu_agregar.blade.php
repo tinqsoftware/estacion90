@@ -104,8 +104,8 @@
                                     <th width="14.28%">Fondo S/15.00</th>
                                     <th width="14.28%">Fondo S/20.00</th>
                                     <th width="14.28%">Carta</th>
-                                    <th width="14.28%">Extras</th>
                                     <th width="14.28%">Combos</th>
+                                    <th width="14.28%">Extras</th>
                                 </tr>
                             </thead>
                              <tbody>
