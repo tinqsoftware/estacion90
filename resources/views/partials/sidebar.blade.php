@@ -35,6 +35,7 @@
                             <li><a href="/productos">Productos</a></li>
                             <li><a href="/menuSemanal">Menu Semanal</a></li>
                             <li><a href="/usuarios">Usuarios</a></li>
+                            <li><a href="/popups">PopUps</a></li>
                         </ul>
                     </li>
                     <li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">

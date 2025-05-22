@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -52,4 +53,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/user/reset-password', [UsuarioController::class, 'resetPasswordLOGIN'])->name('user.reset-password');
     Route::get('/cambiarclave', [UsuarioController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/cambiar-password', [UsuarioController::class, 'changePassword'])->name('password.change.submit');
+
+
+    // Popup
+    Route::get('/popups', [ControllerPopup::class, 'index'])->name('popups.index');
+    Route::get('/popups/create', [ControllerPopup::class, 'create'])->name('popups.create');
+    Route::post('/popups/crear', [ControllerPopup::class, 'store'])->name('popups.store');
+    Route::get('/popups/{popup}/edit', [ControllerPopup::class, 'edit'])->name('popups.edit');
+    Route::put('/popups/{popup}', [ControllerPopup::class, 'update'])->name('popups.update');
+    Route::get('/popups/{popup}/view', [ControllerPopup::class, 'viewDetails'])->name('popups.view');
 });
