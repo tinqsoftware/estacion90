@@ -120,7 +120,7 @@ class PlaneacionMenuController extends Controller
     $createdIds = [];
     
     foreach ($items as $item) {
-        // Create new menu items
+        
         $menuItem = PlaneacionMenu::create([
             'fecha_plan' => $fecha, // Corregido el nombre del campo a fecha_plan
             'id_producto' => $item['producto_id'], // Asegurate de que estos nombres coincidan con tu BD
