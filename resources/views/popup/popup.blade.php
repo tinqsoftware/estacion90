@@ -17,6 +17,8 @@
     <!-- para que no hagan zoom -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
 
     <!-- PAGE TITLE HERE -->
@@ -76,7 +78,6 @@
                                         <th>Foto</th>
                                         <th>Cantidad<br>Por día</th>
                                         <th>Link</th>
-                                        <th>Descripción</th>
                                         <th>Usuario</th>
                                         <th>Fecha creación</th>
                                         <th>Acciones</th>
@@ -88,16 +89,13 @@
                                         <td>{{ \Carbon\Carbon::parse($popup->fecha_visible)->format('d M Y') }}</td>
                                         <td>{{ $popup->nombre }}</td>
                                         <td>
-                                            @if($popup->imagen)
-                                            <img src="{{ asset('storage/' . $popup->imagen) }}"
-                                                alt="{{ $popup->nombre }}" class="img-thumbnail" width="100">
+                                            @if($popup->url_imagen)
+                                            <img src="{{ asset($popup->url_imagen) }}" alt="{{ $popup->nombre }}"
+                                                class="img-thumbnail" width="100">
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            @php
-                                            $cantidad = $popup->popupdias?->first()?->cantidad ?? 0;
-                                            @endphp
-                                            {{ $cantidad }}
+                                            {{ $popup->veces_dia }}
                                         </td>
                                         <td>
                                             @if($popup->link)
@@ -106,12 +104,32 @@
                                             </a>
                                             @endif
                                         </td>
-                                        <td>{{ Str::limit($popup->descripcion, 50) }}</td>
-                                        <td>{{ optional($popup->creador)->name }}</td>
+                                        <td>
+                                            @if($popup->id_user_create)
+                                            {{ optional($popup->creator)->name ?? 'Usuario no encontrado' }}
+                                            @else
+                                            Sin registro
+                                            @endif
+                                        </td>
                                         <td>{{ $popup->created_at->format('d M Y') }}</td>
                                         <td>
-                                            <a href="javascript:void(0);" class="btn btn-sm btn-primary edit-popup-btn"
-                                                data-popup-id="{{ $popup->id }}">EDITAR</a>
+                                            <div class="d-flex">
+                                                <a href="javascript:void(0);"
+                                                    class="btn btn-primary shadow btn-xs sharp me-1 view-popup-btn"
+                                                    data-popup-id="{{ $popup->id }}" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="javascript:void(0);"
+                                                    class="btn btn-info shadow btn-xs sharp me-1 edit-popup-btn"
+                                                    data-popup-id="{{ $popup->id }}" title="Editar">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </a>
+                                                <a href="javascript:void(0);"
+                                                    class="btn btn-danger shadow btn-xs sharp delete-popup-btn"
+                                                    data-popup-id="{{ $popup->id }}" title="Eliminar">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                     @empty
@@ -141,7 +159,7 @@
         </div>
 
         <!-- Modal para ver el detalle del popup -->
-        <div class="modal fade" id="popupModal" tabindex="-1" aria-hidden="true">
+        <div class="modal fade" id="verPopupModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -151,131 +169,196 @@
                         </button>
                     </div>
                     <div class="modal-body" id="popupModalContent">
-                        <!-- Contenido dinámico del popup -->
+                        <div class="popup-details">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Información del Popup</h5>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th>Nombre:</th>
+                                            <td>{{ $popup->nombre }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Fecha de publicación:</th>
+                                            <td>{{ \Carbon\Carbon::parse($popup->fecha_visible)->format('d/m/Y') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Veces por día:</th>
+                                            <td>{{ $popup->veces_dia }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Link:</th>
+                                            <td>
+                                                @if($popup->link)
+                                                <a href="{{ $popup->link }}" target="_blank">{{ $popup->link }}</a>
+                                                @else
+                                                <span class="text-muted">No definido</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Creado por:</th>
+                                            <td>
+                                                @if($popup->id_user_create)
+                                                {{ optional($popup->creator)->name ?? 'Usuario no encontrado' }}
+                                                @else
+                                                Sin registro
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Fecha de creación:</th>
+                                            <td>{{ $popup->created_at->format('d/m/Y H:i') }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6 text-center">
+                                    @if($popup->url_imagen)
+                                    <h5>Imagen</h5>
+                                    <img src="{{ asset($popup->url_imagen) }}" alt="{{ $popup->nombre }}"
+                                        class="img-fluid img-thumbnail mt-2" style="max-height: 300px;">
+                                    @else
+                                    <div class="alert alert-info mt-4">
+                                        <i class="fas fa-info-circle"></i> Este popup no tiene imagen asociada.
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="text-right mt-4">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Modal para crear popup -->
-<div class="modal fade" id="createPopupModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Crear Nuevo Popup</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="createPopupForm" action="{{ route('popups.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="fecha_visible" class="form-label">Fecha de Publicación <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="fecha_visible" name="fecha_visible" value="{{ date('Y-m-d') }}" required>
-                        </div>
+        <div class="modal fade" id="createPopupModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Crear Nuevo Popup</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="link" class="form-label">Link</label>
-                            <input type="url" class="form-control" id="link" name="link">
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="veces_dia" class="form-label">Cantidad por día <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="veces_dia" name="veces_dia" value="1" min="0" required>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="imagen" class="form-label">Imagen</label>
-                        <input type="file" class="form-control" id="imagen" name="imagen">
-                        <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
-                    </div>
-                    
-                    <div class="mt-4 text-right">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Popup</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+                    <div class="modal-body">
+                        <form id="createPopupForm" action="{{ route('popups.store') }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
 
-<!-- Modal para editar popup -->
-<div class="modal fade" id="editPopupModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Editar Popup</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="editPopupForm" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="edit_nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="edit_fecha_visible" class="form-label">Fecha de Publicación <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="edit_fecha_visible" name="fecha_visible" required>
-                        </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="nombre" class="form-label">Nombre <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fecha_visible" class="form-label">Fecha de Publicación <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="fecha_visible" name="fecha_visible"
+                                        value="{{ date('Y-m-d') }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="link" class="form-label">Link</label>
+                                    <input type="url" class="form-control" id="link" name="link">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="veces_dia" class="form-label">Cantidad por día <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="veces_dia" name="veces_dia" value="1"
+                                        min="0" required>
+                                </div>
+                            </div>
+
+
+
+                            <div class="mb-3">
+                                <label for="imagen" class="form-label">Imagen</label>
+                                <input type="file" class="form-control" id="imagen" name="imagen">
+                                <div id="image-preview-container" class="mt-2"></div>
+                                <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
+                            </div>
+
+                            <div class="mt-4 text-right">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Popup</button>
+                            </div>
+                        </form>
                     </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="edit_link" class="form-label">Link</label>
-                            <input type="url" class="form-control" id="edit_link" name="link">
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="edit_veces_dia" class="form-label">Cantidad por día <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="edit_veces_dia" name="veces_dia" min="0" required>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="edit_descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="edit_descripcion" name="descripcion" rows="4"></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="edit_imagen" class="form-label">Imagen</label>
-                        <div id="current_image_container" class="mb-2"></div>
-                        <input type="file" class="form-control" id="edit_imagen" name="imagen">
-                        <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
-                    </div>
-                    
-                    <div class="mt-4 text-right">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Actualizar Popup</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+
+        <!-- Modal para editar popup -->
+        <div class="modal fade" id="editPopupModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Popup</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editPopupForm" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="edit_nombre" class="form-label">Nombre <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_fecha_visible" class="form-label">Fecha de Publicación <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="edit_fecha_visible" name="fecha_visible"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="edit_link" class="form-label">Link</label>
+                                    <input type="url" class="form-control" id="edit_link" name="link">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_veces_dia" class="form-label">Cantidad por día <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="edit_veces_dia" name="veces_dia"
+                                        min="0" required>
+                                </div>
+                            </div>
+
+
+                            <div class="mb-3">
+                                <label for="edit_imagen" class="form-label">Imagen</label>
+                                <div id="current_image_container" class="mb-2"></div>
+                                <input type="file" class="form-control" id="edit_imagen" name="imagen">
+                                <div id="edit-image-preview-container" class="mt-2"></div>
+                                <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
+                            </div>
+
+                            <div class="mt-4 text-right">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Actualizar Popup</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Required vendors -->
@@ -295,161 +378,237 @@
 
     <script>
     $(document).ready(function() {
-    // Existing code for showing popup details
-    $('.popup-row').on('click', function(e) {
-        if (!$(e.target).is('a')) {
-            const popupId = $(this).data('popup-id');
-            loadPopupDetails(popupId);
-        }
-    });
-
-    function loadPopupDetails(popupId) {
-        $.ajax({
-            url: `/popups/${popupId}/view`,
-            type: 'GET',
-            success: function(response) {
-                $('#popupModalContent').html(response);
-                $('#popupModal').modal('show');
-            },
-            error: function(error) {
-                console.error('Error al cargar el popup:', error);
-            }
+        // Image preview functionality
+        $('#imagen, #edit_imagen').on('change', function() {
+            const containerId = $(this).attr('id') === 'imagen' ?
+                'image-preview-container' : 'edit-image-preview-container';
+            previewImage(this, containerId);
         });
-    }
 
-    // Open Create Popup Modal
-    $('#createPopupBtn').on('click', function() {
-        $('#createPopupModal').modal('show');
-    });
+        function previewImage(input, containerId) {
+            const container = $(`#${containerId}`);
+            container.empty();
 
-    // Open Edit Popup Modal
-    $('.edit-popup-btn').on('click', function(e) {
-        e.stopPropagation(); // Prevent row click event
-        const popupId = $(this).data('popup-id');
-        
-        // Reset form
-        $('#editPopupForm')[0].reset();
-        $('#current_image_container').empty();
-        
-        // Set form action
-        $('#editPopupForm').attr('action', `/popups/${popupId}`);
-        
-        // Load popup data
-        $.ajax({
-            url: `/popups/${popupId}/edit`,
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                // Fill form with popup data
-                $('#edit_nombre').val(data.popup.nombre);
-                $('#edit_fecha_visible').val(data.popup.fecha_visible);
-                $('#edit_link').val(data.popup.link);
-                $('#edit_descripcion').val(data.popup.descripcion);
-                
-                // Set cantidad value
-                const cantidad = data.popup.popupdias && data.popup.popupdias.length > 0 
-                    ? data.popup.popupdias[0].cantidad 
-                    : data.popup.veces_dia;
-                $('#edit_veces_dia').val(cantidad);
-                
-                // Show current image if exists
-                if (data.popup.imagen) {
-                    const imgUrl = `/storage/${data.popup.imagen}`;
-                    $('#current_image_container').html(`
-                        <img src="${imgUrl}" alt="${data.popup.nombre}" class="img-thumbnail" style="max-height: 150px;">
-                        <p class="mt-1">Imagen actual</p>
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    container.html(`
+                        <div class="mt-2 mb-2">
+                            <p><strong>Vista previa:</strong></p>
+                            <img src="${e.target.result}" class="img-thumbnail" style="max-height: 150px;">
+                        </div>
                     `);
                 }
-                
-                // Show the modal
-                $('#editPopupModal').modal('show');
-            },
-            error: function(error) {
-                console.error('Error al cargar los datos del popup:', error);
-                Swal.fire('Error', 'No se pudieron cargar los datos del popup', 'error');
+                reader.readAsDataURL(input.files[0]);
             }
+        }
+        // Modal controls
+        $('#createPopupBtn').on('click', function() {
+            $('#createPopupModal').modal('show');
         });
-    });
 
-    // Handle form submissions
-    $('#createPopupForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        $.ajax({
-            url:`/popups/crear`,
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                $('#createPopupModal').modal('hide');
-                Swal.fire('Éxito', 'Popup creado correctamente', 'success')
-                    .then(() => {
-                        window.location.reload();
-                    });
-            },
-            error: function(xhr) {
-                if (xhr.status === 422) { // Validation errors
-                    let errorsHtml = '<ul>';
-                    const errors = xhr.responseJSON.errors;
-                    
-                    for (const field in errors) {
-                        errors[field].forEach(error => {
-                            errorsHtml += `<li>${error}</li>`;
-                        });
-                    }
-                    
-                    errorsHtml += '</ul>';
-                    
-                    Swal.fire('Error de validación', errorsHtml, 'error');
-                } else {
-                    Swal.fire('Error', 'Ocurrió un error al crear el popup', 'error');
-                }
-            }
+
+        // Create form submission
+        $('#createPopupForm').on('submit', function(e) {
+            e.preventDefault();
+            handleFormSubmit(this, '/popups/crear', 'Popup creado correctamente');
         });
-    });
-    
-    $('#editPopupForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                $('#editPopupModal').modal('hide');
-                Swal.fire('Éxito', 'Popup actualizado correctamente', 'success')
-                    .then(() => {
-                        window.location.reload();
-                    });
-            },
-            error: function(xhr) {
-                if (xhr.status === 422) { // Validation errors
-                    let errorsHtml = '<ul>';
-                    const errors = xhr.responseJSON.errors;
-                    
-                    for (const field in errors) {
-                        errors[field].forEach(error => {
-                            errorsHtml += `<li>${error}</li>`;
+
+        // Form submission handling
+        function handleFormSubmit(form, url, successMessage) {
+            const formData = new FormData(form);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $(form).closest('.modal').modal('hide');
+                    Swal.fire('Éxito', successMessage, 'success')
+                        .then(() => {
+                            window.location.reload();
                         });
+                },
+                error: function(xhr) {
+                    console.error('Error status:', xhr.status);
+                    console.error('Error details:', xhr.responseText);
+
+                    try {
+                        let errorDetails = JSON.parse(xhr.responseText);
+                        console.log('Error parsed:', errorDetails);
+
+                        if (xhr.status === 422) { // Validation errors
+                            let errorsHtml = '<ul>';
+                            const errors = errorDetails.errors;
+
+                            for (const field in errors) {
+                                errors[field].forEach(error => {
+                                    errorsHtml += `<li>${error}</li>`;
+                                });
+                            }
+
+                            errorsHtml += '</ul>';
+                            Swal.fire('Error de validación', errorsHtml, 'error');
+                        } else {
+                            Swal.fire('Error',
+                                `Ocurrió un error en la operación: ${errorDetails.message || 'Error desconocido'}`,
+                                'error');
+                        }
+                    } catch (e) {
+                        Swal.fire('Error',
+                            'Ocurrió un error en la operación. Revise la consola para más detalles.',
+                            'error');
                     }
-                    
-                    errorsHtml += '</ul>';
-                    
-                    Swal.fire('Error de validación', errorsHtml, 'error');
-                } else {
-                    Swal.fire('Error', 'Ocurrió un error al actualizar el popup', 'error');
                 }
-            }
+            });
+        }
+
+        // Detalles #
+
+        $('.view-popup-btn').on('click', function() {
+            const popupId = $(this).data('popup-id');
+
+            // Show loading indicator
+            $('#popupModalContent').html(
+                '<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p class="mt-2">Cargando...</p></div>'
+            );
+
+            // Open the modal
+            $('#verPopupModal').modal('show');
+
+            // Fetch popup details
+            $.ajax({
+                url: `/popups/${popupId}/view`,
+                type: 'GET',
+                success: function(response) {
+                    $('#popupModalContent').html(response);
+                },
+                error: function(xhr) {
+                    $('#popupModalContent').html(`
+                    <div class="alert alert-danger">
+                        <h5>Error al cargar los detalles</h5>
+                        <p>No se pudieron cargar los detalles del popup. Por favor, intente nuevamente.</p>
+                    </div>
+                `);
+                    console.error('Error loading popup details:', xhr.responseText);
+                }
+            });
         });
+
+
+        // Edit Popup
+        $('.edit-popup-btn').on('click', function() {
+            const popupId = $(this).data('popup-id');
+
+            // Reset form and clear preview
+            $('#editPopupForm')[0].reset();
+            $('#edit-image-preview-container').empty();
+            $('#current_image_container').empty();
+
+            // Set form action URL
+            $('#editPopupForm').attr('action', `/popups/${popupId}`);
+
+            // Fetch popup data
+            $.ajax({
+                url: `/popups/${popupId}/edit`,
+                type: 'GET',
+                success: function(popup) {
+                    // Populate form fields
+                    $('#edit_nombre').val(popup.nombre);
+                    $('#edit_fecha_visible').val(popup.fecha_visible);
+                    $('#edit_link').val(popup.link);
+                    $('#edit_veces_dia').val(popup.veces_dia);
+
+                    // Show current image if exists
+                    if (popup.url_imagen) {
+                        $('#current_image_container').html(`
+                    <p><strong>Imagen actual:</strong></p>
+                    <img src="${popup.url_imagen}" class="img-thumbnail" style="max-height: 150px;">
+                `);
+                    }
+
+                    // Show modal
+                    $('#editPopupModal').modal('show');
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', 'No se pudo cargar la información del popup',
+                        'error');
+                    console.error('Error loading popup details:', xhr.responseText);
+                }
+            });
+        });
+
+        // Edit form submission
+        $('#editPopupForm').on('submit', function(e) {
+            e.preventDefault();
+            handleFormSubmit(this, $(this).attr('action'), 'Popup actualizado correctamente');
+        });
+
+        // Delete Popup
+        $('.delete-popup-btn').on('click', function() {
+            const popupId = $(this).data('popup-id');
+            const popupRow = $(this).closest('tr.popup-row');
+
+            // Show confirmation dialog
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción eliminará el popup permanentemente y no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // User confirmed, send delete request
+                    $.ajax({
+                        url: `/popups/${popupId}`,
+                        type: 'POST', // Change to POST instead of DELETE
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            _method: 'DELETE' // Add this line for method spoofing
+                        },
+                        success: function(response) {
+                            // Show success message
+                            Swal.fire(
+                                'Eliminado',
+                                'El popup ha sido eliminado correctamente',
+                                'success'
+                            ).then(() => {
+                                // Remove the row from the table
+                                popupRow.fadeOut(400, function() {
+                                    $(this).remove();
+
+                                    // If no more rows, show "no popups" message
+                                    if ($('.popup-row').length ===
+                                        0) {
+                                        $('tbody').html(
+                                            '<tr><td colspan="9" class="text-center">No hay popups disponibles</td></tr>'
+                                        );
+                                    }
+                                });
+                            });
+                        },
+                        error: function(xhr) {
+                            console.error('Error deleting popup:', xhr
+                            .responseText);
+
+                            // Show error message
+                            Swal.fire(
+                                'Error',
+                                'No se pudo eliminar el popup. Por favor, intente nuevamente.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        });
+
     });
-});
     </script>
 
 </body>
