@@ -36,6 +36,6 @@ class popupdia extends Model
      */
     public function popup()
     {
-        return $this->belongsTo(Popup::class, 'id_popup');
+        return $this->belongsTo(popup::class, 'id_popup');
     }
 }
