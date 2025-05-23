@@ -536,6 +536,8 @@
 	const platosCarta = @json($platosCarta);
 	const combos = @json($combos);
 
+	let comensalNombres = {};
+
 	let comensalCount = 1;
 	const maxComensales = 10;
 	const tabContainer = document.getElementById("comensalTabs");
@@ -555,10 +557,10 @@
 		<li class="nav-item" role="presentation" style="width: ${widthPercent}%;">
 			<button class="nav-link ${index === 0 ? 'active' : ''}" data-bs-toggle="tab" 
 			data-bs-target="#comensal${index}" type="button" role="tab">
-			${name}
+				<input type="text" value="${name}" class="comensal-name-input" data-index="${index}" style="border:none;background:transparent;width:100%;text-align:center;font-weight:600;">
 			</button>
-		</li>
-		`;
+		</li>`;
+		
 	}
 
 
@@ -652,14 +654,17 @@
   // comensalIndex es para diferenciar los grupos de radios por comensal
   function renderProductos(productos, typeName, comensalIndex) {
 		let type ='';
+		let typeinput ='radio';
 		if(typeName=='entrada15'||typeName=='entrada20'){
 			type ='entrada';
 		}else if(typeName=='fondo15'||typeName=='fondo20'){
 			type ='fondo';
 		}else if(typeName === 'combo') {
 			type = 'combo';
+			typeinput ='checkbox';
 		}else if(typeName === 'carta') {
 			type = 'carta';
+			typeinput ='checkbox';
 		}
       let html = '';
       productos.forEach(prod => {
@@ -681,9 +686,10 @@
 									</div>
 								</div>
 								<!-- Cada input radio es único por comensal y por tipo -->
-								<input style="display:none;" type="checkbox" tipo="${ typeName }[${ comensalIndex }]" name="${ type }[${ comensalIndex }][]" value="${ prod.id }">
+								<input style="display:none;" type="${ typeinput }" tipo="${ typeName }[${ comensalIndex }]" name="${ type }[${ comensalIndex }]" value="${ prod.id }">
 								<div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
-									<h6>${ prod.nombre }</h6>
+									<img style="display:none;" src="${prod.imagen}" alt="${ prod.nombre }">
+								<h6>${ prod.nombre }</h6>
 									<h4 class="font-w700 mb-0 text-primary">s/.${ prod.precio }</h4>
 								</div>
                           </div>
@@ -699,15 +705,32 @@
 
 	// Función que renderiza las pestañas y contenido según el número de comensales
 	function renderComensales() {
+		const previousNames = { ...comensalNombres };
 		tabContainer.innerHTML = "";
 		tabContent.innerHTML = "";
+
 		for (let i = 0; i < comensalCount; i++) {
+			comensalNombres[i] = previousNames[i] || `COMENSAL ${i + 1}`;
 			tabContainer.innerHTML += createComensalTab(i);
 			tabContent.innerHTML += createComensalContent(i);
 		}
+
+		// Asigna eventos a inputs
+		setTimeout(() => {
+			document.querySelectorAll('.comensal-name-input').forEach(input => {
+				input.addEventListener('input', function () {
+					const index = this.dataset.index;
+					comensalNombres[index] = this.value || `COMENSAL ${parseInt(index) + 1}`;
+					updateOrdenResumen(); // para que también actualice los títulos del resumen
+				});
+			});
+		}, 100);
+
 		initSwipers();
 		updateOrdenResumen();
 	}
+
+
 
 	// Inicialización de los sliders (Swiper) para los contenedores con la clase .mySwiper-3
 	function initSwipers() {
@@ -737,9 +760,16 @@
       // ===============================
     // FUNCIONES PARA ACTUALIZAR EL RESUMEN DE PEDIDO (PASO 2)
     // ===============================
+
+	function getPrecioFromInput(input) {
+		const precio = parseFloat(input.parentElement.querySelector('h4')?.innerText?.replace('s/.', '')) || 0;
+		return precio;
+	}
+	
     function updateOrdenResumen() {
         let resumenHTML = '';
         let totalMenus = 0;
+		let totalGeneral =0;
         // Recorremos cada comensal
         for (let i = 0; i < comensalCount; i++) {
             // Obtenemos las opciones seleccionadas de cada grupo
@@ -750,13 +780,14 @@
 
             let menuPrice = 0;
             let menuType = '';
-            let entradaName = 'No seleccionado';
-            let fondoName = 'No seleccionado';
 
 			let cartaSeleccionada = document.querySelectorAll(`input[tipo="carta[${i}]"]:checked`);
 			let combosSeleccionados = document.querySelectorAll(`input[tipo="combo[${i}]"]:checked`);
 			let platosCarta = [];
 			let totalCarta = 0;
+
+			
+
 
 			cartaSeleccionada.forEach(input => {
 				let nombre = input.parentElement.querySelector('h6').innerText;
@@ -774,87 +805,187 @@
 				totalCombos += precio;
 			});
 
-
-
             // Regla: si se escoge por lo menos un producto del menú S/20 se asigna menú S/20
+			/*
             if ((selE20 && selF20) || (selE20 && selF15) || (selE15 && selF20)) {
                 menuPrice = 20;
                 menuType = "Menú S/20.00";
                 if (selE20) {
-                    entradaName = selE20.parentElement.querySelector('h5').innerText;
+                    entradaName = selE20.parentElement.querySelector('h6').innerText;
                 } else if (selE15) {
-                    entradaName = selE15.parentElement.querySelector('h5').innerText;
+                    entradaName = selE15.parentElement.querySelector('h6').innerText;
                 }
                 if (selF20) {
-                    fondoName = selF20.parentElement.querySelector('h5').innerText;
+                    fondoName = selF20.parentElement.querySelector('h6').innerText;
                 } else if (selF15) {
-                    fondoName = selF15.parentElement.querySelector('h5').innerText;
+                    fondoName = selF15.parentElement.querySelector('h6').innerText;
                 }
             } else if (selE15 && selF15) {
                 menuPrice = 15;
                 menuType = "Menú S/15.00";
-                entradaName = selE15.parentElement.querySelector('h5').innerText;
-                fondoName = selF15.parentElement.querySelector('h5').innerText;
+                entradaName = selE15.parentElement.querySelector('h6').innerText;
+                fondoName = selF15.parentElement.querySelector('h6').innerText;
             } else {
                 menuType = "Incompleto";
-            }
+            }*/
+
+			if (selE20 && selF20 || selE20 && selF15 || selE15 && selF20) {
+				menuPrice = 20;
+				menuType = "Menú S/20.00";
+			} else if (selE15 && selF15) {
+				menuPrice = 15;
+				menuType = "Menú S/15.00";
+			} else if (selE20 || selF20) {
+				menuPrice = selE20 ? getPrecioFromInput(selE20) : getPrecioFromInput(selF20);
+				menuType = "Entrada o Fondo S/20.00";
+			} else if (selE15 || selF15) {
+				menuPrice = selE15 ? getPrecioFromInput(selE15) : getPrecioFromInput(selF15);
+				menuType = "Entrada o Fondo S/15.00";
+			} else {
+				menuPrice = 0;
+				menuType = "Incompleto";
+			}
+
+			entradaName = selE20?.parentElement.querySelector('h6')?.innerText || selE15?.parentElement.querySelector('h6')?.innerText || '';
+			fondoName = selF20?.parentElement.querySelector('h6')?.innerText || selF15?.parentElement.querySelector('h6')?.innerText || '';
+
+
+			let entradaImg = selE20?.parentElement.querySelector('img')?.src || selE15?.parentElement.querySelector('img')?.src || '';
+			let fondoImg   = selF20?.parentElement.querySelector('img')?.src || selF15?.parentElement.querySelector('img')?.src || '';
             totalMenus += menuPrice;
+			
 			let totalComensal = menuPrice + totalCarta + totalCombos;
 			totalGeneral += totalComensal;
+
+			let entradaPrecio = selE20 ? getPrecioFromInput(selE20) : selE15 ? getPrecioFromInput(selE15) : 0;
+			let fondoPrecio = selF20 ? getPrecioFromInput(selF20) : selF15 ? getPrecioFromInput(selF15) : 0;
+
+			// Si el menú está completo, se muestra precio del menú
+			let entradaHtml = '';
+			if (entradaName && entradaImg) {
+				entradaHtml = `
+				<li>
+					<div class="timeline-panel">
+						<div class="media me-2">
+							<img alt="image" width="50" src="${entradaImg}">
+						</div>
+						<div class="media-body">
+							<span>Entrada: </span>
+							<h5 class="mb-1">${entradaName} ${(menuType.includes('Menú')) ? '' : `<p style="right: 10%; color:gray; position: absolute;">s/ ${entradaPrecio.toFixed(2)}</p>`}</h5>
+						</div>
+					</div>
+				</li>`;
+			}
+
+			let fondoHtml = '';
+			if (fondoName && fondoImg) {
+				fondoHtml = `
+				<li>
+					<div class="timeline-panel">
+						<div class="media me-2">
+							<img alt="image" width="50" src="${fondoImg}">
+						</div>
+						<div class="media-body">
+							<span>Fondo: </span>
+							<h5 class="mb-1">${fondoName} ${(menuType.includes('Menú')) ? '' : `<p style="right: 10%; color:gray; position: absolute;">s/ ${fondoPrecio.toFixed(2)}</p>`}</h5>
+						</div>
+					</div>
+				</li>`;
+			}
+
+			let cartaHtml = '';
+			if (platosCarta.length > 0) {
+				cartaHtml = `
+				<li>
+					<div class="timeline-panel">
+						<div class="media-body">
+							<span>Platos a la carta:</span>
+							<ul>
+								${[...cartaSeleccionada].map(input => {
+									let img = input.parentElement.querySelector('img')?.src;
+									let nombre = input.parentElement.querySelector('h6')?.innerText;
+									let precio = input.parentElement.querySelector('h4')?.innerText;
+									return `<li style="display:flex;align-items:center;gap:10px;">
+												<div class="media me-2">
+													<img src="${img}" width="40">
+												</div> 
+												<div class="media-body">
+													<span>${nombre}: <b style="right: 10%; position: absolute;"> ${precio}</b></span>
+												</div> 
+											</li>`;
+								}).join('')}
+							</ul>
+						</div>
+					</div>
+				</li>`;
+			}
+
+			let comboHtml = '';
+			if (combos.length > 0) {
+				comboHtml = `
+				<li>
+					<div class="timeline-panel">
+						<div class="media-body">
+							<span>Combos:</span>
+							<ul>
+								${[...combosSeleccionados].map(input => {
+									let img = input.parentElement.querySelector('img')?.src;
+									let nombre = input.parentElement.querySelector('h6')?.innerText;
+									let precio = input.parentElement.querySelector('h4')?.innerText;
+									return `<li style="display:flex;align-items:center;gap:10px;">
+												<div class="media me-2">
+													<img src="${img}" width="40"> 
+												</div> 
+												<div class="media-body">
+													<span>${nombre}: <b style="right: 10%; position: absolute;">${precio}</b></span>
+												</div> 
+											</li>`;
+								}).join('')}
+							</ul>
+						</div>
+					</div>
+				</li>`;
+			}
+
+			let menuHtml = '';
+			if (entradaName && fondoName && menuPrice > 0) {
+				menuHtml = `
+				<li>
+					<div class="timeline-panel" style="border: none;">
+						<div class="media-body" style="padding-left: 12px;">
+							<span style="font-weight: bold; position: absolute; right: 10%;">${menuType}</span>
+						</div>
+					</div>
+				</li>`;
+			}
+
+			let nombreComensal = comensalNombres[i] || `COMENSAL ${i+1}`;
+
+
             resumenHTML += `
 			<div class="accordion-item">
 				<div class="accordion-header collapsed rounded-lg" id="accord-${i+1}" data-bs-toggle="collapse" data-bs-target="#collapse${i+1}" aria-controls="collapse${i+1}"   aria-expanded="true"  role="button">
 					<i class="la la-user me-2"></i>
-					<span class="accordion-header-text" style="padding-left: 5px;">COMENSAL ${i+1} - <b>${menuType}</b></span>
+					<span class="accordion-header-text" style="padding-left: 5px;">${nombreComensal} - <b>S/ ${totalComensal.toFixed(2)}</b></span>
 					<span class="accordion-header-indicator"></span>
 				</div>
 				<div id="collapse${i+1}" class="collapse accordion__body" aria-labelledby="accord-${i+1}" data-bs-parent="#resumenComensales">
 					<div class="accordion-body-text">
 						<div id="DZ_W_Todo2" class="widget-media dlab-scroll ">
 							<ul class="timeline">
-								<li>
-									<div class="timeline-panel">
-										<div class="media me-2">
-											<img alt="image" width="50" src="access/images/popular-img/gallina.jpg">
-										</div>
-										<div class="media-body">
-											<span>Entrada: </span><h5 class="mb-1">${entradaName}</h5>
-										</div>
-									</div>
-								</li>
-								<li>
-									<div class="timeline-panel">
-										<div class="media me-2">
-											<img alt="image" width="50"  src="access/images/popular-img/brasa.png">
-										</div>
-										<div class="media-body">
-											<span>Fondo: </span><h5 class="mb-1">${fondoName}</h5>
-										</div>
-									</div>
-								</li>
-								<li>
-									<div class="timeline-panel">
-										<div class="media-body">
-											<span>Platos a la carta:</span>
-											<ul>${ platosCarta.map(p => `<li>${p}</li>`).join('') }</ul>
-										</div>
-									</div>
-								</li>
-								<li>
-									<div class="timeline-panel">
-										<div class="media-body">
-											<span>Combos:</span>
-											<ul>${ combos.map(p => `<li>${p}</li>`).join('') }</ul>
-										</div>
-									</div>
-								</li>
-								
+								${entradaHtml}
+								${fondoHtml}
+								${menuHtml}
+								${cartaHtml}
+								${comboHtml}
 							</ul>
 						</div>
 					</div>
 				</div>
 			</div>`;
         }
+
+			
         document.getElementById("resumenComensales").innerHTML = resumenHTML;
 
         // Extras: calcular el total de extras
@@ -881,29 +1012,48 @@
             total: totalOrder
         });
     }
+
+	$(document).on('click', 'input[type="checkbox"]', function (e) {
+		const wasChecked = $(this).prop('checked');
+		$(this).prop('checked', !wasChecked); // Toggle manual
+		updateOrdenResumen();
+	});
   
   	// Usamos delegación de eventos para atender a los clicks en cualquier elemento con la clase .plus
 	$(document).on('click', '.plus', function(e) {
 		e.preventDefault();
 
-		// Obtenemos el radio input asociado a este botón 'plus'
-		// Suponemos que el input radio está justo después del DIV .plus en la estructura del HTML
-		var $radio = $(this).siblings('input[type="radio"]');
-		
-		// Obtenemos el atributo 'name' del radio para identificar el grupo (por ejemplo, "entrada15[0]")
-		var groupName = $radio.attr('name');
-		
-		// Removemos la clase 'active' de todos los elementos .plus que estén en el mismo grupo
-		$('input[name="' + groupName + '"]').siblings('.plus').removeClass('active');
-		
-		// Agregamos la clase 'active' al botón 'plus' que se clickeó
-		$(this).addClass('active');
+		const $input = $(this).siblings('input');
 
-		// Marcamos el radio correspondiente como seleccionado
-		$radio.prop('checked', true);
+		if ($input.length === 0) return;
+
+		const isCheckbox = $input.attr('type') === 'checkbox';
+		const isRadio = $input.attr('type') === 'radio';
+
+		if (isCheckbox) {
+			const wasChecked = $input.prop('checked');
+			$input.prop('checked', !wasChecked);
+			$(this).toggleClass('active', !wasChecked);
+		} else if (isRadio) {
+			const groupName = $input.attr('name');
+			const isAlreadySelected = $input.prop('checked');
+
+			if (isAlreadySelected) {
+				// Deseleccionar radio manualmente
+				$input.prop('checked', false);
+				$(this).removeClass('active');
+			} else {
+				// Seleccionar radio y quitar clase 'active' de los demás en el grupo
+				$(`input[name="${groupName}"]`).prop('checked', false).siblings('.plus').removeClass('active');
+				$input.prop('checked', true);
+				$(this).addClass('active');
+			}
+		}
+
 		updateOrdenResumen();
-		
 	});
+
+
 
 	// Para cambios en los inputs radio en caso de seleccionarse por medios distintos
 	$(document).on('change', 'input[type="radio"]', function() {
