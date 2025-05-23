@@ -19,6 +19,8 @@ Auth::routes();
 
 // Public routes
 Route::get('/', [Inicio::class, 'inicio']);
+Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
+Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
 
 // Protected routes - requires authentication
 Route::middleware(['auth'])->group(function () {
@@ -61,11 +63,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/popups/create', [ControllerPopup::class, 'create'])->name('popups.create');
     Route::post('/popups/crear', [ControllerPopup::class, 'store'])->name('popups.store');
     Route::get('/popups/{id}/edit', [ControllerPopup::class, 'edit'])->name('popups.edit');
-    Route::get('/popups/{id}/view', [ControllerPopup::class, 'viewDetails'])->name('popups.view');
+    Route::get('/popups/{id}/view', [ControllerPopup::class, 'viewDetails'])->name('popups.view-details');
     Route::put('/popups/{id}', [ControllerPopup::class, 'update'])->name('popups.update');
     Route::delete('/popups/{id}', [ControllerPopup::class, 'destroy'])->name('popups.destroy');
-
-    // Popup diario
-    Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
-    Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
 });
