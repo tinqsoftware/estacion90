@@ -7,11 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-<<<<<<< HEAD
         "intervention/image": "*",
-=======
-        "intervention/image": "^3.11",
->>>>>>> 68032833ced9441f0b2cad7c5f2422b07e975fce
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6"
