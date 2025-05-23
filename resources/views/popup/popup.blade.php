@@ -169,6 +169,7 @@
                         </button>
                     </div>
                     <div class="modal-body" id="popupModalContent">
+                        @if(isset($popup) && $popup)
                         <div class="popup-details">
                             <div class="row">
                                 <div class="col-md-6">
@@ -229,6 +230,11 @@
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
+                        @else
+                        <div class="text-center">
+                            <p>Los detalles del popup se cargarán al seleccionar un registro.</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
