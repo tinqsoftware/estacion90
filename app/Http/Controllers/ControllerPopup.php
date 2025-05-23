@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\popup;
 use App\Models\popupdia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -49,46 +50,61 @@ class ControllerPopup extends Controller
         return null;
     }
 
-    $targetDir = public_path('access/images/popular-img/');
-    if (!file_exists($targetDir)) {
-        mkdir($targetDir, 0755, true);
+    try {
+        $targetDir = public_path('access/images/popular-img/');
+        if (!file_exists($targetDir)) {
+            if (!mkdir($targetDir, 0755, true)) {
+                Log::error("Failed to create directory: $targetDir");
+                return null;
+            }
+        }
+
+        // Check if directory is writable
+        if (!is_writable($targetDir)) {
+            Log::error("Directory is not writable: $targetDir");
+            return null;
+        }
+
+        $filename = time() . '_' . $imageFile->getClientOriginalName();
+        $imagePath = $targetDir . $filename;
+        $relativePath = 'access/images/popular-img/' . $filename;
+
+        // Usa ImageManager directamente
+        $manager = new ImageManager(new Driver());
+        $img = $manager->read($imageFile->getPathname());
+        
+        // Get image dimensions
+        $width = $img->width();
+        $height = $img->height();
+        
+        // First crop to a square (using the shortest side)
+        if ($width > $height) {
+            // Landscape image
+            $x = ($width - $height) / 2;
+            $y = 0;
+            $size = $height;
+        } else {
+            // Portrait or square image
+            $x = 0;
+            $y = ($height - $width) / 2;
+            $size = $width;
+        }
+        
+        // Crop to square
+        $img->crop($size, $size, (int)$x, (int)$y);
+        
+        // Now resize to exactly 200x200 (was 500x500)
+        $img->resize(200, 200);
+        
+        // Save the final image
+        $img->save($imagePath);
+
+        return $relativePath;
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error("Image processing failed: " . $e->getMessage());
+        return null;
     }
-
-    $filename = time() . '_' . $imageFile->getClientOriginalName();
-    $imagePath = $targetDir . $filename;
-    $relativePath = 'access/images/popular-img/' . $filename;
-
-    // Usa ImageManager directamente
-    $manager = new ImageManager(new Driver());
-    $img = $manager->read($imageFile->getPathname());
-    
-    // Get image dimensions
-    $width = $img->width();
-    $height = $img->height();
-    
-    // First crop to a square (using the shortest side)
-    if ($width > $height) {
-        // Landscape image
-        $x = ($width - $height) / 2;
-        $y = 0;
-        $size = $height;
-    } else {
-        // Portrait or square image
-        $x = 0;
-        $y = ($height - $width) / 2;
-        $size = $width;
-    }
-    
-    // Crop to square
-    $img->crop($size, $size, (int)$x, (int)$y);
-    
-    // Now resize to exactly 200x200
-    $img->resize(500, 500);
-    
-    // Save the final image
-    $img->save($imagePath);
-
-    return $relativePath;
 }
 
     /**
@@ -138,39 +154,48 @@ class ControllerPopup extends Controller
      */
     public function update(Request $request, $id)
 {
-    $validated = $request->validate([
-        'nombre' => 'required|string|max:255',
-        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-        'link' => 'nullable|url|max:255',
-        'fecha_visible' => 'required|date',
-        'veces_dia' => 'required|integer|min:0',
-    ]);
+    try {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'link' => 'nullable|url|max:255',
+            'fecha_visible' => 'required|date',
+            'veces_dia' => 'required|integer|min:0',
+        ]);
 
-    $popup = Popup::findOrFail($id);
-    
-    // Keep original image if no new image is uploaded
-    $url_imagen = $popup->url_imagen;
-
-    // Handle image upload with automatic resizing
-    if ($request->hasFile('imagen')) {
-        // Delete old image if exists
-        if ($popup->url_imagen && file_exists(public_path($popup->url_imagen))) {
-            unlink(public_path($popup->url_imagen));
-        }
+        $popup = Popup::findOrFail($id);
         
-        $url_imagen = $this->processAndSaveImage($request->file('imagen'));
+        // Keep original image if no new image is uploaded
+        $url_imagen = $popup->url_imagen;
+
+        // Handle image upload with automatic resizing
+        if ($request->hasFile('imagen')) {
+            // Delete old image if exists
+            if ($popup->url_imagen && file_exists(public_path($popup->url_imagen))) {
+                unlink(public_path($popup->url_imagen));
+            }
+            
+            $url_imagen = $this->processAndSaveImage($request->file('imagen'));
+            
+            if ($url_imagen === null) {
+                return response()->json(['message' => 'Failed to process image'], 500);
+            }
+        }
+
+        // Update popup fields
+        $popup->nombre = $validated['nombre'];
+        $popup->url_imagen = $url_imagen;
+        $popup->link = $validated['link'] ?? null;
+        $popup->veces_dia = $validated['veces_dia'];
+        $popup->fecha_visible = $validated['fecha_visible'];
+        $popup->save();
+
+        return redirect()->route('popups.index')
+            ->with('success', 'Popup actualizado correctamente');
+    } catch (\Exception $e) {
+        Log::error("Popup update failed: " . $e->getMessage());
+        return response()->json(['message' => $e->getMessage()], 500);
     }
-
-    // Update popup fields
-    $popup->nombre = $validated['nombre'];
-    $popup->url_imagen = $url_imagen;
-    $popup->link = $validated['link'] ?? null;
-    $popup->veces_dia = $validated['veces_dia'];
-    $popup->fecha_visible = $validated['fecha_visible'];
-    $popup->save();
-
-    return redirect()->route('popups.index')
-        ->with('success', 'Popup actualizado correctamente');
 }
 
     /**
