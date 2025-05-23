@@ -107,7 +107,6 @@ class ControllerPopup extends Controller
 
     $popup = Popup::findOrFail($id);
     
-    // Keep original image if no new image is uploaded
     $url_imagen = $popup->url_imagen;
 
     // Handle image upload
