@@ -240,12 +240,7 @@
                                                             @endif
                                                         </tbody>
                                                     </table>
-                                                    <!-- Paginación para todos los productos -->
-                                                    <div class="d-flex justify-content-center mt-4">
-                                                        @if(isset($todosProductos))
-                                                        {{ $todosProductos->withPath(request()->url())->appends(['tab_id' => 'todos'])->links() }}
-                                                        @endif
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -548,12 +543,54 @@
     $(document).ready(function() {
 
         $(document).ready(function() {
-            $("#filtro-todos-productos").on("keyup", function() {
-                var value = $(this).val().toLowerCase();
-                $("#todos-productos .fila-producto").filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-                });
-            });
+            const $filasProductos = $("#todos-productos .fila-producto");
+    
+    // Variable para almacenar la URL original
+    const originalUrl = window.location.href;
+    
+    // Obtener parámetros de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search');
+    
+    // Si hay un parámetro de búsqueda en la URL, establecerlo en el campo
+    if (searchParam) {
+        $("#filtro-todos-productos").val(searchParam);
+    }
+    
+    // Función de filtrado en tiempo real (filtrado local solamente)
+    $("#filtro-todos-productos").on("keyup", function() {
+        const valor = $(this).val().toLowerCase().trim();
+        
+        // Si el valor está vacío, mostrar todas las filas
+        if (valor === "") {
+            $filasProductos.show();
+            return;
+        }
+        
+        // Filtrado rápido local (instantáneo)
+        $filasProductos.each(function() {
+            const textoFila = $(this).text().toLowerCase();
+            $(this).toggle(textoFila.indexOf(valor) > -1);
+        });
+    });
+    
+    // Si hay un filtro aplicado inicialmente, ejecutarlo
+    if (searchParam) {
+        $("#filtro-todos-productos").trigger("keyup");
+    }
+    
+    // Añadir botón para limpiar el filtro
+    if ($("#limpiar-filtro").length === 0) {
+        $("#filtro-todos-productos").after(
+            '<button id="limpiar-filtro" class="btn btn-sm btn-outline-secondary mt-2">Limpiar filtro</button>'
+        );
+    }
+    
+    // Manejar clic en botón de limpiar
+    $(document).on('click', '#limpiar-filtro', function() {
+        $("#filtro-todos-productos").val("");
+        $filasProductos.show();
+    });
         });
 
         // Modificar el evento de clic para los botones de ver detalle

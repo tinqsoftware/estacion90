@@ -342,19 +342,8 @@
 					</div>
 					
 
-					<!-- Modal genérico para mostrar info de un producto -->
-					<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
-						<div class="modal-dialog modal-dialog-centered">
-							<div class="modal-content">
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" style="position: absolute;right: 10px;top: 10px;background-color: white;height: 20px;width: 20px;border-radius: 20px;"></button>
-								<img id="modalImage" src="" style="width:100%; max-height:200px; object-fit:cover;" alt="" />
-								<div class="modal-body">
-									<h5 class="modal-title" id="modalTitle">Título</h5>
-									<p id="modalDescription" class="mt-3"></p>
-								</div>
-							</div>
-						</div>
-					</div>
+			
+			
 
 
 				</div>
@@ -415,8 +404,7 @@
     
 	<script>
 		$(document).ready(function(){
-			// SmartWizard initialize
-			$('#exampleModalCenter').modal('show');
+			
 			$('#smartwizard').smartWizard(); 
 		});
 	</script>
@@ -513,6 +501,52 @@
 			$(this).val(100);
 		}
 	}
+
+	function loadAndShowPopups() {
+    $.ajax({
+        url: '{{ route("popups.for-user") }}',
+        type: 'GET',
+        success: function(response) {
+            if (response.success && response.popups.length > 0) {
+                // Tomar el primer popup disponible
+                const popup = response.popups[0];
+                
+                // Configurar contenido del modal
+                if (popup.url_imagen) {
+                    $('#exampleModalCenter .modal-content div').html(
+                        `<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
+                    );
+                }
+                
+                // Si hay link, hacer que el popup sea clickeable
+                if (popup.link) {
+                    $('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click', function() {
+                        window.open(popup.link, '_blank');
+                    });
+                }
+                
+                // Mostrar el modal
+                $('#exampleModalCenter').modal('show');
+                
+                // Registrar la vista - CORREGIDO
+                $.ajax({
+                    url: '{{ route("popups.view") }}',
+                    type: 'POST',
+                    data: {
+                        popup_id: popup.id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    error: function(xhr) {
+                        console.error('Error al registrar vista:', xhr.responseText);
+                    }
+                });
+            }
+        }
+    });
+}
+	$(document).ready(function() {
+    loadAndShowPopups();
+	});
 
 		
 	$(document).ready(function(){

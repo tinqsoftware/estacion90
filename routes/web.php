@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ControllerPopup;
+use App\Http\Controllers\ControllerPopupDia;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -52,4 +54,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/user/reset-password', [UsuarioController::class, 'resetPasswordLOGIN'])->name('user.reset-password');
     Route::get('/cambiarclave', [UsuarioController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/cambiar-password', [UsuarioController::class, 'changePassword'])->name('password.change.submit');
+
+
+    // Popup
+    Route::get('/popups', [ControllerPopup::class, 'index'])->name('popups.index');
+    Route::get('/popups/create', [ControllerPopup::class, 'create'])->name('popups.create');
+    Route::post('/popups/crear', [ControllerPopup::class, 'store'])->name('popups.store');
+    Route::get('/popups/{id}/edit', [ControllerPopup::class, 'edit'])->name('popups.edit');
+    Route::get('/popups/{id}/view', [ControllerPopup::class, 'viewDetails'])->name('popups.view');
+    Route::put('/popups/{id}', [ControllerPopup::class, 'update'])->name('popups.update');
+    Route::delete('/popups/{id}', [ControllerPopup::class, 'destroy'])->name('popups.destroy');
+
+    // Popup diario
+    Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
+    Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
 });

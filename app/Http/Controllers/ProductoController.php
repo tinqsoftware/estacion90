@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Categoria;
 use App\Models\Producto;
 use Storage;
@@ -14,6 +14,7 @@ class ProductoController extends Controller
 {
     $categorias = Categoria::all();
     $activeTabId = request()->get('tab_id', 'todos');
+    $search = request()->get('search');
     
     // Para cada categoría, cargamos sus productos con paginación
     foreach ($categorias as $categoria) {
@@ -27,13 +28,26 @@ class ProductoController extends Controller
         $categoria->productosPaginados->appends(['tab_id' => $activeTabId]);
     }
 
-    // Tab "Todos" - ordenado alfabéticamente por nombre
-    $todosProductos = Producto::with(['creador', 'categoria'])
-        ->where('estado', 1)  // Solo mostrar productos activos 
-        ->orderBy('nombre', 'asc')  // Ordenar alfabéticamente por nombre
-        ->paginate(15);  // Aumentar el número para mostrar más productos
+    // Tab "Todos" - ordenado alfabéticamente por nombre, sin paginación
+    $query = Producto::with(['creador', 'categoria'])
+        ->where('estado', 1);  // Solo mostrar productos activos
     
-    return view('productos.productos', compact('categorias', 'activeTabId', 'todosProductos'));
+    // Aplicar búsqueda si existe
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('nombre', 'like', "%{$search}%")
+              ->orWhere('descripcion', 'like', "%{$search}%")
+              ->orWhere('precio', 'like', "%{$search}%")
+              ->orWhereHas('categoria', function($subq) use ($search) {
+                  $subq->where('nombre', 'like', "%{$search}%");
+              });
+        });
+    }
+    
+    // Obtener todos los productos sin paginación
+    $todosProductos = $query->orderBy('nombre', 'asc')->get();
+    
+    return view('productos.productos', compact('categorias', 'activeTabId', 'todosProductos', 'search'));
 }
 
     // Mostrar un producto específico
@@ -68,7 +82,7 @@ class ProductoController extends Controller
         $producto->id_categoria = $request->categoria_id;
         $producto->stock = $request->stock;
         $producto->estado = 1; // Estado activo por defecto
-        $producto->id_user_create = auth()->id() ?? 1;
+        $producto->id_user_create = \Illuminate\Support\Facades\Auth::id() ?? 1;
         
         // Procesar la imagen si existe
         if ($request->hasFile('imagen')) {
