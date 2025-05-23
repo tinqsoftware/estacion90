@@ -507,9 +507,12 @@
         url: '{{ route("popups.for-user") }}',
         type: 'GET',
         success: function(response) {
-            if (response.success && response.popups.length > 0) {
+            
+            
+            if (response.success && response.popups && response.popups.length > 0) {
                 // Tomar el primer popup disponible
                 const popup = response.popups[0];
+                
                 
                 // Configurar contenido del modal
                 if (popup.url_imagen) {
@@ -528,7 +531,7 @@
                 // Mostrar el modal
                 $('#exampleModalCenter').modal('show');
                 
-                // Registrar la vista - CORREGIDO
+                // Registrar la vista
                 $.ajax({
                     url: '{{ route("popups.view") }}',
                     type: 'POST',
@@ -536,11 +539,19 @@
                         popup_id: popup.id,
                         _token: '{{ csrf_token() }}'
                     },
+                    success: function(data) {
+                        
+                    },
                     error: function(xhr) {
-                        console.error('Error al registrar vista:', xhr.responseText);
+                        
                     }
                 });
+            } else {
+                
             }
+        },
+        error: function(xhr) {
+            
         }
     });
 }
