@@ -383,6 +383,79 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 
     <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[name="imagen"]');
+    if (!imageInput) return;
+    
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Show loading indicator
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.id = 'upload-loading';
+        loadingIndicator.innerHTML = 'Procesando imagen...';
+        loadingIndicator.style.color = 'blue';
+        this.parentNode.appendChild(loadingIndicator);
+        
+        // Check file size
+        if (file.size > 5000000) { // 5MB
+            compressImage(file, this);
+        }
+    });
+    
+    function compressImage(file, inputElement) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                // Calculate new dimensions (max 1000px width for upload)
+                if (width > 1000) {
+                    height = Math.round(height * (1000 / width));
+                    width = 1000;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to blob with 80% quality
+                canvas.toBlob(function(blob) {
+                    // Create a new file from the compressed blob
+                    const compressedFile = new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+                    
+                    // Replace the file in the input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(compressedFile);
+                    inputElement.files = dataTransfer.files;
+                    
+                    // Remove loading indicator and show success message
+                    const loadingIndicator = document.getElementById('upload-loading');
+                    if (loadingIndicator) {
+                        loadingIndicator.innerHTML = 'Imagen optimizada para carga';
+                        loadingIndicator.style.color = 'green';
+                    }
+                    
+                }, 'image/jpeg', 0.8);
+            };
+        };
+    }
+});     
+
     $(document).ready(function() {
 
         $('.tab-link').on('click', function() {
@@ -685,5 +758,9 @@
 
     });
     </script>
+
+@section('scripts')
+    <script src="{{ asset('js/image-upload.js') }}"></script>
+@endsection
 
 </body>

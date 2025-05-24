@@ -51,6 +51,9 @@ class ControllerPopup extends Controller
     }
 
     try {
+        // Set memory limit higher for processing large images
+        ini_set('memory_limit', '256M');
+        
         $targetDir = public_path('access/images/popular-img/');
         if (!file_exists($targetDir)) {
             if (!mkdir($targetDir, 0755, true)) {
@@ -65,44 +68,90 @@ class ControllerPopup extends Controller
             return null;
         }
 
-        $filename = time() . '_' . $imageFile->getClientOriginalName();
+        $filename = time() . '_' . preg_replace('/[^A-Za-z0-9\-\_\.]/', '', $imageFile->getClientOriginalName());
         $imagePath = $targetDir . $filename;
         $relativePath = 'access/images/popular-img/' . $filename;
 
-        // Usa ImageManager directamente
-        $manager = new ImageManager(new Driver());
-        $img = $manager->read($imageFile->getPathname());
+        // For very large images, use a different approach
+        $fileSize = $imageFile->getSize();
         
-        // Get image dimensions
-        $width = $img->width();
-        $height = $img->height();
+        // Log file information
+        Log::info("Processing image: " . $filename . ", size: " . $fileSize . " bytes");
         
-        // First crop to a square (using the shortest side)
-        if ($width > $height) {
-            // Landscape image
-            $x = ($width - $height) / 2;
-            $y = 0;
-            $size = $height;
+        if ($fileSize > 5000000) { // 5MB
+            Log::info("Large image detected, using optimized processing");
+            
+            // Save the uploaded file directly
+            $tempPath = $imageFile->getRealPath();
+            
+            // Use PHP's GD library instead of Intervention for large files
+            $srcImage = imagecreatefromstring(file_get_contents($tempPath));
+            
+            // Get original dimensions
+            $width = imagesx($srcImage);
+            $height = imagesy($srcImage);
+            
+            // Calculate dimensions for square crop
+            if ($width > $height) {
+                $x = ($width - $height) / 2;
+                $y = 0;
+                $size = $height;
+            } else {
+                $x = 0;
+                $y = ($height - $width) / 2;
+                $size = $width;
+            }
+            
+            // Create a square image
+            $squareImage = imagecreatetruecolor($size, $size);
+            imagecopy($squareImage, $srcImage, 0, 0, (int)$x, (int)$y, $size, $size);
+            
+            // Create final resized image
+            $finalImage = imagecreatetruecolor(200, 200);
+            imagecopyresampled($finalImage, $squareImage, 0, 0, 0, 0, 200, 200, $size, $size);
+            
+            // Save the image
+            imagejpeg($finalImage, $imagePath, 90);
+            
+            // Free memory
+            imagedestroy($srcImage);
+            imagedestroy($squareImage);
+            imagedestroy($finalImage);
         } else {
-            // Portrait or square image
-            $x = 0;
-            $y = ($height - $width) / 2;
-            $size = $width;
+            // Use intervention/image for smaller files
+            $manager = new ImageManager(new Driver());
+            $img = $manager->read($imageFile->getPathname());
+            
+            // Get image dimensions
+            $width = $img->width();
+            $height = $img->height();
+            
+            // First crop to a square (using the shortest side)
+            if ($width > $height) {
+                $x = ($width - $height) / 2;
+                $y = 0;
+                $size = $height;
+            } else {
+                $x = 0;
+                $y = ($height - $width) / 2;
+                $size = $width;
+            }
+            
+            // Crop to square
+            $img->crop($size, $size, (int)$x, (int)$y);
+            
+            // Now resize to exactly 200x200
+            $img->resize(200, 200);
+            
+            // Save the final image
+            $img->save($imagePath);
         }
         
-        // Crop to square
-        $img->crop($size, $size, (int)$x, (int)$y);
-        
-        // Now resize to exactly 200x200 (was 500x500)
-        $img->resize(200, 200);
-        
-        // Save the final image
-        $img->save($imagePath);
-
+        Log::info("Image processed successfully: " . $relativePath);
         return $relativePath;
     } catch (\Exception $e) {
-        // Log the error
         Log::error("Image processing failed: " . $e->getMessage());
+        Log::error("Error trace: " . $e->getTraceAsString());
         return null;
     }
 }
