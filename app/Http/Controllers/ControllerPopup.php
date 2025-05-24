@@ -114,7 +114,7 @@ class ControllerPopup extends Controller
 {
     $validated = $request->validate([
         'nombre' => 'required|string|max:255',
-        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:3072',
         'link' => 'nullable|url|max:255',
         'fecha_visible' => 'required|date',
         'veces_dia' => 'required|integer|min:0',
@@ -157,7 +157,7 @@ class ControllerPopup extends Controller
     try {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:3072',
             'link' => 'nullable|url|max:255',
             'fecha_visible' => 'required|date',
             'veces_dia' => 'required|integer|min:0',
