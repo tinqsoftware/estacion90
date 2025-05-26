@@ -78,7 +78,7 @@ class EditUserController extends Controller
 public function uploadImage(Request $request)
 {
     $request->validate([
-        'imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'imagen' => 'required|image|mimes:jpeg,png,jpg,gif',
     ]);
     
     $user = User::find(Auth::id());

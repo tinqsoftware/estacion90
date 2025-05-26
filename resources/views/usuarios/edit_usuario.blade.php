@@ -627,10 +627,7 @@
             });
     });
 
-    // Remove old image upload code that isn't being used
-    document.querySelector('.upload-btn').removeEventListener('click', function() {
-        // This removes any previously attached event listeners
-    });
+    
     document.addEventListener('DOMContentLoaded', function() {
         // Default coordinates (you can replace these with actual coordinates)
         const lat = -12.0464; // Lima, Peru coordinates as example
@@ -662,38 +659,6 @@
         hideModal();
     }
 
-    // Validación de email
-    document.getElementById('email').addEventListener('blur', function() {
-        const email = this.value;
-        if (email) {
-            // Simulación de validación
-            setTimeout(() => {
-                alert('Este correo será su usuario de la plataforma');
-            }, 500);
-        }
-    });
-
-    // Funcionalidad de carga de imagen
-    document.querySelector('.upload-btn').addEventListener('click', function() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const placeholder = document.querySelector('.image-placeholder');
-                    placeholder.innerHTML = '';
-                    placeholder.style.backgroundImage = `url(${e.target.result})`;
-                    placeholder.style.backgroundSize = 'cover';
-                    placeholder.style.backgroundPosition = 'center';
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-        input.click();
-    });
     </script>
 
     <!-- Required vendors -->
