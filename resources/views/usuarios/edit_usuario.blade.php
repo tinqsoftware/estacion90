@@ -406,7 +406,7 @@
 
                 <div class="profile-section">
                     <div class="profile-image">
-                        <div class="image-placeholder">
+                        <div class="image-placeholder" id="image-preview">
                             @if(isset($user->imagen) && !empty($user->imagen))
                             <img src="{{ asset('access/images/popular-img/' . $user->imagen) }}" alt="Imagen de perfil"
                                 style="width: 100%; height: 100%; object-fit: cover;">
@@ -418,10 +418,12 @@
                             </svg>
                             @endif
                         </div>
-                        <button class="upload-btn">Cargar imagen</button>
+                        <input type="file" id="imagen-input" name="imagen" accept="image/*" style="display: none;">
+                        <button type="button" class="upload-btn" id="trigger-upload">Cargar imagen</button>
                     </div>
 
-                    <div class="form-fields">
+                    <form id="profile-form" class="form-fields">
+                        @csrf
                         <div class="field-group">
                             <label for="nombres">Nombres</label>
                             <input type="text" id="nombres" name="nombres" value="{{ $user->name ?? '' }}">
@@ -442,8 +444,8 @@
                             <input type="tel" id="telefono" name="telefono" value="{{ $user->telefono ?? '' }}">
                         </div>
 
-                        <button class="save-btn">Grabar</button>
-                    </div>
+                        <button type="button" class="save-btn" id="save-profile">Grabar</button>
+                    </form>
                 </div>
 
                 <div class="address-section">
@@ -496,10 +498,10 @@
                                     <td>{{ $direccion->direccion }}</td>
                                     <td>{{ $direccion->referencia }}</td>
                                     <td>
-                                        
+
                                     </td>
                                     <td>
-                                      
+
                                     </td>
                                 </tr>
                                 @endforeach
@@ -528,6 +530,107 @@
     </div>
 
     <script>
+    document.getElementById('trigger-upload').addEventListener('click', function() {
+        document.getElementById('imagen-input').click();
+    });
+
+    document.getElementById('imagen-input').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imagePreview = document.getElementById('image-preview');
+            imagePreview.innerHTML =
+                `<img src="${e.target.result}" alt="Imagen de perfil" style="width: 100%; height: 100%; object-fit: cover;">`;
+        };
+        reader.readAsDataURL(file);
+
+        // Upload the image immediately
+        const formData = new FormData();
+        formData.append('imagen', file);
+        formData.append('_token', document.querySelector('input[name="_token"]').value);
+
+        fetch('{{ route("usuarios.upload_image") }}', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Hubo un problema al subir la imagen'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema de conexión'
+                });
+            });
+    });
+
+    // Handle form submission
+    document.getElementById('save-profile').addEventListener('click', function() {
+        const form = document.getElementById('profile-form');
+        const formData = new FormData(form);
+
+        fetch('{{ route("usuarios.update_profile") }}', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    let errorMessage = 'Por favor revise los datos ingresados';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema de conexión'
+                });
+            });
+    });
+
+    // Remove old image upload code that isn't being used
+    document.querySelector('.upload-btn').removeEventListener('click', function() {
+        // This removes any previously attached event listeners
+    });
     document.addEventListener('DOMContentLoaded', function() {
         // Default coordinates (you can replace these with actual coordinates)
         const lat = -12.0464; // Lima, Peru coordinates as example
