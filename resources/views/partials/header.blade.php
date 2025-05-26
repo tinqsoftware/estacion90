@@ -9,7 +9,7 @@
     Nav header start
 ***********************************-->
 <div class="nav-header">
-    <a href="index.html" class="brand-logo">
+    <a href="/" class="brand-logo">
         <div class="logo-abbr" width="39" height="31" viewBox="0 0 39 31" fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <img src="access/images/logo_white.png" style="height: 50px;" alt="" />
