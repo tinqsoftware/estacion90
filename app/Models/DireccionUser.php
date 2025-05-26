@@ -13,7 +13,10 @@ class DireccionUser extends Model
         'id_distrito',
         'empresa',
         'tipo_nombre',
+        'lat',
+        'Ion',
         'direccion',
+        'principal',
         'referencia',
         'created_at',
         'updated_at'
