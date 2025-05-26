@@ -9,18 +9,18 @@ class DireccionUser extends Model
     protected $table = 'direccion_user';
 
     protected $fillable = [
-        'id_user',
-        'id_distrito',
-        'empresa',
-        'tipo_nombre',
-        'lat',
-        'Ion',
-        'direccion',
-        'principal',
-        'referencia',
-        'created_at',
-        'updated_at'
-    ];
+    'id_user',
+    'id_distrito',
+    'empresa',
+    'tipo_nombre',
+    'lat',
+    'lon',
+    'direccion',
+    'principal',
+    'referencia',
+    'created_at',
+    'updated_at'
+];
 
     // Relación: La dirección pertenece a un usuario
     public function user()

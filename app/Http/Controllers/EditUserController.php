@@ -7,6 +7,7 @@ use App\Models\Distrito;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class EditUserController extends Controller
 {
@@ -104,6 +105,51 @@ public function uploadImage(Request $request)
         'message' => 'Imagen actualizada correctamente',
         'imagen' => asset('access/images/popular-img/' . $imageName)
     ]);
+}
+
+
+public function storeAddress(Request $request)
+{
+    try {
+        // Validate the form input
+        $validated = $request->validate([
+            'tipo_nombre' => 'required|string|max:255',
+            'id_distrito' => 'required|exists:distritos,id',
+            'direccion' => 'required|string|max:255',
+            'referencia' => 'required|string|max:255', // Changed to required to match DB
+            'lat' => 'required|string|max:255',        // Changed to string to match DB
+            'lon' => 'required|string|max:255',        // Changed to string to match DB
+        ]);
+        
+        // Get the authenticated user
+        $userId = Auth::id();
+        
+        // Create new address using create method
+        $direccion = DireccionUser::create([
+            'id_user' => $userId,
+            'id_distrito' => $validated['id_distrito'],
+            'tipo_nombre' => $validated['tipo_nombre'],
+            'lat' => $validated['lat'],
+            'lon' => $validated['lon'],
+            'direccion' => $validated['direccion'],
+            'referencia' => $validated['referencia'],
+            'principal' => 0,
+            'empresa' => null
+        ]);
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Dirección agregada correctamente'
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error storing address: ' . $e->getMessage());
+        Log::error('Error trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al guardar la dirección: ' . $e->getMessage()
+        ], 500);
+    }
 }
 
 

@@ -74,4 +74,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/usuariosEditPerfil', [EditUserController::class, 'index'])->name('usuarios.edit_usuario');
     Route::post('/usuariosEditPerfil/update', [EditUserController::class, 'update'])->name('usuarios.update_profile');
     Route::post('/usuariosEditPerfil/upload-image', [EditUserController::class, 'uploadImage'])->name('usuarios.upload_image');
+    Route::post('/usuariosEditPerfil/store-address', [EditUserController::class, 'storeAddress'])->name('usuarios.store_address');
 });
