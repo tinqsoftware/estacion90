@@ -113,17 +113,24 @@ public function storeAddress(Request $request)
         // Validate the form input
         $validated = $request->validate([
             'tipo_nombre' => 'required|string|max:255',
-            'id_distrito' => 'required|exists:distritos,id',
+            'id_distrito' => 'required|exists:distrito,id',
             'direccion' => 'required|string|max:255',
             'referencia' => 'required|string|max:255',
-            'lat' => 'required|string|max:255',
-            'lon' => 'required|string|max:255',
+            'lat' => 'required|numeric',
+            'lon' => 'required|numeric',
         ]);
         
         // Get the authenticated user
         $userId = Auth::id();
         
-        // Create new address - removed 'principal' field
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no autenticado'
+            ], 401);
+        }
+        
+        // Create new address
         $direccion = DireccionUser::create([
             'id_user' => $userId,
             'id_distrito' => $validated['id_distrito'],
@@ -139,6 +146,14 @@ public function storeAddress(Request $request)
             'success' => true, 
             'message' => 'Dirección agregada correctamente'
         ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('Validation error when storing address: ' . json_encode($e->errors()));
+        
+        return response()->json([
+            'success' => false,
+            'errors' => $e->errors(),
+            'message' => 'Error de validación'
+        ], 422);
     } catch (\Exception $e) {
         Log::error('Error storing address: ' . $e->getMessage());
         Log::error('Error trace: ' . $e->getTraceAsString());
