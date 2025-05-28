@@ -517,9 +517,13 @@
                             </div>
                         </div>
 
-                        <div class="map-container" id="workMap" data-lat="{{ $user->direccion->lat ?? '-12.0464' }}"
+                        @if(count($direcciones) > 0)
+                            <div class="map-container" id="workMap" data-lat="{{ $user->direccion->lat ?? '-12.0464' }}"
                             data-lng="{{ $user->direccion->lon ?? '-77.0428' }}"
                             data-tipo="{{ $user->direccion->tipo_nombre ?? 'No definido' }}"></div>
+                        @endif
+
+                    
                     </div>
 
                     <div class="other-addresses">
