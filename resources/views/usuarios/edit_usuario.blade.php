@@ -39,6 +39,7 @@
 
     <!-- Global Stylesheet -->
     <link href="{{ asset('access/css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <!-- Load jQuery FIRST -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -371,6 +372,43 @@
         text-decoration: none;
     }
 
+    .address-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .btn-action {
+        padding: 6px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        text-align: left;
+        border: none;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .use-address {
+        background-color: #e8f4ff;
+        color: #0066cc;
+    }
+
+    .use-address:hover {
+        background-color: #cce5ff;
+    }
+
+    .delete-address {
+        background-color: #ffeeee;
+        color: #cc0000;
+    }
+
+    .delete-address:hover {
+        background-color: #ffcccc;
+    }
+
     @media (max-width: 768px) {
         .profile-section {
             flex-direction: column;
@@ -489,7 +527,8 @@
                                     <th>Dirección</th>
                                     <th>Referencia</th>
                                     <th>Coordenadas</th>
-                                    <th>Fecha registro</th>
+                                    <th>Acciones</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -512,7 +551,16 @@
                                         No disponible
                                         @endif
                                     </td>
-                                    <td>{{ $direccion->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="address-actions">
+                                        <button class="btn-action use-address" data-id="{{ $direccion->id }}"
+                                            data-direccion="{{ $direccion->direccion }}"
+                                            data-tipo="{{ $direccion->tipo_nombre }}">
+                                            <i class="fa fa-check-circle"></i> Usar como principal
+                                        </button>
+                                        <button class="btn-action delete-address" data-id="{{ $direccion->id }}">
+                                            <i class="fa fa-trash"></i> Eliminar
+                                        </button>
+                                    </td>
                                 </tr>
                                 @endforeach
                                 @endif
@@ -843,6 +891,130 @@
         alert('Dirección cambiada exitosamente');
         hideModal();
     }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Manejar el evento para establecer una dirección como principal
+    document.querySelectorAll('.use-address').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const direccion = this.getAttribute('data-direccion');
+            const tipo = this.getAttribute('data-tipo');
+            
+            Swal.fire({
+                title: 'Confirmar cambio de dirección',
+                html: `¿Está seguro que desea establecer <strong>${direccion} (${tipo})</strong> como su dirección principal?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, usar como principal',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    setDefaultAddress(id);
+                }
+            });
+        });
+    });
+    
+    // Manejar el evento para eliminar una dirección
+    document.querySelectorAll('.delete-address').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            
+            Swal.fire({
+                title: '¿Eliminar dirección?',
+                text: 'Esta acción no se puede deshacer',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteAddress(id);
+                }
+            });
+        });
+    });
+});
+
+// Función para establecer dirección por defecto
+function setDefaultAddress(addressId) {
+    fetch('{{ route("usuarios.set_default_address") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ address_id: addressId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Dirección actualizada',
+                text: data.message,
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Hubo un problema al actualizar la dirección'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema de conexión'
+        });
+    });
+}
+
+// Función para eliminar dirección
+function deleteAddress(addressId) {
+    fetch(`{{ url('usuariosEditPerfil/delete-address') }}/${addressId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Dirección eliminada',
+                text: data.message,
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Hubo un problema al eliminar la dirección'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema de conexión'
+        });
+    });
+}
     </script>
 
     <!-- Required vendors -->
