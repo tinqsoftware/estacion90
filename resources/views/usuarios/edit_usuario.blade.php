@@ -650,46 +650,53 @@
     let modalMarker;
 
     function showAddressModal() {
-        document.getElementById('addAddressModal').style.display = 'flex';
+    document.getElementById('addAddressModal').style.display = 'flex';
 
-        // Initialize map after modal is visible to avoid rendering issues
-        setTimeout(() => {
-            if (!modalMap) {
-                // Default coordinates (Lima, Peru)
-                const defaultLat = -12.0464;
-                const defaultLng = -77.0428;
+    // Initialize map after modal is visible to avoid rendering issues
+    setTimeout(() => {
+        if (!modalMap) {
+            // Default coordinates (Lima, Peru)
+            const defaultLat = -12.0464;
+            const defaultLng = -77.0428;
 
-                // Initialize map
-                modalMap = L.map('modal-map').setView([defaultLat, defaultLng], 13);
+            // Initialize map
+            modalMap = L.map('modal-map').setView([defaultLat, defaultLng], 13);
 
-                // Add OpenStreetMap tile layer
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(modalMap);
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(modalMap);
 
-                // Add draggable marker
-                modalMarker = L.marker([defaultLat, defaultLng], {
-                    draggable: true
-                }).addTo(modalMap);
+            // Add draggable marker
+            modalMarker = L.marker([defaultLat, defaultLng], {
+                draggable: true
+            }).addTo(modalMap);
 
-                // Set initial coordinates values
-                document.getElementById('lat').value = defaultLat;
-                document.getElementById('lon').value = defaultLng;
-                updateCoordinatesDisplay(defaultLat, defaultLng);
+            // Set initial coordinates values
+            document.getElementById('lat').value = defaultLat;
+            document.getElementById('lon').value = defaultLng;
+            updateCoordinatesDisplay(defaultLat, defaultLng);
 
-                // Update coordinates when marker is dragged
-                modalMarker.on('dragend', function(event) {
-                    const position = modalMarker.getLatLng();
-                    document.getElementById('lat').value = position.lat;
-                    document.getElementById('lon').value = position.lng;
-                    updateCoordinatesDisplay(position.lat, position.lng);
-                });
-            }
+            // Update coordinates when marker is dragged
+            modalMarker.on('dragend', function(event) {
+                const position = modalMarker.getLatLng();
+                document.getElementById('lat').value = position.lat;
+                document.getElementById('lon').value = position.lng;
+                updateCoordinatesDisplay(position.lat, position.lng);
+            });
+        } else {
+            // Esta sección falta - necesitamos reiniciar los valores cuando se abre el modal nuevamente
+            const defaultLat = -12.0464;
+            const defaultLng = -77.0428;
+            document.getElementById('lat').value = defaultLat;
+            document.getElementById('lon').value = defaultLng;
+            updateCoordinatesDisplay(defaultLat, defaultLng);
+        }
 
-            // Invalidate size to ensure proper rendering after modal appears
-            modalMap.invalidateSize();
-        }, 300);
-    }
+        // Invalidate size to ensure proper rendering after modal appears
+        modalMap.invalidateSize();
+    }, 300);
+}
 
     function hideAddressModal() {
         document.getElementById('addAddressModal').style.display = 'none';
@@ -705,53 +712,62 @@
 
     // Handle form submission
     document.getElementById('new-address-form').addEventListener('submit', function(e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        const formData = new FormData(this);
+    const formData = new FormData(this);
+    
+    // Verificar que las coordenadas existan
+    if (!formData.get('lat') || !formData.get('lon')) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
+        });
+        return;
+    }
 
-        fetch('{{ route("usuarios.store_address") }}', {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Éxito',
-                        text: data.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        // Reload the page to show the new address
-                        window.location.reload();
-                    });
-                } else {
-                    let errorMessage = 'Por favor revise los datos ingresados';
-                    if (data.errors) {
-                        errorMessage = Object.values(data.errors).join('\n');
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: errorMessage
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Hubo un problema de conexión'
-                });
+    fetch('{{ route("usuarios.store_address") }}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+        // No establecer headers cuando usamos FormData con @csrf ya incluido
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: data.message,
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                // Reload the page to show the new address
+                window.location.reload();
             });
+        } else {
+            let errorMessage = 'Por favor revise los datos ingresados';
+            if (data.message) {
+                errorMessage = data.message;
+            } else if (data.errors) {
+                errorMessage = Object.values(data.errors).flat().join('\n');
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema de conexión'
+        });
     });
+});
 
 
     document.getElementById('trigger-upload').addEventListener('click', function() {
