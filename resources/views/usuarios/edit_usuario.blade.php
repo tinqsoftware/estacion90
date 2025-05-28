@@ -39,16 +39,16 @@
 
     <!-- Global Stylesheet -->
     <link href="{{ asset('access/css/style.css') }}" rel="stylesheet">
-    
+
     <!-- Load jQuery FIRST -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
+
     <!-- Leaflet CSS and JavaScript -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
+
     <!-- Select2 CSS and JS (after jQuery) -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -488,8 +488,8 @@
                                     <th>Distrito</th>
                                     <th>Dirección</th>
                                     <th>Referencia</th>
-                                    <th>Ver X y Y</th>
-                                    <th></th>
+                                    <th>Coordenadas</th>
+                                    <th>Fecha registro</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -505,11 +505,14 @@
                                     <td>{{ $direccion->direccion }}</td>
                                     <td>{{ $direccion->referencia }}</td>
                                     <td>
-
+                                        @if($direccion->lat && $direccion->lon)
+                                        Lat: {{ $direccion->lat }}<br>
+                                        Lon: {{ $direccion->lon }}
+                                        @else
+                                        No disponible
+                                        @endif
                                     </td>
-                                    <td>
-
-                                    </td>
+                                    <td>{{ $direccion->created_at->format('d/m/Y H:i') }}</td>
                                 </tr>
                                 @endforeach
                                 @endif
@@ -538,164 +541,169 @@
 
 
     <!-- Modal for adding new address -->
-<div class="modal" id="addAddressModal">
-    <div class="modal-content" style="max-width: 600px; width: 90%;">
-        <h3>Agregar nueva dirección</h3>
-        
-        <form id="new-address-form">
-            @csrf
-            <div class="field-group" style="margin-bottom: 15px;">
-                <label for="tipo_nombre">Tipo de dirección</label>
-                <select id="tipo_nombre" name="tipo_nombre" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                    <option value="Casa">Casa</option>
-                    <option value="Trabajo">Trabajo</option>
-                    <option value="Otros">Otros</option>
-                </select>
-            </div>
-            
-            <div class="field-group" style="margin-bottom: 15px;">
-                <label for="id_distrito">Distrito</label>
-                <select id="id_distrito" name="id_distrito" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                    <option value="">Seleccione un distrito</option>
-                    @foreach($distritos as $distrito)
+    <div class="modal" id="addAddressModal">
+        <div class="modal-content" style="max-width: 600px; width: 90%;">
+            <h3>Agregar nueva dirección</h3>
+
+            <form id="new-address-form">
+                @csrf
+                <div class="field-group" style="margin-bottom: 15px;">
+                    <label for="tipo_nombre">Tipo de dirección</label>
+                    <select id="tipo_nombre" name="tipo_nombre" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="Casa">Casa</option>
+                        <option value="Trabajo">Trabajo</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 15px;">
+                    <label for="id_distrito">Distrito</label>
+                    <select id="id_distrito" name="id_distrito" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="">Seleccione un distrito</option>
+                        @foreach($distritos as $distrito)
                         <option value="{{ $distrito->id }}">{{ $distrito->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <div class="field-group" style="margin-bottom: 15px;">
-                <label for="direccion">Dirección</label>
-                <input type="text" id="direccion" name="direccion" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-            </div>
-            
-            <div class="field-group" style="margin-bottom: 15px;">
-                <label for="referencia">Referencia</label>
-                <input type="text" id="referencia" name="referencia" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <label>Ubicación en el mapa (mueva el marcador para seleccionar la ubicación)</label>
-                <div id="modal-map" style="height: 200px; width: 100%; border-radius: 4px; margin-top: 10px;"></div>
-                <input type="hidden" id="lat" name="lat">
-                <input type="hidden" id="lon" name="lon">
-                <div id="coordinates-display" style="margin-top: 5px; font-size: 12px; color: #666;"></div>
-            </div>
-            
-            <div class="modal-buttons">
-                <button type="button" class="modal-btn cancel-btn" onclick="hideAddressModal()">CANCELAR</button>
-                <button type="submit" class="modal-btn accept-btn">GRABAR</button>
-            </div>
-        </form>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 15px;">
+                    <label for="direccion">Dirección</label>
+                    <input type="text" id="direccion" name="direccion" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+
+                <div class="field-group" style="margin-bottom: 15px;">
+                    <label for="referencia">Referencia</label>
+                    <input type="text" id="referencia" name="referencia"
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>Ubicación en el mapa (mueva el marcador para seleccionar la ubicación)</label>
+                    <div id="modal-map" style="height: 200px; width: 100%; border-radius: 4px; margin-top: 10px;"></div>
+                    <input type="hidden" id="lat" name="lat">
+                    <input type="hidden" id="lon" name="lon">
+                    <div id="coordinates-display" style="margin-top: 5px; font-size: 12px; color: #666;"></div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="modal-btn cancel-btn" onclick="hideAddressModal()">CANCELAR</button>
+                    <button type="submit" class="modal-btn accept-btn">GRABAR</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
     <script>
-        // Address modal functionality
-let modalMap;
-let modalMarker;
+    // Address modal functionality
+    let modalMap;
+    let modalMarker;
 
-function showAddressModal() {
-    document.getElementById('addAddressModal').style.display = 'flex';
-    
-    // Initialize map after modal is visible to avoid rendering issues
-    setTimeout(() => {
-        if (!modalMap) {
-            // Default coordinates (Lima, Peru)
-            const defaultLat = -12.0464;
-            const defaultLng = -77.0428;
-            
-            // Initialize map
-            modalMap = L.map('modal-map').setView([defaultLat, defaultLng], 13);
-            
-            // Add OpenStreetMap tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(modalMap);
-            
-            // Add draggable marker
-            modalMarker = L.marker([defaultLat, defaultLng], {
-                draggable: true
-            }).addTo(modalMap);
-            
-            // Set initial coordinates values
-            document.getElementById('lat').value = defaultLat;
-            document.getElementById('lon').value = defaultLng;
-            updateCoordinatesDisplay(defaultLat, defaultLng);
-            
-            // Update coordinates when marker is dragged
-            modalMarker.on('dragend', function(event) {
-                const position = modalMarker.getLatLng();
-                document.getElementById('lat').value = position.lat;
-                document.getElementById('lon').value = position.lng;
-                updateCoordinatesDisplay(position.lat, position.lng);
-            });
-        }
-        
-        // Invalidate size to ensure proper rendering after modal appears
-        modalMap.invalidateSize();
-    }, 300);
-}
+    function showAddressModal() {
+        document.getElementById('addAddressModal').style.display = 'flex';
 
-function hideAddressModal() {
-    document.getElementById('addAddressModal').style.display = 'none';
-}
+        // Initialize map after modal is visible to avoid rendering issues
+        setTimeout(() => {
+            if (!modalMap) {
+                // Default coordinates (Lima, Peru)
+                const defaultLat = -12.0464;
+                const defaultLng = -77.0428;
 
-function updateCoordinatesDisplay(lat, lng) {
-    document.getElementById('coordinates-display').innerHTML = 
-        `Latitud: ${lat.toFixed(6)}, Longitud: ${lng.toFixed(6)}`;
-}
+                // Initialize map
+                modalMap = L.map('modal-map').setView([defaultLat, defaultLng], 13);
 
-// Add event listener to the "Agregar nueva dirección" button
-document.querySelector('.add-address-btn').addEventListener('click', showAddressModal);
+                // Add OpenStreetMap tile layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(modalMap);
 
-// Handle form submission
-document.getElementById('new-address-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch('{{ route("usuarios.store_address") }}', {
-    method: 'POST',
-    body: formData,
-    credentials: 'same-origin',
-    headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: data.message,
-                timer: 2000,
-                showConfirmButton: false
-            }).then(() => {
-                // Reload the page to show the new address
-                window.location.reload();
-            });
-        } else {
-            let errorMessage = 'Por favor revise los datos ingresados';
-            if (data.errors) {
-                errorMessage = Object.values(data.errors).join('\n');
+                // Add draggable marker
+                modalMarker = L.marker([defaultLat, defaultLng], {
+                    draggable: true
+                }).addTo(modalMap);
+
+                // Set initial coordinates values
+                document.getElementById('lat').value = defaultLat;
+                document.getElementById('lon').value = defaultLng;
+                updateCoordinatesDisplay(defaultLat, defaultLng);
+
+                // Update coordinates when marker is dragged
+                modalMarker.on('dragend', function(event) {
+                    const position = modalMarker.getLatLng();
+                    document.getElementById('lat').value = position.lat;
+                    document.getElementById('lon').value = position.lng;
+                    updateCoordinatesDisplay(position.lat, position.lng);
+                });
             }
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: errorMessage
+
+            // Invalidate size to ensure proper rendering after modal appears
+            modalMap.invalidateSize();
+        }, 300);
+    }
+
+    function hideAddressModal() {
+        document.getElementById('addAddressModal').style.display = 'none';
+    }
+
+    function updateCoordinatesDisplay(lat, lng) {
+        document.getElementById('coordinates-display').innerHTML =
+            `Latitud: ${lat.toFixed(6)}, Longitud: ${lng.toFixed(6)}`;
+    }
+
+    // Add event listener to the "Agregar nueva dirección" button
+    document.querySelector('.add-address-btn').addEventListener('click', showAddressModal);
+
+    // Handle form submission
+    document.getElementById('new-address-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('{{ route("usuarios.store_address") }}', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload the page to show the new address
+                        window.location.reload();
+                    });
+                } else {
+                    let errorMessage = 'Por favor revise los datos ingresados';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema de conexión'
+                });
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Hubo un problema de conexión'
-        });
     });
-});
 
 
     document.getElementById('trigger-upload').addEventListener('click', function() {
@@ -755,56 +763,56 @@ document.getElementById('new-address-form').addEventListener('submit', function(
 
     // Handle form submission
     document.getElementById('save-profile').addEventListener('click', function() {
-    const form = document.getElementById('profile-form');
-    const formData = new FormData(form);
+        const form = document.getElementById('profile-form');
+        const formData = new FormData(form);
 
-    fetch('{{ route("usuarios.update_profile") }}', {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: data.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } else {
-                let errorMessage = 'Por favor revise los datos ingresados';
-                
-                // Check if there are validation errors
-                if (data.errors) {
-                    // Check specifically for email errors first
-                    if (data.errors.email) {
-                        // Use the first email error message directly
-                        errorMessage = data.errors.email[0];
-                    } else {
-                        // For other errors, flatten and join all error messages
-                        errorMessage = Object.values(data.errors).flat().join('\n');
+        fetch('{{ route("usuarios.update_profile") }}', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    let errorMessage = 'Por favor revise los datos ingresados';
+
+                    // Check if there are validation errors
+                    if (data.errors) {
+                        // Check specifically for email errors first
+                        if (data.errors.email) {
+                            // Use the first email error message directly
+                            errorMessage = data.errors.email[0];
+                        } else {
+                            // For other errors, flatten and join all error messages
+                            errorMessage = Object.values(data.errors).flat().join('\n');
+                        }
                     }
-                }
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'info',
-                text: 'Este Correo ya esta en uso, por favor ingrese otro',
-            });
-        });
-});
 
-    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'info',
+                    text: 'Este Correo ya esta en uso, por favor ingrese otro',
+                });
+            });
+    });
+
+
     document.addEventListener('DOMContentLoaded', function() {
         // Default coordinates (you can replace these with actual coordinates)
         const lat = -12.0464; // Lima, Peru coordinates as example
@@ -835,7 +843,6 @@ document.getElementById('new-address-form').addEventListener('submit', function(
         alert('Dirección cambiada exitosamente');
         hideModal();
     }
-
     </script>
 
     <!-- Required vendors -->
@@ -847,7 +854,7 @@ document.getElementById('new-address-form').addEventListener('submit', function(
     <!-- Dashboard -->
     <script src="{{ asset('access/js/dlabnav-init.js') }}"></script>
     <script src="{{ asset('access/js/custom.js') }}"></script>
-   
+
 </body>
 
 </html>

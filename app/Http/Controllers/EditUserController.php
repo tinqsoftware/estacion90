@@ -12,20 +12,20 @@ use Illuminate\Support\Facades\Log;
 class EditUserController extends Controller
 {
     public function index()
-    {
-        // Obtener el usuario autenticado
-        $user = Auth::user();
-        
-        // Obtener todas las direcciones asociadas a este usuario
-        $direcciones = DireccionUser::where('id_user', $user->id)
-                        ->with('distrito')
-                        ->get();
-        
-        // Obtener todos los distritos para el formulario
-        $distritos = Distrito::all();
-        
-        return view('usuarios.edit_usuario', compact('user', 'direcciones', 'distritos'));
-    }
+{
+    
+    $user = Auth::user();
+    
+    $direcciones = DireccionUser::where('id_user', $user->id)
+                    ->with('distrito')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+    
+    // Obtener todos los distritos para el formulario
+    $distritos = Distrito::all();
+    
+    return view('usuarios.edit_usuario', compact('user', 'direcciones', 'distritos'));
+}
 
 
     public function update(Request $request)
@@ -115,15 +115,15 @@ public function storeAddress(Request $request)
             'tipo_nombre' => 'required|string|max:255',
             'id_distrito' => 'required|exists:distritos,id',
             'direccion' => 'required|string|max:255',
-            'referencia' => 'required|string|max:255', // Changed to required to match DB
-            'lat' => 'required|string|max:255',        // Changed to string to match DB
-            'lon' => 'required|string|max:255',        // Changed to string to match DB
+            'referencia' => 'required|string|max:255',
+            'lat' => 'required|string|max:255',
+            'lon' => 'required|string|max:255',
         ]);
         
         // Get the authenticated user
         $userId = Auth::id();
         
-        // Create new address using create method
+        // Create new address - removed 'principal' field
         $direccion = DireccionUser::create([
             'id_user' => $userId,
             'id_distrito' => $validated['id_distrito'],
@@ -132,7 +132,6 @@ public function storeAddress(Request $request)
             'lon' => $validated['lon'],
             'direccion' => $validated['direccion'],
             'referencia' => $validated['referencia'],
-            'principal' => 0,
             'empresa' => null
         ]);
         
