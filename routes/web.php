@@ -77,4 +77,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/usuariosEditPerfil/store-address', [EditUserController::class, 'storeAddress'])->name('usuarios.store_address');
     Route::post('/usuariosEditPerfil/set-default-address', [EditUserController::class, 'setDefaultAddress'])->name('usuarios.set_default_address');
     Route::delete('/usuariosEditPerfil/delete-address/{id}', [EditUserController::class, 'deleteAddress'])->name('usuarios.delete_address');
+    Route::post('/usuariosEditPerfil/update-address', [EditUserController::class, 'updateAddress'])->name('usuarios.update_address');
 });
