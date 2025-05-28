@@ -246,6 +246,65 @@ public function deleteAddress($id)
 }
 
 
+public function updateAddress(Request $request)
+{
+    try {
+        // Validación de la entrada
+        $validated = $request->validate([
+            'address_id' => 'required|exists:direccion_user,id',
+            'tipo_nombre' => 'required|string|max:255',
+            'id_distrito' => 'required|exists:distrito,id',
+            'direccion' => 'required|string|max:255',
+            'referencia' => 'required|string|max:255',
+            'lat' => 'required|numeric',
+            'lon' => 'required|numeric',
+        ]);
+        
+        // Verificar que la dirección pertenezca al usuario actual
+        $direccion = DireccionUser::where('id', $validated['address_id'])
+                                 ->where('id_user', Auth::id())
+                                 ->first();
+        
+        if (!$direccion) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La dirección no existe o no te pertenece'
+            ], 404);
+        }
+        
+        // Actualizar los datos de la dirección
+        $direccion->tipo_nombre = $validated['tipo_nombre'];
+        $direccion->id_distrito = $validated['id_distrito'];
+        $direccion->direccion = $validated['direccion'];
+        $direccion->referencia = $validated['referencia'];
+        $direccion->lat = $validated['lat'];
+        $direccion->lon = $validated['lon'];
+        $direccion->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Dirección actualizada correctamente'
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('Error de validación al actualizar dirección: ' . json_encode($e->errors()));
+        
+        return response()->json([
+            'success' => false,
+            'errors' => $e->errors(),
+            'message' => 'Error de validación'
+        ], 422);
+    } catch (\Exception $e) {
+        Log::error('Error al actualizar dirección: ' . $e->getMessage());
+        Log::error('Error trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar la dirección: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
 
     
 }

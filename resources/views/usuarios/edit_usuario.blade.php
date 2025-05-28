@@ -246,8 +246,10 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         position: relative;
-         overflow: hidden; /* Para que no se salga del contenedor */
-    z-index: 1; /* Asegurar que esté por debajo de modales y otros elementos importantes */
+        overflow: hidden;
+        /* Para que no se salga del contenedor */
+        z-index: 1;
+        /* Asegurar que esté por debajo de modales y otros elementos importantes */
     }
 
 
@@ -516,8 +518,8 @@
                         </div>
 
                         <div class="map-container" id="workMap" data-lat="{{ $user->direccion->lat ?? '-12.0464' }}"
-     data-lng="{{ $user->direccion->lon ?? '-77.0428' }}"
-     data-tipo="{{ $user->direccion->tipo_nombre ?? 'No definido' }}"></div>
+                            data-lng="{{ $user->direccion->lon ?? '-77.0428' }}"
+                            data-tipo="{{ $user->direccion->tipo_nombre ?? 'No definido' }}"></div>
                     </div>
 
                     <div class="other-addresses">
@@ -556,6 +558,14 @@
                                         @endif
                                     </td>
                                     <td class="address-actions">
+                                        <button class="btn-action edit-address" data-id="{{ $direccion->id }}"
+                                            data-direccion="{{ $direccion->direccion }}"
+                                            data-tipo="{{ $direccion->tipo_nombre }}"
+                                            data-distrito="{{ $direccion->id_distrito }}"
+                                            data-referencia="{{ $direccion->referencia }}"
+                                            data-lat="{{ $direccion->lat }}" data-lon="{{ $direccion->lon }}">
+                                            <i class="fa fa-edit"></i> Editar
+                                        </button>
                                         <button class="btn-action use-address" data-id="{{ $direccion->id }}"
                                             data-direccion="{{ $direccion->direccion }}"
                                             data-tipo="{{ $direccion->tipo_nombre }}">
@@ -648,59 +658,120 @@
         </div>
     </div>
 
+
+    <!-- Modal Editar -->
+<div class="modal" id="editAddressModal">
+    <div class="modal-content" style="max-width: 600px; width: 90%;">
+        <h3>Editar dirección</h3>
+
+        <form id="edit-address-form">
+            @csrf
+            <input type="hidden" id="edit_address_id" name="address_id">
+            <div class="field-group" style="margin-bottom: 15px;">
+                <label for="edit_tipo_nombre">Tipo de dirección</label>
+                <select id="edit_tipo_nombre" name="tipo_nombre" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    <option value="Casa">Casa</option>
+                    <option value="Trabajo">Trabajo</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 15px;">
+                <label for="edit_id_distrito">Distrito</label>
+                <select id="edit_id_distrito" name="id_distrito" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    <option value="">Seleccione un distrito</option>
+                    @foreach($distritos as $distrito)
+                    <option value="{{ $distrito->id }}">{{ $distrito->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 15px;">
+                <label for="edit_direccion">Dirección</label>
+                <input type="text" id="edit_direccion" name="direccion" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div class="field-group" style="margin-bottom: 15px;">
+                <label for="edit_referencia">Referencia</label>
+                <input type="text" id="edit_referencia" name="referencia"
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label>Ubicación en el mapa (mueva el marcador para seleccionar la ubicación)</label>
+                <div id="edit-modal-map" style="height: 200px; width: 100%; border-radius: 4px; margin-top: 10px;"></div>
+                <input type="hidden" id="edit_lat" name="lat">
+                <input type="hidden" id="edit_lon" name="lon">
+                <div id="edit-coordinates-display" style="margin-top: 5px; font-size: 12px; color: #666;"></div>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="modal-btn cancel-btn" onclick="hideEditAddressModal()">CANCELAR</button>
+                <button type="submit" class="modal-btn accept-btn">GUARDAR CAMBIOS</button>
+            </div>
+        </form>
+    </div>
+</div>
+
     <script>
     // Address modal functionality
     let modalMap;
     let modalMarker;
 
+    let editModalMap;
+let editModalMarker;
+
     function showAddressModal() {
-    document.getElementById('addAddressModal').style.display = 'flex';
+        document.getElementById('addAddressModal').style.display = 'flex';
 
-    // Initialize map after modal is visible to avoid rendering issues
-    setTimeout(() => {
-        if (!modalMap) {
-            // Default coordinates (Lima, Peru)
-            const defaultLat = -12.0464;
-            const defaultLng = -77.0428;
+        // Initialize map after modal is visible to avoid rendering issues
+        setTimeout(() => {
+            if (!modalMap) {
+                // Default coordinates (Lima, Peru)
+                const defaultLat = -12.0464;
+                const defaultLng = -77.0428;
 
-            // Initialize map
-            modalMap = L.map('modal-map').setView([defaultLat, defaultLng], 13);
+                // Initialize map
+                modalMap = L.map('modal-map').setView([defaultLat, defaultLng], 13);
 
-            // Add OpenStreetMap tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(modalMap);
+                // Add OpenStreetMap tile layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(modalMap);
 
-            // Add draggable marker
-            modalMarker = L.marker([defaultLat, defaultLng], {
-                draggable: true
-            }).addTo(modalMap);
+                // Add draggable marker
+                modalMarker = L.marker([defaultLat, defaultLng], {
+                    draggable: true
+                }).addTo(modalMap);
 
-            // Set initial coordinates values
-            document.getElementById('lat').value = defaultLat;
-            document.getElementById('lon').value = defaultLng;
-            updateCoordinatesDisplay(defaultLat, defaultLng);
+                // Set initial coordinates values
+                document.getElementById('lat').value = defaultLat;
+                document.getElementById('lon').value = defaultLng;
+                updateCoordinatesDisplay(defaultLat, defaultLng);
 
-            // Update coordinates when marker is dragged
-            modalMarker.on('dragend', function(event) {
-                const position = modalMarker.getLatLng();
-                document.getElementById('lat').value = position.lat;
-                document.getElementById('lon').value = position.lng;
-                updateCoordinatesDisplay(position.lat, position.lng);
-            });
-        } else {
-            // Esta sección falta - necesitamos reiniciar los valores cuando se abre el modal nuevamente
-            const defaultLat = -12.0464;
-            const defaultLng = -77.0428;
-            document.getElementById('lat').value = defaultLat;
-            document.getElementById('lon').value = defaultLng;
-            updateCoordinatesDisplay(defaultLat, defaultLng);
-        }
+                // Update coordinates when marker is dragged
+                modalMarker.on('dragend', function(event) {
+                    const position = modalMarker.getLatLng();
+                    document.getElementById('lat').value = position.lat;
+                    document.getElementById('lon').value = position.lng;
+                    updateCoordinatesDisplay(position.lat, position.lng);
+                });
+            } else {
+                // Esta sección falta - necesitamos reiniciar los valores cuando se abre el modal nuevamente
+                const defaultLat = -12.0464;
+                const defaultLng = -77.0428;
+                document.getElementById('lat').value = defaultLat;
+                document.getElementById('lon').value = defaultLng;
+                updateCoordinatesDisplay(defaultLat, defaultLng);
+            }
 
-        // Invalidate size to ensure proper rendering after modal appears
-        modalMap.invalidateSize();
-    }, 300);
-}
+            // Invalidate size to ensure proper rendering after modal appears
+            modalMap.invalidateSize();
+        }, 300);
+    }
 
     function hideAddressModal() {
         document.getElementById('addAddressModal').style.display = 'none';
@@ -716,62 +787,62 @@
 
     // Handle form submission
     document.getElementById('new-address-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const formData = new FormData(this);
-    
-    // Verificar que las coordenadas existan
-    if (!formData.get('lat') || !formData.get('lon')) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
-        });
-        return;
-    }
+        const formData = new FormData(this);
 
-    fetch('{{ route("usuarios.store_address") }}', {
-        method: 'POST',
-        body: formData,
-        credentials: 'same-origin'
-        // No establecer headers cuando usamos FormData con @csrf ya incluido
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: data.message,
-                timer: 2000,
-                showConfirmButton: false
-            }).then(() => {
-                // Reload the page to show the new address
-                window.location.reload();
-            });
-        } else {
-            let errorMessage = 'Por favor revise los datos ingresados';
-            if (data.message) {
-                errorMessage = data.message;
-            } else if (data.errors) {
-                errorMessage = Object.values(data.errors).flat().join('\n');
-            }
+        // Verificar que las coordenadas existan
+        if (!formData.get('lat') || !formData.get('lon')) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: errorMessage
+                text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
             });
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Hubo un problema de conexión'
-        });
+
+        fetch('{{ route("usuarios.store_address") }}', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+                // No establecer headers cuando usamos FormData con @csrf ya incluido
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload the page to show the new address
+                        window.location.reload();
+                    });
+                } else {
+                    let errorMessage = 'Por favor revise los datos ingresados';
+                    if (data.message) {
+                        errorMessage = data.message;
+                    } else if (data.errors) {
+                        errorMessage = Object.values(data.errors).flat().join('\n');
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema de conexión'
+                });
+            });
     });
-});
 
 
     document.getElementById('trigger-upload').addEventListener('click', function() {
@@ -881,7 +952,7 @@
     });
 
 
-     document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const mapElement = document.getElementById('workMap');
 
         // Leer los datos desde los atributos del div
@@ -915,127 +986,270 @@
 
 
     document.addEventListener('DOMContentLoaded', function() {
-    // Manejar el evento para establecer una dirección como principal
-    document.querySelectorAll('.use-address').forEach(button => {
-        button.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            const direccion = this.getAttribute('data-direccion');
-            const tipo = this.getAttribute('data-tipo');
-            
-            Swal.fire({
-                title: 'Confirmar cambio de dirección',
-                html: `¿Está seguro que desea establecer <strong>${direccion} (${tipo})</strong> como su dirección principal?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, usar como principal',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    setDefaultAddress(id);
-                }
+        // Manejar el evento para establecer una dirección como principal
+        document.querySelectorAll('.use-address').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const direccion = this.getAttribute('data-direccion');
+                const tipo = this.getAttribute('data-tipo');
+
+                Swal.fire({
+                    title: 'Confirmar cambio de dirección',
+                    html: `¿Está seguro que desea establecer <strong>${direccion} (${tipo})</strong> como su dirección principal?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, usar como principal',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        setDefaultAddress(id);
+                    }
+                });
+            });
+        });
+
+        // Manejar el evento para eliminar una dirección
+        document.querySelectorAll('.delete-address').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+
+                Swal.fire({
+                    title: '¿Eliminar dirección?',
+                    text: 'Esta acción no se puede deshacer',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        deleteAddress(id);
+                    }
+                });
             });
         });
     });
+
+    // Función para establecer dirección por defecto
+    function setDefaultAddress(addressId) {
+        fetch('{{ route("usuarios.set_default_address") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    address_id: addressId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Dirección actualizada',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Hubo un problema al actualizar la dirección'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema de conexión'
+                });
+            });
+    }
+
+    // Función para eliminar dirección
+    function deleteAddress(addressId) {
+        fetch(`{{ url('usuariosEditPerfil/delete-address') }}/${addressId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Dirección eliminada',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Hubo un problema al eliminar la dirección'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema de conexión'
+                });
+            });
+    }
+
+
+
+    function showEditAddressModal(id, tipo, distrito, direccion, referencia, lat, lon) {
+    document.getElementById('editAddressModal').style.display = 'flex';
     
-    // Manejar el evento para eliminar una dirección
-    document.querySelectorAll('.delete-address').forEach(button => {
+    // Asignar valores al formulario
+    document.getElementById('edit_address_id').value = id;
+    document.getElementById('edit_tipo_nombre').value = tipo;
+    document.getElementById('edit_id_distrito').value = distrito;
+    document.getElementById('edit_direccion').value = direccion;
+    document.getElementById('edit_referencia').value = referencia;
+    document.getElementById('edit_lat').value = lat;
+    document.getElementById('edit_lon').value = lon;
+    
+    // Inicializar mapa de edición después que el modal sea visible
+    setTimeout(() => {
+        const editLat = parseFloat(lat) || -12.0464;
+        const editLon = parseFloat(lon) || -77.0428;
+
+        if (!editModalMap) {
+            // Inicializar mapa
+            editModalMap = L.map('edit-modal-map').setView([editLat, editLon], 13);
+
+            // Añadir capa de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(editModalMap);
+
+            // Añadir marcador arrastrable
+            editModalMarker = L.marker([editLat, editLon], {
+                draggable: true
+            }).addTo(editModalMap);
+
+            // Actualizar coordenadas cuando se arrastra el marcador
+            editModalMarker.on('dragend', function(event) {
+                const position = editModalMarker.getLatLng();
+                document.getElementById('edit_lat').value = position.lat;
+                document.getElementById('edit_lon').value = position.lng;
+                updateEditCoordinatesDisplay(position.lat, position.lng);
+            });
+        } else {
+            // Reposicionar mapa y marcador con las coordenadas de la dirección
+            editModalMap.setView([editLat, editLon], 13);
+            editModalMarker.setLatLng([editLat, editLon]);
+        }
+
+        // Asegurarse que las coordenadas se muestran correctamente
+        document.getElementById('edit_lat').value = editLat;
+        document.getElementById('edit_lon').value = editLon;
+        updateEditCoordinatesDisplay(editLat, editLon);
+        
+        // Invalidar tamaño para asegurar que se renderiza correctamente después de que aparezca el modal
+        editModalMap.invalidateSize();
+    }, 300);
+}
+
+function hideEditAddressModal() {
+    document.getElementById('editAddressModal').style.display = 'none';
+}
+
+function updateEditCoordinatesDisplay(lat, lng) {
+    document.getElementById('edit-coordinates-display').innerHTML =
+        `Latitud: ${lat.toFixed(6)}, Longitud: ${lng.toFixed(6)}`;
+}
+
+// Agregar event listener para los botones de editar
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar a los eventos DOMContentLoaded existentes
+    document.querySelectorAll('.edit-address').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
+            const tipo = this.getAttribute('data-tipo');
+            const distrito = this.getAttribute('data-distrito');
+            const direccion = this.getAttribute('data-direccion');
+            const referencia = this.getAttribute('data-referencia');
+            const lat = this.getAttribute('data-lat');
+            const lon = this.getAttribute('data-lon');
             
+            showEditAddressModal(id, tipo, distrito, direccion, referencia, lat, lon);
+        });
+    });
+
+    // Manejar el envío del formulario de edición
+    document.getElementById('edit-address-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Verificar que las coordenadas existan
+        if (!formData.get('lat') || !formData.get('lon')) {
             Swal.fire({
-                title: '¿Eliminar dirección?',
-                text: 'Esta acción no se puede deshacer',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#d33'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    deleteAddress(id);
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
+            });
+            return;
+        }
+        
+        fetch('{{ route("usuarios.update_address") }}', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Recargar la página para mostrar los cambios
+                    window.location.reload();
+                });
+            } else {
+                let errorMessage = 'Por favor revise los datos ingresados';
+                if (data.message) {
+                    errorMessage = data.message;
+                } else if (data.errors) {
+                    errorMessage = Object.values(data.errors).flat().join('\n');
                 }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema de conexión'
             });
         });
     });
 });
-
-// Función para establecer dirección por defecto
-function setDefaultAddress(addressId) {
-    fetch('{{ route("usuarios.set_default_address") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({ address_id: addressId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Dirección actualizada',
-                text: data.message,
-                timer: 2000,
-                showConfirmButton: false
-            }).then(() => {
-                window.location.reload();
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message || 'Hubo un problema al actualizar la dirección'
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Hubo un problema de conexión'
-        });
-    });
-}
-
-// Función para eliminar dirección
-function deleteAddress(addressId) {
-    fetch(`{{ url('usuariosEditPerfil/delete-address') }}/${addressId}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Dirección eliminada',
-                text: data.message,
-                timer: 2000,
-                showConfirmButton: false
-            }).then(() => {
-                window.location.reload();
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message || 'Hubo un problema al eliminar la dirección'
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Hubo un problema de conexión'
-        });
-    });
-}
     </script>
 
     <!-- Required vendors -->
