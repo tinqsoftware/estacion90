@@ -16,7 +16,6 @@ class DireccionUser extends Model
     'lat',
     'lon',
     'direccion',
-    'principal',
     'referencia',
     'created_at',
     'updated_at'
