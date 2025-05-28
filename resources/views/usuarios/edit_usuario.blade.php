@@ -246,6 +246,8 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         position: relative;
+         overflow: hidden; /* Para que no se salga del contenedor */
+    z-index: 1; /* Asegurar que esté por debajo de modales y otros elementos importantes */
     }
 
 
@@ -513,7 +515,9 @@
                             </div>
                         </div>
 
-                        <div class="map-container" id="workMap"></div>
+                        <div class="map-container" id="workMap" data-lat="{{ $user->direccion->lat ?? '-12.0464' }}"
+     data-lng="{{ $user->direccion->lon ?? '-77.0428' }}"
+     data-tipo="{{ $user->direccion->tipo_nombre ?? 'No definido' }}"></div>
                     </div>
 
                     <div class="other-addresses">
@@ -877,22 +881,23 @@
     });
 
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Default coordinates (you can replace these with actual coordinates)
-        const lat = -12.0464; // Lima, Peru coordinates as example
-        const lng = -77.0428;
+     document.addEventListener('DOMContentLoaded', function () {
+        const mapElement = document.getElementById('workMap');
 
-        // Initialize map
+        // Leer los datos desde los atributos del div
+        const lat = parseFloat(mapElement.dataset.lat);
+        const lng = parseFloat(mapElement.dataset.lng);
+        const tipoDir = mapElement.dataset.tipo;
+
+        // Inicializar el mapa con Leaflet
         const workMap = L.map('workMap').setView([lat, lng], 15);
 
-        // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(workMap);
 
-        // Add marker with popup
         const marker = L.marker([lat, lng]).addTo(workMap);
-        marker.bindPopup("<b>Trabajo</b>").openPopup();
+        marker.bindPopup(tipoDir).openPopup();
     });
 
     function showModal() {
