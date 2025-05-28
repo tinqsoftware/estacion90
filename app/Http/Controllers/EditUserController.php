@@ -30,41 +30,40 @@ class EditUserController extends Controller
 
     public function update(Request $request)
 {
-    // Validate the form input
+    // Customize validation messages
+    $messages = [
+        'email.unique' => 'Este correo ya lo está usando otra cuenta'
+    ];
+
+    // Validate the form input with custom messages
     $validated = $request->validate([
         'nombres' => 'required|string|max:255',
         'apellidos' => 'required|string|max:255',
         'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),
         'telefono' => 'nullable|string|max:20',
-    ]);
+    ], $messages);
     
-    // Get the authenticated user
+    // Rest of the method remains the same
     $user = Auth::user();
     
-    // Update user information
     $user->name = $validated['nombres'];
     $user->apellido = $validated['apellidos'];
     $user->email = $validated['email'];
     $user->telefono = $validated['telefono'];
     
-    // Handle image upload if present
     if ($request->hasFile('imagen')) {
         $image = $request->file('imagen');
         $imageName = time() . '.' . $image->getClientOriginalExtension();
         
-        // Save image to storage location
         $image->move(public_path('access/images/popular-img/'), $imageName);
         
-        // Delete old image if exists
         if ($user->imagen && file_exists(public_path('access/images/popular-img/' . $user->imagen))) {
             unlink(public_path('access/images/popular-img/' . $user->imagen));
         }
         
-        // Update user's image field
         $user->imagen = $imageName;
     }
     
-    // Save the user if it is a valid model instance
     if ($user instanceof \App\Models\User) {
         $user->save();
     }
