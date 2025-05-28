@@ -150,6 +150,86 @@ public function storeAddress(Request $request)
     }
 }
 
+public function setDefaultAddress(Request $request)
+{
+    try {
+        $addressId = $request->address_id;
+        
+        // Verificar que la dirección exista y pertenezca al usuario actual
+        $direccion = DireccionUser::where('id', $addressId)
+            ->where('id_user', Auth::id())
+            ->first();
+            
+        if (!$direccion) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La dirección no existe o no te pertenece'
+            ], 404);
+        }
+        
+        // Actualizar el id_direccion del usuario
+        $user = Auth::user();
+        $user->id_direccion = $addressId;
+        if ($user instanceof \App\Models\User) {
+            $user->save();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Dirección establecida como principal correctamente'
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error al establecer dirección principal: ' . $e->getMessage());
+        Log::error('Error trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al establecer la dirección como principal'
+        ], 500);
+    }
+}
+
+public function deleteAddress($id)
+{
+    try {
+        // Verificar que la dirección exista y pertenezca al usuario actual
+        $direccion = DireccionUser::where('id', $id)
+            ->where('id_user', Auth::id())
+            ->first();
+            
+        if (!$direccion) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La dirección no existe o no te pertenece'
+            ], 404);
+        }
+        
+        // Verificar si esta dirección es la principal del usuario
+        $user = User::find(Auth::id());
+        if ($user instanceof User && $user->id_direccion == $id) {
+            // Si es la dirección principal, establecer null
+            $user->id_direccion = null;
+            $user->save();
+        }
+        
+        // Eliminar la dirección
+        $direccion->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Dirección eliminada correctamente'
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error al eliminar dirección: ' . $e->getMessage());
+        Log::error('Error trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al eliminar la dirección'
+        ], 500);
+    }
+}
+
 
 
     
