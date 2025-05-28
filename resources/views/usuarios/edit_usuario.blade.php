@@ -755,45 +755,54 @@ document.getElementById('new-address-form').addEventListener('submit', function(
 
     // Handle form submission
     document.getElementById('save-profile').addEventListener('click', function() {
-        const form = document.getElementById('profile-form');
-        const formData = new FormData(form);
+    const form = document.getElementById('profile-form');
+    const formData = new FormData(form);
 
-        fetch('{{ route("usuarios.update_profile") }}', {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Éxito',
-                        text: data.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                } else {
-                    let errorMessage = 'Por favor revise los datos ingresados';
-                    if (data.errors) {
-                        errorMessage = Object.values(data.errors).join('\n');
+    fetch('{{ route("usuarios.update_profile") }}', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                let errorMessage = 'Por favor revise los datos ingresados';
+                
+                // Check if there are validation errors
+                if (data.errors) {
+                    // Check specifically for email errors first
+                    if (data.errors.email) {
+                        // Use the first email error message directly
+                        errorMessage = data.errors.email[0];
+                    } else {
+                        // For other errors, flatten and join all error messages
+                        errorMessage = Object.values(data.errors).flat().join('\n');
                     }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: errorMessage
-                    });
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Hubo un problema de conexión'
+                    text: errorMessage
                 });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'info',
+                text: 'Este Correo ya esta en uso, por favor ingrese otro',
             });
-    });
+        });
+});
 
     
     document.addEventListener('DOMContentLoaded', function() {
