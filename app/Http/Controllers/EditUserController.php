@@ -122,6 +122,7 @@ public function storeAddress(Request $request)
         
         // Get the authenticated user
         $userId = Auth::id();
+        $user = Auth::user();
         
         if (!$userId) {
             return response()->json([
@@ -142,9 +143,21 @@ public function storeAddress(Request $request)
             'empresa' => null
         ]);
         
+        // Verificar si el usuario ya tiene una dirección principal
+        $isFirstAddress = false;
+        if (!$user->id_direccion) {
+            // Si no tiene dirección principal, establecer esta como principal
+            $user->id_direccion = $direccion->id;
+            if ($user instanceof \App\Models\User) {
+                $user->save();
+            }
+            $isFirstAddress = true;
+        }
+        
         return response()->json([
             'success' => true, 
-            'message' => 'Dirección agregada correctamente'
+            'message' => 'Dirección agregada correctamente',
+            'isFirstAddress' => $isFirstAddress
         ]);
     } catch (\Illuminate\Validation\ValidationException $e) {
         Log::error('Validation error when storing address: ' . json_encode($e->errors()));
