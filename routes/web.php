@@ -9,6 +9,9 @@ use App\Http\Controllers\Inicio;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PlaneacionMenuController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\PedidoController;
 
 /*
 Route::get('/', function () {
@@ -19,6 +22,13 @@ Auth::routes();
 
 // Public routes
 Route::get('/', [Inicio::class, 'inicio']);
+
+// web.php
+Route::post('/login-ajax', [LoginController::class, 'loginAjax'])->name('login.ajax');
+Route::post('/register-ajax', [RegisterController::class, 'registerAjax'])->name('register.ajax');
+Route::get('/partial/auth-form', function () {
+    return view('layouts.partials.auth-form');
+})->name('partial.auth.form');
 
 // Protected routes - requires authentication
 Route::middleware(['auth'])->group(function () {
@@ -68,4 +78,27 @@ Route::middleware(['auth'])->group(function () {
     // Popup diario
     Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
     Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
+
+    Route::get('/partial/header-sidebar', function () {
+        return response()->json([
+            'header' => view('partials.header')->render(),
+            'sidebar' => view('partials.sidebar')->render(),
+            'authContainer' => view('layouts.partials.user-summary')->render()
+        ]);
+    })->middleware('auth');
+
+    Route::post('/direccion/guardar', [Inicio::class, 'guardarDireccion'])->name('direccion.guardar');
+    Route::get('/direccion/partial', [Inicio::class, 'mostrarDireccionesPopup'])->name('direccion.partial')->middleware('auth');
+    Route::get('/check-auth', function () {
+        return response()->json([
+            'auth' => auth()->check(),
+            'user' => auth()->user(),
+        ]);
+    })->middleware('auth');
+    Route::post('/direccion/actualizar-principal', [Inicio::class, 'actualizarPrincipal'])->name('direccion.actualizarPrincipal');
+
+    Route::post('/registrar-pedido', [PedidoController::class, 'store'])->name('pedido.store');
+
+
+
 });

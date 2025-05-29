@@ -15,6 +15,8 @@ class DireccionUser extends Model
         'tipo_nombre',
         'direccion',
         'referencia',
+        'lat',
+        'lon', 
         'created_at',
         'updated_at'
     ];

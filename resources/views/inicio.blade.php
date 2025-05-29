@@ -13,6 +13,7 @@
 	<meta property="og:description" content="estacion90" />
 	<meta property="og:image" content="access/images/logo_white.png" />
 	<meta name="format-detection" content="telephone=no">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
 	
 	<!-- Mobile Specific 
 	<meta name="viewport" content="width=device-width, initial-scale=1">-->
@@ -40,6 +41,8 @@
 	
 	<!-- Global Stylesheet -->
 	<link href="access/css/style.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
 	
 </head>
 <body>
@@ -58,14 +61,14 @@
         Preloader end
     ********************-->
 
-	@include('partials.header')
-	@include('partials.sidebar')
-
     <!--**********************************
         Main wrapper start
     ***********************************-->
     <div id="main-wrapper" class="dlab-overflow">
        
+	@include('partials.header')
+	@include('partials.sidebar')
+
 
 		
 		<!--**********************************
@@ -80,7 +83,7 @@
 
 							<!-- AGRUPAR EN DOS COLUMNAS PARA PONER BOTÓN MENU SEMANAL-->
 							
-							<div class="d-flex align-items-center justify-content-between mb-4">
+							<div class="d-flex align-items-center justify-content-between mb-2">
 								<div>
 									<h1>Hoy {{ \Carbon\Carbon::now()->translatedFormat('d F') }}</h1>
 								</div>
@@ -109,25 +112,28 @@
 
 							<div>
 								<div id="smartwizard" class="form-wizard order-create">
+									<ul class="nav nav-wizard" style="height:100% !important;">
+										<li>
+											<a class="nav-link" href="#menu">
+												<span class="step-label">1. SELECCIONAR</span>
+											</a>
+										</li>
+										<li>
+											<a class="nav-link" href="#orden">
+												<span class="step-label">2. RESUMEN</span>
+											</a>
+										</li>
+										<li>
+											<a class="nav-link" href="#confirmar">
+												<span class="step-label">3. CONFIRMAR</span>
+											</a>
+										</li>
+									</ul>
 									
 									<div class="tab-content">
 										<!-- Paso 1: Cantidad de comenzales -->
 										<div id="menu" class="tab-pane" role="tabpanel">
 											<div>
-												<!-- SELECCIONA CANTIDAD COMENZALES -->
-												<div style="text-align: center; margin-bottom:15px;">
-													<span style="font-weight: 600; font-size:16px; color:#444; margin-right:15px;">Cantidad de comenzales:</span>
-													<span class="quntity" style=" height: 28px;">
-														<!--
-														<button data-decrease="">-</button>
-														<input data-value="" type="text" value="3">
-														<button data-increase="">+</button>-->
-
-														<button id="removeComensal">-</button>
-														<span id="comensalCount">1</span>
-														<button id="addComensal">+</button>
-													</span>
-												</div>	
 												
 
 												<div class="col-xl-12" >
@@ -138,6 +144,9 @@
 														<div class="tab-content" id="comensalTabContent"></div>
 													</div>
 												</div>
+											</div>
+											<div class="text-end">
+												<button class="btn btn-primary btn-next-step">Continuar >></button>
 											</div>
 										</div>
 
@@ -197,100 +206,129 @@
 													</div>
 												</div>
 											</div>
+											<div class="text-end">
+												<button class="btn btn-primary btn-next-step">Continuar >></button>
+											</div>
 										</div>
 
 										 <!-- Paso 3: Confirmación -->
 										<div id="confirmar" class="tab-pane" role="tabpanel">
 											<div class="p-2">
-												<h4 class="cate-title">Confirmar datos</h4>
+												<h4 class="cate-title">Sobre el pago</h4>
 												<div class="card h-auto">
-													<div class="card-body">
-														<div class="d-flex align-items-center justify-content-between border-bottom flex-wrap">
-															<div class="mb-4">
-																<h4 class="font-w500"> {{ \Carbon\Carbon::now()->translatedFormat('d F') }}</h4>
-																<span> {{ \Carbon\Carbon::now()->translatedFormat('H:m') }} hrs</span>
+													<div class="card-body row">
+														<div class="col-xl-5">
+															<div id="auth-container">
+																@guest
+																	@include('layouts.partials.auth-form')
+																@else
+																	@include('layouts.partials.user-summary')
+																@endguest
 															</div>
-															<div class="orders-img d-flex mb-4">
-																<img src="access/images/banner-img/user.png" alt="">
-																<!--
-																<div>
-																	<h6 class="font-w500">Luis Pérez</h6>
-																	<span>+51 993761235</span>
-																</div>
-																-->
-															</div>
-														</div>
-														<div class="row border-bottom pb-2">
-															<!--
-															<div class="col-xl-6">
-																<div class="address-bx mt-3">
-																	<span class="d-block mb-2">Tu dirección actual</span>
-																	<div class="d-flex  align-items-center justify-content-between mb-2">
-																		<h4 class="mb-0">
-																			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-																				<path d="M20.46 9.63C20.3196 8.16892 19.8032 6.76909 18.9612 5.56682C18.1191 4.36456 16.9801 3.40083 15.655 2.7695C14.3299 2.13816 12.8639 1.86072 11.3997 1.96421C9.93555 2.06769 8.52314 2.54856 7.3 3.36C6.2492 4.06265 5.36706 4.9893 4.71695 6.07339C4.06684 7.15749 3.6649 8.37211 3.54 9.63C3.41749 10.8797 3.57468 12.1409 4.00017 13.3223C4.42567 14.5036 5.1088 15.5755 6 16.46L11.3 21.77C11.393 21.8637 11.5036 21.9381 11.6254 21.9889C11.7473 22.0397 11.878 22.0658 12.01 22.0658C12.142 22.0658 12.2727 22.0397 12.3946 21.9889C12.5164 21.9381 12.627 21.8637 12.72 21.77L18 16.46C18.8912 15.5755 19.5743 14.5036 19.9998 13.3223C20.4253 12.1409 20.5825 10.8797 20.46 9.63ZM16.6 15.05L12 19.65L7.4 15.05C6.72209 14.3721 6.20281 13.5523 5.87947 12.6498C5.55614 11.7472 5.43679 10.7842 5.53 9.83C5.62382 8.86111 5.93177 7.92516 6.43157 7.08985C6.93138 6.25453 7.61056 5.54071 8.42 5C9.48095 4.29524 10.7263 3.9193 12 3.9193C13.2737 3.9193 14.5191 4.29524 15.58 5C16.387 5.53862 17.0647 6.24928 17.5644 7.08094C18.064 7.9126 18.3733 8.84461 18.47 9.81C18.5663 10.7674 18.4484 11.7343 18.125 12.6406C17.8016 13.5468 17.2807 14.3698 16.6 15.05ZM12 6C11.11 6 10.24 6.26392 9.49994 6.75839C8.75992 7.25286 8.18314 7.95566 7.84255 8.77793C7.50195 9.6002 7.41284 10.505 7.58647 11.3779C7.7601 12.2508 8.18869 13.0526 8.81802 13.682C9.44736 14.3113 10.2492 14.7399 11.1221 14.9135C11.995 15.0872 12.8998 14.9981 13.7221 14.6575C14.5443 14.3169 15.2471 13.7401 15.7416 13.0001C16.2361 12.26 16.5 11.39 16.5 10.5C16.4974 9.30734 16.0224 8.16428 15.1791 7.32094C14.3357 6.4776 13.1927 6.00265 12 6ZM12 13C11.5055 13 11.0222 12.8534 10.6111 12.5787C10.2 12.304 9.87952 11.9135 9.6903 11.4567C9.50109 10.9999 9.45158 10.4972 9.54804 10.0123C9.6445 9.52733 9.88261 9.08187 10.2322 8.73224C10.5819 8.38261 11.0273 8.1445 11.5123 8.04804C11.9972 7.95158 12.4999 8.00109 12.9567 8.1903C13.4135 8.37952 13.804 8.69996 14.0787 9.11108C14.3534 9.5222 14.5 10.0056 14.5 10.5C14.5 11.163 14.2366 11.7989 13.7678 12.2678C13.2989 12.7366 12.663 13 12 13Z" fill="var(--primary)"/>
-																			</svg>
-																			Avenida José Rivaaguero 234, San Miguel
-																		</h4>
-																		<a href="javascript:void(0);" class="btn btn-outline-primary btn-sm change">Cambiar dirección</a>
+															<div id="guest-form-template" style="display:none;">
+																<div class="row">
+																	<div class="mb-3 col-6">
+																		<h4 class="mb-3">Datos de invitado</h4>
 																	</div>
-																	<p>Frente a una reja de color blando, al lado del banco BCP </p>
+																	<div class="mb-3 col-6">
+																		<h1 id="reloj-hora" style="font-size: 28px; font-weight: bold;"></h1>
+																	</div>
+																	<div class="mb-3 col-6">
+																		<input type="text" name="guest_name" class="form-control" placeholder="Nombres">
+																	</div>
+																	<div class="mb-3 col-6">
+																		<input type="text" name="guest_phone" class="form-control" placeholder="Celular">
+																	</div>
+																	<div class="mb-3 ">
+																		<input type="text" name="guest_address" class="form-control" placeholder="Dirección">
+																	</div>
+																	<div class="mb-3 ">
+																		<input type="text" name="guest_reference" class="form-control" placeholder="Referencia">
+																	</div>
+																	<div class="mb-3 col-6">
+																		<select name="guest_distrito" class="form-control" required>
+																			<option value="">Selecciona distrito</option>
+																			@foreach ($distrito as $d)
+																				<option value="{{ $d->id }}">{{ $d->nombre }}</option>
+																			@endforeach
+																		</select>
+																	</div>
+																	<!-- Botón y Mapa -->
+																	<div class="mb-3 col-6 text-end">
+																		<button type="button" class="btn btn-outline-primary btn-sm" onclick="usarUbicacionGuest()">
+																			<i class="fa fa-location-arrow"></i> Usar mi ubicación actual
+																		</button>
+																	</div>
+																	<div class="mb-3 col-12">
+																		<div id="mapaGuest" style="width: 100%; height: 300px;"></div>
+																		<div class="mb-2 col-12 text-center text-muted">
+																			<span>Latitud: <span id="guest-lat-text">-</span> | Longitud: <span id="guest-lon-text">-</span></span>
+																		</div>
+																	</div>
+																	
 
+																	<!-- Inputs ocultos -->
+																	<input type="hidden" name="guest_lat">
+																	<input type="hidden" name="guest_lon">
+																	<div class="text-center mb-3">
+																		<a href="#" class="text-primary" id="btn-volver-login" style="text-decoration:underline;">Iniciar sesión</a> o 
+																		<a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#modalCrearCuenta" style="text-decoration:underline;">Crear cuenta</a>
+																	</div>
 																</div>
-															</div>-->
-															<div class="col-xl-4">
-																<div class="d-flex align-items-center justify-content-between mt-3">
-																	<div class="Billing-bx mb-3">
-																		<div class="billing-title">
-																			<h4>Sobre el pago</h4>
+															</div>
+														</div>
+
+														<div class="col-xl-7">
+															<div class="d-flex align-items-center justify-content-between">
+																<div class="Billing-bx mb-3">
+																	<div class="billing-title">
+																		<h4>Sobre el pago</h4>
+																	</div>
+																	<div class="row">
+																		<div class="col-6">
+																			<select id="tipo_pago"  name="tipo_pago" class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" required>
+																				<option value="">Método de pago</option>
+																				@foreach($tiposPago as $tipo)
+																					<option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+																				@endforeach
+																			</select>
 																		</div>
-																		<div class="row">
-																			<div class="col-xl-12">
-																				<select class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" style="display: none;">
-																					<option><b>Tipo de pago</b></option>
-																					<option>Tarjeta</option>
-																					<option>Efectivo</option>
-																					<option>Yape / Plin</option>
-																				</select>
+																		<div class="col-6">
+																			<div class="mb-3">
+																					<input type="text" name="vuelto" class="form-control" placeholder="Vuelto de" >
 																			</div>
-																			<div class="col-xl-6">
-																				<div class="mb-3">
-																					<input type="Text" class="form-control" placeholder="Vuelto de">
-																				</div>
+																		</div>
+																		<div class="col-6">
+																			<select id="comprobante_pago" name="comprobante_pago" class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" required>
+																				<option value="">¿Comprobante?</option>
+																				@foreach($comprobantesPago as $comp)
+																					<option value="{{ $comp->id }}">{{ $comp->nombre }}</option>
+																				@endforeach
+																			</select>
+																		</div>
+																		<div class="col-6" >
+																			<div class="mb-3">
+																				<input type="text" id="documento_comprobante" name="documento_comprobante" class="form-control" placeholder="DNI o RUC">
 																			</div>
-																			<div class="col-xl-6">
-																				<select class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" style="display: none;">
-																					<option><b>Comprobante pago</b></option>
-																					<option>Boleta</option>
-																					<option>Factura</option>
-																					<option>No</option>
-																				</select>
-																			</div>
-																			<div class="col-xl-12">
-																				<select class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" style="display: none;">
-																					<option><b>Hora de llegada</b></option>
-																					<option>30min (1:00pm)</option>
-																					<option>45min (1:15pm)</option>
-																					<option>60min (1:30pm)</option>
-																					<option>75min (1:45pm)</option>
-																					<option>90min (2:00pm)</option>
-																					<option>105min (2:15pm)</option>
-																					<option>120min (2:30pm)</option>
-																					<option>135min (2:45pm)</option>
-																				</select>
-																			</div>
+																		</div>
+																		<div class="col-6">
+																			<select name="hora_llegada" class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" required>
+																				<option value="">Hora de llegada</option>
+																				@foreach($horasLlegada as $hora)
+																					<option value="{{ $hora->id }}"  data-minutos="{{ $hora->valor }}">{{ $hora->valor }} min</option>
+																				@endforeach
+																			</select>
 																		</div>
 																	</div>
 																</div>
-																
 															</div>
-															<div class="col-xl-2"></div>
+															
 														</div>
-														<hr style="opacity:0.7" />
+														
 														<div class="d-flex align-items-center justify-content-between">
 															
 															<div id="confirmResumen">
-																<h4 class="font-w500 mb-0">Total</h4>
+																<h4 class="font-w500 mt-3">Total</h4>
 																<!-- Se mostrará el resumen final (se puede clonar el de "orden") -->
 																<div class="d-flex align-items-center justify-content-between mb-3">
 																	<h1 class="font-w500 text-primary"><span id="confirmTotal">S/0.00</span></h1>
@@ -300,28 +338,26 @@
 														
 														<!-- Formulario para enviar el pedido 
 														<form action="{ { route ('pedido .submit') } }" method="POST">-->
-														<form action="" method="POST">
+														<form id="form-pedido" action="" method="POST">
 															@csrf
-															<!-- Incluye inputs ocultos con la información del pedido -->
 															<input type="hidden" name="order_data" id="orderData">
-															<!--<button type="submit">Confirmar Pedido</button>-->
+
+															{{-- Solo si es invitado --}}
+															@guest
+																<input type="hidden" name="guest_name">
+																<input type="hidden" name="guest_phone">
+																<input type="hidden" name="guest_address">
+															@endguest
+
+															<button type="submit" class="btn btn-primary w-100 mt-3" id="btnConfirmarPedido">
+																Confirmar Pedido
+															</button>
 														</form>
 													</div>
 												</div>
 											</div>
 										</div>
 									</div>
-									<ul class="nav nav-wizard" style="height:100% !important;">
-										<li><a class="nav-link" href="#menu"> 
-											<span>1</span> 
-										</a></li>
-										<li><a class="nav-link" href="#orden">
-											<span>2</span>
-										</a></li>
-										<li><a class="nav-link" href="#confirmar">
-											<span>3</span>
-										</a></li>
-									</ul>
 									
 								</div>
 							</div>
@@ -349,6 +385,80 @@
 				</div>
             </div>
         </div>
+
+		<div class="modal fade" id="productModal" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content p-3">
+					<img id="modalImage" class="img-fluid mb-2" />
+					<h5 id="modalTitle"></h5>
+					<p id="modalDescription"></p>
+					<button id="modalToggleSelect" class="btn btn-primary mt-2"></button>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalCrearCuenta" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content p-5">
+					<img src="/access/images/logo-full.png" class="food-img p-5" alt="">
+					<h5>Crear cuenta</h5>
+					<input type="text" id="registro_nombre" class="form-control my-2" placeholder="Nombres">
+					<input type="email" id="registro_correo" class="form-control my-2" placeholder="Correo">
+					<input type="text" id="registro_celular" class="form-control my-2" placeholder="Celular">
+					<input type="password" id="registro_password" class="form-control my-2" placeholder="Contraseña">
+					<input type="password" id="registro_password_repeat" class="form-control my-2" placeholder="Repetir contraseña">
+					<button class="btn btn-primary w-100 mt-3" id="btnCrearCuenta">Crear cuenta</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Agregar Dirección -->
+		<div class="modal fade" id="modalAgregarDireccion" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content p-4">
+					<h4>Agregar dirección</h4>
+
+					<div class="row mb-2">
+						<div class="col">
+							<select class="form-control" id="direccion_tipo">
+								<option value="">Tipo</option>
+								<option value="Casa">Casa</option>
+								<option value="Trabajo">Trabajo</option>
+								<option value="Otro">Otro</option>
+							</select>
+						</div>
+						<div class="col">
+							<select class="form-control" id="direccion_distrito">
+								<option value="">Distrito</option>
+								@foreach($distrito as $d)
+									<option value="{{ $d->id }}">{{ $d->nombre }}</option>
+								@endforeach
+								<!-- Puedes cargar dinámicamente si lo deseas -->
+							</select>
+						</div>
+					</div>
+
+					<input type="text" class="form-control mb-2" id="direccion_direccion" placeholder="Dirección exacta">
+					<input type="text" class="form-control mb-2" id="direccion_referencia" placeholder="Referencia">
+
+					<div class="mb-3">
+						<button class="btn btn-info w-100" onclick="obtenerUbicacion()">Mover a ubicación actual</button>
+					</div>
+
+					<div id="mapaDireccion" style="width: 100%; height: 200px; background-color: #eee;"></div>
+					<div id="coordenadasMapa" class="text-center mt-2 text-muted" style="font-size: 14px;">
+						<!-- Aquí se mostrará la latitud y longitud -->
+					</div>
+					<button class="btn btn-primary w-100 mt-3" onclick="guardarDireccion()">Grabar dirección</button>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="popupDireccionesContainer"></div>
+
+
+
 
         
 		
@@ -398,6 +508,10 @@
 
 	<!-- Form Steps -->
 	<script src="access/vendor/jquery-smartwizard/dist/js/jquery.smartWizard.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
 
 
 	
@@ -406,764 +520,1490 @@
 		$(document).ready(function(){
 			
 			$('#smartwizard').smartWizard(); 
+
+			$('#modalAgregarDireccion').on('shown.bs.modal', function () {
+				setTimeout(() => iniciarMapa(), 300); // Para asegurar que se renderice después de que el modal se muestre
+			});
+
+
 		});
-	</script>
-	
-	<script>
 
-	$('.my-select').selectpicker();
+		$('.my-select').selectpicker();
 
-	var swiper = new Swiper(".mySwiper-1", {
-		loop:true,
-		dots:true,
-		//nav:true,
-		//autoplay: {delay: 3000,},
+
+
+		var swiper = new Swiper(".mySwiper-1", {
+			loop:true,
+			dots:true,
+			//nav:true,
+			//autoplay: {delay: 3000,},
+			
+			navigation: {
+			nextEl: ".swiper-button-next-1",
+			prevEl: ".swiper-button-prev-1",
+			//loop: true
+			},
 		
-		navigation: {
-		nextEl: ".swiper-button-next-1",
-		prevEl: ".swiper-button-prev-1",
-		//loop: true
-		},
-	
-		pagination: {
-		el: ".swiper-pagination-banner",
-		clickable: true,
-		},
-		mousewheel: false,
-		keyboard: false,
-	});
-	
-	
-	var swiper = new Swiper(".mySwiper-2", {
-		slidesPerView: 5,
-		spaceBetween: 20,
-		loop:true,
-		//autoplay: {delay: 3000,},
-		pagination: {
-		el: ".swiper-pagination",
-		clickable: true,
-		},
-		breakpoints: {
-		360: {
-			slidesPerView: 2,
-			spaceBetween: 20,
-		},
-		600: {
-			slidesPerView: 3,
-			spaceBetween: 20,
-		},
-		768: {
-			slidesPerView: 4,
-			spaceBetween: 20,
-		},
-		1200: {
-			slidesPerView: 3,
-			spaceBetween: 20,
-		},
-		1920: {
+			pagination: {
+			el: ".swiper-pagination-banner",
+			clickable: true,
+			},
+			mousewheel: false,
+			keyboard: false,
+		});
+		
+		
+		var swiper = new Swiper(".mySwiper-2", {
 			slidesPerView: 5,
 			spaceBetween: 20,
-		},
+			loop:true,
+			//autoplay: {delay: 3000,},
+			pagination: {
+			el: ".swiper-pagination",
+			clickable: true,
+			},
+			breakpoints: {
+			360: {
+				slidesPerView: 2,
+				spaceBetween: 20,
+			},
+			600: {
+				slidesPerView: 3,
+				spaceBetween: 20,
+			},
+			768: {
+				slidesPerView: 4,
+				spaceBetween: 20,
+			},
+			1200: {
+				slidesPerView: 3,
+				spaceBetween: 20,
+			},
+			1920: {
+				slidesPerView: 5,
+				spaceBetween: 20,
+			},
+			
+			},
+			
+		});
 		
-		},
-		
-	});
-	
 
 
-	$(function() {
-		$('[data-decrease]').on('click', decrease);
-		$('[data-increase]').click(increase);
-		$('[data-value]').change(valueChange);
-	});
+		$(function() {
+			$('[data-decrease]').on('click', decrease);
+			$('[data-increase]').click(increase);
+			$('[data-value]').change(valueChange);
+		});
 
-	function decrease() {
-		var value = $(this).parent().find('[data-value]').val();
-		if(value > 0) {
-			value--;
-			$(this).parent().find('[data-value]').val(value);
+		function decrease() {
+			var value = $(this).parent().find('[data-value]').val();
+			if(value > 0) {
+				value--;
+				$(this).parent().find('[data-value]').val(value);
+			}
 		}
-	}
 
-	function increase() {
-		var value = $(this).parent().find('[data-value]').val();
-		if(value < 100) {
-			value++;
-			$(this).parent().find('[data-value]').val(value);
+		function increase() {
+			var value = $(this).parent().find('[data-value]').val();
+			if(value < 100) {
+				value++;
+				$(this).parent().find('[data-value]').val(value);
+			}
 		}
-	}
 
-	function valueChange() {
-		var value = $(this).val();
-		if(value == undefined || isNaN(value) == true || value <= 0) {
-			$(this).val(0);
-		} else if(value >= 101) {
-			$(this).val(100);
+		function valueChange() {
+			var value = $(this).val();
+			if(value == undefined || isNaN(value) == true || value <= 0) {
+				$(this).val(0);
+			} else if(value >= 101) {
+				$(this).val(100);
+			}
 		}
-	}
 
-	function loadAndShowPopups() {
-    $.ajax({
-        url: '{{ route("popups.for-user") }}',
-        type: 'GET',
-        success: function(response) {
-            if (response.success && response.popups.length > 0) {
-                // Tomar el primer popup disponible
-                const popup = response.popups[0];
-                
-                // Configurar contenido del modal
-                if (popup.url_imagen) {
-                    $('#exampleModalCenter .modal-content div').html(
-                        `<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
-                    );
-                }
-                
-                // Si hay link, hacer que el popup sea clickeable
-                if (popup.link) {
-                    $('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click', function() {
-                        window.open(popup.link, '_blank');
-                    });
-                }
-                
-                // Mostrar el modal
-                $('#exampleModalCenter').modal('show');
-                
-                // Registrar la vista - CORREGIDO
-                $.ajax({
-                    url: '{{ route("popups.view") }}',
-                    type: 'POST',
-                    data: {
-                        popup_id: popup.id,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    error: function(xhr) {
-                        console.error('Error al registrar vista:', xhr.responseText);
-                    }
-                });
-            }
-        }
-    });
-}
-	$(document).ready(function() {
-    loadAndShowPopups();
-	});
-
-		
-	$(document).ready(function(){
-	$(".plus").click(function(){
-		$(this).toggleClass("active");
-		
-	});
-	});
-	$(document).ready(function(){
-	$(".c-heart").click(function(){
-		$(this).toggleClass("active");
-		
-	});
-	});
-
-	// Los datos enviados desde el controlador (productos disponibles para hoy)
-	const entradas15 = @json($entradas15);
-	const fondos15 = @json($fondos15);
-	const entradas20 = @json($entradas20);
-	const fondos20 = @json($fondos20);
-	const platosCarta = @json($platosCarta);
-	const combos = @json($combos);
-
-	let comensalNombres = {};
-
-	let comensalCount = 1;
-	const maxComensales = 10;
-	const tabContainer = document.getElementById("comensalTabs");
-	const tabContent = document.getElementById("comensalTabContent");
-
-	const countEntradas15 = {{ $entradas15->count() }};
-    const countFondos15 = {{ $fondos15->count() }};
-    const countEntradas20 = {{ $entradas20->count() }};
-    const countFondos20 = {{ $fondos20->count() }};
-
-	// Función para crear la pestaña de un comensal
-	function createComensalTab(index) {
-		const widthPercent = (100 / comensalCount).toFixed(2);
-		const name = `COMENSAL ${index + 1}`;
-
-		return `
-		<li class="nav-item" role="presentation" style="width: ${widthPercent}%;">
-			<button class="nav-link ${index === 0 ? 'active' : ''}" data-bs-toggle="tab" 
-			data-bs-target="#comensal${index}" type="button" role="tab">
-				<input type="text" value="${name}" class="comensal-name-input" data-index="${index}" style="border:none;background:transparent;width:100%;text-align:center;font-weight:600;">
-			</button>
-		</li>`;
-		
-	}
-
-
-
-
-  // Función para crear el contenido (selección de menús) para cada comensal
-  function createComensalContent(index) {
-      return `
-          	<div class="tab-pane fade show ${index === 0 ? 'active' : ''}" id="comensal${index}" role="tabpanel">
-              	<div class="pt-4">
-                  	<ul class="nav nav-pills mb-4 light" style="width: 100%;">
-                      	<li class="nav-item" style="width:25%; text-align: center;">
-                          	<a href="#menu15-${index}" class="nav-link active" data-bs-toggle="tab">Menú S/15</a>
-                      	</li>
-                      	<li class="nav-item" style="width: 25%; text-align: center;">
-                          	<a href="#menu20-${index}" class="nav-link" data-bs-toggle="tab">Menú S/20</a>
-                      	</li>
-					  	<li class="nav-item" style="width: 25%; text-align: center;">
-							<a href="#menuCarta-${index}" class="nav-link" data-bs-toggle="tab">A la Carta</a>
-						</li>
-						<li class="nav-item" style="width: 25%; text-align: center;">
-							<a href="#menuCombo-${index}" class="nav-link" data-bs-toggle="tab">Combo</a>
-						</li>
-                  	</ul>
-                  	<div class="tab-content">
-						<!-- Menú S/15 -->
-						<div id="menu15-${index}" class="tab-pane active">
-							<h4 class=" mb-0 cate-title">${ countEntradas15 } Entradas</h4>
-							<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
-							<div class="swiper mySwiper-3" style="margin-bottom:30px;">
-								<div class="swiper-wrapper">
-									${ renderProductos(entradas15, 'entrada15', index) }
-								</div>
-								<div class="swiper-pagination"></div>
-							</div>
-							<h4 class="cate-title">${ countFondos15 } Fondos</h4>
-							<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
-							<div class="swiper mySwiper-3">
-								<div class="swiper-wrapper">
-									${ renderProductos(fondos15, 'fondo15', index) }
-								</div>
-								<div class="swiper-pagination"></div>
-							</div>
-						</div>
-						<!-- Menú S/20 -->
-						<div id="menu20-${index}" class="tab-pane">
-							<h4 class="cate-title">${ countEntradas20 } Entradas</h4>
-							<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
-							<div class="swiper mySwiper-3" style="margin-bottom:30px;">
-								<div class="swiper-wrapper">
-									${ renderProductos(entradas20, 'entrada20', index) }
-								</div>
-								<div class="swiper-pagination"></div>
-							</div>
-							<h4 class="cate-title">${ countFondos20 } Fondos</h4>
-							<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
-							<div class="swiper mySwiper-3">
-								<div class="swiper-wrapper">
-									${ renderProductos(fondos20, 'fondo20', index) }
-								</div>
-								<div class="swiper-pagination"></div>
-							</div>
-						</div>
-					  	<!--  Platos a la Carta -->
-						<div id="menuCarta-${index}" class="tab-pane">
-							<h4 class="cate-title">${platosCarta.length} Platos a la carta</h4>
-							<div class="swiper mySwiper-3">
-								<div class="swiper-wrapper">
-									${ renderProductos(platosCarta, 'carta', index) }
-								</div>
-								<div class="swiper-pagination"></div>
-							</div>
-						</div>
-						<!--  Combos -->
-						<div id="menuCombo-${index}" class="tab-pane">
-							<h4 class="cate-title">${combos.length} Combos</h4>
-							<div class="swiper mySwiper-3">
-								<div class="swiper-wrapper">
-									${ renderProductos(combos, 'combo', index) }
-								</div>
-								<div class="swiper-pagination"></div>
-							</div>
-						</div>
-                  	</div>
-              	</div>
-          	</div>`;
-  }
-
-  // Función auxiliar para generar las tarjetas de productos en el carrusel
-  // typeName es la cadena que identifica el tipo (por ejemplo, 'entrada15', 'fondo15', etc.)
-  // comensalIndex es para diferenciar los grupos de radios por comensal
-  function renderProductos(productos, typeName, comensalIndex) {
-		let type ='';
-		let typeinput ='radio';
-		if(typeName=='entrada15'||typeName=='entrada20'){
-			type ='entrada';
-		}else if(typeName=='fondo15'||typeName=='fondo20'){
-			type ='fondo';
-		}else if(typeName === 'combo') {
-			type = 'combo';
-			typeinput ='checkbox';
-		}else if(typeName === 'carta') {
-			type = 'carta';
-			typeinput ='checkbox';
+		function loadAndShowPopups() {
+			$.ajax({
+				url: '{{ route("popups.for-user") }}',
+				type: 'GET',
+				success: function(response) {
+					if (response.success && response.popups.length > 0) {
+						// Tomar el primer popup disponible
+						const popup = response.popups[0];
+						
+						// Configurar contenido del modal
+						if (popup.url_imagen) {
+							$('#exampleModalCenter .modal-content div').html(
+								`<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
+							);
+						}
+						
+						// Si hay link, hacer que el popup sea clickeable
+						if (popup.link) {
+							$('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click', function() {
+								window.open(popup.link, '_blank');
+							});
+						}
+						
+						// Mostrar el modal
+						$('#exampleModalCenter').modal('show');
+						
+						// Registrar la vista - CORREGIDO
+						$.ajax({
+							url: '{{ route("popups.view") }}',
+							type: 'POST',
+							data: {
+								popup_id: popup.id,
+								_token: '{{ csrf_token() }}'
+							},
+							error: function(xhr) {
+								console.error('Error al registrar vista:', xhr.responseText);
+							}
+						});
+					}
+				}
+			});
 		}
-      let html = '';
-      productos.forEach(prod => {
-          html += `
-              <div class="swiper-slide">
-                  <div class="card dishe-bx">
-                      <div class="card-header border-0 pb-0 pt-0 pe-3">
-                          <!-- Puedes agregar un badge o icono aquí -->
-                      </div>
-                      <div class="card-body p-0 text-center" style="cursor:pointer;" 
-					  onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
-                          <img style="width: 100%;" src="${prod.imagen}" alt="${ prod.nombre }">
-                      </div>
-                      <div class="border-0 pt-2">
-                          <div class="common d-flex justify-content-between">
-								<div class="plus c-pointer" style="margin:0 8px;">
-									<div class="sub-bx">
-										<a href="javascript:void(0);"></a>
+		$(document).ready(function() {
+			loadAndShowPopups();
+		});
+
+			
+		$(document).ready(function(){
+			$(".plus").click(function(){
+				$(this).toggleClass("active");
+				
+			});
+		});
+		$(document).ready(function(){
+			$(".c-heart").click(function(){
+				$(this).toggleClass("active");
+				
+			});
+		});
+
+		// Los datos enviados desde el controlador (productos disponibles para hoy)
+		const entradas15 = @json($entradas15);
+		const fondos15 = @json($fondos15);
+		const entradas20 = @json($entradas20);
+		const fondos20 = @json($fondos20);
+		const platosCarta = @json($platosCarta);
+		const combos = @json($combos);
+
+		let comensalNombres = {};
+
+		let comensalCount = 1;
+		const maxComensales = 10;
+		const tabContainer = document.getElementById("comensalTabs");
+		const tabContent = document.getElementById("comensalTabContent");
+
+		const countEntradas15 = {{ $entradas15->count() }};
+		const countFondos15 = {{ $fondos15->count() }};
+		const countEntradas20 = {{ $entradas20->count() }};
+		const countFondos20 = {{ $fondos20->count() }};
+
+		// Función para crear la pestaña de un comensal
+		function createComensalTab(index) {
+			const widthPercent = (95 / (comensalCount)).toFixed(2);
+			const name = comensalNombres[index] || `COMENSAL ${index + 1}`;
+			const closeBtn = index > 0 ? `<span class="btn-remove-comensal" data-index="${index}" style="position: absolute; right: 2px; cursor: pointer; color: white; background-color: #d01010; width: 12px; height: 16px; border-radius: 5px; font-size: 12px; top:3px;">×</span>` : '';
+			    
+			return `
+				<li class="nav-item position-relative" role="presentation" style="width: ${widthPercent}%; text-align:center;">
+				<button class="nav-link ${index === 0 ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#comensal${index}" type="button" role="tab" style="width:100%">
+					<input type="text" value="${name}" class="comensal-name-input" data-index="${index}" style="border:none;background:transparent;width:100%;margin-left:7px; font-size: 10px;">
+				</button>
+				${closeBtn}
+				</li>`;
+		}
+
+		function createAddComensalTab() {
+			return `
+				<li class="nav-item" role="presentation" style="width:4.5%; text-align:center;">
+				<button class="nav-link" id="btn-add-comensal" type="button">+</button>
+				</li>`;
+		}
+
+
+
+		// Función para crear el contenido (selección de menús) para cada comensal
+		function createComensalContent(index) {
+			return `
+					<div class="tab-pane fade show ${index === 0 ? 'active' : ''}" id="comensal${index}" role="tabpanel">
+						<div class="pt-4">
+							<ul class="nav nav-pills mb-4 light" style="width: 100%;">
+								<li class="nav-item" style="width:25%; text-align: center;">
+									<a href="#menu15-${index}" class="nav-link active" data-bs-toggle="tab">Menú S/15</a>
+								</li>
+								<li class="nav-item" style="width: 25%; text-align: center;">
+									<a href="#menu20-${index}" class="nav-link" data-bs-toggle="tab">Menú S/20</a>
+								</li>
+								<li class="nav-item" style="width: 25%; text-align: center;">
+									<a href="#menuCarta-${index}" class="nav-link" data-bs-toggle="tab">A la Carta</a>
+								</li>
+								<li class="nav-item" style="width: 25%; text-align: center;">
+									<a href="#menuCombo-${index}" class="nav-link" data-bs-toggle="tab">Combo</a>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<!-- Menú S/15 -->
+								<div id="menu15-${index}" class="tab-pane active">
+									<h4 class=" mb-0 cate-title">${ countEntradas15 } Entradas</h4>
+									<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+									<div class="swiper mySwiper-3" style="margin-bottom:30px;">
+										<div class="swiper-wrapper">
+											${ renderProductos(entradas15, 'entrada15', index) }
+										</div>
+										<div class="swiper-pagination"></div>
+									</div>
+									<h4 class="cate-title">${ countFondos15 } Fondos</h4>
+									<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+									<div class="swiper mySwiper-3">
+										<div class="swiper-wrapper">
+											${ renderProductos(fondos15, 'fondo15', index) }
+										</div>
+										<div class="swiper-pagination"></div>
 									</div>
 								</div>
-								<!-- Cada input radio es único por comensal y por tipo -->
-								<input style="display:none;" type="${ typeinput }" tipo="${ typeName }[${ comensalIndex }]" name="${ type }[${ comensalIndex }]" value="${ prod.id }">
-								<div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
-									<img style="display:none;" src="${prod.imagen}" alt="${ prod.nombre }">
-								<h6>${ prod.nombre }</h6>
-									<h4 class="font-w700 mb-0 text-primary">s/.${ prod.precio }</h4>
+								<!-- Menú S/20 -->
+								<div id="menu20-${index}" class="tab-pane">
+									<h4 class="cate-title">${ countEntradas20 } Entradas</h4>
+									<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+									<div class="swiper mySwiper-3" style="margin-bottom:30px;">
+										<div class="swiper-wrapper">
+											${ renderProductos(entradas20, 'entrada20', index) }
+										</div>
+										<div class="swiper-pagination"></div>
+									</div>
+									<h4 class="cate-title">${ countFondos20 } Fondos</h4>
+									<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+									<div class="swiper mySwiper-3">
+										<div class="swiper-wrapper">
+											${ renderProductos(fondos20, 'fondo20', index) }
+										</div>
+										<div class="swiper-pagination"></div>
+									</div>
 								</div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          `;
-      });
-      return html;
-  }
-
-
-
-	// Función que renderiza las pestañas y contenido según el número de comensales
-	function renderComensales() {
-		const previousNames = { ...comensalNombres };
-		tabContainer.innerHTML = "";
-		tabContent.innerHTML = "";
-
-		for (let i = 0; i < comensalCount; i++) {
-			comensalNombres[i] = previousNames[i] || `COMENSAL ${i + 1}`;
-			tabContainer.innerHTML += createComensalTab(i);
-			tabContent.innerHTML += createComensalContent(i);
+								<!--  Platos a la Carta -->
+								<div id="menuCarta-${index}" class="tab-pane">
+									<h4 class="cate-title">${platosCarta.length} Platos a la carta</h4>
+									<div class="swiper mySwiper-3">
+										<div class="swiper-wrapper">
+											${ renderProductos(platosCarta, 'carta', index) }
+										</div>
+										<div class="swiper-pagination"></div>
+									</div>
+								</div>
+								<!--  Combos -->
+								<div id="menuCombo-${index}" class="tab-pane">
+									<h4 class="cate-title">${combos.length} Combos</h4>
+									<div class="swiper mySwiper-3">
+										<div class="swiper-wrapper">
+											${ renderProductos(combos, 'combo', index) }
+										</div>
+										<div class="swiper-pagination"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>`;
 		}
 
-		// Asigna eventos a inputs
-		setTimeout(() => {
-			document.querySelectorAll('.comensal-name-input').forEach(input => {
-				input.addEventListener('input', function () {
-					const index = this.dataset.index;
-					comensalNombres[index] = this.value || `COMENSAL ${parseInt(index) + 1}`;
-					updateOrdenResumen(); // para que también actualice los títulos del resumen
+		// Función auxiliar para generar las tarjetas de productos en el carrusel
+		// typeName es la cadena que identifica el tipo (por ejemplo, 'entrada15', 'fondo15', etc.)
+		// comensalIndex es para diferenciar los grupos de radios por comensal
+		function renderProductos(productos, typeName, comensalIndex) {
+				let type ='';
+				let typeinput ='radio';
+				if(typeName=='entrada15'||typeName=='entrada20'){
+					type ='entrada';
+				}else if(typeName=='fondo15'||typeName=='fondo20'){
+					type ='fondo';
+				}else if(typeName === 'combo') {
+					type = 'combo';
+					typeinput ='checkbox';
+				}else if(typeName === 'carta') {
+					type = 'carta';
+					typeinput ='checkbox';
+				}
+			let html = '';
+			productos.forEach(prod => {
+				html += `
+					<div class="swiper-slide">
+						<div class="card dishe-bx">
+							<div class="card-header border-0 pb-0 pt-0 pe-3">
+								<!-- Puedes agregar un badge o icono aquí -->
+							</div>
+							<div class="card-body p-0 text-center" style="cursor:pointer;" 
+							onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
+								<img style="width: 100%;" src="${prod.imagen}" alt="${ prod.nombre }">
+							</div>
+							<div class="border-0 pt-2">
+								<div class="common d-flex justify-content-between">
+										<div class="plus c-pointer" style="margin:0 8px;">
+											<div class="sub-bx">
+												<a href="javascript:void(0);"></a>
+											</div>
+										</div>
+										<!-- Cada input radio es único por comensal y por tipo -->
+										<input style="display:none;" type="${ typeinput }" tipo="${ typeName }[${ comensalIndex }]" name="${ type }[${ comensalIndex }]" value="${ prod.id }">
+										<div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
+											<img style="display:none;" src="${prod.imagen}" alt="${ prod.nombre }">
+										<h6>${ prod.nombre }</h6>
+											<h4 class="font-w700 mb-0 text-primary">s/.${ prod.precio }</h4>
+										</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				`;
+			});
+			return html;
+		}
+
+		const userName = @json(Auth::user()->name ?? 'COMENSAL 1');		
+
+		// Función que renderiza las pestañas y contenido según el número de comensales
+		function renderComensales() {
+			const previousNames = { ...comensalNombres };
+			const previousInputs = {};
+				document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked').forEach(input => {
+					previousInputs[input.name + '-' + input.value] = true;
+			});
+			
+			tabContainer.innerHTML = "";
+			tabContent.innerHTML = "";
+
+			for (let i = 0; i < comensalCount; i++) {
+				comensalNombres[i] = previousNames[i] || (i === 0 ? userName : `COMENSAL ${i + 1}`);
+				tabContainer.innerHTML += createComensalTab(i);
+				tabContent.innerHTML += createComensalContent(i);
+			}
+			tabContainer.innerHTML += createAddComensalTab();
+
+			// Asigna eventos a inputs
+			setTimeout(() => {
+				document.querySelectorAll('.comensal-name-input').forEach(input => {
+					input.addEventListener('input', function () {
+						const index = this.dataset.index;
+						comensalNombres[index] = this.value || `COMENSAL ${parseInt(index) + 1}`;
+						updateOrdenResumen(); // para que también actualice los títulos del resumen
+					});
+				});
+			}, 100);
+
+			setTimeout(() => {
+				document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+					const key = input.name + '-' + input.value;
+					if (previousInputs[key]) {
+						input.checked = true;
+						const plus = input.previousElementSibling;
+						if (plus?.classList.contains('plus')) plus.classList.add('active');
+					}
+				});
+				updateOrdenResumen();
+			}, 150);
+
+
+
+			initSwipers();
+			updateOrdenResumen();
+		}
+
+		$(document).on('click', '#btn-add-comensal', function () {
+			if (comensalCount < 4) {
+				comensalCount++;
+				renderComensales();
+			}
+		});
+
+		$(document).on('click', '.btn-remove-comensal', function () {
+			const index = parseInt($(this).data('index'));
+			if (index > 0 && index < comensalCount) {
+				for (let i = index; i < comensalCount - 1; i++) {
+				comensalNombres[i] = comensalNombres[i + 1];
+				}
+				delete comensalNombres[comensalCount - 1];
+				comensalCount--;
+				renderComensales();
+			}
+		});
+
+
+
+		// Inicialización de los sliders (Swiper) para los contenedores con la clase .mySwiper-3
+		function initSwipers() {
+			document.querySelectorAll('.mySwiper-3').forEach(el => {
+				if (el.swiper) {
+					el.swiper.destroy(true, true);
+				}
+				new Swiper(el, {
+					slidesPerView: 3,
+					spaceBetween: 30,
+					autoplay: {
+							delay: 5000,
+						},
+					pagination: { el: ".swiper-pagination", clickable: true },
+					breakpoints: {
+						250: { slidesPerView: 2, spaceBetween: 10 },
+						360: { slidesPerView: 3, spaceBetween: 10 },
+						600: { slidesPerView: 3, spaceBetween: 10 },
+						768: { slidesPerView: 4, spaceBetween: 20 },
+						1200: { slidesPerView: 4, spaceBetween: 20 },
+						1400: { slidesPerView: 5, spaceBetween: 20 },
+					}
 				});
 			});
-		}, 100);
+		}
 
-		initSwipers();
-		updateOrdenResumen();
-	}
+		// ===============================
+		// FUNCIONES PARA ACTUALIZAR EL RESUMEN DE PEDIDO (PASO 2)
+		// ===============================
+
+		function getPrecioFromInput(input) {
+			const precio = parseFloat(input.parentElement.querySelector('h4')?.innerText?.replace('s/.', '')) || 0;
+			return precio;
+		}
+		
+		function updateOrdenResumen() {
+			let resumenHTML = '';
+			let totalMenus = 0;
+			let totalGeneral =0;
+			// Recorremos cada comensal
+			for (let i = 0; i < comensalCount; i++) {
+				// Obtenemos las opciones seleccionadas de cada grupo
+				let selE15 = document.querySelector(`input[tipo="entrada15[${i}]"]:checked`);
+				let selF15 = document.querySelector(`input[tipo="fondo15[${i}]"]:checked`);
+				let selE20 = document.querySelector(`input[tipo="entrada20[${i}]"]:checked`);
+				let selF20 = document.querySelector(`input[tipo="fondo20[${i}]"]:checked`);
+
+				let menuPrice = 0;
+				let menuType = '';
+
+				let cartaSeleccionada = document.querySelectorAll(`input[tipo="carta[${i}]"]:checked`);
+				let combosSeleccionados = document.querySelectorAll(`input[tipo="combo[${i}]"]:checked`);
+				let platosCarta = [];
+				let totalCarta = 0;
+
+				
 
 
+				cartaSeleccionada.forEach(input => {
+					let nombre = input.parentElement.querySelector('h6').innerText;
+					let precio = parseFloat(input.parentElement.querySelector('h4').innerText.replace('s/.','')) || 0;
+					platosCarta.push(nombre);
+					totalCarta += precio;
+				});
 
-	// Inicialización de los sliders (Swiper) para los contenedores con la clase .mySwiper-3
-	function initSwipers() {
-		document.querySelectorAll('.mySwiper-3').forEach(el => {
-			if (el.swiper) {
-				el.swiper.destroy(true, true);
+				let combos = [];
+				let totalCombos = 0;
+				combosSeleccionados.forEach(input => {
+					let nombre = input.parentElement.querySelector('h6').innerText;
+					let precio = parseFloat(input.parentElement.querySelector('h4').innerText.replace('s/.','')) || 0;
+					combos.push(nombre);
+					totalCombos += precio;
+				});
+
+				// Regla: si se escoge por lo menos un producto del menú S/20 se asigna menú S/20
+				/*
+				if ((selE20 && selF20) || (selE20 && selF15) || (selE15 && selF20)) {
+					menuPrice = 20;
+					menuType = "Menú S/20.00";
+					if (selE20) {
+						entradaName = selE20.parentElement.querySelector('h6').innerText;
+					} else if (selE15) {
+						entradaName = selE15.parentElement.querySelector('h6').innerText;
+					}
+					if (selF20) {
+						fondoName = selF20.parentElement.querySelector('h6').innerText;
+					} else if (selF15) {
+						fondoName = selF15.parentElement.querySelector('h6').innerText;
+					}
+				} else if (selE15 && selF15) {
+					menuPrice = 15;
+					menuType = "Menú S/15.00";
+					entradaName = selE15.parentElement.querySelector('h6').innerText;
+					fondoName = selF15.parentElement.querySelector('h6').innerText;
+				} else {
+					menuType = "Incompleto";
+				}*/
+
+				if (selE20 && selF20 || selE20 && selF15 || selE15 && selF20) {
+					menuPrice = 20;
+					menuType = "Menú S/20.00";
+				} else if (selE15 && selF15) {
+					menuPrice = 15;
+					menuType = "Menú S/15.00";
+				} else if (selE20 || selF20) {
+					menuPrice = selE20 ? getPrecioFromInput(selE20) : getPrecioFromInput(selF20);
+					menuType = "Entrada o Fondo S/20.00";
+				} else if (selE15 || selF15) {
+					menuPrice = selE15 ? getPrecioFromInput(selE15) : getPrecioFromInput(selF15);
+					menuType = "Entrada o Fondo S/15.00";
+				} else {
+					menuPrice = 0;
+					menuType = "Incompleto";
+				}
+
+				entradaName = selE20?.parentElement.querySelector('h6')?.innerText || selE15?.parentElement.querySelector('h6')?.innerText || '';
+				fondoName = selF20?.parentElement.querySelector('h6')?.innerText || selF15?.parentElement.querySelector('h6')?.innerText || '';
+
+
+				let entradaImg = selE20?.parentElement.querySelector('img')?.src || selE15?.parentElement.querySelector('img')?.src || '';
+				let fondoImg   = selF20?.parentElement.querySelector('img')?.src || selF15?.parentElement.querySelector('img')?.src || '';
+				totalMenus += menuPrice;
+				
+				let totalComensal = menuPrice + totalCarta + totalCombos;
+				totalGeneral += totalComensal;
+
+				let entradaPrecio = selE20 ? getPrecioFromInput(selE20) : selE15 ? getPrecioFromInput(selE15) : 0;
+				let fondoPrecio = selF20 ? getPrecioFromInput(selF20) : selF15 ? getPrecioFromInput(selF15) : 0;
+
+				// Si el menú está completo, se muestra precio del menú
+				let entradaHtml = '';
+				if (entradaName && entradaImg) {
+					entradaHtml = `
+					<li>
+						<div class="timeline-panel">
+							<div class="media me-2">
+								<img alt="image" width="50" src="${entradaImg}">
+							</div>
+							<div class="media-body">
+								<span>Entrada: </span>
+								<h5 class="mb-1">${entradaName} ${(menuType.includes('Menú')) ? '' : `<p style="right: 10%; color:gray; position: absolute;">s/ ${entradaPrecio.toFixed(2)}</p>`}</h5>
+							</div>
+						</div>
+					</li>`;
+				}
+
+				let fondoHtml = '';
+				if (fondoName && fondoImg) {
+					fondoHtml = `
+					<li>
+						<div class="timeline-panel">
+							<div class="media me-2">
+								<img alt="image" width="50" src="${fondoImg}">
+							</div>
+							<div class="media-body">
+								<span>Fondo: </span>
+								<h5 class="mb-1">${fondoName} ${(menuType.includes('Menú')) ? '' : `<p style="right: 10%; color:gray; position: absolute;">s/ ${fondoPrecio.toFixed(2)}</p>`}</h5>
+							</div>
+						</div>
+					</li>`;
+				}
+
+				let cartaHtml = '';
+				if (platosCarta.length > 0) {
+					cartaHtml = `
+					<li>
+						<div class="timeline-panel">
+							<div class="media-body">
+								<span>Platos a la carta:</span>
+								<ul>
+									${[...cartaSeleccionada].map(input => {
+										let img = input.parentElement.querySelector('img')?.src;
+										let nombre = input.parentElement.querySelector('h6')?.innerText;
+										let precio = input.parentElement.querySelector('h4')?.innerText;
+										return `<li style="display:flex;align-items:center;gap:10px;">
+													<div class="media me-2">
+														<img src="${img}" width="40">
+													</div> 
+													<div class="media-body">
+														<span>${nombre}: <b style="right: 10%; position: absolute;"> ${precio}</b></span>
+													</div> 
+												</li>`;
+									}).join('')}
+								</ul>
+							</div>
+						</div>
+					</li>`;
+				}
+
+				let comboHtml = '';
+				if (combos.length > 0) {
+					comboHtml = `
+					<li>
+						<div class="timeline-panel">
+							<div class="media-body">
+								<span>Combos:</span>
+								<ul>
+									${[...combosSeleccionados].map(input => {
+										let img = input.parentElement.querySelector('img')?.src;
+										let nombre = input.parentElement.querySelector('h6')?.innerText;
+										let precio = input.parentElement.querySelector('h4')?.innerText;
+										return `<li style="display:flex;align-items:center;gap:10px;">
+													<div class="media me-2">
+														<img src="${img}" width="40"> 
+													</div> 
+													<div class="media-body">
+														<span>${nombre}: <b style="right: 10%; position: absolute;">${precio}</b></span>
+													</div> 
+												</li>`;
+									}).join('')}
+								</ul>
+							</div>
+						</div>
+					</li>`;
+				}
+
+				let menuHtml = '';
+				if (entradaName && fondoName && menuPrice > 0) {
+					menuHtml = `
+					<li>
+						<div class="timeline-panel" style="border: none;">
+							<div class="media-body" style="padding-left: 12px;">
+								<span style="font-weight: bold; position: absolute; right: 10%;">${menuType}</span>
+							</div>
+						</div>
+					</li>`;
+				}
+
+				let nombreComensal = comensalNombres[i] || `COMENSAL ${i+1}`;
+
+
+				resumenHTML += `
+				<div class="accordion-item">
+					<div class="accordion-header collapsed rounded-lg" id="accord-${i+1}" data-bs-toggle="collapse" data-bs-target="#collapse${i+1}" aria-controls="collapse${i+1}"   aria-expanded="true"  role="button">
+						<i class="la la-user me-2"></i>
+						<span class="accordion-header-text" style="padding-left: 5px;">${nombreComensal} - <b>S/ ${totalComensal.toFixed(2)}</b></span>
+						<span class="accordion-header-indicator"></span>
+					</div>
+					<div id="collapse${i+1}" class="collapse accordion__body" aria-labelledby="accord-${i+1}" data-bs-parent="#resumenComensales">
+						<div class="accordion-body-text">
+							<div id="DZ_W_Todo2" class="widget-media dlab-scroll ">
+								<ul class="timeline">
+									${entradaHtml}
+									${fondoHtml}
+									${menuHtml}
+									${cartaHtml}
+									${comboHtml}
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>`;
 			}
-			new Swiper(el, {
-				slidesPerView: 3,
-				spaceBetween: 30,
-				autoplay: {
-						delay: 5000,
+
+				
+			document.getElementById("resumenComensales").innerHTML = resumenHTML;
+
+			// Extras: calcular el total de extras
+			let extrasTotal = 0;
+			document.querySelectorAll('.extra-item').forEach(item => {
+				let qty = parseInt(item.querySelector('.extra-qty').value) || 0;
+				let price = parseFloat(item.getAttribute('data-price')) || 0;
+				let subtotal = qty * price;
+				extrasTotal += subtotal;
+				item.querySelector('.extra-subtotal').innerText = `+ S/ ${subtotal.toFixed(2)}`;
+			});
+
+			// Delivery fijo
+			const deliveryCost = 1.00;
+			const totalOrder = totalGeneral + extrasTotal + deliveryCost;
+			document.getElementById("orderTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
+			document.getElementById("confirmTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
+
+			// Se puede guardar el resumen completo (en JSON) en un input oculto para enviarlo con el form
+			document.getElementById("orderData").value = JSON.stringify({
+				totalMenus: totalMenus,
+				extrasTotal: extrasTotal,
+				delivery: deliveryCost,
+				total: totalOrder
+			});
+		}
+
+		$(document).on('click', 'input[type="checkbox"]', function (e) {
+			const wasChecked = $(this).prop('checked');
+			$(this).prop('checked', !wasChecked); // Toggle manual
+			updateOrdenResumen();
+		});
+  
+		// Usamos delegación de eventos para atender a los clicks en cualquier elemento con la clase .plus
+		$(document).on('click', '.plus', function(e) {
+			e.preventDefault();
+
+			const $input = $(this).siblings('input');
+
+			if ($input.length === 0) return;
+
+			const isCheckbox = $input.attr('type') === 'checkbox';
+			const isRadio = $input.attr('type') === 'radio';
+
+			if (isCheckbox) {
+				const wasChecked = $input.prop('checked');
+				$input.prop('checked', !wasChecked);
+				$(this).toggleClass('active', !wasChecked);
+			} else if (isRadio) {
+				const groupName = $input.attr('name');
+				const isAlreadySelected = $input.prop('checked');
+
+				if (isAlreadySelected) {
+					// Deseleccionar radio manualmente
+					$input.prop('checked', false);
+					$(this).removeClass('active');
+				} else {
+					// Seleccionar radio y quitar clase 'active' de los demás en el grupo
+					$(`input[name="${groupName}"]`).prop('checked', false).siblings('.plus').removeClass('active');
+					$input.prop('checked', true);
+					$(this).addClass('active');
+				}
+			}
+
+			updateOrdenResumen();
+		});
+
+
+
+		// Para cambios en los inputs radio en caso de seleccionarse por medios distintos
+		$(document).on('change', 'input[type="radio"]', function() {
+			updateOrdenResumen();
+		});
+
+		// Para cambios en los controles de extras (botones y cambios en cantidad)
+		$(document).on('click', '.extra-decrease, .extra-increase', function() {
+			let extraId = $(this).data('extra-id');
+			let $input = $(`.extra-qty[data-extra-id="${extraId}"]`);
+			let current = parseInt($input.val()) || 0;
+			if ($(this).hasClass('extra-decrease') && current > 0) {
+				$input.val(current - 1);
+			} else if ($(this).hasClass('extra-increase')) {
+				$input.val(current + 1);
+			}
+			updateOrdenResumen();
+		});
+		$(document).on('change', '.extra-qty', function() {
+			updateOrdenResumen();
+		});
+
+		// Botones para sumar/restar comensales
+		const btnAddComensal = document.getElementById("addComensal");
+		const btnRemoveComensal = document.getElementById("removeComensal");
+
+		if (btnAddComensal) {
+			btnAddComensal.addEventListener("click", () => {
+				if (comensalCount < maxComensales) {
+					comensalCount++;
+					const counter = document.getElementById("comensalCount");
+					if (counter) counter.innerText = comensalCount;
+					renderComensales();
+				}
+			});
+		}
+
+		if (btnRemoveComensal) {
+			btnRemoveComensal.addEventListener("click", () => {
+				if (comensalCount > 1) {
+					comensalCount--;
+					const counter = document.getElementById("comensalCount");
+					if (counter) counter.innerText = comensalCount;
+					renderComensales();
+				}
+			});
+		}
+
+		// Re-renderiza en caso de que cambie el tamaño de la ventana
+		//window.addEventListener("resize", renderComensales);
+		window.addEventListener("DOMContentLoaded", renderComensales);
+
+	
+		(function() {
+			// Previene el pinch zoom en iOS Safari
+			document.addEventListener('gesturestart', function(e) {
+				e.preventDefault();
+			});
+
+			// Alternativamente, también se puede intentar bloquear el doble toque
+			let lastTouchEnd = 0;
+			document.addEventListener('touchend', function(event) {
+				const now = (new Date()).getTime();
+				if (now - lastTouchEnd <= 300) {
+					event.preventDefault();
+				}
+				lastTouchEnd = now;
+			}, false);
+		})();
+
+
+		function openProductModal(id, nombre, descripcion, imagen) {
+			const modalTitle = document.getElementById('modalTitle');
+			const modalDesc  = document.getElementById('modalDescription');
+			const modalImg   = document.getElementById('modalImage');
+			const btnToggle  = document.getElementById('modalToggleSelect');
+
+			modalTitle.textContent = nombre;
+			modalDesc.textContent  = (descripcion && descripcion !== 'null') ? descripcion : '';
+			modalImg.src           = imagen || 'ruta-de-fallback.png';
+
+			// Guardar referencia del input asociado
+			const input = document.querySelector(`input[value="${id}"]`);
+			if (!input) return;
+
+			const isChecked = input.checked;
+			updateModalButton(btnToggle, isChecked);
+
+			btnToggle.onclick = () => {
+				const isRadio = input.type === 'radio';
+				if (isRadio) {
+					// Desmarcar todos los radios del mismo grupo
+					const groupName = input.name;
+					document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
+						el.checked = false;
+						const pl = el.previousElementSibling;
+						if (pl?.classList.contains('plus')) pl.classList.remove('active');
+					});
+				}
+				
+				input.checked = !input.checked;
+
+				const plus = input.previousElementSibling;
+				if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
+
+				updateModalButton(btnToggle, input.checked);
+				updateOrdenResumen();
+			};
+
+			new bootstrap.Modal(document.getElementById('productModal')).show();
+		}
+
+		function updateModalButton(button, selected) {
+			button.textContent = selected ? 'Deseleccionar producto' : 'Seleccionar producto';
+			button.classList.toggle('btn-danger', selected);
+			button.classList.toggle('btn-primary', !selected);
+		}
+
+
+		$('#smartwizard').smartWizard({
+			transition: {
+				animation: 'fade'
+			},
+			toolbarSettings: {
+				toolbarPosition: 'none'
+			}
+		});
+
+		function tieneSeleccion() {
+			return document.querySelector('input[type="radio"]:checked, input[type="checkbox"]:checked') !== null;
+		}
+
+		function mostrarPopup(mensaje) {
+			Swal.fire({
+				title: '¡Ups!',
+				text: mensaje,
+				icon: 'info',
+				confirmButtonText: 'Entendido',
+				confirmButtonColor: '#3085d6'
+			});
+		}
+
+		$('#smartwizard').on("leaveStep", function (e, anchorObject, currentStepIndex, nextStepIndex, stepDirection) {
+			if (currentStepIndex === 0 && stepDirection === 'forward' && !tieneSeleccion()) {
+				mostrarPopup('Por favor selecciona al menos un producto antes de continuar.');
+				return false;
+			}
+		});
+
+		$('#continuar-invitado').on('click', () => {
+			$('#guest-contact-form').slideDown();
+		});
+
+
+		$('#btnConfirmarPedido').on('click', async function (e) {
+			e.preventDefault();
+
+			const esInvitado = !@json(Auth::check());
+
+			// Validar datos del cliente
+			const nombre  = $('input[name="guest_name"]').val() || @json(Auth::user()->name ?? '');
+			const telefono = $('input[name="guest_phone"]').val() || @json(Auth::user()->telefono ?? '');
+			const direccion = $('input[name="guest_address"]').val() || @json(Auth::user()->direccion->direccion ?? '');
+			const referencia = $('input[name="guest_referencia"]').val() || @json(Auth::user()->direccion->referencia ?? '');
+			const lat = parseFloat($('#lat').val()) || @json(Auth::user()->direccion->lat ?? 0);
+			const lon = parseFloat($('#lon').val()) || @json(Auth::user()->direccion->lon ?? 0);
+			const email = @json(Auth::user()->email ?? '');
+
+			if (!nombre || !telefono || !direccion) {
+				return Swal.fire('Faltan datos', 'Completa nombre, teléfono y dirección', 'warning');
+			}
+
+			// Validar pagos
+			const tipoPago = $('select[name="tipo_pago"]').val();
+			const compPago = $('select[name="comprobante_pago"]').val();
+			const hora = $('select[name="hora_llegada"]').val();
+			const vuelto = $('input[name="vuelto"]').val();
+			const documento_comprobante = $('input[name="documento_comprobante"]').val();
+
+			if (!tipoPago || !compPago || !hora) {
+				return Swal.fire('Campos incompletos', 'Selecciona método de pago, comprobante y hora de llegada', 'warning');
+			}
+
+			// Obtener comensales y productos (asumiendo que ya los tienes en JS)
+			const comensales = obtenerComensales(); // función tuya que agrupa los productos por comensal
+			const productos = [];
+			comensales.forEach(com => {
+				com.productos.forEach(prod => productos.push(prod));
+			});
+
+			// Mostrar loading
+			Swal.fire({ title: 'Procesando pedido...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+			try {
+				const res = await fetch("{{ route('pedido.store') }}", {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 					},
-				pagination: { el: ".swiper-pagination", clickable: true },
-				breakpoints: {
-					250: { slidesPerView: 2, spaceBetween: 10 },
-					360: { slidesPerView: 3, spaceBetween: 10 },
-					600: { slidesPerView: 3, spaceBetween: 10 },
-					768: { slidesPerView: 4, spaceBetween: 20 },
-					1200: { slidesPerView: 4, spaceBetween: 20 },
-					1400: { slidesPerView: 5, spaceBetween: 20 },
+					body: JSON.stringify({
+						nombre,
+						telefono,
+						direccion,
+						referencia,
+						email,
+						lat,
+						lon,
+						tipo_pago: tipoPago,
+						comprobante_pago: compPago,
+						hora_llegada: hora,
+						vuelto,
+						documento_comprobante,
+						comensales,
+						productos
+					})
+				});
+
+				const result = await res.json();
+
+				if (!res.ok) {
+					throw new Error(result.error || 'Error desconocido');
+				}
+
+				Swal.fire('¡Pedido registrado!', 'Gracias por tu compra.', 'success').then(() => {
+					window.location.href = '/gracias'; // redirección
+				});
+
+			} catch (error) {
+				Swal.fire('Error', error.message, 'error');
+			}
+		});
+
+
+
+		$(document).on('click', '.btn-next-step', function () {
+			const currentStep = $('#smartwizard').smartWizard("getStepIndex");
+			if (currentStep === 0 && !tieneSeleccion()) {
+				mostrarPopup('Por favor selecciona al menos un producto antes de continuar.');
+			} else {
+				$('#smartwizard').smartWizard("next");
+			}
+		});
+
+		function addUnderlineToActiveStep() {
+			const navLinks = document.querySelectorAll('.nav-wizard .nav-link');
+
+			// Limpia posibles subrayados anteriores
+			navLinks.forEach(link => {
+				const underline = link.querySelector('.tab-underline');
+				if (underline) underline.remove();
+			});
+
+			// Busca el paso activo
+			const activeLink = document.querySelector('.nav-wizard .nav-link.active');
+			if (activeLink) {
+				const underline = document.createElement('div');
+				underline.classList.add('tab-underline');
+				activeLink.appendChild(underline);
+			}
+		}
+
+		// Ejecuta cuando carga la página
+		document.addEventListener("DOMContentLoaded", addUnderlineToActiveStep);
+
+		// También cada vez que se cambie de paso con SmartWizard
+		$('#smartwizard').on("showStep", function (e, anchorObject, stepIndex, stepDirection) {
+			addUnderlineToActiveStep();
+		});
+
+
+		function loginUsuario() {
+			let email = $('#email').val();
+			let password = $('#password').val();
+
+			if (!email || !password) {
+				Swal.fire('Faltan datos', 'Ingresa tu correo y contraseña.', 'warning');
+				return;
+			}
+
+			$.ajax({
+				url: '{{ route("login.ajax") }}',
+				method: 'POST',
+				data: {
+					email: email,
+					password: password,
+					_token: '{{ csrf_token() }}'
+				},
+				success: function (response) {
+					if (response.success) {
+						Swal.fire('¡Bienvenido!', 'Sesión iniciada correctamente', 'success');
+
+						$.ajax({
+							url: '/partial/header-sidebar',
+							type: 'GET',
+							success: function (htmlResponse) {
+								// Reemplaza el header y sidebar completos
+								$('#main-header').replaceWith(htmlResponse.header);
+								$('#main-sidebar').replaceWith(htmlResponse.sidebar);
+								$('#auth-container').html(htmlResponse.authContainer);
+								$('#menu').metisMenu(); // <-- Esto reinicializa el comportamiento del menú
+
+								document.getElementById('main-wrapper')?.classList.add('dlabnav-mini');
+
+								// Volver a ejecutar dlabnav si existe
+								if (typeof dlabnav !== 'undefined' && typeof dlabnav === 'function') {
+									dlabnav();
+								}
+
+								// Reasignar hamburguesa si hiciste override
+								$('.nav-control').off('click').on('click', function () {
+									$('#main-wrapper').toggleClass('menu-toggle');
+								});
+							}
+						});
+					} else {
+						Swal.fire('Error', response.message, 'error');
+					}
+				},
+				error: function () {
+					Swal.fire('Error', 'Verifica tus credenciales.', 'error');
+				}
+			});
+		}
+
+
+		function crearCuenta() {
+			const nombre = document.getElementById('new_name').value;
+			const email = document.getElementById('new_email').value;
+			const password = document.getElementById('new_password').value;
+
+			if (!nombre || !email || !password) {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Completa los campos',
+				});
+				return;
+			}
+
+			Swal.fire({
+				icon: 'success',
+				title: 'Cuenta creada',
+				text: 'Simulación: deberías enviar estos datos al backend.'
+			});
+		}
+
+
+		$('#btnCrearCuenta').on('click', function () {
+			let nombre = $('#registro_nombre').val();
+			let correo = $('#registro_correo').val();
+			let celular = $('#registro_celular').val();
+			let password = $('#registro_password').val();
+			let repeat = $('#registro_password_repeat').val();
+
+			if (!nombre || !correo || !celular || !password || password !== repeat) {
+				Swal.fire('Verifica los datos', 'Debes llenar todos los campos y que las contraseñas coincidan.', 'warning');
+				return;
+			}
+
+			$.ajax({
+				url: '{{ route("register.ajax") }}',
+				method: 'POST',
+				data: {
+					name: nombre,
+					email: correo,
+					telefono: celular,
+					password: password,
+					_token: '{{ csrf_token() }}'
+				},
+				success: function (response) {
+					if (response.success) {
+						$('#modalCrearCuenta').modal('hide');
+						
+						// Cargar sidebar y header actualizados
+						$.ajax({
+							url: '/partial/header-sidebar',
+							type: 'GET',
+							success: function (htmlResponse) {
+								$('#main-header').replaceWith(htmlResponse.header);
+								$('#main-sidebar').replaceWith(htmlResponse.sidebar);
+								$('#auth-container').html(htmlResponse.authContainer);
+
+								if (typeof dlabnav !== 'undefined') dlabnav();
+
+								$('.nav-control').off('click').on('click', function () {
+									$('#main-wrapper').toggleClass('menu-toggle');
+								});
+
+								// Mostrar modal de dirección automáticamente
+								$('#modalAgregarDireccion').modal('show');
+							}
+						});
+					} else {
+						Swal.fire('Error', response.message, 'error');
+					}
+				},
+				error: function () {
+					Swal.fire('Error', 'Error del servidor.', 'error');
 				}
 			});
 		});
-	}
-
-      // ===============================
-    // FUNCIONES PARA ACTUALIZAR EL RESUMEN DE PEDIDO (PASO 2)
-    // ===============================
-
-	function getPrecioFromInput(input) {
-		const precio = parseFloat(input.parentElement.querySelector('h4')?.innerText?.replace('s/.', '')) || 0;
-		return precio;
-	}
-	
-    function updateOrdenResumen() {
-        let resumenHTML = '';
-        let totalMenus = 0;
-		let totalGeneral =0;
-        // Recorremos cada comensal
-        for (let i = 0; i < comensalCount; i++) {
-            // Obtenemos las opciones seleccionadas de cada grupo
-            let selE15 = document.querySelector(`input[tipo="entrada15[${i}]"]:checked`);
-            let selF15 = document.querySelector(`input[tipo="fondo15[${i}]"]:checked`);
-            let selE20 = document.querySelector(`input[tipo="entrada20[${i}]"]:checked`);
-            let selF20 = document.querySelector(`input[tipo="fondo20[${i}]"]:checked`);
-
-            let menuPrice = 0;
-            let menuType = '';
-
-			let cartaSeleccionada = document.querySelectorAll(`input[tipo="carta[${i}]"]:checked`);
-			let combosSeleccionados = document.querySelectorAll(`input[tipo="combo[${i}]"]:checked`);
-			let platosCarta = [];
-			let totalCarta = 0;
-
-			
 
 
-			cartaSeleccionada.forEach(input => {
-				let nombre = input.parentElement.querySelector('h6').innerText;
-				let precio = parseFloat(input.parentElement.querySelector('h4').innerText.replace('s/.','')) || 0;
-				platosCarta.push(nombre);
-				totalCarta += precio;
+		let marcador = null;
+		let mapa = null;
+
+		let lat;
+		let lng;
+
+		function iniciarMapa() {
+			if (!window.L) {
+				console.error("Leaflet no está cargado");
+				return;
+			}
+
+			if (mapa) {
+				mapa.remove(); // Si ya existía
+			}
+
+			mapa = L.map('mapaDireccion').setView([-12.07, -77.05], 15); // Ubicación inicial Lima
+
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; OpenStreetMap contributors'
+			}).addTo(mapa);
+
+			marcador = L.marker([-12.07, -77.05], { draggable: true }).addTo(mapa);
+
+			// Guardar coords al mover
+			marcador.on('dragend', function () {
+				const pos = marcador.getLatLng();
+				$('#coordenadasMapa').text(`Lat: ${pos.lat.toFixed(6)}, Lng: ${pos.lng.toFixed(6)}`);
 			});
+		}
 
-			let combos = [];
-			let totalCombos = 0;
-			combosSeleccionados.forEach(input => {
-				let nombre = input.parentElement.querySelector('h6').innerText;
-				let precio = parseFloat(input.parentElement.querySelector('h4').innerText.replace('s/.','')) || 0;
-				combos.push(nombre);
-				totalCombos += precio;
+		function obtenerUbicacion() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					pos => {
+						lat = pos.coords.latitude;
+						lng = pos.coords.longitude;
+
+						if (mapa && marcador) {
+							mapa.setView([lat, lng], 17);
+							marcador.setLatLng([lat, lng]);
+						}
+
+						$('#coordenadasMapa').text(`Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`);
+					},
+					() => {
+						Swal.fire('Ubicación', 'No se pudo obtener tu ubicación.', 'info');
+					},
+					{ enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+				);
+			}
+		}
+
+		function guardarDireccion() {
+			const tipo = $('#direccion_tipo').val();
+			const distrito_id = $('#direccion_distrito').val();
+			const distrito = $('#direccion_distrito option:selected').text();
+			const direccion = $('#direccion_direccion').val();
+			const referencia = $('#direccion_referencia').val();
+			const coords = $('#coordenadasMapa').text();
+			lat = marcador.getLatLng().lat;
+			lon = marcador.getLatLng().lng;
+
+			if (!tipo || !distrito || !direccion) {
+				Swal.fire('Completa los campos', 'Todos los campos son obligatorios.', 'warning');
+				return;
+			}
+
+			$.ajax({
+				url: '{{ route("direccion.guardar") }}',
+				method: 'POST',
+				data: {
+					tipo,
+					distrito_id,
+					direccion,
+					referencia,
+					lat,
+					lon,
+					_token: '{{ csrf_token() }}'
+				},
+				success: function (response) {
+					if (response.success) {
+						const resumen = `<div>
+								<div class="address-bx mt-3 mb-3">
+									<span class="d-block mb-2">Tu dirección actual (${tipo})</span>
+									<div class="d-flex  align-items-center justify-content-between mb-2">
+										<h4 class="mb-0">
+											<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M20.46 9.63C20.3196 8.16892 19.8032 6.76909 18.9612 5.56682C18.1191 4.36456 16.9801 3.40083 15.655 2.7695C14.3299 2.13816 12.8639 1.86072 11.3997 1.96421C9.93555 2.06769 8.52314 2.54856 7.3 3.36C6.2492 4.06265 5.36706 4.9893 4.71695 6.07339C4.06684 7.15749 3.6649 8.37211 3.54 9.63C3.41749 10.8797 3.57468 12.1409 4.00017 13.3223C4.42567 14.5036 5.1088 15.5755 6 16.46L11.3 21.77C11.393 21.8637 11.5036 21.9381 11.6254 21.9889C11.7473 22.0397 11.878 22.0658 12.01 22.0658C12.142 22.0658 12.2727 22.0397 12.3946 21.9889C12.5164 21.9381 12.627 21.8637 12.72 21.77L18 16.46C18.8912 15.5755 19.5743 14.5036 19.9998 13.3223C20.4253 12.1409 20.5825 10.8797 20.46 9.63ZM16.6 15.05L12 19.65L7.4 15.05C6.72209 14.3721 6.20281 13.5523 5.87947 12.6498C5.55614 11.7472 5.43679 10.7842 5.53 9.83C5.62382 8.86111 5.93177 7.92516 6.43157 7.08985C6.93138 6.25453 7.61056 5.54071 8.42 5C9.48095 4.29524 10.7263 3.9193 12 3.9193C13.2737 3.9193 14.5191 4.29524 15.58 5C16.387 5.53862 17.0647 6.24928 17.5644 7.08094C18.064 7.9126 18.3733 8.84461 18.47 9.81C18.5663 10.7674 18.4484 11.7343 18.125 12.6406C17.8016 13.5468 17.2807 14.3698 16.6 15.05ZM12 6C11.11 6 10.24 6.26392 9.49994 6.75839C8.75992 7.25286 8.18314 7.95566 7.84255 8.77793C7.50195 9.6002 7.41284 10.505 7.58647 11.3779C7.7601 12.2508 8.18869 13.0526 8.81802 13.682C9.44736 14.3113 10.2492 14.7399 11.1221 14.9135C11.995 15.0872 12.8998 14.9981 13.7221 14.6575C14.5443 14.3169 15.2471 13.7401 15.7416 13.0001C16.2361 12.26 16.5 11.39 16.5 10.5C16.4974 9.30734 16.0224 8.16428 15.1791 7.32094C14.3357 6.4776 13.1927 6.00265 12 6ZM12 13C11.5055 13 11.0222 12.8534 10.6111 12.5787C10.2 12.304 9.87952 11.9135 9.6903 11.4567C9.50109 10.9999 9.45158 10.4972 9.54804 10.0123C9.6445 9.52733 9.88261 9.08187 10.2322 8.73224C10.5819 8.38261 11.0273 8.1445 11.5123 8.04804C11.9972 7.95158 12.4999 8.00109 12.9567 8.1903C13.4135 8.37952 13.804 8.69996 14.0787 9.11108C14.3534 9.5222 14.5 10.0056 14.5 10.5C14.5 11.163 14.2366 11.7989 13.7678 12.2678C13.2989 12.7366 12.663 13 12 13Z" fill="var(--primary)"/>
+											</svg>
+											${direccion}<br/>${distrito}
+										</h4>
+										<button type="button" class="btn btn-outline-primary btn-sm" onclick="abrirPopupDirecciones()">Cambiar<br/>dirección</a>
+									</div>
+									<p>${referencia}</p>
+									<div id="miniMapa" style="width: 100%; height: 180px;"></div>
+								</div>
+							</div>`;
+
+
+						// Mostrar en paso 3 debajo de auth-container
+						$('#auth-container').html(resumen);
+
+						setTimeout(() => {
+							lat = marcador.getLatLng().lat;
+							lng = marcador.getLatLng().lng;
+
+							const miniMapa = L.map('miniMapa').setView([lat, lng], 15);
+							L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(miniMapa);
+							L.marker([lat, lng]).addTo(miniMapa);
+							setTimeout(() => {
+								miniMapa.invalidateSize();
+							}, 300);
+						}, 200);
+
+						Swal.fire('Dirección guardada', 'Se grabó correctamente tu dirección.', 'success');
+						$('#modalAgregarDireccion').modal('hide');
+					}
+				},
+				error: function (xhr) {
+					const msg = xhr.responseJSON?.message || 'Ocurrió un error';
+					Swal.fire('Error', msg, 'error');
+				}
 			});
-
-            // Regla: si se escoge por lo menos un producto del menú S/20 se asigna menú S/20
-			/*
-            if ((selE20 && selF20) || (selE20 && selF15) || (selE15 && selF20)) {
-                menuPrice = 20;
-                menuType = "Menú S/20.00";
-                if (selE20) {
-                    entradaName = selE20.parentElement.querySelector('h6').innerText;
-                } else if (selE15) {
-                    entradaName = selE15.parentElement.querySelector('h6').innerText;
-                }
-                if (selF20) {
-                    fondoName = selF20.parentElement.querySelector('h6').innerText;
-                } else if (selF15) {
-                    fondoName = selF15.parentElement.querySelector('h6').innerText;
-                }
-            } else if (selE15 && selF15) {
-                menuPrice = 15;
-                menuType = "Menú S/15.00";
-                entradaName = selE15.parentElement.querySelector('h6').innerText;
-                fondoName = selF15.parentElement.querySelector('h6').innerText;
-            } else {
-                menuType = "Incompleto";
-            }*/
-
-			if (selE20 && selF20 || selE20 && selF15 || selE15 && selF20) {
-				menuPrice = 20;
-				menuType = "Menú S/20.00";
-			} else if (selE15 && selF15) {
-				menuPrice = 15;
-				menuType = "Menú S/15.00";
-			} else if (selE20 || selF20) {
-				menuPrice = selE20 ? getPrecioFromInput(selE20) : getPrecioFromInput(selF20);
-				menuType = "Entrada o Fondo S/20.00";
-			} else if (selE15 || selF15) {
-				menuPrice = selE15 ? getPrecioFromInput(selE15) : getPrecioFromInput(selF15);
-				menuType = "Entrada o Fondo S/15.00";
-			} else {
-				menuPrice = 0;
-				menuType = "Incompleto";
-			}
-
-			entradaName = selE20?.parentElement.querySelector('h6')?.innerText || selE15?.parentElement.querySelector('h6')?.innerText || '';
-			fondoName = selF20?.parentElement.querySelector('h6')?.innerText || selF15?.parentElement.querySelector('h6')?.innerText || '';
-
-
-			let entradaImg = selE20?.parentElement.querySelector('img')?.src || selE15?.parentElement.querySelector('img')?.src || '';
-			let fondoImg   = selF20?.parentElement.querySelector('img')?.src || selF15?.parentElement.querySelector('img')?.src || '';
-            totalMenus += menuPrice;
-			
-			let totalComensal = menuPrice + totalCarta + totalCombos;
-			totalGeneral += totalComensal;
-
-			let entradaPrecio = selE20 ? getPrecioFromInput(selE20) : selE15 ? getPrecioFromInput(selE15) : 0;
-			let fondoPrecio = selF20 ? getPrecioFromInput(selF20) : selF15 ? getPrecioFromInput(selF15) : 0;
-
-			// Si el menú está completo, se muestra precio del menú
-			let entradaHtml = '';
-			if (entradaName && entradaImg) {
-				entradaHtml = `
-				<li>
-					<div class="timeline-panel">
-						<div class="media me-2">
-							<img alt="image" width="50" src="${entradaImg}">
-						</div>
-						<div class="media-body">
-							<span>Entrada: </span>
-							<h5 class="mb-1">${entradaName} ${(menuType.includes('Menú')) ? '' : `<p style="right: 10%; color:gray; position: absolute;">s/ ${entradaPrecio.toFixed(2)}</p>`}</h5>
-						</div>
-					</div>
-				</li>`;
-			}
-
-			let fondoHtml = '';
-			if (fondoName && fondoImg) {
-				fondoHtml = `
-				<li>
-					<div class="timeline-panel">
-						<div class="media me-2">
-							<img alt="image" width="50" src="${fondoImg}">
-						</div>
-						<div class="media-body">
-							<span>Fondo: </span>
-							<h5 class="mb-1">${fondoName} ${(menuType.includes('Menú')) ? '' : `<p style="right: 10%; color:gray; position: absolute;">s/ ${fondoPrecio.toFixed(2)}</p>`}</h5>
-						</div>
-					</div>
-				</li>`;
-			}
-
-			let cartaHtml = '';
-			if (platosCarta.length > 0) {
-				cartaHtml = `
-				<li>
-					<div class="timeline-panel">
-						<div class="media-body">
-							<span>Platos a la carta:</span>
-							<ul>
-								${[...cartaSeleccionada].map(input => {
-									let img = input.parentElement.querySelector('img')?.src;
-									let nombre = input.parentElement.querySelector('h6')?.innerText;
-									let precio = input.parentElement.querySelector('h4')?.innerText;
-									return `<li style="display:flex;align-items:center;gap:10px;">
-												<div class="media me-2">
-													<img src="${img}" width="40">
-												</div> 
-												<div class="media-body">
-													<span>${nombre}: <b style="right: 10%; position: absolute;"> ${precio}</b></span>
-												</div> 
-											</li>`;
-								}).join('')}
-							</ul>
-						</div>
-					</div>
-				</li>`;
-			}
-
-			let comboHtml = '';
-			if (combos.length > 0) {
-				comboHtml = `
-				<li>
-					<div class="timeline-panel">
-						<div class="media-body">
-							<span>Combos:</span>
-							<ul>
-								${[...combosSeleccionados].map(input => {
-									let img = input.parentElement.querySelector('img')?.src;
-									let nombre = input.parentElement.querySelector('h6')?.innerText;
-									let precio = input.parentElement.querySelector('h4')?.innerText;
-									return `<li style="display:flex;align-items:center;gap:10px;">
-												<div class="media me-2">
-													<img src="${img}" width="40"> 
-												</div> 
-												<div class="media-body">
-													<span>${nombre}: <b style="right: 10%; position: absolute;">${precio}</b></span>
-												</div> 
-											</li>`;
-								}).join('')}
-							</ul>
-						</div>
-					</div>
-				</li>`;
-			}
-
-			let menuHtml = '';
-			if (entradaName && fondoName && menuPrice > 0) {
-				menuHtml = `
-				<li>
-					<div class="timeline-panel" style="border: none;">
-						<div class="media-body" style="padding-left: 12px;">
-							<span style="font-weight: bold; position: absolute; right: 10%;">${menuType}</span>
-						</div>
-					</div>
-				</li>`;
-			}
-
-			let nombreComensal = comensalNombres[i] || `COMENSAL ${i+1}`;
-
-
-            resumenHTML += `
-			<div class="accordion-item">
-				<div class="accordion-header collapsed rounded-lg" id="accord-${i+1}" data-bs-toggle="collapse" data-bs-target="#collapse${i+1}" aria-controls="collapse${i+1}"   aria-expanded="true"  role="button">
-					<i class="la la-user me-2"></i>
-					<span class="accordion-header-text" style="padding-left: 5px;">${nombreComensal} - <b>S/ ${totalComensal.toFixed(2)}</b></span>
-					<span class="accordion-header-indicator"></span>
-				</div>
-				<div id="collapse${i+1}" class="collapse accordion__body" aria-labelledby="accord-${i+1}" data-bs-parent="#resumenComensales">
-					<div class="accordion-body-text">
-						<div id="DZ_W_Todo2" class="widget-media dlab-scroll ">
-							<ul class="timeline">
-								${entradaHtml}
-								${fondoHtml}
-								${menuHtml}
-								${cartaHtml}
-								${comboHtml}
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>`;
-        }
-
-			
-        document.getElementById("resumenComensales").innerHTML = resumenHTML;
-
-        // Extras: calcular el total de extras
-        let extrasTotal = 0;
-        document.querySelectorAll('.extra-item').forEach(item => {
-            let qty = parseInt(item.querySelector('.extra-qty').value) || 0;
-            let price = parseFloat(item.getAttribute('data-price')) || 0;
-            let subtotal = qty * price;
-            extrasTotal += subtotal;
-            item.querySelector('.extra-subtotal').innerText = `+ S/ ${subtotal.toFixed(2)}`;
-        });
-
-        // Delivery fijo
-        const deliveryCost = 1.00;
-        const totalOrder = totalGeneral + extrasTotal + deliveryCost;
-        document.getElementById("orderTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
-        document.getElementById("confirmTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
-
-        // Se puede guardar el resumen completo (en JSON) en un input oculto para enviarlo con el form
-        document.getElementById("orderData").value = JSON.stringify({
-            totalMenus: totalMenus,
-            extrasTotal: extrasTotal,
-            delivery: deliveryCost,
-            total: totalOrder
-        });
-    }
-
-	$(document).on('click', 'input[type="checkbox"]', function (e) {
-		const wasChecked = $(this).prop('checked');
-		$(this).prop('checked', !wasChecked); // Toggle manual
-		updateOrdenResumen();
-	});
-  
-  	// Usamos delegación de eventos para atender a los clicks en cualquier elemento con la clase .plus
-	$(document).on('click', '.plus', function(e) {
-		e.preventDefault();
-
-		const $input = $(this).siblings('input');
-
-		if ($input.length === 0) return;
-
-		const isCheckbox = $input.attr('type') === 'checkbox';
-		const isRadio = $input.attr('type') === 'radio';
-
-		if (isCheckbox) {
-			const wasChecked = $input.prop('checked');
-			$input.prop('checked', !wasChecked);
-			$(this).toggleClass('active', !wasChecked);
-		} else if (isRadio) {
-			const groupName = $input.attr('name');
-			const isAlreadySelected = $input.prop('checked');
-
-			if (isAlreadySelected) {
-				// Deseleccionar radio manualmente
-				$input.prop('checked', false);
-				$(this).removeClass('active');
-			} else {
-				// Seleccionar radio y quitar clase 'active' de los demás en el grupo
-				$(`input[name="${groupName}"]`).prop('checked', false).siblings('.plus').removeClass('active');
-				$input.prop('checked', true);
-				$(this).addClass('active');
-			}
 		}
 
-		updateOrdenResumen();
-	});
 
 
 
-	// Para cambios en los inputs radio en caso de seleccionarse por medios distintos
-	$(document).on('change', 'input[type="radio"]', function() {
-        updateOrdenResumen();
-    });
-
-	// Para cambios en los controles de extras (botones y cambios en cantidad)
-	$(document).on('click', '.extra-decrease, .extra-increase', function() {
-        let extraId = $(this).data('extra-id');
-        let $input = $(`.extra-qty[data-extra-id="${extraId}"]`);
-        let current = parseInt($input.val()) || 0;
-        if ($(this).hasClass('extra-decrease') && current > 0) {
-            $input.val(current - 1);
-        } else if ($(this).hasClass('extra-increase')) {
-            $input.val(current + 1);
-        }
-        updateOrdenResumen();
-    });
-    $(document).on('change', '.extra-qty', function() {
-        updateOrdenResumen();
-    });
-
-	// Botones para sumar/restar comensales
-	document.getElementById("addComensal").addEventListener("click", () => {
-		if (comensalCount < maxComensales) {
-			comensalCount++;
-			document.getElementById("comensalCount").innerText = comensalCount;
-			renderComensales();
-		}
-	});
-	document.getElementById("removeComensal").addEventListener("click", () => {
-		if (comensalCount > 1) {
-			comensalCount--;
-			document.getElementById("comensalCount").innerText = comensalCount;
-			renderComensales();
-		}
-	});
-
-	// Re-renderiza en caso de que cambie el tamaño de la ventana
-	//window.addEventListener("resize", renderComensales);
-	window.addEventListener("DOMContentLoaded", renderComensales);
-
-  
-	(function() {
-		// Previene el pinch zoom en iOS Safari
-		document.addEventListener('gesturestart', function(e) {
+		$(document).on('click', '#continuar-invitado', function(e) {
 			e.preventDefault();
+			const guestForm = $('#guest-form-template').html();
+			setTimeout(() => {
+				if ($('#mapaGuest').length) iniciarMapaGuest();
+			}, 300);
+			$('#auth-container').html(guestForm);
 		});
 
-		// Alternativamente, también se puede intentar bloquear el doble toque
-		let lastTouchEnd = 0;
-		document.addEventListener('touchend', function(event) {
-			const now = (new Date()).getTime();
-			if (now - lastTouchEnd <= 300) {
-				event.preventDefault();
+		$(document).on('click', '#btn-volver-login', function(e) {
+			e.preventDefault();
+
+			// Puedes volver a cargar el blade parcial vía AJAX o regenerar el HTML
+			$.ajax({
+				url: '{{ route("partial.auth.form") }}', // Crea esta ruta que devuelva el contenido de auth-form.blade.php
+				type: 'GET',
+				success: function(html) {
+					$('#auth-container').html(html);
+				}
+			});
+		});
+
+		function openAgregarDireccionModal() {
+			$('#modalAgregarDireccion').modal('show');
+		}
+
+
+		function abrirPopupDirecciones() {
+			$.ajax({
+				url: '/direccion/partial',
+				type: 'GET',
+				success: function(html) {
+					$('#popupDireccionesContainer').html(html); // Insertar el HTML recibido
+					$('#popupDirecciones').modal('show'); // Mostrar el modal
+				},
+				error: function() {
+					Swal.fire('Error', 'No se pudieron cargar tus direcciones. Intenta nuevamente.', 'error');
+				}
+			});
+		}
+
+		let direcciones ; 
+		let idActual ;
+		let seleccionadaId ;
+		let mapa2;
+		let marcadores;
+
+
+		function actualizarReloj() {
+			const now = new Date();
+			let horas = now.getHours();
+			const minutos = now.getMinutes();
+			const segundos = now.getSeconds();
+			const ampm = horas >= 12 ? 'PM' : 'AM';
+
+			horas = horas % 12;
+			horas = horas ? horas : 12; // el 0 se convierte en 12
+			const strMin = minutos < 10 ? '0' + minutos : minutos;
+			const parpadeo = segundos % 2 === 0 ? ':' : ' ';
+			const horaActual = `${horas}${parpadeo}${strMin} ${ampm}`;
+
+			document.getElementById('reloj-hora').innerText = horaActual;
+
+			actualizarDesplegableHoras();
+		}
+
+		setInterval(actualizarReloj, 1000);
+
+
+		function actualizarDesplegableHoras() {
+			const selectHora = document.querySelector('select[name="hora_llegada"]');
+			if (!selectHora) return;
+
+			const ahora = new Date();
+			const opciones = selectHora.querySelectorAll('option[data-minutos]');
+
+			opciones.forEach(op => {
+				const minutosSumar = parseInt(op.getAttribute('data-minutos'));
+				const estimado = new Date(ahora.getTime() + minutosSumar * 60000);
+
+				let h = estimado.getHours();
+				let m = estimado.getMinutes();
+				const ampm = h >= 12 ? 'PM' : 'AM';
+				h = h % 12;
+				h = h ? h : 12;
+				m = m < 10 ? '0' + m : m;
+
+				const texto = `${minutosSumar} min (${h}:${m} ${ampm})`;
+				op.textContent = texto;
+			});
+
+			// Si estás usando algún plugin tipo Bootstrap Select:
+			if ($(selectHora).hasClass('selectpicker')) {
+				$(selectHora).selectpicker('refresh');
 			}
-			lastTouchEnd = now;
-		}, false);
-	})();
+		}
 
-	function openProductModal(id, nombre, descripcion, imagen) {
-		const modalTitle = document.getElementById('modalTitle');
-		const modalDesc  = document.getElementById('modalDescription');
-		const modalImg   = document.getElementById('modalImage');
+		$('#smartwizard').on("showStep", function (e, anchorObject, stepIndex, stepDirection) {
+			if (stepIndex === 2) {
+				actualizarDesplegableHoras();
+				if (!window.horaTimer) {
+					window.horaTimer = setInterval(actualizarDesplegableHoras, 60000);
+				}
+			}
+		});
 
-		modalTitle.textContent = nombre;
-		modalDesc.textContent  = (descripcion && descripcion !== 'null') ? descripcion : 'Sin descripción adicional.';
-		modalImg.src           = imagen ?? 'ruta-de-fallback.png';
+		$(document).ready(function() {
+			// Elementos
+			const $vueltoInputWrapper = $('input[name="vuelto"]').closest('.mb-3');
+			const $documentoInputWrapper = $('#documento_comprobante').closest('.mb-3');
 
-		// Abrir modal con Bootstrap 5 
-		let modal = new bootstrap.Modal(document.getElementById('productModal'), {});
-		modal.show();
-	}
+			// Función para actualizar visibilidad de "Vuelto"
+			function toggleVuelto() {
+				const tipoPago = $('#tipo_pago').val();
+				if (tipoPago === '1') {
+					$vueltoInputWrapper.show();
+				} else {
+					$vueltoInputWrapper.hide();
+					$('input[name="vuelto"]').val('');
+				}
+			}
+
+			// Función para actualizar visibilidad de "DNI o RUC"
+			function toggleDocumento() {
+				const comp = $('#comprobante_pago').val();
+				if (['1', '2', '3'].includes(comp)) {
+					$documentoInputWrapper.show();
+				} else {
+					$documentoInputWrapper.hide();
+					$('#documento_comprobante').val('');
+				}
+			}
+
+			// Ocultar por defecto si no aplica
+			toggleVuelto();
+			toggleDocumento();
+
+			// Detectar cambios
+			$('#tipo_pago').on('change', toggleVuelto);
+			$('#comprobante_pago').on('change', toggleDocumento);
+		});
 
 
-  
+		let mapaGuest;
+		let marcadorGuest;
+
+		function iniciarMapaGuest() {
+			if (mapaGuest) {
+				mapaGuest.remove();
+			}
+
+			mapaGuest = L.map('mapaGuest').setView([-12.0464, -77.0428], 15); // Lima por defecto
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaGuest);
+
+			marcadorGuest = L.marker([-12.0464, -77.0428], { draggable: true }).addTo(mapaGuest);
+			marcadorGuest.on('dragend', function(e) {
+				const { lat, lng } = e.target.getLatLng();
+				actualizarLatLonGuest(lat, lng);
+			});
+			 actualizarLatLonGuest(lat, lon);
+
+			setTimeout(() => {
+				mapaGuest.invalidateSize();
+			}, 300);
+		}
+
+		function usarUbicacionGuest() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(position) {
+					const lat = position.coords.latitude;
+					const lon = position.coords.longitude;
+					mapaGuest.setView([lat, lon], 15);
+					marcadorGuest.setLatLng([lat, lon]);
+					$('input[name="guest_lat"]').val(lat);
+					$('input[name="guest_lon"]').val(lon);
+				}, function() {
+					Swal.fire('Error', 'No se pudo obtener tu ubicación', 'error');
+				});
+				actualizarLatLonGuest(lat, lon);
+			}
+		}
+
+		function actualizarLatLonGuest(lat, lon) {
+			$('input[name="guest_lat"]').val(lat);
+			$('input[name="guest_lon"]').val(lon);
+			$('#guest-lat-text').text(lat.toFixed(6));
+			$('#guest-lon-text').text(lon.toFixed(6));
+		}
+
+		function obtenerComensales() {
+			const comensales = [];
+
+			$('.comensal-tab').each(function () {
+				const id = $(this).data('id');
+				const nombre = $(this).find('input[name="nombre_comensal"]').val() || `Comensal ${id}`;
+				const user_id = $(this).data('user') || null;
+
+				const productos = [];
+
+				$(this).find('.producto-seleccionado').each(function () {
+					productos.push({
+						id: $(this).data('id'),
+						cantidad: parseInt($(this).find('.cantidad').val()),
+						precio: parseFloat($(this).data('precio')),
+						categoria: $(this).data('categoria')
+					});
+				});
+
+				comensales.push({
+					id,
+					nombre,
+					user_id,
+					productos
+				});
+			});
+
+			return comensales;
+		}
+
+
 
 
 

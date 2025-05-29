@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
@@ -73,4 +75,33 @@ class RegisterController extends Controller
         'estado' => $data['estado'],
     ]);
     }
+
+    public function registerAjax(Request $request)
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
+            'telefono' => 'nullable|string|max:20',
+            'password' => 'required|string|min:8',
+        ]);
+
+
+        if (User::where('email', $request->email)->exists()) {
+            return response()->json(['success' => false, 'message' => 'El correo ya está registrado']);
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'telefono' => $request->telefono,
+            'password' => Hash::make($request->password),
+            'id_rol' => '2',
+            'estado' => '1',
+        ]);
+
+        Auth::login($user);
+
+        return response()->json(['success' => true]);
+    }
+
 }

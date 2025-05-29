@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Producto;
 use Carbon\Carbon;
+use App\Models\HoraLlegada;
+use App\Models\TipoPago;
+use App\Models\ComprobantePago;
+use App\Models\Distrito;
+use App\Models\DireccionUser;
+use Illuminate\Support\Facades\Auth;
 
 class Inicio extends Controller
 {
@@ -21,6 +27,10 @@ class Inicio extends Controller
     {
         // Obtenemos la fecha actual
         $hoy = Carbon::now()->format('Y-m-d');
+        $horasLlegada = HoraLlegada::where('estado', 1)->get();
+        $tiposPago = TipoPago::where('estado', 1)->get();
+        $comprobantesPago = ComprobantePago::where('estado', 1)->get();
+        $distrito = Distrito::all();
 
 
         $entradas15 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
@@ -99,10 +109,60 @@ class Inicio extends Controller
         ->where('planeacion_menu.stock_diario', '>', 0)
         ->get();
 
-
-       
-
-
-        return view('inicio', compact('entradas15', 'fondos15', 'entradas20', 'fondos20', 'extras','platosCarta','combos'));
+        return view('inicio', compact('entradas15', 'fondos15', 'entradas20', 'fondos20', 'extras','platosCarta','combos','horasLlegada', 'tiposPago', 'comprobantesPago','distrito'));
     }
+
+
+    public function guardarDireccion(Request $request)
+    {
+        $request->validate([
+            'tipo' => 'required|string',
+            'distrito_id' => 'required|exists:distrito,id',
+            'direccion' => 'required|string',
+            'referencia' => 'nullable|string',
+            'lat' => 'required|numeric',
+            'lon' => 'required|numeric',
+        ]);
+
+        $user = Auth::user();
+
+        // Crea nueva dirección
+        $direccion = DireccionUser::create([
+            'id_user'     => $user->id,
+            'id_distrito' => $request->distrito_id,
+            'tipo_nombre' => $request->tipo,
+            'direccion'   => $request->direccion,
+            'referencia'  => $request->referencia,
+            'lat'         => $request->lat,
+            'lon'         => $request->lon,
+        ]);
+
+        // Actualiza usuario para establecer esa dirección como actual
+        $user->id_direccion = $direccion->id;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dirección guardada correctamente',
+            'direccion' => $direccion
+        ]);
+    }
+
+    public function mostrarDireccionesPopup()
+    {
+        $user = Auth::user();
+        $direcciones = $user->direcciones; // Relación: hasManyThrough o belongsToMany
+        return view('layouts.partials.popup-direcciones', compact('direcciones'));
+    }
+
+    public function actualizarPrincipal(Request $request)
+    {
+        $user = Auth::user();
+        $user->id_direccion = $request->direccion_id;
+        $user->save();
+        return response()->json(['success' => true]);
+    }
+
+
+
 }

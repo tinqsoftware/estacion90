@@ -61,4 +61,15 @@ class LoginController extends Controller
         
         return redirect()->intended($this->redirectPath());
     }
+
+    public function loginAjax(Request $request)
+    {
+        if (Auth::attempt($request->only('email', 'password'))) {
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false, 'message' => 'Credenciales inválidas']);
+    }
+
+
+
 }

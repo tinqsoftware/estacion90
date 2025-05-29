@@ -19,8 +19,16 @@ class Pedido extends Model
         'email_contacto',
         'telefono_contacto',
         'direccion_contacto',
+        'referencia_contacto',
+        'lat_contacto',
+        'lon_contacto',
+        'comentarios',
         'fecha_programada',
         'hora_programada',
+        'id_tipopago',
+        'id_comprobantepago',
+        'id_horallegada',
+        'id_distrito_contacto',
         'created_at',
         'updated_at'
     ];
@@ -54,6 +62,24 @@ class Pedido extends Model
     public function distritoContacto()
     {
         return $this->belongsTo(Distrito::class, 'id_distrito_contacto', 'id');
+    }
+
+    // Relación: tipo de pago
+    public function tipoPago()
+    {
+        return $this->belongsTo(TipoPago::class, 'id_tipopago', 'id');
+    }
+
+    // Relación: tipo de comprobante de pago
+    public function comprobantePago()
+    {
+        return $this->belongsTo(ComprobantePago::class, 'id_comprobantepago', 'id');
+    }
+
+    // Relación: hora estimada de llegada
+    public function horaLlegada()
+    {
+        return $this->belongsTo(HoraLlegada::class, 'id_horallegada', 'id');
     }
 
 }

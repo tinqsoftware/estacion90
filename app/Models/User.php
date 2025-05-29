@@ -76,4 +76,30 @@ class User extends Authenticatable
         return $this->belongsTo(DireccionUser::class, 'id_direccion', 'id');
     }
 
+    public function direcciones()
+    {
+        return $this->hasMany(DireccionUser::class, 'id_user');
+    }
+
+
+    // Un usuario puede haber creado muchos tipos de pago
+    public function tiposPagoCreados()
+    {
+        return $this->hasMany(TipoPago::class, 'id_user_create', 'id');
+    }
+
+    // Un usuario puede haber creado muchas horas de llegada
+    public function horasLlegadaCreadas()
+    {
+        return $this->hasMany(HoraLlegada::class, 'id_user_create', 'id');
+    }
+
+    // Un usuario puede haber creado muchos comprobantes de pago
+    public function comprobantesPagoCreados()
+    {
+        return $this->hasMany(ComprobantePago::class, 'id_user_create', 'id');
+    }
+
+
+
 }
