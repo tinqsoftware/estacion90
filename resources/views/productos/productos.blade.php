@@ -155,8 +155,7 @@
                                                                 <th class="nombre-producto-header">
                                                                     <strong>Nombre</strong></th>
                                                                 <th><strong>Descripción</strong></th>
-                                                                <th><strong>Precio</strong></th>
-                                                                <th><strong>Stock</strong></th>
+                                                                
                                                                 <th><strong>Usuario</strong></th>
                                                                 <th><strong>Opciones</strong></th>
                                                             </tr>
@@ -204,8 +203,7 @@
                                                                 </td>
                                                                 <td>{{ \Illuminate\Support\Str::limit($producto->descripcion, 50) }}
                                                                 </td>
-                                                                <td>S/. {{ number_format($producto->precio, 2) }}</td>
-                                                                <td>{{ $producto->stock }}</td>
+                                                                
                                                                 <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}
                                                                 </td>
                                                                 <td>
@@ -259,8 +257,7 @@
                                                                 <th class="nombre-producto-header">
                                                                     <strong>Nombre</strong></th>
                                                                 <th><strong>Descripción</strong></th>
-                                                                <th><strong>Precio</strong></th>
-                                                                <th><strong>Stock</strong></th>
+                                                            
                                                                 <th><strong>Usuario</strong></th>
                                                                 <th><strong>Opciones</strong></th>
                                                             </tr>
@@ -283,8 +280,7 @@
                                                                 </td>
                                                                 <td>{{ \Illuminate\Support\Str::limit($producto->descripcion, 50) }}
                                                                 </td>
-                                                                <td>S/. {{ number_format($producto->precio, 2) }}</td>
-                                                                <td>{{ $producto->stock }}</td>
+                                                                
                                                                 <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}
                                                                 <td>
                                                                     <div class="d-flex">

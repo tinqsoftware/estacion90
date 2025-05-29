@@ -27,7 +27,8 @@ class ControllerPopupDia extends Controller
         $popupsToShow = [];
         
         foreach ($popups as $popup) {
-            // Si el usuario no está autenticado, mostrar el popup
+            // Si el usuario no está autenticado, mostrar el popup siempre
+            // (para usuarios no logueados los popups se muestran indefinidamente)
             if (!$userId) {
                 $popupsToShow[] = $popup;
                 continue;
@@ -52,76 +53,77 @@ class ControllerPopupDia extends Controller
     }
     
     /**
-     * Registra una vista de popup para el usuario actual.
+     
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function recordPopupView(Request $request)
-{
-    try {
-        $request->validate([
-            'popup_id' => 'required|integer',
-        ]);
-        
-        // Obtener fecha actual
-        $today = Carbon::now()->format('Y-m-d');
-        
-        // Obtener ID del usuario (si está autenticado)
-        $userId = Auth::check() ? Auth::id() : null;
-        
-        // Si el usuario no está autenticado, simulamos éxito pero no guardamos
-        if (!$userId) {
+    {
+        try {
+            $request->validate([
+                'popup_id' => 'required|integer',
+            ]);
+            
+            // Obtener fecha actual
+            $today = Carbon::now()->format('Y-m-d');
+            
+            // Obtener ID del usuario (si está autenticado)
+            $userId = Auth::check() ? Auth::id() : null;
+            
+            // Si el usuario no está autenticado, simulamos éxito pero no guardamos
+            // (los popups se muestran indefinidamente para usuarios no logueados)
+            if (!$userId) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Usuario no autenticado, los popups se muestran indefinidamente'
+                ]);
+            }
+            
+            // Verificar si el popup existe
+            $popup = popup::find($request->popup_id);
+            if (!$popup) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El popup no existe'
+                ], 404);
+            }
+            
+            // Buscar registro de vistas
+            $viewRecord = popupdia::where([
+                'id_user_cliente' => $userId,
+                'id_popup' => $request->popup_id,
+                'fecha' => $today,
+            ])->first();
+            
+            // Si no existe, crear nuevo registro
+            if (!$viewRecord) {
+                $viewRecord = new popupdia();
+                $viewRecord->id_user_cliente = $userId;
+                $viewRecord->id_popup = $request->popup_id;
+                $viewRecord->fecha = $today;
+                $viewRecord->cant_vistas = 1;
+            } else {
+                // Incrementar contador de vistas
+                $viewRecord->cant_vistas++;
+            }
+            
+            $viewRecord->save();
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Usuario no autenticado, no se registró vista'
+                'message' => 'Vista registrada correctamente',
+                'views' => $viewRecord->cant_vistas
             ]);
-        }
-        
-        // Verificar si el popup existe
-        $popup = popup::find($request->popup_id);
-        if (!$popup) {
+        } catch (\Exception $e) {
+            // Registrar el error y devolver respuesta de error
+            Log::error('Error al registrar vista de popup: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'El popup no existe'
-            ], 404);
+                'message' => 'Error al registrar vista: ' . $e->getMessage()
+            ], 500);
         }
-        
-        // Buscar registro de vistas
-        $viewRecord = popupdia::where([
-            'id_user_cliente' => $userId,
-            'id_popup' => $request->popup_id,
-            'fecha' => $today,
-        ])->first();
-        
-        // Si no existe, crear nuevo registro
-        if (!$viewRecord) {
-            $viewRecord = new popupdia();
-            $viewRecord->id_user_cliente = $userId;
-            $viewRecord->id_popup = $request->popup_id;
-            $viewRecord->fecha = $today;
-            $viewRecord->cant_vistas = 1;
-        } else {
-            // Incrementar contador de vistas
-            $viewRecord->cant_vistas++;
-        }
-        
-        $viewRecord->save();
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Vista registrada correctamente',
-            'views' => $viewRecord->cant_vistas
-        ]);
-    } catch (\Exception $e) {
-        // Registrar el error y devolver respuesta de error
-        Log::error('Error al registrar vista de popup: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al registrar vista: ' . $e->getMessage()
-        ], 500);
     }
-}
     
     /**
      * Muestra los popups en el frontend
@@ -147,7 +149,8 @@ class ControllerPopupDia extends Controller
         $popupsToShow = [];
         
         foreach ($popups as $popup) {
-            // Si el usuario no está autenticado, mostrar el popup
+            // Si el usuario no está autenticado, mostrar el popup siempre
+            // (para usuarios no logueados los popups se muestran indefinidamente)
             if (!$userId) {
                 $popupsToShow[] = $popup;
                 continue;

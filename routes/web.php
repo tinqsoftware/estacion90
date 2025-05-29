@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\ControllerPopupDia;
+use App\Http\Controllers\EditUserController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -22,6 +23,8 @@ Auth::routes();
 
 // Public routes
 Route::get('/', [Inicio::class, 'inicio']);
+Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
+Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
 
 // web.php
 Route::post('/login-ajax', [LoginController::class, 'loginAjax'])->name('login.ajax');
@@ -71,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/popups/create', [ControllerPopup::class, 'create'])->name('popups.create');
     Route::post('/popups/crear', [ControllerPopup::class, 'store'])->name('popups.store');
     Route::get('/popups/{id}/edit', [ControllerPopup::class, 'edit'])->name('popups.edit');
-    Route::get('/popups/{id}/view', [ControllerPopup::class, 'viewDetails'])->name('popups.view');
+    Route::get('/popups/{id}/view', [ControllerPopup::class, 'viewDetails'])->name('popups.view-details');
     Route::put('/popups/{id}', [ControllerPopup::class, 'update'])->name('popups.update');
     Route::delete('/popups/{id}', [ControllerPopup::class, 'destroy'])->name('popups.destroy');
 
@@ -100,5 +103,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/registrar-pedido', [PedidoController::class, 'store'])->name('pedido.store');
 
 
+    // Usuarios Edit.
 
+    Route::get('/usuariosEditPerfil', [EditUserController::class, 'index'])->name('usuarios.edit_usuario');
+    Route::post('/usuariosEditPerfil/update', [EditUserController::class, 'update'])->name('usuarios.update_profile');
+    Route::post('/usuariosEditPerfil/upload-image', [EditUserController::class, 'uploadImage'])->name('usuarios.upload_image');
+    Route::post('/usuariosEditPerfil/store-address', [EditUserController::class, 'storeAddress'])->name('usuarios.store_address');
+    Route::post('/usuariosEditPerfil/set-default-address', [EditUserController::class, 'setDefaultAddress'])->name('usuarios.set_default_address');
+    Route::delete('/usuariosEditPerfil/delete-address/{id}', [EditUserController::class, 'deleteAddress'])->name('usuarios.delete_address');
+    Route::post('/usuariosEditPerfil/update-address', [EditUserController::class, 'updateAddress'])->name('usuarios.update_address');
 });

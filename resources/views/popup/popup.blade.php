@@ -56,12 +56,12 @@
                 <div class="tabs mb-3">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->input('tab', 'pendientes') == 'pendientes' ? 'active' : '' }}"
-                                href="{{ route('popups.index', ['tab' => 'pendientes']) }}">Pendientes</a>
+                            <a class="nav-link tab-link {{ request()->input('tab', 'pendientes') == 'pendientes' ? 'active' : '' }}"
+                                data-tab="pendientes" href="javascript:void(0);">Pendientes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->input('tab') == 'pasados' ? 'active' : '' }}"
-                                href="{{ route('popups.index', ['tab' => 'pasados']) }}">Pasados</a>
+                            <a class="nav-link tab-link {{ request()->input('tab') == 'pasados' ? 'active' : '' }}"
+                                data-tab="pasados" href="javascript:void(0);">Pasados</a>
                         </li>
                     </ul>
                 </div>
@@ -169,6 +169,7 @@
                         </button>
                     </div>
                     <div class="modal-body" id="popupModalContent">
+                        @if(isset($popup) && $popup)
                         <div class="popup-details">
                             <div class="row">
                                 <div class="col-md-6">
@@ -229,6 +230,11 @@
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
+                        @else
+                        <div class="text-center">
+                            <p>Los detalles del popup se cargarán al seleccionar un registro.</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -377,7 +383,139 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 
     <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[name="imagen"]');
+    if (!imageInput) return;
+    
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Show loading indicator
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.id = 'upload-loading';
+        loadingIndicator.innerHTML = 'Procesando imagen...';
+        loadingIndicator.style.color = 'blue';
+        this.parentNode.appendChild(loadingIndicator);
+        
+        // Check file size
+        if (file.size > 5000000) { // 5MB
+            compressImage(file, this);
+        }
+    });
+    
+    function compressImage(file, inputElement) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                // Calculate new dimensions (max 1000px width for upload)
+                if (width > 1000) {
+                    height = Math.round(height * (1000 / width));
+                    width = 1000;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to blob with 80% quality
+                canvas.toBlob(function(blob) {
+                    // Create a new file from the compressed blob
+                    const compressedFile = new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+                    
+                    // Replace the file in the input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(compressedFile);
+                    inputElement.files = dataTransfer.files;
+                    
+                    // Remove loading indicator and show success message
+                    const loadingIndicator = document.getElementById('upload-loading');
+                    if (loadingIndicator) {
+                        loadingIndicator.innerHTML = 'Imagen optimizada para carga';
+                        loadingIndicator.style.color = 'green';
+                    }
+                    
+                }, 'image/jpeg', 0.8);
+            };
+        };
+    }
+});     
+
     $(document).ready(function() {
+
+        $('.tab-link').on('click', function() {
+            const tab = $(this).data('tab');
+            const currentTab = $('.tab-link.active').data('tab');
+
+            // Skip if clicking the already active tab
+            if (tab === currentTab) {
+                return;
+            }
+
+            // Update active tab visual state
+            $('.tab-link').removeClass('active');
+            $(this).addClass('active');
+
+            // Show loading spinner in the content area
+            $('.tab-content').html(`
+            <div class="text-center py-5">
+                <i class="fa fa-spinner fa-spin fa-3x"></i>
+                <p class="mt-2">Cargando ${tab === 'pendientes' ? 'Pendientes' : 'Pasados'}...</p>
+            </div>
+        `);
+
+            // Update URL without page reload
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', tab);
+            window.history.pushState({
+                tab: tab
+            }, '', url.toString());
+
+            // Fetch tab content via AJAX
+            $.ajax({
+                url: '{{ route("popups.index") }}',
+                type: 'GET',
+                data: {
+                    tab: tab,
+                    ajax: 1
+                },
+                success: function(response) {
+                    // Extract just the tab content from the response using jQuery
+                    const $response = $(response);
+                    const $tabContent = $response.find('.tab-content');
+
+                    // Update only the tab content
+                    $('.tab-content').html($tabContent.html());
+
+                    // Reinitialize event handlers for the newly loaded content
+                    initializeEventHandlers();
+                },
+                error: function(xhr) {
+                    $('.tab-content').html(`
+                    <div class="alert alert-danger">
+                        <h5>Error al cargar el contenido</h5>
+                        <p>No se pudo cargar el contenido de la pestaña. Por favor, intente nuevamente.</p>
+                    </div>
+                `);
+                    console.error('Error loading tab content:', xhr.responseText);
+                }
+            });
+        });
 
         $('.modal .close, .modal .btn-secondary[data-dismiss="modal"]').on('click', function() {
             $(this).closest('.modal').modal('hide');
@@ -470,149 +608,159 @@
         }
 
         // Detalles #
+        function initializeEventHandlers() {
 
-        $('.view-popup-btn').on('click', function() {
-            const popupId = $(this).data('popup-id');
+            $('.view-popup-btn').on('click', function() {
+                const popupId = $(this).data('popup-id');
 
-            // Show loading indicator
-            $('#popupModalContent').html(
-                '<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p class="mt-2">Cargando...</p></div>'
-            );
+                // Show loading indicator
+                $('#popupModalContent').html(
+                    '<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p class="mt-2">Cargando...</p></div>'
+                );
 
-            // Open the modal
-            $('#verPopupModal').modal('show');
+                // Open the modal
+                $('#verPopupModal').modal('show');
 
-            // Fetch popup details
-            $.ajax({
-                url: `/popups/${popupId}/view`,
-                type: 'GET',
-                success: function(response) {
-                    $('#popupModalContent').html(response);
-                },
-                error: function(xhr) {
-                    $('#popupModalContent').html(`
+                // Fetch popup details
+                $.ajax({
+                    url: `/popups/${popupId}/view`,
+                    type: 'GET',
+                    success: function(response) {
+                        $('#popupModalContent').html(response);
+                    },
+                    error: function(xhr) {
+                        $('#popupModalContent').html(`
                     <div class="alert alert-danger">
                         <h5>Error al cargar los detalles</h5>
                         <p>No se pudieron cargar los detalles del popup. Por favor, intente nuevamente.</p>
                     </div>
                 `);
-                    console.error('Error loading popup details:', xhr.responseText);
-                }
+                        console.error('Error loading popup details:', xhr.responseText);
+                    }
+                });
             });
-        });
 
 
-        // Edit Popup
-        $('.edit-popup-btn').on('click', function() {
-            const popupId = $(this).data('popup-id');
+            // Edit Popup
+            $('.edit-popup-btn').on('click', function() {
+                const popupId = $(this).data('popup-id');
 
-            // Reset form and clear preview
-            $('#editPopupForm')[0].reset();
-            $('#edit-image-preview-container').empty();
-            $('#current_image_container').empty();
+                // Reset form and clear preview
+                $('#editPopupForm')[0].reset();
+                $('#edit-image-preview-container').empty();
+                $('#current_image_container').empty();
 
-            // Set form action URL
-            $('#editPopupForm').attr('action', `/popups/${popupId}`);
+                // Set form action URL
+                $('#editPopupForm').attr('action', `/popups/${popupId}`);
 
-            // Fetch popup data
-            $.ajax({
-                url: `/popups/${popupId}/edit`,
-                type: 'GET',
-                success: function(popup) {
-                    // Populate form fields
-                    $('#edit_nombre').val(popup.nombre);
-                    $('#edit_fecha_visible').val(popup.fecha_visible);
-                    $('#edit_link').val(popup.link);
-                    $('#edit_veces_dia').val(popup.veces_dia);
+                // Fetch popup data
+                $.ajax({
+                    url: `/popups/${popupId}/edit`,
+                    type: 'GET',
+                    success: function(popup) {
+                        // Populate form fields
+                        $('#edit_nombre').val(popup.nombre);
+                        $('#edit_fecha_visible').val(popup.fecha_visible);
+                        $('#edit_link').val(popup.link);
+                        $('#edit_veces_dia').val(popup.veces_dia);
 
-                    // Show current image if exists
-                    if (popup.url_imagen) {
-                        $('#current_image_container').html(`
+                        // Show current image if exists
+                        if (popup.url_imagen) {
+                            $('#current_image_container').html(`
                     <p><strong>Imagen actual:</strong></p>
                     <img src="${popup.url_imagen}" class="img-thumbnail" style="max-height: 150px;">
                 `);
-                    }
-
-                    // Show modal
-                    $('#editPopupModal').modal('show');
-                },
-                error: function(xhr) {
-                    Swal.fire('Error', 'No se pudo cargar la información del popup',
-                        'error');
-                    console.error('Error loading popup details:', xhr.responseText);
-                }
-            });
-        });
-
-        // Edit form submission
-        $('#editPopupForm').on('submit', function(e) {
-            e.preventDefault();
-            handleFormSubmit(this, $(this).attr('action'), 'Popup actualizado correctamente');
-        });
-
-        // Delete Popup
-        $('.delete-popup-btn').on('click', function() {
-            const popupId = $(this).data('popup-id');
-            const popupRow = $(this).closest('tr.popup-row');
-
-            // Show confirmation dialog
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "Esta acción eliminará el popup permanentemente y no se puede deshacer",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // User confirmed, send delete request
-                    $.ajax({
-                        url: `/popups/${popupId}`,
-                        type: 'POST', // Change to POST instead of DELETE
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content'),
-                            _method: 'DELETE' // Add this line for method spoofing
-                        },
-                        success: function(response) {
-                            // Show success message
-                            Swal.fire(
-                                'Eliminado',
-                                'El popup ha sido eliminado correctamente',
-                                'success'
-                            ).then(() => {
-                                // Remove the row from the table
-                                popupRow.fadeOut(400, function() {
-                                    $(this).remove();
-
-                                    // If no more rows, show "no popups" message
-                                    if ($('.popup-row').length ===
-                                        0) {
-                                        $('tbody').html(
-                                            '<tr><td colspan="9" class="text-center">No hay popups disponibles</td></tr>'
-                                        );
-                                    }
-                                });
-                            });
-                        },
-                        error: function(xhr) {
-                            console.error('Error deleting popup:', xhr
-                                .responseText);
-
-                            // Show error message
-                            Swal.fire(
-                                'Error',
-                                'No se pudo eliminar el popup. Por favor, intente nuevamente.',
-                                'error'
-                            );
                         }
-                    });
-                }
+
+                        // Show modal
+                        $('#editPopupModal').modal('show');
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error', 'No se pudo cargar la información del popup',
+                            'error');
+                        console.error('Error loading popup details:', xhr.responseText);
+                    }
+                });
             });
-        });
+
+            // Edit form submission
+            $('#editPopupForm').on('submit', function(e) {
+                e.preventDefault();
+                handleFormSubmit(this, $(this).attr('action'), 'Popup actualizado correctamente');
+            });
+
+            // Delete Popup
+            $('.delete-popup-btn').on('click', function() {
+                const popupId = $(this).data('popup-id');
+                const popupRow = $(this).closest('tr.popup-row');
+
+                // Show confirmation dialog
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará el popup permanentemente y no se puede deshacer",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // User confirmed, send delete request
+                        $.ajax({
+                            url: `/popups/${popupId}`,
+                            type: 'POST', // Change to POST instead of DELETE
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                _method: 'DELETE' // Add this line for method spoofing
+                            },
+                            success: function(response) {
+                                // Show success message
+                                Swal.fire(
+                                    'Eliminado',
+                                    'El popup ha sido eliminado correctamente',
+                                    'success'
+                                ).then(() => {
+                                    // Remove the row from the table
+                                    popupRow.fadeOut(400, function() {
+                                        $(this).remove();
+
+                                        // If no more rows, show "no popups" message
+                                        if ($('.popup-row')
+                                            .length ===
+                                            0) {
+                                            $('tbody').html(
+                                                '<tr><td colspan="9" class="text-center">No hay popups disponibles</td></tr>'
+                                            );
+                                        }
+                                    });
+                                });
+                            },
+                            error: function(xhr) {
+                                console.error('Error deleting popup:', xhr
+                                    .responseText);
+
+                                // Show error message
+                                Swal.fire(
+                                    'Error',
+                                    'No se pudo eliminar el popup. Por favor, intente nuevamente.',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+
+        }
+
+        initializeEventHandlers();
 
     });
     </script>
+
+@section('scripts')
+    <script src="{{ asset('js/image-upload.js') }}"></script>
+@endsection
 
 </body>

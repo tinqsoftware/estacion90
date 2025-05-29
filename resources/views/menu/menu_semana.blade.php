@@ -43,164 +43,178 @@
     <link href="access/css/style.css" rel="stylesheet">
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    .sidebar {
+        /* Remove min-height: calc(100vh - 70px); */
+        position: sticky;
+        top: 20px;
+        /* Adjust based on your header height */
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+    }
+
+    .calendar-container {
+        height: 35%;
+        background-color: #f8f9fa;
+        margin-top: 90px;
+    }
+
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        background-color: #fff;
+        transition: background-color 0.2s;
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        
+    }
+
+    .calendar-day:hover {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+        
+    }
+
+    .calendar-day.empty {
+        background-color: transparent;
+        cursor: default;
+    }
+
+    .calendar-day.today {
+        background-color: #f8d7da;
+        font-weight: bold;
+    }
+
+    .content-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    .calendar-day.active {
+        background-color: #d1e7dd;
+        font-weight: bold;
+        border: 2px solid #198754;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Animation for active day to improve visibility */
+    @keyframes active-day-pulse {
+        0% {
+            transform: scale(1);
         }
 
-        .sidebar {
-            /* Remove min-height: calc(100vh - 70px); */
-            position: sticky;
-            top: 20px; /* Adjust based on your header height */
-            max-height: calc(100vh - 120px);
-            overflow-y: auto;
+        50% {
+            transform: scale(1.1);
         }
 
-        .calendar-container {
-            height: 30%;
-            background-color: #f8f9fa;
-            margin-top: 90px;
+        100% {
+            transform: scale(1);
         }
+    }
 
-        .calendar-weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
+    .calendar-day.just-activated {
+        animation: active-day-pulse 0.5s ease-in-out;
+    }
 
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
-        }
+    /* Month navigation */
+    .prev-month,
+    .next-month {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
 
-        .calendar-day {
-            aspect-ratio: 1/1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.9rem;
-            border-radius: 4px;
-            background-color: #fff;
-            transition: background-color 0.2s;
-        }
+    #current-month {
+        font-size: 1.25rem;
+        margin: 0;
+    }
 
-        .calendar-day:hover {
-            background-color: #e9ecef;
-        }
+    .loading {
+        color: #6c757d;
+    }
 
-        .calendar-day.empty {
-            background-color: transparent;
-            cursor: default;
-        }
+    .selected-menu {
+        position: relative;
+        border-left: 5px solid #17a2b8;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        background-color: #f8fdff;
+        padding-left: 15px;
+        animation: highlight-pulse 1.5s ease-in-out;
+    }
 
-        .calendar-day.today {
-            background-color: #f8d7da;
-            font-weight: bold;
-        }
-
-        .content-body {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .row {
-            display: flex;
-            flex-wrap: nowrap;
-        }
-
-        .calendar-day.active {
-            background-color: #d1e7dd;
-            font-weight: bold;
-            border: 2px solid #198754;
-            position: relative; 
-            z-index: 1;
-        }
-
-        /* Animation for active day to improve visibility */
-        @keyframes active-day-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .calendar-day.just-activated {
-            animation: active-day-pulse 0.5s ease-in-out;
-        }
-
-        /* Month navigation */
-        .prev-month,
-        .next-month {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-        }
-
-        #current-month {
-            font-size: 1.25rem;
-            margin: 0;
-        }
-
-        .loading {
-            color: #6c757d;
-        }
-
-        .selected-menu {
-            position: relative;
-            border-left: 5px solid #17a2b8;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    @keyframes highlight-pulse {
+        0% {
             background-color: #f8fdff;
-            padding-left: 15px;
-            animation: highlight-pulse 1.5s ease-in-out;
         }
 
-        @keyframes highlight-pulse {
-            0% {
-                background-color: #f8fdff;
-            }
-
-            50% {
-                background-color: #d1ecf1;
-            }
-
-            100% {
-                background-color: #f8fdff;
-            }
+        50% {
+            background-color: #d1ecf1;
         }
 
-        /* Indicator arrow for selected menu */
-        .selected-menu::before {
-            content: "▶";
-            position: absolute;
+        100% {
+            background-color: #f8fdff;
+        }
+    }
+
+    /* Indicator arrow for selected menu */
+    .selected-menu::before {
+        content: "▶";
+        position: absolute;
+        left: -25px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #17a2b8;
+        font-size: 20px;
+        animation: arrow-pulse 1s infinite;
+    }
+
+    @keyframes arrow-pulse {
+        0% {
+            opacity: 0.5;
             left: -25px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #17a2b8;
-            font-size: 20px;
-            animation: arrow-pulse 1s infinite;
         }
 
-        @keyframes arrow-pulse {
-            0% {
-                opacity: 0.5;
-                left: -25px;
-            }
-
-            50% {
-                opacity: 1;
-                left: -20px;
-            }
-
-            100% {
-                opacity: 0.5;
-                left: -25px;
-            }
+        50% {
+            opacity: 1;
+            left: -20px;
         }
+
+        100% {
+            opacity: 0.5;
+            left: -25px;
+        }
+    }
     </style>
 
 </head>
@@ -247,7 +261,7 @@
                             </div>
                         </div>
                         <br>
-                                            
+
                     </div>
 
                     <!-- Contenido principal -->
@@ -257,7 +271,7 @@
                                 <i class="fas fa-plus-circle me-2"></i>AGREGAR MENU
                             </a>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
@@ -514,29 +528,29 @@
                             `${dayNames[date.getDay()]} ${date.getDate()} ${monthNames[date.getMonth()]}`;
 
                         dayElement.innerHTML = `
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h2>${dateHeader}</h2>
-                                <button class="btn btn-outline-dark btn-sm" data-date="${dateStr}">EDITAR</button>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Entrada S/15.00</th>
-                                            <th>Entrada S/20.00</th>
-                                            <th>Fondo S/15.00</th>
-                                            <th>Fondo S/20.00</th>
-                                            <th>Carta</th>
-                                            <th>Combos</th>
-                                            <th>Extra</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${generateTableRows(dayData.items, dateStr)}
-                                    </tbody>
-                                </table>
-                            </div>
-                        `;
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2>${dateHeader}</h2>
+        <button class="btn btn-outline-dark btn-sm" data-date="${dateStr}">EDITAR</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered equal-width-table">
+            <thead>
+                <tr>
+                    <th>Entrada S/15.00</th>
+                    <th>Entrada S/20.00</th>
+                    <th>Fondo S/15.00</th>
+                    <th>Fondo S/20.00</th>
+                    <th>Carta</th>
+                    <th>Combos</th>
+                    <th>Extras</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${generateTableRows(dayData.items, dateStr)}
+            </tbody>
+        </table>
+    </div>
+`;
 
                         contentArea.appendChild(dayElement);
                     });
@@ -549,7 +563,7 @@
                         });
                     });
 
-                   const selectedMenu = document.getElementById(`menu-${selectedFormattedDate}`);
+                    const selectedMenu = document.getElementById(`menu-${selectedFormattedDate}`);
                     if (selectedMenu) {
                         setTimeout(() => {
                             // Scroll menu into view
@@ -557,7 +571,7 @@
                                 behavior: 'smooth',
                                 block: 'start'
                             });
-                            
+
                             // Highlight and scroll the calendar day into view
                             setTimeout(() => {
                                 // First adjust for header height
@@ -565,15 +579,17 @@
                                     top: -100,
                                     behavior: 'smooth'
                                 });
-                                
+
                                 // Then make sure the calendar day is visible
-                                const activeDay = document.querySelector('.calendar-day.active');
+                                const activeDay = document.querySelector(
+                                    '.calendar-day.active');
                                 if (activeDay) {
                                     // Scroll the sidebar to position the active day
                                     const sidebar = document.querySelector('.sidebar');
-                                    const calendarContainer = document.querySelector('.calendar-container');
+                                    const calendarContainer = document.querySelector(
+                                        '.calendar-container');
                                     const dayPosition = activeDay.offsetTop;
-                                    
+
                                     // Position the day in the upper portion of the calendar
                                     const offset = Math.max(0, dayPosition - 100);
                                     sidebar.scrollTop = offset;
@@ -592,13 +608,14 @@
 
         // Función auxiliar para generar filas de tabla desde datos
         function generateTableRows(items, date) {
-    if (!items || items.length === 0) {
-        return '<tr><td colspan="6" class="text-center">No hay menú disponible para este día</td></tr>' +
-            '<tr><td colspan="6" class="text-center mt-3"><a href="/menusemana/agregar/' + date + '" class="btn btn-primary mt-2">' +
-            '<i class="fas fa-plus-circle me-2"></i>AGREGAR MENU</a></td></tr>';
-    }
+            if (!items || items.length === 0) {
+                return '<tr><td colspan="6" class="text-center">No hay menú disponible para este día</td></tr>' +
+                    '<tr><td colspan="6" class="text-center mt-3"><a href="/menusemana/agregar/' + date +
+                    '" class="btn btn-primary mt-2">' +
+                    '<i class="fas fa-plus-circle me-2"></i>AGREGAR MENU</a></td></tr>';
+            }
 
-    return items.map(row => `
+            return items.map(row => `
         <tr>
             <td>${row.entrada_15 || ' '}</td>
             <td>${row.entrada_20 || ' '}</td>
@@ -609,7 +626,7 @@
             <td>${row.extras || ' '}</td>
         </tr>
     `).join('');
-}
+        }
 
         // Función para manejar la edición de un día de menú (implementación pendiente)
         function editMenuDay(date) {
@@ -632,6 +649,20 @@
         }
     });
     </script>
+
+    <style>
+    .equal-width-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .equal-width-table th,
+    .equal-width-table td {
+        width: 14.28%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    </style>
 
 
 

@@ -621,47 +621,215 @@
 			}
 		}
 
-		function loadAndShowPopups() {
-			$.ajax({
-				url: '{{ route("popups.for-user") }}',
-				type: 'GET',
-				success: function(response) {
-					if (response.success && response.popups.length > 0) {
-						// Tomar el primer popup disponible
-						const popup = response.popups[0];
-						
-						// Configurar contenido del modal
-						if (popup.url_imagen) {
-							$('#exampleModalCenter .modal-content div').html(
-								`<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
-							);
-						}
-						
-						// Si hay link, hacer que el popup sea clickeable
-						if (popup.link) {
-							$('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click', function() {
-								window.open(popup.link, '_blank');
-							});
-						}
-						
-						// Mostrar el modal
-						$('#exampleModalCenter').modal('show');
-						
-						// Registrar la vista - CORREGIDO
-						$.ajax({
-							url: '{{ route("popups.view") }}',
-							type: 'POST',
-							data: {
-								popup_id: popup.id,
-								_token: '{{ csrf_token() }}'
-							},
-							error: function(xhr) {
-								console.error('Error al registrar vista:', xhr.responseText);
-							}
+	function loadAndShowPopups() {
+		$.ajax({
+			url: '{{ route("popups.for-user") }}',
+			type: 'GET',
+			success: function(response) {
+				
+				
+				if (response.success && response.popups && response.popups.length > 0) {
+					// Tomar el primer popup disponible
+					const popup = response.popups[0];
+					
+					
+					// Configurar contenido del modal
+					if (popup.url_imagen) {
+						$('#exampleModalCenter .modal-content div').html(
+							`<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
+						);
+					}
+					
+					// Si hay link, hacer que el popup sea clickeable
+					if (popup.link) {
+						$('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click', function() {
+							window.open(popup.link, '_blank');
 						});
 					}
+					
+					// Mostrar el modal
+					$('#exampleModalCenter').modal('show');
+					
+					// Registrar la vista
+					$.ajax({
+						url: '{{ route("popups.view") }}',
+						type: 'POST',
+						data: {
+							popup_id: popup.id,
+							_token: '{{ csrf_token() }}'
+						},
+						success: function(data) {
+							
+						},
+						error: function(xhr) {
+							
+						}
+					});
+				} else {
+					
 				}
-			});
+			},
+			error: function(xhr) {
+				
+			}
+		});
+	}
+	
+	$(document).ready(function() {
+    loadAndShowPopups();
+	});
+
+		
+	$(document).ready(function(){
+	$(".plus").click(function(){
+		$(this).toggleClass("active");
+		
+	});
+	});
+	$(document).ready(function(){
+	$(".c-heart").click(function(){
+		$(this).toggleClass("active");
+		
+	});
+	});
+
+	// Los datos enviados desde el controlador (productos disponibles para hoy)
+	const entradas15 = @json($entradas15);
+	const fondos15 = @json($fondos15);
+	const entradas20 = @json($entradas20);
+	const fondos20 = @json($fondos20);
+	const platosCarta = @json($platosCarta);
+	const combos = @json($combos);
+
+	let comensalNombres = {};
+
+	let comensalCount = 1;
+	const maxComensales = 10;
+	const tabContainer = document.getElementById("comensalTabs");
+	const tabContent = document.getElementById("comensalTabContent");
+
+	const countEntradas15 = {{ $entradas15->count() }};
+    const countFondos15 = {{ $fondos15->count() }};
+    const countEntradas20 = {{ $entradas20->count() }};
+    const countFondos20 = {{ $fondos20->count() }};
+
+	// Función para crear la pestaña de un comensal
+	function createComensalTab(index) {
+		const widthPercent = (100 / comensalCount).toFixed(2);
+		const name = `COMENSAL ${index + 1}`;
+
+		return `
+		<li class="nav-item" role="presentation" style="width: ${widthPercent}%;">
+			<button class="nav-link ${index === 0 ? 'active' : ''}" data-bs-toggle="tab" 
+			data-bs-target="#comensal${index}" type="button" role="tab">
+				<input type="text" value="${name}" class="comensal-name-input" data-index="${index}" style="border:none;background:transparent;width:100%;text-align:center;font-weight:600;">
+			</button>
+		</li>`;
+		
+	}
+
+
+
+
+  // Función para crear el contenido (selección de menús) para cada comensal
+  function createComensalContent(index) {
+      return `
+          	<div class="tab-pane fade show ${index === 0 ? 'active' : ''}" id="comensal${index}" role="tabpanel">
+              	<div class="pt-4">
+                  	<ul class="nav nav-pills mb-4 light" style="width: 100%;">
+                      	<li class="nav-item" style="width:25%; text-align: center;">
+                          	<a href="#menu15-${index}" class="nav-link active" data-bs-toggle="tab">Menú S/15</a>
+                      	</li>
+                      	<li class="nav-item" style="width: 25%; text-align: center;">
+                          	<a href="#menu20-${index}" class="nav-link" data-bs-toggle="tab">Menú S/20</a>
+                      	</li>
+					  	<li class="nav-item" style="width: 25%; text-align: center;">
+							<a href="#menuCarta-${index}" class="nav-link" data-bs-toggle="tab">A la Carta</a>
+						</li>
+						<li class="nav-item" style="width: 25%; text-align: center;">
+							<a href="#menuCombo-${index}" class="nav-link" data-bs-toggle="tab">Combo</a>
+						</li>
+                  	</ul>
+                  	<div class="tab-content">
+						<!-- Menú S/15 -->
+						<div id="menu15-${index}" class="tab-pane active">
+							<h4 class=" mb-0 cate-title">${ countEntradas15 } Entradas</h4>
+							<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+							<div class="swiper mySwiper-3" style="margin-bottom:30px;">
+								<div class="swiper-wrapper">
+									${ renderProductos(entradas15, 'entrada15', index) }
+								</div>
+								<div class="swiper-pagination"></div>
+							</div>
+							<h4 class="cate-title">${ countFondos15 } Fondos</h4>
+							<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+							<div class="swiper mySwiper-3">
+								<div class="swiper-wrapper">
+									${ renderProductos(fondos15, 'fondo15', index) }
+								</div>
+								<div class="swiper-pagination"></div>
+							</div>
+						</div>
+						<!-- Menú S/20 -->
+						<div id="menu20-${index}" class="tab-pane">
+							<h4 class="cate-title">${ countEntradas20 } Entradas</h4>
+							<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+							<div class="swiper mySwiper-3" style="margin-bottom:30px;">
+								<div class="swiper-wrapper">
+									${ renderProductos(entradas20, 'entrada20', index) }
+								</div>
+								<div class="swiper-pagination"></div>
+							</div>
+							<h4 class="cate-title">${ countFondos20 } Fondos</h4>
+							<a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+							<div class="swiper mySwiper-3">
+								<div class="swiper-wrapper">
+									${ renderProductos(fondos20, 'fondo20', index) }
+								</div>
+								<div class="swiper-pagination"></div>
+							</div>
+						</div>
+					  	<!--  Platos a la Carta -->
+						<div id="menuCarta-${index}" class="tab-pane">
+							<h4 class="cate-title">${platosCarta.length} Platos a la carta</h4>
+							<div class="swiper mySwiper-3">
+								<div class="swiper-wrapper">
+									${ renderProductos(platosCarta, 'carta', index) }
+								</div>
+								<div class="swiper-pagination"></div>
+							</div>
+						</div>
+						<!--  Combos -->
+						<div id="menuCombo-${index}" class="tab-pane">
+							<h4 class="cate-title">${combos.length} Combos</h4>
+							<div class="swiper mySwiper-3">
+								<div class="swiper-wrapper">
+									${ renderProductos(combos, 'combo', index) }
+								</div>
+								<div class="swiper-pagination"></div>
+							</div>
+						</div>
+                  	</div>
+              	</div>
+          	</div>`;
+  }
+
+  // Función auxiliar para generar las tarjetas de productos en el carrusel
+  // typeName es la cadena que identifica el tipo (por ejemplo, 'entrada15', 'fondo15', etc.)
+  // comensalIndex es para diferenciar los grupos de radios por comensal
+  function renderProductos(productos, typeName, comensalIndex) {
+		let type ='';
+		let typeinput ='radio';
+		if(typeName=='entrada15'||typeName=='entrada20'){
+			type ='entrada';
+		}else if(typeName=='fondo15'||typeName=='fondo20'){
+			type ='fondo';
+		}else if(typeName === 'combo') {
+			type = 'combo';
+			typeinput ='checkbox';
+		}else if(typeName === 'carta') {
+			type = 'carta';
+			typeinput ='checkbox';
 		}
 		$(document).ready(function() {
 			loadAndShowPopups();
