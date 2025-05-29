@@ -529,6 +529,7 @@
                     <div class="other-addresses">
                         <h3 class="other-addresses-title">Mis otras direcciones</h3>
 
+                        @if(count($direcciones) > 1)
                         <table class="addresses-table">
                             <thead>
                                 <tr>
@@ -584,6 +585,7 @@
                                 @endif
                             </tbody>
                         </table>
+                        @endif
 
                         <button class="add-address-btn">Agregar nueva dirección</button>
                     </div>
