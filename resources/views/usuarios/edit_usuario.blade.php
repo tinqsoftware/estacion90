@@ -553,7 +553,14 @@
                     <div class="other-addresses">
                         <h3 class="other-addresses-title">Mis otras direcciones</h3>
 
-                        @if(count($direcciones) > 1)
+                        @php
+                        // Filtrar las direcciones para excluir la dirección actual
+                        $otrasDirecciones = $direcciones->filter(function($direccion) use ($user) {
+                        return $user->id_direccion != $direccion->id;
+                        });
+                        @endphp
+
+                        @if(count($otrasDirecciones) > 0)
                         <table class="addresses-table">
                             <thead>
                                 <tr>
@@ -563,16 +570,10 @@
                                     <th>Referencia</th>
                                     <th>Coordenadas</th>
                                     <th>Acciones</th>
-
                                 </tr>
                             </thead>
                             <tbody>
-                                @if(count($direcciones) == 0)
-                                <tr>
-                                    <td colspan="6" style="text-align: center;">No tienes direcciones adicionales</td>
-                                </tr>
-                                @else
-                                @foreach($direcciones as $direccion)
+                                @foreach($otrasDirecciones as $direccion)
                                 <tr>
                                     <td>{{ $direccion->tipo_nombre }}</td>
                                     <td>{{ $direccion->distrito->nombre }}</td>
@@ -606,9 +607,10 @@
                                     </td>
                                 </tr>
                                 @endforeach
-                                @endif
                             </tbody>
                         </table>
+                        @else
+                        <p>No tienes direcciones adicionales</p>
                         @endif
 
                         <button class="add-address-btn">Agregar nueva dirección</button>
@@ -1236,150 +1238,154 @@
             });
         });
 
-      
-// Función para obtener ubicación actual en formulario de nueva dirección
-document.getElementById('get-current-location').addEventListener('click', function() {
-    if (navigator.geolocation) {
-        // Mostrar indicador de carga
-        Swal.fire({
-            title: 'Obteniendo ubicación...',
-            text: 'Por favor espere mientras detectamos su ubicación',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        
-        navigator.geolocation.getCurrentPosition(
-            // Success callback
-            function(position) {
-                const currentLat = position.coords.latitude;
-                const currentLng = position.coords.longitude;
-                
-                // Actualizar el mapa y marcador
-                modalMap.setView([currentLat, currentLng], 17);
-                modalMarker.setLatLng([currentLat, currentLng]);
-                
-                // Actualizar valores en formulario
-                document.getElementById('lat').value = currentLat;
-                document.getElementById('lon').value = currentLng;
-                updateCoordinatesDisplay(currentLat, currentLng);
-                
-                // Cerrar indicador de carga
-                Swal.close();
-            },
-            // Error callback
-            function(error) {
-                let errorMsg;
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMsg = "Acceso a la ubicación denegado. Por favor habilite los permisos de ubicación en su navegador.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMsg = "La información de ubicación no está disponible.";
-                        break;
-                    case error.TIMEOUT:
-                        errorMsg = "La solicitud de ubicación ha expirado.";
-                        break;
-                    case error.UNKNOWN_ERROR:
-                        errorMsg = "Ha ocurrido un error desconocido al obtener la ubicación.";
-                        break;
-                }
-                
-                // Mostrar error al usuario
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de ubicación',
-                    text: errorMsg
-                });
-            },
-            // Options
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            }
-        );
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Su navegador no soporta geolocalización'
-        });
-    }
-});
 
-// Función para obtener ubicación actual en formulario de edición
-document.getElementById('edit-get-current-location').addEventListener('click', function() {
-    if (navigator.geolocation) {
-        // Mostrar indicador de carga
-        Swal.fire({
-            title: 'Obteniendo ubicación...',
-            text: 'Por favor espere mientras detectamos su ubicación',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        
-        navigator.geolocation.getCurrentPosition(
-            // Success callback
-            function(position) {
-                const currentLat = position.coords.latitude;
-                const currentLng = position.coords.longitude;
-                
-                // Actualizar el mapa y marcador
-                editModalMap.setView([currentLat, currentLng], 17);
-                editModalMarker.setLatLng([currentLat, currentLng]);
-                
-                // Actualizar valores en formulario
-                document.getElementById('edit_lat').value = currentLat;
-                document.getElementById('edit_lon').value = currentLng;
-                updateEditCoordinatesDisplay(currentLat, currentLng);
-                
-                // Cerrar indicador de carga
-                Swal.close();
-            },
-            // Error callback
-            function(error) {
-                let errorMsg;
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMsg = "Acceso a la ubicación denegado. Por favor habilite los permisos de ubicación en su navegador.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMsg = "La información de ubicación no está disponible.";
-                        break;
-                    case error.TIMEOUT:
-                        errorMsg = "La solicitud de ubicación ha expirado.";
-                        break;
-                    case error.UNKNOWN_ERROR:
-                        errorMsg = "Ha ocurrido un error desconocido al obtener la ubicación.";
-                        break;
-                }
-                
-                // Mostrar error al usuario
+        // Función para obtener ubicación actual en formulario de nueva dirección
+        document.getElementById('get-current-location').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                // Mostrar indicador de carga
+                Swal.fire({
+                    title: 'Obteniendo ubicación...',
+                    text: 'Por favor espere mientras detectamos su ubicación',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                navigator.geolocation.getCurrentPosition(
+                    // Success callback
+                    function(position) {
+                        const currentLat = position.coords.latitude;
+                        const currentLng = position.coords.longitude;
+
+                        // Actualizar el mapa y marcador
+                        modalMap.setView([currentLat, currentLng], 17);
+                        modalMarker.setLatLng([currentLat, currentLng]);
+
+                        // Actualizar valores en formulario
+                        document.getElementById('lat').value = currentLat;
+                        document.getElementById('lon').value = currentLng;
+                        updateCoordinatesDisplay(currentLat, currentLng);
+
+                        // Cerrar indicador de carga
+                        Swal.close();
+                    },
+                    // Error callback
+                    function(error) {
+                        let errorMsg;
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg =
+                                    "Acceso a la ubicación denegado. Por favor habilite los permisos de ubicación en su navegador.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = "La información de ubicación no está disponible.";
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = "La solicitud de ubicación ha expirado.";
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                errorMsg =
+                                    "Ha ocurrido un error desconocido al obtener la ubicación.";
+                                break;
+                        }
+
+                        // Mostrar error al usuario
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de ubicación',
+                            text: errorMsg
+                        });
+                    },
+                    // Options
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error de ubicación',
-                    text: errorMsg
+                    title: 'Error',
+                    text: 'Su navegador no soporta geolocalización'
                 });
-            },
-            // Options
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
             }
-        );
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Su navegador no soporta geolocalización'
         });
-    }
-});
+
+        // Función para obtener ubicación actual en formulario de edición
+        document.getElementById('edit-get-current-location').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                // Mostrar indicador de carga
+                Swal.fire({
+                    title: 'Obteniendo ubicación...',
+                    text: 'Por favor espere mientras detectamos su ubicación',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                navigator.geolocation.getCurrentPosition(
+                    // Success callback
+                    function(position) {
+                        const currentLat = position.coords.latitude;
+                        const currentLng = position.coords.longitude;
+
+                        // Actualizar el mapa y marcador
+                        editModalMap.setView([currentLat, currentLng], 17);
+                        editModalMarker.setLatLng([currentLat, currentLng]);
+
+                        // Actualizar valores en formulario
+                        document.getElementById('edit_lat').value = currentLat;
+                        document.getElementById('edit_lon').value = currentLng;
+                        updateEditCoordinatesDisplay(currentLat, currentLng);
+
+                        // Cerrar indicador de carga
+                        Swal.close();
+                    },
+                    // Error callback
+                    function(error) {
+                        let errorMsg;
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg =
+                                    "Acceso a la ubicación denegado. Por favor habilite los permisos de ubicación en su navegador.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = "La información de ubicación no está disponible.";
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = "La solicitud de ubicación ha expirado.";
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                errorMsg =
+                                    "Ha ocurrido un error desconocido al obtener la ubicación.";
+                                break;
+                        }
+
+                        // Mostrar error al usuario
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de ubicación',
+                            text: errorMsg
+                        });
+                    },
+                    // Options
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Su navegador no soporta geolocalización'
+                });
+            }
+        });
 
         // Manejar el envío del formulario de edición
         document.getElementById('edit-address-form').addEventListener('submit', function(e) {
