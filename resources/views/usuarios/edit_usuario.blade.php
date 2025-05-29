@@ -253,6 +253,30 @@
     }
 
 
+    .location-btn {
+        background-color: #4285F4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        font-size: 13px;
+        margin-top: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.2s;
+    }
+
+    .location-btn:hover {
+        background-color: #3367D6;
+    }
+
+    .location-btn i {
+        font-size: 14px;
+    }
+
+
 
 
 
@@ -518,12 +542,12 @@
                         </div>
 
                         @if(count($direcciones) > 0)
-                            <div class="map-container" id="workMap" data-lat="{{ $user->direccion->lat ?? '-12.0464' }}"
+                        <div class="map-container" id="workMap" data-lat="{{ $user->direccion->lat ?? '-12.0464' }}"
                             data-lng="{{ $user->direccion->lon ?? '-77.0428' }}"
                             data-tipo="{{ $user->direccion->tipo_nombre ?? 'No definido' }}"></div>
                         @endif
 
-                    
+
                     </div>
 
                     <div class="other-addresses">
@@ -650,6 +674,9 @@
 
                 <div style="margin-bottom: 15px;">
                     <label>Ubicación en el mapa (mueva el marcador para seleccionar la ubicación)</label>
+                    <button type="button" class="location-btn" id="get-current-location">
+                        <i class="fa fa-location-arrow"></i> Mover marcador a ubicación actual
+                    </button>
                     <div id="modal-map" style="height: 200px; width: 100%; border-radius: 4px; margin-top: 10px;"></div>
                     <input type="hidden" id="lat" name="lat">
                     <input type="hidden" id="lon" name="lon">
@@ -666,61 +693,66 @@
 
 
     <!-- Modal Editar -->
-<div class="modal" id="editAddressModal">
-    <div class="modal-content" style="max-width: 600px; width: 90%;">
-        <h3>Editar dirección</h3>
+    <div class="modal" id="editAddressModal">
+        <div class="modal-content" style="max-width: 600px; width: 90%;">
+            <h3>Editar dirección</h3>
 
-        <form id="edit-address-form">
-            @csrf
-            <input type="hidden" id="edit_address_id" name="address_id">
-            <div class="field-group" style="margin-bottom: 15px;">
-                <label for="edit_tipo_nombre">Tipo de dirección</label>
-                <select id="edit_tipo_nombre" name="tipo_nombre" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                    <option value="Casa">Casa</option>
-                    <option value="Trabajo">Trabajo</option>
-                    <option value="Otros">Otros</option>
-                </select>
-            </div>
+            <form id="edit-address-form">
+                @csrf
+                <input type="hidden" id="edit_address_id" name="address_id">
+                <div class="field-group" style="margin-bottom: 15px;">
+                    <label for="edit_tipo_nombre">Tipo de dirección</label>
+                    <select id="edit_tipo_nombre" name="tipo_nombre" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="Casa">Casa</option>
+                        <option value="Trabajo">Trabajo</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
 
-            <div class="field-group" style="margin-bottom: 15px;">
-                <label for="edit_id_distrito">Distrito</label>
-                <select id="edit_id_distrito" name="id_distrito" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                    <option value="">Seleccione un distrito</option>
-                    @foreach($distritos as $distrito)
-                    <option value="{{ $distrito->id }}">{{ $distrito->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="field-group" style="margin-bottom: 15px;">
+                    <label for="edit_id_distrito">Distrito</label>
+                    <select id="edit_id_distrito" name="id_distrito" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="">Seleccione un distrito</option>
+                        @foreach($distritos as $distrito)
+                        <option value="{{ $distrito->id }}">{{ $distrito->nombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="field-group" style="margin-bottom: 15px;">
-                <label for="edit_direccion">Dirección</label>
-                <input type="text" id="edit_direccion" name="direccion" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-            </div>
+                <div class="field-group" style="margin-bottom: 15px;">
+                    <label for="edit_direccion">Dirección</label>
+                    <input type="text" id="edit_direccion" name="direccion" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
 
-            <div class="field-group" style="margin-bottom: 15px;">
-                <label for="edit_referencia">Referencia</label>
-                <input type="text" id="edit_referencia" name="referencia"
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-            </div>
+                <div class="field-group" style="margin-bottom: 15px;">
+                    <label for="edit_referencia">Referencia</label>
+                    <input type="text" id="edit_referencia" name="referencia"
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
 
-            <div style="margin-bottom: 15px;">
-                <label>Ubicación en el mapa (mueva el marcador para seleccionar la ubicación)</label>
-                <div id="edit-modal-map" style="height: 200px; width: 100%; border-radius: 4px; margin-top: 10px;"></div>
-                <input type="hidden" id="edit_lat" name="lat">
-                <input type="hidden" id="edit_lon" name="lon">
-                <div id="edit-coordinates-display" style="margin-top: 5px; font-size: 12px; color: #666;"></div>
-            </div>
+                <div style="margin-bottom: 15px;">
+                    <label>Ubicación en el mapa (mueva el marcador para seleccionar la ubicación)</label>
+                    <button type="button" class="location-btn" id="edit-get-current-location">
+                        <i class="fa fa-location-arrow"></i> Mover marcador a ubicación actual
+                    </button>
+                    <div id="edit-modal-map" style="height: 200px; width: 100%; border-radius: 4px; margin-top: 10px;">
+                    </div>
+                    <input type="hidden" id="edit_lat" name="lat">
+                    <input type="hidden" id="edit_lon" name="lon">
+                    <div id="edit-coordinates-display" style="margin-top: 5px; font-size: 12px; color: #666;"></div>
+                </div>
 
-            <div class="modal-buttons">
-                <button type="button" class="modal-btn cancel-btn" onclick="hideEditAddressModal()">CANCELAR</button>
-                <button type="submit" class="modal-btn accept-btn">GUARDAR CAMBIOS</button>
-            </div>
-        </form>
+                <div class="modal-buttons">
+                    <button type="button" class="modal-btn cancel-btn"
+                        onclick="hideEditAddressModal()">CANCELAR</button>
+                    <button type="submit" class="modal-btn accept-btn">GUARDAR CAMBIOS</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
     <script>
     // Address modal functionality
@@ -728,7 +760,7 @@
     let modalMarker;
 
     let editModalMap;
-let editModalMarker;
+    let editModalMarker;
 
     function showAddressModal() {
         document.getElementById('addAddressModal').style.display = 'flex';
@@ -793,68 +825,68 @@ let editModalMarker;
 
     // Handle form submission
     document.getElementById('new-address-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const formData = new FormData(this);
+        const formData = new FormData(this);
 
-    // Verificar que las coordenadas existan
-    if (!formData.get('lat') || !formData.get('lon')) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
-        });
-        return;
-    }
-
-    fetch('{{ route("usuarios.store_address") }}', {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                let message = data.message;
-                
-                // Si es la primera dirección, mostrar mensaje especial
-                if (data.isFirstAddress) {
-                    message = 'Dirección agregada y establecida como principal correctamente';
-                }
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: message,
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    // Reload the page to show the new address
-                    window.location.reload();
-                });
-            } else {
-                let errorMessage = 'Por favor revise los datos ingresados';
-                if (data.message) {
-                    errorMessage = data.message;
-                } else if (data.errors) {
-                    errorMessage = Object.values(data.errors).flat().join('\n');
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+        // Verificar que las coordenadas existan
+        if (!formData.get('lat') || !formData.get('lon')) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Hubo un problema de conexión'
+                text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
             });
-        });
-});
+            return;
+        }
+
+        fetch('{{ route("usuarios.store_address") }}', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let message = data.message;
+
+                    // Si es la primera dirección, mostrar mensaje especial
+                    if (data.isFirstAddress) {
+                        message = 'Dirección agregada y establecida como principal correctamente';
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload the page to show the new address
+                        window.location.reload();
+                    });
+                } else {
+                    let errorMessage = 'Por favor revise los datos ingresados';
+                    if (data.message) {
+                        errorMessage = data.message;
+                    } else if (data.errors) {
+                        errorMessage = Object.values(data.errors).flat().join('\n');
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema de conexión'
+                });
+            });
+    });
 
 
     document.getElementById('trigger-upload').addEventListener('click', function() {
@@ -1125,143 +1157,288 @@ let editModalMarker;
 
 
     function showEditAddressModal(id, tipo, distrito, direccion, referencia, lat, lon) {
-    document.getElementById('editAddressModal').style.display = 'flex';
-    
-    // Asignar valores al formulario
-    document.getElementById('edit_address_id').value = id;
-    document.getElementById('edit_tipo_nombre').value = tipo;
-    document.getElementById('edit_id_distrito').value = distrito;
-    document.getElementById('edit_direccion').value = direccion;
-    document.getElementById('edit_referencia').value = referencia;
-    document.getElementById('edit_lat').value = lat;
-    document.getElementById('edit_lon').value = lon;
-    
-    // Inicializar mapa de edición después que el modal sea visible
-    setTimeout(() => {
-        const editLat = parseFloat(lat) || -12.0464;
-        const editLon = parseFloat(lon) || -77.0428;
+        document.getElementById('editAddressModal').style.display = 'flex';
 
-        if (!editModalMap) {
-            // Inicializar mapa
-            editModalMap = L.map('edit-modal-map').setView([editLat, editLon], 13);
+        // Asignar valores al formulario
+        document.getElementById('edit_address_id').value = id;
+        document.getElementById('edit_tipo_nombre').value = tipo;
+        document.getElementById('edit_id_distrito').value = distrito;
+        document.getElementById('edit_direccion').value = direccion;
+        document.getElementById('edit_referencia').value = referencia;
+        document.getElementById('edit_lat').value = lat;
+        document.getElementById('edit_lon').value = lon;
 
-            // Añadir capa de OpenStreetMap
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(editModalMap);
+        // Inicializar mapa de edición después que el modal sea visible
+        setTimeout(() => {
+            const editLat = parseFloat(lat) || -12.0464;
+            const editLon = parseFloat(lon) || -77.0428;
 
-            // Añadir marcador arrastrable
-            editModalMarker = L.marker([editLat, editLon], {
-                draggable: true
-            }).addTo(editModalMap);
+            if (!editModalMap) {
+                // Inicializar mapa
+                editModalMap = L.map('edit-modal-map').setView([editLat, editLon], 13);
 
-            // Actualizar coordenadas cuando se arrastra el marcador
-            editModalMarker.on('dragend', function(event) {
-                const position = editModalMarker.getLatLng();
-                document.getElementById('edit_lat').value = position.lat;
-                document.getElementById('edit_lon').value = position.lng;
-                updateEditCoordinatesDisplay(position.lat, position.lng);
-            });
-        } else {
-            // Reposicionar mapa y marcador con las coordenadas de la dirección
-            editModalMap.setView([editLat, editLon], 13);
-            editModalMarker.setLatLng([editLat, editLon]);
-        }
+                // Añadir capa de OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(editModalMap);
 
-        // Asegurarse que las coordenadas se muestran correctamente
-        document.getElementById('edit_lat').value = editLat;
-        document.getElementById('edit_lon').value = editLon;
-        updateEditCoordinatesDisplay(editLat, editLon);
-        
-        // Invalidar tamaño para asegurar que se renderiza correctamente después de que aparezca el modal
-        editModalMap.invalidateSize();
-    }, 300);
-}
+                // Añadir marcador arrastrable
+                editModalMarker = L.marker([editLat, editLon], {
+                    draggable: true
+                }).addTo(editModalMap);
 
-function hideEditAddressModal() {
-    document.getElementById('editAddressModal').style.display = 'none';
-}
-
-function updateEditCoordinatesDisplay(lat, lng) {
-    document.getElementById('edit-coordinates-display').innerHTML =
-        `Latitud: ${lat.toFixed(6)}, Longitud: ${lng.toFixed(6)}`;
-}
-
-// Agregar event listener para los botones de editar
-document.addEventListener('DOMContentLoaded', function() {
-    // Agregar a los eventos DOMContentLoaded existentes
-    document.querySelectorAll('.edit-address').forEach(button => {
-        button.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            const tipo = this.getAttribute('data-tipo');
-            const distrito = this.getAttribute('data-distrito');
-            const direccion = this.getAttribute('data-direccion');
-            const referencia = this.getAttribute('data-referencia');
-            const lat = this.getAttribute('data-lat');
-            const lon = this.getAttribute('data-lon');
-            
-            showEditAddressModal(id, tipo, distrito, direccion, referencia, lat, lon);
-        });
-    });
-
-    // Manejar el envío del formulario de edición
-    document.getElementById('edit-address-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        // Verificar que las coordenadas existan
-        if (!formData.get('lat') || !formData.get('lon')) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
-            });
-            return;
-        }
-        
-        fetch('{{ route("usuarios.update_address") }}', {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: data.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    // Recargar la página para mostrar los cambios
-                    window.location.reload();
+                // Actualizar coordenadas cuando se arrastra el marcador
+                editModalMarker.on('dragend', function(event) {
+                    const position = editModalMarker.getLatLng();
+                    document.getElementById('edit_lat').value = position.lat;
+                    document.getElementById('edit_lon').value = position.lng;
+                    updateEditCoordinatesDisplay(position.lat, position.lng);
                 });
             } else {
-                let errorMessage = 'Por favor revise los datos ingresados';
-                if (data.message) {
-                    errorMessage = data.message;
-                } else if (data.errors) {
-                    errorMessage = Object.values(data.errors).flat().join('\n');
+                // Reposicionar mapa y marcador con las coordenadas de la dirección
+                editModalMap.setView([editLat, editLon], 13);
+                editModalMarker.setLatLng([editLat, editLon]);
+            }
+
+            // Asegurarse que las coordenadas se muestran correctamente
+            document.getElementById('edit_lat').value = editLat;
+            document.getElementById('edit_lon').value = editLon;
+            updateEditCoordinatesDisplay(editLat, editLon);
+
+            // Invalidar tamaño para asegurar que se renderiza correctamente después de que aparezca el modal
+            editModalMap.invalidateSize();
+        }, 300);
+    }
+
+    function hideEditAddressModal() {
+        document.getElementById('editAddressModal').style.display = 'none';
+    }
+
+    function updateEditCoordinatesDisplay(lat, lng) {
+        document.getElementById('edit-coordinates-display').innerHTML =
+            `Latitud: ${lat.toFixed(6)}, Longitud: ${lng.toFixed(6)}`;
+    }
+
+    // Agregar event listener para los botones de editar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Agregar a los eventos DOMContentLoaded existentes
+        document.querySelectorAll('.edit-address').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const tipo = this.getAttribute('data-tipo');
+                const distrito = this.getAttribute('data-distrito');
+                const direccion = this.getAttribute('data-direccion');
+                const referencia = this.getAttribute('data-referencia');
+                const lat = this.getAttribute('data-lat');
+                const lon = this.getAttribute('data-lon');
+
+                showEditAddressModal(id, tipo, distrito, direccion, referencia, lat, lon);
+            });
+        });
+
+      
+// Función para obtener ubicación actual en formulario de nueva dirección
+document.getElementById('get-current-location').addEventListener('click', function() {
+    if (navigator.geolocation) {
+        // Mostrar indicador de carga
+        Swal.fire({
+            title: 'Obteniendo ubicación...',
+            text: 'Por favor espere mientras detectamos su ubicación',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        navigator.geolocation.getCurrentPosition(
+            // Success callback
+            function(position) {
+                const currentLat = position.coords.latitude;
+                const currentLng = position.coords.longitude;
+                
+                // Actualizar el mapa y marcador
+                modalMap.setView([currentLat, currentLng], 17);
+                modalMarker.setLatLng([currentLat, currentLng]);
+                
+                // Actualizar valores en formulario
+                document.getElementById('lat').value = currentLat;
+                document.getElementById('lon').value = currentLng;
+                updateCoordinatesDisplay(currentLat, currentLng);
+                
+                // Cerrar indicador de carga
+                Swal.close();
+            },
+            // Error callback
+            function(error) {
+                let errorMsg;
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg = "Acceso a la ubicación denegado. Por favor habilite los permisos de ubicación en su navegador.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg = "La información de ubicación no está disponible.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg = "La solicitud de ubicación ha expirado.";
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        errorMsg = "Ha ocurrido un error desconocido al obtener la ubicación.";
+                        break;
                 }
+                
+                // Mostrar error al usuario
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de ubicación',
+                    text: errorMsg
+                });
+            },
+            // Options
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Su navegador no soporta geolocalización'
+        });
+    }
+});
+
+// Función para obtener ubicación actual en formulario de edición
+document.getElementById('edit-get-current-location').addEventListener('click', function() {
+    if (navigator.geolocation) {
+        // Mostrar indicador de carga
+        Swal.fire({
+            title: 'Obteniendo ubicación...',
+            text: 'Por favor espere mientras detectamos su ubicación',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        navigator.geolocation.getCurrentPosition(
+            // Success callback
+            function(position) {
+                const currentLat = position.coords.latitude;
+                const currentLng = position.coords.longitude;
+                
+                // Actualizar el mapa y marcador
+                editModalMap.setView([currentLat, currentLng], 17);
+                editModalMarker.setLatLng([currentLat, currentLng]);
+                
+                // Actualizar valores en formulario
+                document.getElementById('edit_lat').value = currentLat;
+                document.getElementById('edit_lon').value = currentLng;
+                updateEditCoordinatesDisplay(currentLat, currentLng);
+                
+                // Cerrar indicador de carga
+                Swal.close();
+            },
+            // Error callback
+            function(error) {
+                let errorMsg;
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg = "Acceso a la ubicación denegado. Por favor habilite los permisos de ubicación en su navegador.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg = "La información de ubicación no está disponible.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg = "La solicitud de ubicación ha expirado.";
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        errorMsg = "Ha ocurrido un error desconocido al obtener la ubicación.";
+                        break;
+                }
+                
+                // Mostrar error al usuario
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de ubicación',
+                    text: errorMsg
+                });
+            },
+            // Options
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Su navegador no soporta geolocalización'
+        });
+    }
+});
+
+        // Manejar el envío del formulario de edición
+        document.getElementById('edit-address-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            // Verificar que las coordenadas existan
+            if (!formData.get('lat') || !formData.get('lon')) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: errorMessage
+                    text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
                 });
+                return;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Hubo un problema de conexión'
-            });
+
+            fetch('{{ route("usuarios.update_address") }}', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Recargar la página para mostrar los cambios
+                            window.location.reload();
+                        });
+                    } else {
+                        let errorMessage = 'Por favor revise los datos ingresados';
+                        if (data.message) {
+                            errorMessage = data.message;
+                        } else if (data.errors) {
+                            errorMessage = Object.values(data.errors).flat().join('\n');
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Hubo un problema de conexión'
+                    });
+                });
         });
     });
-});
     </script>
 
     <!-- Required vendors -->
