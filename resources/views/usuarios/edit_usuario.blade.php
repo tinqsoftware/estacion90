@@ -791,62 +791,68 @@ let editModalMarker;
 
     // Handle form submission
     document.getElementById('new-address-form').addEventListener('submit', function(e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        const formData = new FormData(this);
+    const formData = new FormData(this);
 
-        // Verificar que las coordenadas existan
-        if (!formData.get('lat') || !formData.get('lon')) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
-            });
-            return;
-        }
+    // Verificar que las coordenadas existan
+    if (!formData.get('lat') || !formData.get('lon')) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudieron obtener las coordenadas. Por favor, inténtelo de nuevo.'
+        });
+        return;
+    }
 
-        fetch('{{ route("usuarios.store_address") }}', {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin'
-                // No establecer headers cuando usamos FormData con @csrf ya incluido
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Éxito',
-                        text: data.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        // Reload the page to show the new address
-                        window.location.reload();
-                    });
-                } else {
-                    let errorMessage = 'Por favor revise los datos ingresados';
-                    if (data.message) {
-                        errorMessage = data.message;
-                    } else if (data.errors) {
-                        errorMessage = Object.values(data.errors).flat().join('\n');
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: errorMessage
-                    });
+    fetch('{{ route("usuarios.store_address") }}', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let message = data.message;
+                
+                // Si es la primera dirección, mostrar mensaje especial
+                if (data.isFirstAddress) {
+                    message = 'Dirección agregada y establecida como principal correctamente';
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Reload the page to show the new address
+                    window.location.reload();
+                });
+            } else {
+                let errorMessage = 'Por favor revise los datos ingresados';
+                if (data.message) {
+                    errorMessage = data.message;
+                } else if (data.errors) {
+                    errorMessage = Object.values(data.errors).flat().join('\n');
+                }
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Hubo un problema de conexión'
+                    text: errorMessage
                 });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema de conexión'
             });
-    });
+        });
+});
 
 
     document.getElementById('trigger-upload').addEventListener('click', function() {
