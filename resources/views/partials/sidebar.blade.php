@@ -16,11 +16,13 @@
                             </a>
                             <ul aria-expanded="false">
                                 <li><a href="/">Inicio</a></li>
-                                <li><a href="food-order.html">Mis ordenes</a></li>
+                                <li><a href="/misordenes">Mis ordenes</a></li>
+                                @if(str_ends_with(request()->getHost(), '.test'))
                                 <li><a href="favorite-menu.html">Mis favoritos</a></li>
                                 <li><a href="bill.html">Historial</a></li>    
                                 <li><a href="notification.html">Notificaciones</a></li>    
-                                <li><a href="setting.html">Configuraciones</a></li>    
+                                <li><a href="setting.html">Configuraciones</a></li>   
+                                @endif 
                             </ul>
                         </li>
                         <li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
@@ -28,17 +30,20 @@
                                 <span class="nav-text">Estacion90</span>
                             </a>
                             <ul aria-expanded="false">
+                                @if(str_ends_with(request()->getHost(), '.test'))
                                 <li><a href="dashboard.html">Dashboard</a></li>
                                 <li><a href="menu.html">Menu</a></li>
                                 <li><a href="orders.html">Ordenes</a></li>
                                 <li><a href="customer-reviews.html">Comentarios</a></li>
                                 <li><a href="restro-setting.html">Configuraciones</a></li>
+                                @endif
                                 <li><a href="/productos">Productos</a></li>
                                 <li><a href="/menuSemanal">Menu Semanal</a></li>
                                 <li><a href="/usuarios">Usuarios</a></li>
                                 <li><a href="/popups">PopUps</a></li>
                             </ul>
                         </li>
+                        @if(str_ends_with(request()->getHost(), '.test'))
                         <li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
                             <i class="bi bi-bicycle"></i>
                                 <span class="nav-text">Delivery</span>
@@ -49,6 +54,7 @@
                                 <li><a href="feedback.html">Comentario</a></li>
                             </ul>
                         </li>
+                        @endif
                     @else
                         <!-- Non-admin users see only their relevant section based on role -->
                         @if(auth()->user()->id_rol == 2) {{-- 2 = CLIENTE --}}
@@ -59,10 +65,12 @@
                                 <ul aria-expanded="false">
                                     <li><a href="/">Inicio</a></li>
                                     <li><a href="food-order.html">Mis ordenes</a></li>
+                                    @if(str_ends_with(request()->getHost(), '.test'))
                                     <li><a href="favorite-menu.html">Mis favoritos</a></li>
                                     <li><a href="bill.html">Historial</a></li>    
                                     <li><a href="notification.html">Notificaciones</a></li>    
                                     <li><a href="setting.html">Configuraciones</a></li>    
+                                    @endif
                                 </ul>
                             </li>
                         @endif
@@ -73,11 +81,13 @@
                                     <span class="nav-text">Estacion90</span>
                                 </a>
                                 <ul aria-expanded="false">
+                                     @if(str_ends_with(request()->getHost(), '.test'))
                                     <li><a href="dashboard.html">Dashboard</a></li>
                                     <li><a href="menu.html">Menu</a></li>
                                     <li><a href="orders.html">Ordenes</a></li>
                                     <li><a href="customer-reviews.html">Comentarios</a></li>
                                     <li><a href="restro-setting.html">Configuraciones</a></li>
+                                    @endif
                                     <li><a href="/productos">Productos</a></li>
                                     <li><a href="/menuSemanal">Menu Semanal</a></li>
                                     <!-- Usuario link removed for Chef role -->
@@ -91,9 +101,11 @@
                                     <span class="nav-text">Delivery</span>
                                 </a>
                                 <ul aria-expanded="false">
+                                    @if(str_ends_with(request()->getHost(), '.test'))
                                     <li><a href="deliver-main.html">Inicio</a></li>
                                     <li><a href="deliver-order.html">Ordenes</a></li>
                                     <li><a href="feedback.html">Comentario</a></li>
+                                    @endif
                                 </ul>
                             </li>
                         @endif

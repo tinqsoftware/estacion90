@@ -1513,7 +1513,7 @@
 				}
 
 				Swal.fire('¡Pedido registrado!', 'Gracias por tu compra.', 'success').then(() => {
-					window.location.href = '/'; // redirección
+					window.location.href = '/misordenes'; // redirección
 				});
 
 			} catch (error) {
