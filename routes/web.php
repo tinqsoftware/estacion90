@@ -92,12 +92,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/direccion/guardar', [Inicio::class, 'guardarDireccion'])->name('direccion.guardar');
     Route::get('/direccion/partial', [Inicio::class, 'mostrarDireccionesPopup'])->name('direccion.partial')->middleware('auth');
-    Route::get('/check-auth', function () {
-        return response()->json([
+    Route::get('/check-auth', fn () => response()->json([
             'auth' => auth()->check(),
             'user' => auth()->user(),
-        ]);
-    })->middleware('auth');
+        ]))->middleware('auth');
     Route::post('/direccion/actualizar-principal', [Inicio::class, 'actualizarPrincipal'])->name('direccion.actualizarPrincipal');
 
     Route::post('/registrar-pedido', [PedidoController::class, 'store'])->name('pedido.store');
@@ -112,4 +110,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/usuariosEditPerfil/set-default-address', [EditUserController::class, 'setDefaultAddress'])->name('usuarios.set_default_address');
     Route::delete('/usuariosEditPerfil/delete-address/{id}', [EditUserController::class, 'deleteAddress'])->name('usuarios.delete_address');
     Route::post('/usuariosEditPerfil/update-address', [EditUserController::class, 'updateAddress'])->name('usuarios.update_address');
+
+    // Cocina Rutas.
+
+    Route::get('/cocina', [App\Http\Controllers\CocinaController::class, 'index'])->name('cocina.index');
 });
