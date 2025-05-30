@@ -122,4 +122,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/usuariosEditPerfil/set-default-address', [EditUserController::class, 'setDefaultAddress'])->name('usuarios.set_default_address');
     Route::delete('/usuariosEditPerfil/delete-address/{id}', [EditUserController::class, 'deleteAddress'])->name('usuarios.delete_address');
     Route::post('/usuariosEditPerfil/update-address', [EditUserController::class, 'updateAddress'])->name('usuarios.update_address');
+
+    // Cocina Rutas.
+
+    Route::get('/cocina', [App\Http\Controllers\CocinaController::class, 'index'])->name('cocina.index');
 });
