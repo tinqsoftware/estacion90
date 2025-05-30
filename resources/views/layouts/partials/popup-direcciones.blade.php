@@ -17,7 +17,7 @@
                     @endforeach
                 </div>
                 <div class="col-md-8">
-                <div id="mapaDirecciones" style="width: 100%; height: 400px;"></div>
+                <div id="mapaDirecciones" style="width: 100%; height: 300px;"></div>
                 </div>
             </div>
 
@@ -54,7 +54,17 @@
             mapa2.remove();
         }
 
-        mapa2 = L.map('mapaDirecciones');
+        mapa2 = L.map('mapaDirecciones', {
+                center: [latu, lngu],
+                zoom: 15,
+                dragging: false,           // deshabilita mover el mapa con el mouse
+                scrollWheelZoom: false,    // deshabilita zoom con la rueda del mouse
+                doubleClickZoom: false,    // deshabilita zoom con doble clic
+                boxZoom: false,            // deshabilita zoom con arrastre de caja
+                tap: false,                // deshabilita interacción táctil (en móviles)
+                touchZoom: false,          // deshabilita pinch-to-zoom
+                zoomControl: true          // muestra los botones de zoom (+/-)
+            });
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa2);
 
         marcadores = [];

@@ -160,7 +160,7 @@
 
 												<div class="setting-input pl-3 pr-3 pb-2">
 													<label class="form-label">Agregar comentarios</label>
-													<textarea class="form-control py-3" rows="7" style="height: 70px;"></textarea>
+													<textarea class="form-control py-3" rows="7" style="height: 70px;" name="comentarios"></textarea>
 												</div>
 												<hr>
 												<!-- Extras: Productos de categoría Extras (id=6) -->
@@ -299,8 +299,23 @@
 																			</div>
 																		</div>
 																		<div class="col-6">
-																			<select id="comprobante_pago" name="comprobante_pago" class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" required>
-																				<option value="">¿Comprobante?</option>
+																			<select name="hora_llegada" class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" required>
+																				<option value="">Hora de llegada</option>
+																				@foreach($horasLlegada as $hora)
+																					<option value="{{ $hora->id }}"  data-minutos="{{ $hora->valor }}">{{ $hora->valor }} min</option>
+																				@endforeach
+																			</select>
+																		</div>
+																		<div class="col-6">
+																			<select id="desea_comprobante" name="desea_comprobante" class="form-control default-select ms-0 py-4 mb-xl-0 mb-3">
+																				<option value="">¿Desea comprobante?</option>
+																				<option value="1">Comprobante: Sí</option>
+																				<option value="0">Comprobante: No</option>
+																			</select>
+																		</div>
+																		<div class="col-6">
+																			<select id="comprobante_pago" name="comprobante_pago" class="form-control default-select ms-0 py-4 mb-xl-0 mb-3">
+																				<option value="">Tipo comprobante</option>
 																				@foreach($comprobantesPago as $comp)
 																					<option value="{{ $comp->id }}">{{ $comp->nombre }}</option>
 																				@endforeach
@@ -311,14 +326,7 @@
 																				<input type="text" id="documento_comprobante" name="documento_comprobante" class="form-control" placeholder="DNI o RUC">
 																			</div>
 																		</div>
-																		<div class="col-6">
-																			<select name="hora_llegada" class="form-control default-select ms-0 py-4 mb-xl-0 mb-3" required>
-																				<option value="">Hora de llegada</option>
-																				@foreach($horasLlegada as $hora)
-																					<option value="{{ $hora->id }}"  data-minutos="{{ $hora->valor }}">{{ $hora->valor }} min</option>
-																				@endforeach
-																			</select>
-																		</div>
+																		
 																	</div>
 																</div>
 															</div>
@@ -530,8 +538,6 @@
 
 		$('.my-select').selectpicker();
 
-
-
 		var swiper = new Swiper(".mySwiper-1", {
 			loop:true,
 			dots:true,
@@ -682,6 +688,7 @@
 				
 			});
 		});
+
 		$(document).ready(function(){
 			$(".c-heart").click(function(){
 				$(this).toggleClass("active");
@@ -730,8 +737,6 @@
 				<button class="nav-link" id="btn-add-comensal" type="button">+</button>
 				</li>`;
 		}
-
-
 
 		// Función para crear el contenido (selección de menús) para cada comensal
 		function createComensalContent(index) {
@@ -1011,29 +1016,6 @@
 					totalCombos += precio;
 				});
 
-				// Regla: si se escoge por lo menos un producto del menú S/20 se asigna menú S/20
-				/*
-				if ((selE20 && selF20) || (selE20 && selF15) || (selE15 && selF20)) {
-					menuPrice = 20;
-					menuType = "Menú S/20.00";
-					if (selE20) {
-						entradaName = selE20.parentElement.querySelector('h6').innerText;
-					} else if (selE15) {
-						entradaName = selE15.parentElement.querySelector('h6').innerText;
-					}
-					if (selF20) {
-						fondoName = selF20.parentElement.querySelector('h6').innerText;
-					} else if (selF15) {
-						fondoName = selF15.parentElement.querySelector('h6').innerText;
-					}
-				} else if (selE15 && selF15) {
-					menuPrice = 15;
-					menuType = "Menú S/15.00";
-					entradaName = selE15.parentElement.querySelector('h6').innerText;
-					fondoName = selF15.parentElement.querySelector('h6').innerText;
-				} else {
-					menuType = "Incompleto";
-				}*/
 
 				if (selE20 && selF20 || selE20 && selF15 || selE15 && selF20) {
 					menuPrice = 20;
@@ -1416,21 +1398,31 @@
 
 		$('#btnConfirmarPedido').on('click', async function (e) {
 			e.preventDefault();
+			$('#btnConfirmarPedido').prop('disabled', true);
+			
+			const datosBlade = @json(Auth::user());
+			const direccionBlade = @json(Auth::user()?->direccion);
+			const datosUser = window.datosUsuario || datosBlade || null;
+			const direccionUser = window.direccionUsuario || direccionBlade || null;
 
-			const esInvitado = !@json(Auth::check());
+			
+			const esInvitado = !datosUser;
+			// Datos del cliente
+			const nombre     = $('input[name="guest_name"]').val() || datosUser?.name || '';
+			const telefono   = $('input[name="guest_phone"]').val() || datosUser?.telefono || '';
+			const direccion  = $('input[name="guest_address"]').val() || direccionUser?.direccion || '';
+			const referencia = $('input[name="guest_reference"]').val() || direccionUser?.referencia || '';
+			const lat        = parseFloat($('input[name="guest_lat"]').val()) || parseFloat(direccionUser?.lat) || 0;
+			const lon        = parseFloat($('input[name="guest_lon"]').val()) || parseFloat(direccionUser?.lon) || 0;
+			const email      = datosUser?.email || '';
+			const distrito_id= $('select[name="guest_distrito"]').val() || direccionUser?.id_distrito || null;
+			const user_id    = datosUser?.id || null;
 
-			// Validar datos del cliente
-			const nombre  = $('input[name="guest_name"]').val() || @json(Auth::user()->name ?? '');
-			const telefono = $('input[name="guest_phone"]').val() || @json(Auth::user()->telefono ?? '');
-			const direccion = $('input[name="guest_address"]').val() || @json(Auth::user()->direccion->direccion ?? '');
-			const referencia = $('input[name="guest_referencia"]').val() || @json(Auth::user()->direccion->referencia ?? '');
-			const lat = parseFloat($('#lat').val()) || @json(Auth::user()->direccion->lat ?? 0);
-			const lon = parseFloat($('#lon').val()) || @json(Auth::user()->direccion->lon ?? 0);
-			const email = @json(Auth::user()->email ?? '');
 
-			if (!nombre || !telefono || !direccion) {
-				return Swal.fire('Faltan datos', 'Completa nombre, teléfono y dirección', 'warning');
-			}
+			const comentarios  = $('textarea[name="comentarios"]').val();
+			const orderData = JSON.parse($('#orderData').val());
+			const horaSelect = $('select[name="hora_llegada"] option:selected');
+			const minutosLlegada = parseInt(horaSelect.data('minutos') || 0);
 
 			// Validar pagos
 			const tipoPago = $('select[name="tipo_pago"]').val();
@@ -1438,10 +1430,35 @@
 			const hora = $('select[name="hora_llegada"]').val();
 			const vuelto = $('input[name="vuelto"]').val();
 			const documento_comprobante = $('input[name="documento_comprobante"]').val();
+			const desea_comprobante = $('select[name="desea_comprobante"]').val();
 
-			if (!tipoPago || !compPago || !hora) {
-				return Swal.fire('Campos incompletos', 'Selecciona método de pago, comprobante y hora de llegada', 'warning');
+
+			if (!nombre || !telefono || !direccion) {
+				$('#btnConfirmarPedido').prop('disabled', false);
+				return Swal.fire('Faltan datos', 'Completa nombre, teléfono y dirección', 'warning');
+				
 			}
+
+			if (!tipoPago || !desea_comprobante || !hora) {
+				$('#btnConfirmarPedido').prop('disabled', false);
+				return Swal.fire('Campos incompletos', 'Selecciona método de pago, comprobante y hora de llegada', 'warning');
+				
+			}
+
+			// Si el método de pago es efectivo (1), validar el campo vuelto
+			if (tipoPago === '1' && (!vuelto || vuelto.trim() === '')) {
+				$('#btnConfirmarPedido').prop('disabled', false);
+				return Swal.fire('Falta indicar el vuelto', 'Pon con cuánto dinero en efectivo vas a pagar (Para llevarte vuelto).', 'warning');
+			}
+
+			// Si desea comprobante, validar tipo de comprobante y documento
+			if (desea_comprobante === '1') {
+				if (!compPago || !documento_comprobante) {
+					$('#btnConfirmarPedido').prop('disabled', false);
+					return Swal.fire('Campos incompletos', 'Selecciona el tipo de comprobante e ingresa tu DNI o RUC', 'warning');
+				}
+			}
+			
 
 			// Obtener comensales y productos (asumiendo que ya los tienes en JS)
 			const comensales = obtenerComensales(); // función tuya que agrupa los productos por comensal
@@ -1449,10 +1466,16 @@
 			comensales.forEach(com => {
 				com.productos.forEach(prod => productos.push(prod));
 			});
+			if (productos.length === 0) {
+				
+				$('#btnConfirmarPedido').prop('disabled', false);
+				return Swal.fire('Sin productos', 'Debes seleccionar al menos un producto.', 'warning');
+				
+			}
 
 			// Mostrar loading
 			Swal.fire({ title: 'Procesando pedido...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
+			console.log(comensales);
 			try {
 				const res = await fetch("{{ route('pedido.store') }}", {
 					method: 'POST',
@@ -1466,11 +1489,16 @@
 						direccion,
 						referencia,
 						email,
+						distrito_id,
+						user_id,
+						comentarios,
+						desea_comprobante,
 						lat,
 						lon,
 						tipo_pago: tipoPago,
 						comprobante_pago: compPago,
 						hora_llegada: hora,
+						minutos_llegada: minutosLlegada,
 						vuelto,
 						documento_comprobante,
 						comensales,
@@ -1485,11 +1513,14 @@
 				}
 
 				Swal.fire('¡Pedido registrado!', 'Gracias por tu compra.', 'success').then(() => {
-					window.location.href = '/gracias'; // redirección
+					window.location.href = '/misordenes'; // redirección
 				});
 
 			} catch (error) {
+				console.error(error);
+				$('#btnConfirmarPedido').prop('disabled', false);
 				Swal.fire('Error', error.message, 'error');
+				
 			}
 		});
 
@@ -1552,6 +1583,14 @@
 					if (response.success) {
 						Swal.fire('¡Bienvenido!', 'Sesión iniciada correctamente', 'success');
 
+						// ✅ Obtener datos del usuario y guardarlos en variables globales
+						$.get('/check-auth', function (userData) {
+							if (userData.auth) {
+								window.datosUsuario = userData.user;
+								window.direccionUsuario = userData.direccion;
+							}
+						});
+
 						$.ajax({
 							url: '/partial/header-sidebar',
 							type: 'GET',
@@ -1586,26 +1625,6 @@
 		}
 
 
-		function crearCuenta() {
-			const nombre = document.getElementById('new_name').value;
-			const email = document.getElementById('new_email').value;
-			const password = document.getElementById('new_password').value;
-
-			if (!nombre || !email || !password) {
-				Swal.fire({
-					icon: 'warning',
-					title: 'Completa los campos',
-				});
-				return;
-			}
-
-			Swal.fire({
-				icon: 'success',
-				title: 'Cuenta creada',
-				text: 'Simulación: deberías enviar estos datos al backend.'
-			});
-		}
-
 
 		$('#btnCrearCuenta').on('click', function () {
 			let nombre = $('#registro_nombre').val();
@@ -1632,7 +1651,7 @@
 				success: function (response) {
 					if (response.success) {
 						$('#modalCrearCuenta').modal('hide');
-						
+
 						// Cargar sidebar y header actualizados
 						$.ajax({
 							url: '/partial/header-sidebar',
@@ -1716,6 +1735,8 @@
 			}
 		}
 
+		let user_id;
+
 		function guardarDireccion() {
 			const tipo = $('#direccion_tipo').val();
 			const distrito_id = $('#direccion_distrito').val();
@@ -1723,6 +1744,7 @@
 			const direccion = $('#direccion_direccion').val();
 			const referencia = $('#direccion_referencia').val();
 			const coords = $('#coordenadasMapa').text();
+			user_id = (@json(Auth::check())) ? @json(Auth::id()) : null;
 			lat = marcador.getLatLng().lat;
 			lon = marcador.getLatLng().lng;
 
@@ -1739,6 +1761,7 @@
 					distrito_id,
 					direccion,
 					referencia,
+					user_id,
 					lat,
 					lon,
 					_token: '{{ csrf_token() }}'
@@ -1761,6 +1784,13 @@
 									<div id="miniMapa" style="width: 100%; height: 180px;"></div>
 								</div>
 							</div>`;
+
+						$.get('/check-auth', function (userData) {
+							if (userData.auth) {
+								window.datosUsuario = userData.user;
+								window.direccionUsuario = userData.direccion;
+							}
+						});
 
 
 						// Mostrar en paso 3 debajo de auth-container
@@ -1899,11 +1929,10 @@
 		});
 
 		$(document).ready(function() {
-			// Elementos
 			const $vueltoInputWrapper = $('input[name="vuelto"]').closest('.mb-3');
 			const $documentoInputWrapper = $('#documento_comprobante').closest('.mb-3');
+			const $comprobanteWrapper = $('#comprobante_pago').closest('.mb-3');
 
-			// Función para actualizar visibilidad de "Vuelto"
 			function toggleVuelto() {
 				const tipoPago = $('#tipo_pago').val();
 				if (tipoPago === '1') {
@@ -1914,7 +1943,6 @@
 				}
 			}
 
-			// Función para actualizar visibilidad de "DNI o RUC"
 			function toggleDocumento() {
 				const comp = $('#comprobante_pago').val();
 				if (['1', '2', '3'].includes(comp)) {
@@ -1925,14 +1953,32 @@
 				}
 			}
 
-			// Ocultar por defecto si no aplica
-			toggleVuelto();
-			toggleDocumento();
+			function toggleComprobanteOptions() {
+				const desea = $('#desea_comprobante').val();
+				console.log(desea);
+				if (desea === '1') {
+					$comprobanteWrapper.next('.nice-select').show();
+					toggleDocumento();
+				} else {
+					$comprobanteWrapper.hide();
+					$comprobanteWrapper.next('.nice-select').hide();
+					$documentoInputWrapper.hide();
+					$documentoInputWrapper.next('.nice-select').hide();
+					$('#comprobante_pago').val('');
+					$('#documento_comprobante').val('');
+				}
+			}
 
-			// Detectar cambios
+			// Inicialmente ocultar comprobante y documento
+			toggleComprobanteOptions();
+			toggleVuelto();
+
+			// Eventos
 			$('#tipo_pago').on('change', toggleVuelto);
 			$('#comprobante_pago').on('change', toggleDocumento);
+			$('#desea_comprobante').on('change', toggleComprobanteOptions);
 		});
+
 
 
 		let mapaGuest;
@@ -1984,29 +2030,42 @@
 		function obtenerComensales() {
 			const comensales = [];
 
-			$('.comensal-tab').each(function () {
-				const id = $(this).data('id');
-				const nombre = $(this).find('input[name="nombre_comensal"]').val() || `Comensal ${id}`;
-				const user_id = $(this).data('user') || null;
+			for (let i = 0; i < comensalCount; i++) {
+				const $tab = $(`#comensal${i}`);
+				const nombre = comensalNombres[i] || `Comensal ${i + 1}`;
+				user_id = (i === 0 && @json(Auth::check())) ? @json(Auth::id()) : null;
 
 				const productos = [];
 
-				$(this).find('.producto-seleccionado').each(function () {
+				$tab.find('input[type="radio"]:checked, input[type="checkbox"]:checked').each(function () {
 					productos.push({
-						id: $(this).data('id'),
-						cantidad: parseInt($(this).find('.cantidad').val()),
-						precio: parseFloat($(this).data('precio')),
-						categoria: $(this).data('categoria')
+						id: $(this).val(),
+						cantidad: 1
 					});
 				});
 
 				comensales.push({
-					id,
+					id: i,
 					nombre,
 					user_id,
 					productos
 				});
+			}
+
+			// Obtener extras del paso 2 y asignarlos al primer comensal
+			const extras = [];
+			$('.extra-item').each(function () {
+				const cantidad = parseInt($(this).find('.extra-qty').val());
+				if (cantidad > 0) {
+					extras.push({
+						id: $(this).data('extra-id'),
+						cantidad
+					});
+				}
 			});
+			if (extras.length > 0 && comensales.length > 0) {
+				comensales[0].productos.push(...extras);
+			}
 
 			return comensales;
 		}

@@ -12,7 +12,8 @@ use App\Http\Controllers\PlaneacionMenuController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\PedidoController;
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\OrdenController;
 
 /*
 Route::get('/', function () {
@@ -26,12 +27,16 @@ Route::get('/', [Inicio::class, 'inicio']);
 Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
 Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
 
-// web.php
+//login y registro con ajax
 Route::post('/login-ajax', [LoginController::class, 'loginAjax'])->name('login.ajax');
 Route::post('/register-ajax', [RegisterController::class, 'registerAjax'])->name('register.ajax');
 Route::get('/partial/auth-form', function () {
     return view('layouts.partials.auth-form');
 })->name('partial.auth.form');
+
+
+//registrar pedido 
+Route::post('/registrar-pedido', [PedidoController::class, 'store'])->name('pedido.store');
 
 // Protected routes - requires authentication
 Route::middleware(['auth'])->group(function () {
@@ -82,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
     Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
 
+    //renderizar menu con ajax
     Route::get('/partial/header-sidebar', function () {
         return response()->json([
             'header' => view('partials.header')->render(),
@@ -90,19 +96,25 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->middleware('auth');
 
+    //grabar direccion en home
     Route::post('/direccion/guardar', [Inicio::class, 'guardarDireccion'])->name('direccion.guardar');
     Route::get('/direccion/partial', [Inicio::class, 'mostrarDireccionesPopup'])->name('direccion.partial')->middleware('auth');
-    Route::get('/check-auth', fn () => response()->json([
-            'auth' => auth()->check(),
-            'user' => auth()->user(),
-        ]))->middleware('auth');
     Route::post('/direccion/actualizar-principal', [Inicio::class, 'actualizarPrincipal'])->name('direccion.actualizarPrincipal');
 
-    Route::post('/registrar-pedido', [PedidoController::class, 'store'])->name('pedido.store');
+    //verificar si tiene sesión abierta con ajax
+    Route::get('/check-auth', function () {
+    return response()->json([
+            'auth' => auth()->check(),
+            'user' => auth()->user(),
+            'direccion' => auth()->user()?->direccion
+        ]);
+    })->middleware('auth');
 
+
+    //Mis Ordenes
+    Route::get('/misordenes', [OrdenController::class, 'ordenes'])->name('misordenes');
 
     // Usuarios Edit.
-
     Route::get('/usuariosEditPerfil', [EditUserController::class, 'index'])->name('usuarios.edit_usuario');
     Route::post('/usuariosEditPerfil/update', [EditUserController::class, 'update'])->name('usuarios.update_profile');
     Route::post('/usuariosEditPerfil/upload-image', [EditUserController::class, 'uploadImage'])->name('usuarios.upload_image');

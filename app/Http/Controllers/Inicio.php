@@ -11,6 +11,7 @@ use App\Models\ComprobantePago;
 use App\Models\Distrito;
 use App\Models\DireccionUser;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Inicio extends Controller
 {
@@ -23,6 +24,34 @@ class Inicio extends Controller
      * @param Request $request
      * @return \Illuminate\View\View
      */
+
+     private function obtenerProductosPorCategoria($categoriaId, $fecha)
+    {
+        return Producto::select(
+            'productos.id',
+            'productos.id_categoria',
+            'productos.nombre',
+            'productos.descripcion',
+            'productos.imagen',
+            'planeacion_menu.precio',
+            DB::raw('planeacion_menu.stock_diario - COALESCE((
+                SELECT SUM(pedido_detalles.cantidad)
+                FROM pedido_detalles
+                JOIN pedidos ON pedidos.id = pedido_detalles.id_pedido
+                WHERE pedido_detalles.id_producto = productos.id
+                AND DATE(pedidos.created_at) = "' . $fecha . '"
+                AND pedidos.estado != 9
+            ), 0) as stock_restante')
+        )
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('categorias.id', $categoriaId)
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $fecha)
+        ->having('stock_restante', '>', 0)
+        ->get();
+    }
+
     public function inicio(Request $request)
     {
         // Obtenemos la fecha actual
@@ -33,81 +62,13 @@ class Inicio extends Controller
         $distrito = Distrito::all();
 
 
-        $entradas15 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
-        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
-        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
-        ->where('categorias.id', 1)
-        ->where('productos.estado', 1)
-        ->whereDate('planeacion_menu.fecha_plan', $hoy)
-        ->where('planeacion_menu.stock_diario', '>', 0)
-        ->get();
-
-
-        // Entradas S/20
-        $entradas20 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
-        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
-        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
-        ->where('categorias.id', 2)
-        ->where('productos.estado', 1)
-        ->whereDate('planeacion_menu.fecha_plan', $hoy)
-        ->where('planeacion_menu.stock_diario', '>', 0)
-        ->get();
-
-
-        // Fondos S/15
-        $fondos15 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
-        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
-        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
-        ->where('categorias.id', 3)
-        ->where('productos.estado', 1)
-        ->whereDate('planeacion_menu.fecha_plan', $hoy)
-        ->where('planeacion_menu.stock_diario', '>', 0)
-        ->get();
-
-
-        // Fondos S/20
-        $fondos20 = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
-        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
-        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
-        ->where('categorias.id', 4)
-        ->where('productos.estado', 1)
-        ->whereDate('planeacion_menu.fecha_plan', $hoy)
-        ->where('planeacion_menu.stock_diario', '>', 0)
-        ->get();
-
-
-        // Platos a la carta (id=5)
-        $platosCarta = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
-        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
-        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
-        ->where('categorias.id', 5)
-        ->where('productos.estado', 1)
-        ->whereDate('planeacion_menu.fecha_plan', $hoy)
-        ->where('planeacion_menu.stock_diario', '>', 0)
-        ->get();
-
-
-        // Combos (id=6)
-        $combos = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
-        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
-        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
-        ->where('categorias.id', 6)
-        ->where('productos.estado', 1)
-        ->whereDate('planeacion_menu.fecha_plan', $hoy)
-        ->where('planeacion_menu.stock_diario', '>', 0)
-        ->get();
-
-
-
-        // Extras (Categoría extras, id = 7)
-        $extras = Producto::select('productos.id','productos.id_categoria','productos.nombre','productos.descripcion','productos.imagen','productos.descripcion', 'planeacion_menu.precio')
-        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
-        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
-        ->where('categorias.id', 7)
-        ->where('productos.estado', 1)
-        ->whereDate('planeacion_menu.fecha_plan', $hoy)
-        ->where('planeacion_menu.stock_diario', '>', 0)
-        ->get();
+        $entradas15 = $this->obtenerProductosPorCategoria(1, $hoy);
+        $entradas20 = $this->obtenerProductosPorCategoria(2, $hoy);
+        $fondos15   = $this->obtenerProductosPorCategoria(3, $hoy);
+        $fondos20   = $this->obtenerProductosPorCategoria(4, $hoy);
+        $platosCarta = $this->obtenerProductosPorCategoria(5, $hoy);
+        $combos      = $this->obtenerProductosPorCategoria(6, $hoy);
+        $extras      = $this->obtenerProductosPorCategoria(7, $hoy);
 
         return view('inicio', compact('entradas15', 'fondos15', 'entradas20', 'fondos20', 'extras','platosCarta','combos','horasLlegada', 'tiposPago', 'comprobantesPago','distrito'));
     }
