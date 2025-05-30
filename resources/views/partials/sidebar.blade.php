@@ -64,7 +64,7 @@
                                 </a>
                                 <ul aria-expanded="false">
                                     <li><a href="/">Inicio</a></li>
-                                    <li><a href="food-order.html">Mis ordenes</a></li>
+                                    <li><a href="/misordenes">Mis ordenes</a></li>
                                     @if(str_ends_with(request()->getHost(), '.test'))
                                     <li><a href="favorite-menu.html">Mis favoritos</a></li>
                                     <li><a href="bill.html">Historial</a></li>    
