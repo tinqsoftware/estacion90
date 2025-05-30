@@ -12,7 +12,7 @@ use App\Http\Controllers\PlaneacionMenuController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\PedidoController;
+use App\Http\Controllers\PedidoController;
 
 /*
 Route::get('/', function () {
@@ -32,6 +32,8 @@ Route::post('/register-ajax', [RegisterController::class, 'registerAjax'])->name
 Route::get('/partial/auth-form', function () {
     return view('layouts.partials.auth-form');
 })->name('partial.auth.form');
+
+Route::post('/registrar-pedido', [PedidoController::class, 'store'])->name('pedido.store');
 
 // Protected routes - requires authentication
 Route::middleware(['auth'])->group(function () {
@@ -96,15 +98,12 @@ Route::middleware(['auth'])->group(function () {
         return response()->json([
             'auth' => auth()->check(),
             'user' => auth()->user(),
+            'direccion' => auth()->user()?->direccion
         ]);
     })->middleware('auth');
     Route::post('/direccion/actualizar-principal', [Inicio::class, 'actualizarPrincipal'])->name('direccion.actualizarPrincipal');
 
-    Route::post('/registrar-pedido', [PedidoController::class, 'store'])->name('pedido.store');
-
-
     // Usuarios Edit.
-
     Route::get('/usuariosEditPerfil', [EditUserController::class, 'index'])->name('usuarios.edit_usuario');
     Route::post('/usuariosEditPerfil/update', [EditUserController::class, 'update'])->name('usuarios.update_profile');
     Route::post('/usuariosEditPerfil/upload-image', [EditUserController::class, 'uploadImage'])->name('usuarios.upload_image');

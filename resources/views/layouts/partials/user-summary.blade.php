@@ -39,11 +39,22 @@
         const latu = {{Auth::user()->direccion->lat}};
         const lngu = {{Auth::user()->direccion->lon}};
         setTimeout(() => {
-            const miniMapau = L.map('miniMapa').setView([latu, lngu], 15);
+            const miniMapau = L.map('miniMapa', {
+                center: [latu, lngu],
+                zoom: 15,
+                dragging: false,           // deshabilita mover el mapa con el mouse
+                scrollWheelZoom: false,    // deshabilita zoom con la rueda del mouse
+                doubleClickZoom: false,    // deshabilita zoom con doble clic
+                boxZoom: false,            // deshabilita zoom con arrastre de caja
+                tap: false,                // deshabilita interacción táctil (en móviles)
+                touchZoom: false,          // deshabilita pinch-to-zoom
+                zoomControl: true          // muestra los botones de zoom (+/-)
+            });
+
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(miniMapau);
             L.marker([latu, lngu]).addTo(miniMapau);
 
-            // 🔥 Solución clave: forzar redimensionamiento del mapa
+            // Forzar redimensionamiento del contenedor por si se renderizó oculto
             setTimeout(() => {
                 miniMapau.invalidateSize();
             }, 300);

@@ -26,6 +26,7 @@ class Pedido extends Model
         'fecha_programada',
         'hora_programada',
         'id_tipopago',
+        'vuelo',
         'id_comprobantepago',
         'id_horallegada',
         'id_distrito_contacto',
