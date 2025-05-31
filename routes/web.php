@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\ControllerPopupDia;
 use App\Http\Controllers\EditUserController;
@@ -125,5 +126,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Cocina Rutas.
 
-    Route::get('/cocina', [App\Http\Controllers\CocinaController::class, 'index'])->name('cocina.index');
+    Route::get('/cocina', [CocinaController::class, 'index'])->name('cocina.index');
+    Route::get('/cocina/new-orders', [CocinaController::class, 'getNewOrders'])->name('cocina.new-orders');
+    Route::post('/pedidos/update-status', [CocinaController::class, 'updateStatus'])->name('pedidos.update-status');
+    Route::get('/cocina/orders-by-date', [CocinaController::class, 'getOrdersByDate'])->name('cocina.orders-by-date');
+    Route::get('/cocina/days-with-orders', [CocinaController::class, 'getDaysWithOrders'])->name('cocina.days-with-orders');
 });
