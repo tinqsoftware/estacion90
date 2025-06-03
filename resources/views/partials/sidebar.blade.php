@@ -41,6 +41,7 @@
                                 <li><a href="/menuSemanal">Menu Semanal</a></li>
                                 <li><a href="/usuarios">Usuarios</a></li>
                                 <li><a href="/popups">PopUps</a></li>
+                                <li><a href="/cocina">Cocina</a></li>
                             </ul>
                         </li>
                         @if(str_ends_with(request()->getHost(), '.test'))
