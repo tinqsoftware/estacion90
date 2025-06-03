@@ -42,6 +42,7 @@
                                 <li><a href="/usuarios">Usuarios</a></li>
                                 <li><a href="/popups">PopUps</a></li>
                                 <li><a href="/cocina">Cocina</a></li>
+                                <li><a href="/admin/config">Administrador</a></li>
                             </ul>
                         </li>
                         @if(str_ends_with(request()->getHost(), '.test'))

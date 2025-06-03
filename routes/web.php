@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdministradorController;
 use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\ControllerPopupDia;
@@ -131,4 +132,25 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pedidos/update-status', [CocinaController::class, 'updateStatus'])->name('pedidos.update-status');
     Route::get('/cocina/orders-by-date', [CocinaController::class, 'getOrdersByDate'])->name('cocina.orders-by-date');
     Route::get('/cocina/days-with-orders', [CocinaController::class, 'getDaysWithOrders'])->name('cocina.days-with-orders');
+
+    // Administrador Routes
+
+    Route::get('/admin/config', [AdministradorController::class, 'index'])->name('admin.config');
+
+// TipoPago
+    Route::get('/admin/tipopago/listar', [AdministradorController::class, 'listarTiposPago'])->name('admin.tipoPago.listar');
+    Route::post('/admin/tipopago/guardar', [AdministradorController::class, 'guardarTipoPago'])->name('admin.tipoPago.guardar');
+    Route::post('/admin/tipopago/cambiarestado', [AdministradorController::class, 'cambiarEstadoTipoPago'])->name('admin.tipoPago.cambiarEstado');
+
+// ComprobantePago
+    Route::get('/admin/comprobante/listar', [AdministradorController::class, 'listarComprobantes'])->name('admin.comprobante.listar');
+    Route::post('/admin/comprobante/guardar', [AdministradorController::class, 'guardarComprobante'])->name('admin.comprobante.guardar');
+    Route::post('/admin/comprobante/cambiarestado', [AdministradorController::class, 'cambiarEstadoComprobante'])->name('admin.comprobante.cambiarEstado');
+
+// HoraLlegada
+    Route::get('/admin/horallegada/listar', [AdministradorController::class, 'listarHorasLlegada'])->name('admin.horaLlegada.listar');
+    Route::post('/admin/horallegada/guardar', [AdministradorController::class, 'guardarHoraLlegada'])->name('admin.horaLlegada.guardar');
+    Route::get('/admin/horallegada/obtener', [AdministradorController::class, 'obtenerHoraLlegada'])->name('admin.horaLlegada.obtener');
+    Route::post('/admin/horallegada/actualizar', [AdministradorController::class, 'actualizarHoraLlegada'])->name('admin.horaLlegada.actualizar');
+    Route::post('/admin/horallegada/cambiarestado', [AdministradorController::class, 'cambiarEstadoHoraLlegada'])->name('admin.horaLlegada.cambiarEstado');
 });
