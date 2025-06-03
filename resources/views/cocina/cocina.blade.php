@@ -334,7 +334,7 @@
     }
 
     // Function to mark an order as completed (state 9) and remove it from view
-    function completeOrder(orderId, cardElement) {
+    function completeOrder(orderId, cardElement, finalStatus = '9') {
         // Get the current container
         const container = cardElement.parentNode;
 
@@ -346,7 +346,7 @@
         // Update counters
         updateCounters();
 
-        // Send update to server to change status to 9 (completed)
+        // Send update to server to change status
         fetch('/pedidos/update-status', {
                 method: 'POST',
                 headers: {
@@ -355,7 +355,7 @@
                 },
                 body: JSON.stringify({
                     order_id: orderId,
-                    status: '9'
+                    status: finalStatus
                 })
             })
             .then(response => response.json())
@@ -703,21 +703,21 @@
 
         // Build HTML for ordered items
         let itemsHTML = '';
-        Object.keys(itemsByProduct).forEach(productName => {
-            const item = itemsByProduct[productName];
-            const quantityText = item.count > 1 ? ` x${item.count}` : ' x1';
-            const hasImage = item.producto.imagen ? `<div class="item-image">FOTO</div>` : '';
+Object.keys(itemsByProduct).forEach(productName => {
+    const item = itemsByProduct[productName];
+    const quantityText = item.count > 1 ? ` x${item.count}` : ' x1';
+    const hasImage = item.producto.imagen ? `<div class="item-image">FOTO</div>` : '';
 
-            itemsHTML += `
+    itemsHTML += `
     <div class="order-item">
         ${hasImage}
         <div class="item-name">${productName} ${quantityText}</div>
         <div class="status-buttons">
             <div class="status-btn status-blue ${order.estado === '2' ? 'active' : ''}" title="En Proceso"></div>
-            <div class="status-btn status-red ${order.estado === '1' ? 'active' : ''}" title="Pendiente"></div>
+            <div class="status-btn status-red" title="Rechazado"></div>
         </div>
     </div>`;
-        });
+});
 
         card.innerHTML = `
         <div class="drag-handle">⋮⋮</div>
@@ -749,19 +749,19 @@
                 const cardElement = this.closest('.card');
                 const orderId = cardElement.dataset.orderId;
 
-                // Toggle the active state only on this specific button
+                // Toggle active state based on which button was clicked
                 if (this.classList.contains('status-blue')) {
-                    // If clicking blue button, activate it and deactivate red
+                    // Clicking blue button: activate blue, deactivate red
                     this.classList.add('active');
                     itemElement.querySelector('.status-btn.status-red').classList.remove('active');
-
-                    // Move the entire card to proceso container
-                    moveCardToProcess(orderId, cardElement);
                 } else if (this.classList.contains('status-red')) {
-                    // If clicking red button, just toggle this item
-                    this.classList.toggle('active');
+                    // Clicking red button: activate red, deactivate blue
+                    this.classList.add('active');
                     itemElement.querySelector('.status-btn.status-blue').classList.remove('active');
                 }
+
+                // Always move card to proceso container when any button is clicked
+                moveCardToProcess(orderId, cardElement);
 
                 // Visual feedback for just this item
                 itemElement.classList.add('item-updated');
@@ -769,7 +769,7 @@
                     itemElement.classList.remove('item-updated');
                 }, 1000);
 
-                // Check if all items are now blue and active (for completion)
+                // Check if all items are now red or all blue
                 checkForCompletedOrder(cardElement);
             });
         });
@@ -923,24 +923,36 @@
     function checkForCompletedOrder(cardElement) {
         const allItems = cardElement.querySelectorAll('.order-item');
         let allBlueActive = true;
+        let allRedActive = true;
 
-        // Check if all blue buttons are active
+        // Check if all items are marked with the same status
         allItems.forEach(item => {
             const blueBtn = item.querySelector('.status-btn.status-blue');
+            const redBtn = item.querySelector('.status-btn.status-red');
+
+            // Check blue status
             if (!blueBtn || !blueBtn.classList.contains('active')) {
                 allBlueActive = false;
             }
+
+            // Check red status
+            if (!redBtn || !redBtn.classList.contains('active')) {
+                allRedActive = false;
+            }
         });
 
-        // If all items are marked blue, complete the order
-        if (allBlueActive) {
+        // If all items are marked with the same status
+        if (allBlueActive || allRedActive) {
             // Visual feedback - highlight the whole card
             cardElement.classList.add('order-completed');
 
             // After animation, remove the card and update the backend
             setTimeout(() => {
                 const orderId = cardElement.dataset.orderId;
-                completeOrder(orderId, cardElement);
+
+                // Complete with different status based on which buttons are active
+                const finalStatus = allBlueActive ? '9' : '5';
+                completeOrder(orderId, cardElement, finalStatus);
             }, 1500);
         }
     }
@@ -1234,13 +1246,6 @@
         gap: 5px;
     }
 
-    .status-btn {
-        width: 22px;
-        height: 22px;
-        border-radius: 3px;
-        cursor: pointer;
-        border: 1px solid #ddd;
-    }
 
     .status-blue {
         background-color: #4a90e2;
@@ -1248,10 +1253,6 @@
 
     .status-red {
         background-color: #e74c3c;
-    }
-
-    .status-btn.active {
-        border: 2px solid #000;
     }
 
     .customer-comment {
@@ -1443,16 +1444,42 @@
         cursor: pointer;
         border: 1px solid #ddd;
         transition: all 0.2s ease;
+        opacity: 0.5;
     }
 
     .status-btn:hover {
+        opacity: 1;
         transform: scale(1.1);
         box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
     }
 
     .status-btn.active {
+        opacity: 1;
         border: 2px solid #000;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Change animation for rejected orders */
+    .order-completed.rejected {
+        animation: reject-flash 1.5s ease;
+    }
+
+    @keyframes reject-flash {
+        0% {
+            background-color: white;
+            transform: scale(1);
+        }
+
+        50% {
+            background-color: #ffcccc;
+            transform: scale(1.05);
+        }
+
+        100% {
+            background-color: #e74c3c;
+            transform: scale(0.9);
+            opacity: 0;
+        }
     }
     </style>
 
