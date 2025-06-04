@@ -88,13 +88,13 @@
         transition: background-color 0.2s;
         border: 1px solid #ddd;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        
+
     }
 
     .calendar-day:hover {
         background-color: #e9ecef;
         border-color: #ced4da;
-        
+
     }
 
     .calendar-day.empty {
@@ -215,6 +215,71 @@
             left: -25px;
         }
     }
+
+
+    /* Estilos para el modal de clonar menú */
+    .modal-calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+    }
+
+    .modal-calendar-grid .calendar-day {
+        cursor: pointer;
+        text-align: center;
+        padding: 6px;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-calendar-grid .calendar-day.empty {
+        background-color: transparent;
+        border: none;
+    }
+
+    .modal-calendar-grid .calendar-day.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #f5f5f5;
+    }
+
+    .modal-calendar-grid .calendar-day.has-menu {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        font-weight: bold;
+    }
+
+    .modal-calendar-grid .calendar-day.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #0056b3;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+        transform: scale(1.1);
+        z-index: 2;
+    }
+
+    #modalClonarMenu .table-sm td {
+        padding: 0.3rem;
+        font-size: 0.875rem;
+    }
+
+    /* Botón Clonar Menú */
+    .btn-clonar-menu {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-clonar-menu:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+        color: white;
+    }
     </style>
 
 </head>
@@ -290,6 +355,77 @@
             Footer end
         ***********************************-->
 
+        <div class="modal fade" id="modalClonarMenu" tabindex="-1" aria-labelledby="modalClonarMenuLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalClonarMenuLabel">Clonar Menú</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Calendario en el lado izquierdo -->
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <button class="btn btn-sm btn-outline-secondary modal-prev-month">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                            <h5 class="mb-0" id="modal-current-month">MAYO</h5>
+                                            <button class="btn btn-sm btn-outline-secondary modal-next-month">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="calendar-weekdays mb-1">
+                                            <div>D</div>
+                                            <div>L</div>
+                                            <div>M</div>
+                                            <div>M</div>
+                                            <div>J</div>
+                                            <div>V</div>
+                                            <div>S</div>
+                                        </div>
+                                        <div class="modal-calendar-grid">
+                                            <!-- Días generados dinámicamente -->
+                                            <div class="text-center">Cargando calendario...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabla del menú en el lado derecho -->
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Menú seleccionado: <span id="modal-selected-date">Seleccione
+                                                una
+                                                fecha</span></h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="modal-menu-content">
+                                            <p class="text-center text-muted">Seleccione una fecha con menú para
+                                                visualizar
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="btn-copiar-menu" disabled>
+                            <i class="fas fa-copy me-1"></i>Copiar este menú
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 
@@ -320,6 +456,286 @@
         const nextMonthButton = document.querySelector('.next-month');
         const currentMonthElement = document.getElementById('current-month');
         const calendarGridContainer = document.querySelector('.calendar-grid');
+
+        // Variables para el modal de clonación
+        let modalCurrentYear = new Date().getFullYear();
+        let modalCurrentMonth = new Date().getMonth();
+        let selectedMenuDate = null;
+        let menuToClone = null;
+
+        // Referencias a elementos del DOM del modal
+        const modalCalendarGrid = document.querySelector('.modal-calendar-grid');
+        const modalCurrentMonthElement = document.getElementById('modal-current-month');
+        const modalPrevMonthButton = document.querySelector('.modal-prev-month');
+        const modalNextMonthButton = document.querySelector('.modal-next-month');
+        const modalSelectedDate = document.getElementById('modal-selected-date');
+        const modalMenuContent = document.getElementById('modal-menu-content');
+        const btnCopiarMenu = document.getElementById('btn-copiar-menu');
+
+        // Event listeners para los botones de navegación del modal
+        if (modalPrevMonthButton) {
+            modalPrevMonthButton.addEventListener('click', function() {
+                modalCurrentMonth--;
+                if (modalCurrentMonth < 0) {
+                    modalCurrentMonth = 11;
+                    modalCurrentYear--;
+                }
+                renderModalCalendar(modalCurrentYear, modalCurrentMonth);
+            });
+        }
+
+        if (modalNextMonthButton) {
+            modalNextMonthButton.addEventListener('click', function() {
+                modalCurrentMonth++;
+                if (modalCurrentMonth > 11) {
+                    modalCurrentMonth = 0;
+                    modalCurrentYear++;
+                }
+                renderModalCalendar(modalCurrentYear, modalCurrentMonth);
+            });
+        }
+
+        // Event listener para el botón "Clonar Menú"
+        $(document).on('click', '.btn-clonar-menu', function() {
+            const targetDate = $(this).data('date');
+
+            // Resetear el estado del modal
+            selectedMenuDate = null;
+            menuToClone = null;
+            btnCopiarMenu.disabled = true;
+            modalMenuContent.innerHTML =
+                '<p class="text-center text-muted">Seleccione una fecha con menú para visualizar</p>';
+            modalSelectedDate.textContent = 'Seleccione una fecha';
+
+            // Inicializar el calendario del modal
+            const targetDateObj = new Date(targetDate + 'T12:00:00');
+            modalCurrentYear = targetDateObj.getFullYear();
+            modalCurrentMonth = targetDateObj.getMonth();
+
+            renderModalCalendar(modalCurrentYear, modalCurrentMonth);
+
+            // Mostrar el modal
+            const modalClonarMenu = new bootstrap.Modal(document.getElementById('modalClonarMenu'));
+            modalClonarMenu.show();
+        });
+
+        // Función para renderizar el calendario del modal
+        function renderModalCalendar(year, month) {
+            // Actualizar el título del mes
+            modalCurrentMonthElement.textContent = monthNames[month];
+
+            // Mostrar indicador de carga
+            modalCalendarGrid.innerHTML = '<div class="text-center py-3">Cargando...</div>';
+
+            // Hacer solicitud AJAX para obtener los días con menú
+            fetch(`/api/calendar-with-menu?year=${year}&month=${month+1}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Datos recibidos del calendario:', data);
+                    // Usar days_with_menu en lugar de daysWithMenu (según el formato de respuesta del API)
+                    renderModalCalendarDays(year, month, data.days_with_menu || []);
+                })
+                .catch(error => {
+                    console.error('Error cargando calendario del modal:', error);
+                    modalCalendarGrid.innerHTML =
+                        `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                    renderModalCalendarDays(year, month, []);
+                });
+        }
+
+        // Función para renderizar los días en el calendario del modal
+        function renderModalCalendarDays(year, month, daysWithMenu) {
+            modalCalendarGrid.innerHTML = '';
+
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+            let firstWeekday = firstDayOfMonth.getDay();
+            const totalDays = lastDayOfMonth.getDate();
+
+            // Añadir celdas vacías para los días antes del primer día del mes
+            for (let i = 0; i < firstWeekday; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-day empty';
+                modalCalendarGrid.appendChild(emptyCell);
+            }
+
+            // Crear celdas para cada día del mes
+            for (let day = 1; day <= totalDays; day++) {
+                const formattedDate =
+                    `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                const hasMenu = daysWithMenu.includes(formattedDate);
+
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day' + (hasMenu ? ' has-menu' : '');
+                dayCell.textContent = day;
+                dayCell.dataset.date = formattedDate;
+
+                if (hasMenu) {
+                    dayCell.addEventListener('click', function() {
+                        // Marcar este día como seleccionado
+                        document.querySelectorAll('.modal-calendar-grid .calendar-day').forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        this.classList.add('active');
+
+                        // Cargar el menú para este día
+                        loadMenuForModal(this.dataset.date);
+                    });
+                } else {
+                    dayCell.classList.add('disabled');
+                    dayCell.title = 'No hay menú disponible para esta fecha';
+                }
+
+                modalCalendarGrid.appendChild(dayCell);
+            }
+        }
+
+        // Función para cargar el menú para el modal
+        function loadMenuForModal(date) {
+            selectedMenuDate = date;
+            modalSelectedDate.textContent = formatDateToSpanish(date);
+            modalMenuContent.innerHTML =
+                '<div class="text-center py-3"><div class="spinner-border spinner-border-sm" role="status"></div> Cargando menú...</div>';
+
+            // Hacer solicitud AJAX para obtener el menú del día seleccionado
+            fetch(`/api/menu-day?date=${date}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Datos del menú recibidos:', data);
+                    if (data.items && data.items.length > 0) {
+                        // Almacenar los datos del menú para clonación
+                        menuToClone = data.items;
+
+                        // Habilitar el botón de copiar
+                        btnCopiarMenu.disabled = false;
+
+                        // Renderizar la tabla del menú
+                        renderMenuTable(data.items);
+                    } else {
+                        modalMenuContent.innerHTML =
+                            '<p class="text-center text-muted">No hay menú disponible para esta fecha</p>';
+                        btnCopiarMenu.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando menú para modal:', error);
+                    modalMenuContent.innerHTML =
+                        `<div class="alert alert-danger">Error al cargar el menú: ${error.message}</div>`;
+                    btnCopiarMenu.disabled = true;
+                });
+        }
+
+        // Función para renderizar la tabla de menú en el modal
+        function renderMenuTable(items) {
+            // Agrupar los items por categoría
+            const itemsByCategory = {};
+            items.forEach(item => {
+                if (!itemsByCategory[item.categoria_id]) {
+                    itemsByCategory[item.categoria_id] = [];
+                }
+                itemsByCategory[item.categoria_id].push(item);
+            });
+
+            // Crear la tabla
+            let tableHtml = `
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th>Entrada S/15.00</th>
+                        <th>Entrada S/20.00</th>
+                        <th>Fondo S/15.00</th>
+                        <th>Fondo S/20.00</th>
+                        <th>Carta</th>
+                        <th>Combos</th>
+                        <th>Extras</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            // Determinar el número máximo de filas necesarias
+            const maxRows = Math.max(
+                (itemsByCategory[1] || []).length,
+                (itemsByCategory[2] || []).length,
+                (itemsByCategory[3] || []).length,
+                (itemsByCategory[4] || []).length,
+                (itemsByCategory[5] || []).length,
+                (itemsByCategory[6] || []).length,
+                (itemsByCategory[7] || []).length
+            );
+
+            // Crear filas para la tabla
+            for (let i = 0; i < maxRows; i++) {
+                tableHtml += '<tr>';
+                for (let catId = 1; catId <= 7; catId++) {
+                    const category = itemsByCategory[catId] || [];
+                    const item = category[i];
+
+                    if (item) {
+                        tableHtml += `
+                    <td>
+                        <div>${item.producto_nombre}</div>
+                        <div class="small"><b>${item.stock_diario}</b> - (S/${item.precio})</div>
+                    </td>`;
+                    } else {
+                        tableHtml += '<td></td>';
+                    }
+                }
+                tableHtml += '</tr>';
+            }
+
+            tableHtml += '</tbody></table></div>';
+
+            // Insertar la tabla en el contenido del modal
+            modalMenuContent.innerHTML = tableHtml;
+        }
+
+        // Event listener para el botón de copiar menú
+        if (btnCopiarMenu) {
+            btnCopiarMenu.addEventListener('click', function() {
+                if (!selectedMenuDate || !menuToClone) return;
+
+                // Obtener la fecha objetivo del botón que abrió el modal
+                const targetDate = document.querySelector('.btn-clonar-menu').dataset.date;
+
+                // Confirmar la clonación antes de redirigir
+                Swal.fire({
+                    title: 'Confirmar clonación',
+                    html: `¿Está seguro de clonar el menú del <b>${formatDateToSpanish(selectedMenuDate)}</b> al <b>${formatDateToSpanish(targetDate)}</b>?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, clonar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a la página de agregar menú con los parámetros
+                        window.location.href =
+                            `/menusemana/agregar/${targetDate}?clone_from=${selectedMenuDate}`;
+                    }
+                });
+            });
+        }
+
+        // Función para formatear fecha en español
+        function formatDateToSpanish(dateStr) {
+            const date = new Date(dateStr + 'T12:00:00');
+            const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const monthNames = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+                'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+            ];
+
+            return `${dayNames[date.getDay()]} ${date.getDate()} de ${monthNames[date.getMonth()]} de ${date.getFullYear()}`;
+        }
 
 
         document.getElementById('add-menu-btn').addEventListener('click', function() {
@@ -530,7 +946,12 @@
                         dayElement.innerHTML = `
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2>${dateHeader}</h2>
-        <button class="btn btn-outline-dark btn-sm" data-date="${dateStr}">EDITAR</button>
+        ${dayData.items && dayData.items.length > 0 ? 
+  `<button class="btn btn-outline-dark btn-sm" data-date="${dateStr}">EDITAR</button>` : 
+  `<button type="button" class="btn btn-info btn-sm btn-clonar-menu" data-date="${dateStr}">
+    <i class="fas fa-clone me-1"></i>Clonar Menú
+  </button>`
+}
     </div>
     <div class="table-responsive">
         <table class="table table-bordered equal-width-table">
@@ -649,6 +1070,10 @@
         }
     });
     </script>
+
+    <!--  Calendario  -->
+
+
 
     <style>
     .equal-width-table {
