@@ -263,7 +263,7 @@
                         if (pedido.estado === '2') {
                             procesoContainer.appendChild(card);
                             procesoCount++;
-                        } else {
+                        } else { // Status 0 or 1 go to pendientes
                             pendientesContainer.appendChild(card);
                             pendientesCount++;
                         }
@@ -337,11 +337,15 @@
     function completeOrder(orderId, cardElement, finalStatus = '9') {
         // Get the current container
         const container = cardElement.parentNode;
+        const containerId = container.id;
 
         // Replace with an empty slot
         const emptySlot = document.createElement('div');
         emptySlot.className = 'empty-slot';
         container.replaceChild(emptySlot, cardElement);
+
+        // Reorder cards to eliminate gaps
+        reorderCards(containerId);
 
         // Update counters
         updateCounters();
@@ -703,21 +707,31 @@
 
         // Build HTML for ordered items
         let itemsHTML = '';
-Object.keys(itemsByProduct).forEach(productName => {
-    const item = itemsByProduct[productName];
-    const quantityText = item.count > 1 ? ` x${item.count}` : ' x1';
-    const hasImage = item.producto.imagen ? `<div class="item-image">FOTO</div>` : '';
+        Object.keys(itemsByProduct).forEach(productName => {
+            const item = itemsByProduct[productName];
+            const quantityText = item.count > 1 ? ` x${item.count}` : ' x1';
 
-    itemsHTML += `
+            // Generate proper image HTML instead of "FOTO" text placeholder
+            let imageHtml = '';
+            if (item.producto.imagen) {
+                // Use the image path directly since it's already in the correct format
+                imageHtml =
+                    `<div class="item-image"><img src="/${item.producto.imagen}" alt="${productName}"></div>`;
+            } else {
+                // Default placeholder when no image is available
+                imageHtml = `<div class="item-image-placeholder"><i class="fa fa-image"></i></div>`;
+            }
+
+            itemsHTML += `
     <div class="order-item">
-        ${hasImage}
+        ${imageHtml}
         <div class="item-name">${productName} ${quantityText}</div>
         <div class="status-buttons">
-            <div class="status-btn status-blue ${order.estado === '2' ? 'active' : ''}" title="En Proceso"></div>
-            <div class="status-btn status-red" title="Rechazado"></div>
+            <div class="status-btn status-blue-unpainted" title="En Proceso"></div>
+            <div class="status-btn status-red-unpainted" title="Rechazado"></div>
         </div>
     </div>`;
-});
+        });
 
         card.innerHTML = `
         <div class="drag-handle">⋮⋮</div>
@@ -750,14 +764,44 @@ Object.keys(itemsByProduct).forEach(productName => {
                 const orderId = cardElement.dataset.orderId;
 
                 // Toggle active state based on which button was clicked
-                if (this.classList.contains('status-blue')) {
-                    // Clicking blue button: activate blue, deactivate red
+                if (this.classList.contains('status-blue-unpainted')) {
+                    // Clicking blue button: activate blue, transform to active
+                    this.classList.remove('status-blue-unpainted');
+                    this.classList.add('status-blue');
                     this.classList.add('active');
-                    itemElement.querySelector('.status-btn.status-red').classList.remove('active');
+
+                    const redBtn = itemElement.querySelector('.status-red-unpainted, .status-red');
+                    if (redBtn) {
+                        redBtn.classList.remove('active');
+                        redBtn.classList.remove('status-red');
+                        redBtn.classList.add('status-red-unpainted');
+                    }
+                } else if (this.classList.contains('status-red-unpainted')) {
+                    // Clicking red button: activate red, transform to active
+                    this.classList.remove('status-red-unpainted');
+                    this.classList.add('status-red');
+                    this.classList.add('active');
+
+                    const blueBtn = itemElement.querySelector('.status-blue-unpainted, .status-blue');
+                    if (blueBtn) {
+                        blueBtn.classList.remove('active');
+                        blueBtn.classList.remove('status-blue');
+                        blueBtn.classList.add('status-blue-unpainted');
+                    }
+                } else if (this.classList.contains('status-blue')) {
+                    // Already active blue button - toggle active state
+                    this.classList.toggle('active');
+                    if (!this.classList.contains('active')) {
+                        this.classList.remove('status-blue');
+                        this.classList.add('status-blue-unpainted');
+                    }
                 } else if (this.classList.contains('status-red')) {
-                    // Clicking red button: activate red, deactivate blue
-                    this.classList.add('active');
-                    itemElement.querySelector('.status-btn.status-blue').classList.remove('active');
+                    // Already active red button - toggle active state
+                    this.classList.toggle('active');
+                    if (!this.classList.contains('active')) {
+                        this.classList.remove('status-red');
+                        this.classList.add('status-red-unpainted');
+                    }
                 }
 
                 // Always move card to proceso container when any button is clicked
@@ -803,7 +847,7 @@ Object.keys(itemsByProduct).forEach(productName => {
                 if (pedido.estado === '2') {
                     procesoContainer.appendChild(card);
                     procesoCount++;
-                } else {
+                } else { // Status 0 or 1 go to pendientes
                     pendientesContainer.appendChild(card);
                     pendientesCount++;
                 }
@@ -879,6 +923,28 @@ Object.keys(itemsByProduct).forEach(productName => {
         setTimeout(() => {
             cardElement.classList.remove('status-updated');
         }, 1000);
+    }
+
+    // Function to reorder cards after one is removed
+    function reorderCards(containerId) {
+        const container = document.getElementById(containerId);
+
+        // Get all cards and empty slots
+        const cards = Array.from(container.querySelectorAll('.card'));
+        const emptySlots = Array.from(container.querySelectorAll('.empty-slot'));
+
+        // Clear the container
+        container.innerHTML = '';
+
+        // First add all cards back in order
+        cards.forEach(card => {
+            container.appendChild(card);
+        });
+
+        // Then add empty slots at the end
+        emptySlots.forEach(slot => {
+            container.appendChild(slot);
+        });
     }
 
     // Check for new orders periodically
@@ -1225,15 +1291,35 @@ Object.keys(itemsByProduct).forEach(productName => {
     }
 
     .item-image {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
         margin-right: 8px;
-        width: 30px;
-        height: 30px;
-        background-color: #eee;
+        border-radius: 4px;
+        overflow: hidden;
+        background-color: #f5f5f5;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
-        border-radius: 3px;
+    }
+
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .item-image-placeholder {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        margin-right: 8px;
+        border-radius: 4px;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
     }
 
     .item-name {
@@ -1480,6 +1566,30 @@ Object.keys(itemsByProduct).forEach(productName => {
             transform: scale(0.9);
             opacity: 0;
         }
+    }
+
+    .status-btn.status-blue-unpainted {
+        background-color: #ffffff;
+        border: 1px solid #4a90e2;
+    }
+
+    .status-btn.status-red-unpainted {
+        background-color: #ffffff;
+        border: 1px solid #e74c3c;
+    }
+
+    .status-btn.status-blue.active {
+        background-color: #4a90e2;
+        opacity: 1;
+        border: 2px solid #000;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-btn.status-red.active {
+        background-color: #e74c3c;
+        opacity: 1;
+        border: 2px solid #000;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     }
     </style>
 
