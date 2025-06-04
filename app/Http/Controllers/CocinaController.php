@@ -89,4 +89,89 @@ public function getDaysWithOrders(Request $request)
         
     return response()->json($dates);
 }
+
+public function updateItemStatus(Request $request)
+{
+    try {
+        // Get the pedido detalle record
+        $detalle = \App\Models\PedidoDetalle::where('id_pedido', $request->order_id)
+            ->where('id_producto', $request->product_id)
+            ->first();
+
+        if (!$detalle) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Order item not found'
+            ]);
+        }
+
+        // Update the status
+        $detalle->estado = $request->status;
+        $detalle->save();
+
+        // Now recalculate the overall order status
+        $pedido = Pedido::findOrFail($request->order_id);
+        
+        // Get all product statuses for this order
+        $detalles = $pedido->detalles;
+        
+        // Determine order status based on product statuses
+        $allFinished = true;
+        $anyInProcess = false;
+        $anyRejected = false;
+        $allMarked = true;
+        
+        foreach ($detalles as $item) {
+            // Check if any item is not marked (estado is null or 0)
+            if ($item->estado === null || $item->estado == '0') {
+                $allMarked = false;
+                $allFinished = false;
+            }
+            
+            // Check if any item is in process
+            if ($item->estado == '1') {
+                $anyInProcess = true;
+                $allFinished = false;
+            }
+            
+            // Check if any item is rejected
+            if ($item->estado == '3') {
+                $anyRejected = true;
+            }
+            
+            // Check if any item is not finished
+            if ($item->estado != '2') {
+                $allFinished = false;
+            }
+        }
+        
+        // Determine new order status
+        if ($allMarked && $anyRejected) {
+            // If all items are marked and at least one is rejected
+            $newOrderStatus = '9'; // "Pedido Combinado"
+        } elseif ($allFinished) {
+            $newOrderStatus = '2'; // All products completed
+        } elseif ($anyInProcess) {
+            $newOrderStatus = '1'; // At least one product in process
+        } else {
+            $newOrderStatus = '0'; // Default - pending
+        }
+        
+        // Only update if status changed
+        if ($pedido->estado != $newOrderStatus) {
+            $pedido->estado = $newOrderStatus;
+            $pedido->save();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'new_order_status' => $newOrderStatus
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false, 
+            'message' => $e->getMessage()
+        ]);
+    }
+}
 }

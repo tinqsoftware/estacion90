@@ -135,6 +135,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pedidos/update-status', [CocinaController::class, 'updateStatus'])->name('pedidos.update-status');
     Route::get('/cocina/orders-by-date', [CocinaController::class, 'getOrdersByDate'])->name('cocina.orders-by-date');
     Route::get('/cocina/days-with-orders', [CocinaController::class, 'getDaysWithOrders'])->name('cocina.days-with-orders');
+     Route::post('/cocina/update-item-status', [CocinaController::class, 'updateItemStatus'])->name('cocina.update-item-status');
 
     // Administrador Routes
 

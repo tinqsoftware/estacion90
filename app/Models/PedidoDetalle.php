@@ -14,6 +14,7 @@ class PedidoDetalle extends Model
         'id_producto',
         'cantidad',
         'precio',
+        'estado',
         'created_at',
         'updated_at'
     ];
