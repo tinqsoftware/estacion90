@@ -463,6 +463,16 @@
         }
     }
 
+    function handleOrderCompletion(cardElement, orderId, status) {
+        // Add animation class
+        cardElement.classList.add(status === '9' ? 'order-completed-combined' : 'order-completed');
+
+        // After animation, remove card and update backend
+        setTimeout(() => {
+            completeOrder(orderId, cardElement, status);
+        }, 1500);
+    }
+
     function handleDrop(e) {
         e.preventDefault();
         this.classList.remove('drag-over');
@@ -488,6 +498,91 @@
 
             updateCounters();
         }
+    }
+
+    // Function to update button styles based on status
+    function updateButtonStyles(itemElement, status) {
+        const leftButton = itemElement.querySelector('[data-cycle-button]');
+        const rightButton = itemElement.querySelector('.status-btn:not([data-cycle-button])');
+
+        // Reset all classes first
+        leftButton.className = 'status-btn';
+        leftButton.classList.remove('active');
+        rightButton.classList.remove('active');
+
+        // Set appropriate classes based on new status
+        if (status === '1') {
+            leftButton.classList.add('status-blue', 'active');
+            rightButton.className = 'status-btn status-red-unpainted';
+        } else if (status === '2') {
+            leftButton.classList.add('status-green', 'active');
+            rightButton.className = 'status-btn status-red-unpainted';
+        } else if (status === '3') {
+            leftButton.className = 'status-btn status-gray';
+            rightButton.className = 'status-btn status-red active';
+        } else {
+            // Status 0 or default
+            leftButton.className = 'status-btn status-gray';
+            rightButton.className = 'status-btn status-red-unpainted';
+        }
+    }
+
+    // Function to update individual product status
+    function updateProductStatus(orderId, productId, status, cardElement) {
+        fetch('/cocina/update-item-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    product_id: productId,
+                    status: status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // If server reports a change in overall order status
+                    if (data.new_order_status) {
+                        // Update card appearance based on overall order status
+                        updateCardStatus(cardElement, data.new_order_status);
+
+                        // If the order is now completed or combined (status 2 or 9), show success animation
+                        if (data.new_order_status === '2' || data.new_order_status === '9') {
+                            handleOrderCompletion(cardElement, orderId, data.new_order_status);
+                        }
+
+                        // If the order status changed to "in process", move to proceso container
+                        if (data.new_order_status === '1') {
+                            moveCardToProcess(orderId, cardElement);
+                        }
+                    }
+                } else {
+                    console.error('Error updating item status:', data.message || 'Unknown error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function updateCardStatus(cardElement, status) {
+        // Remove all status classes first
+        cardElement.classList.remove('card-pending', 'card-in-process', 'card-completed', 'card-combined');
+
+        // Add appropriate class based on status
+        if (status === '1') {
+            cardElement.classList.add('card-in-process');
+        } else if (status === '2') {
+            cardElement.classList.add('card-completed');
+        } else if (status === '9') {
+            cardElement.classList.add('card-combined');
+        } else {
+            cardElement.classList.add('card-pending');
+        }
+
+        // Update data attribute
+        cardElement.dataset.orderStatus = status;
     }
 
     // Function to update individual item status
@@ -710,27 +805,46 @@
         Object.keys(itemsByProduct).forEach(productName => {
             const item = itemsByProduct[productName];
             const quantityText = item.count > 1 ? ` x${item.count}` : ' x1';
+            const productId = item.producto.id || '';
 
             // Generate proper image HTML instead of "FOTO" text placeholder
             let imageHtml = '';
             if (item.producto.imagen) {
-                // Use the image path directly since it's already in the correct format
                 imageHtml =
                     `<div class="item-image"><img src="/${item.producto.imagen}" alt="${productName}"></div>`;
             } else {
-                // Default placeholder when no image is available
                 imageHtml = `<div class="item-image-placeholder"><i class="fa fa-image"></i></div>`;
             }
 
+            // Determine initial status based on data from backend
+            // Default is state 0 (gray/unpainted)
+            const itemStatus = item.producto.estado || '0';
+
+            // Set button classes based on status
+            let leftButtonClass, rightButtonClass;
+
+            // Left button (for states 0->1->2 cycle)
+            if (itemStatus === '1') {
+                leftButtonClass = 'status-btn status-blue active';
+            } else if (itemStatus === '2') {
+                leftButtonClass = 'status-btn status-green active';
+            } else {
+                leftButtonClass = 'status-btn status-gray';
+            }
+
+            // Right button (for state 3 - rejected)
+            rightButtonClass = itemStatus === '3' ? 'status-btn status-red active' :
+                'status-btn status-red-unpainted';
+
             itemsHTML += `
-    <div class="order-item">
-        ${imageHtml}
-        <div class="item-name">${productName} ${quantityText}</div>
-        <div class="status-buttons">
-            <div class="status-btn status-blue-unpainted" title="En Proceso"></div>
-            <div class="status-btn status-red-unpainted" title="Rechazado"></div>
-        </div>
-    </div>`;
+<div class="order-item" data-product-id="${productId}" data-status="${itemStatus}">
+    ${imageHtml}
+    <div class="item-name">${productName} ${quantityText}</div>
+    <div class="status-buttons">
+        <div class="${leftButtonClass}" data-cycle-button="true" title="Ciclar estados: Pendiente → En Proceso → Completado"></div>
+        <div class="${rightButtonClass}" title="Rechazado"></div>
+    </div>
+</div>`;
         });
 
         card.innerHTML = `
@@ -758,63 +872,61 @@
         const statusButtons = card.querySelectorAll('.status-btn');
         statusButtons.forEach(button => {
             button.addEventListener('click', function() {
-                // Get the item element (parent of the button's parent)
+                // Get the item element, card element, and order ID
                 const itemElement = this.closest('.order-item');
                 const cardElement = this.closest('.card');
                 const orderId = cardElement.dataset.orderId;
+                const productId = itemElement.dataset.productId;
 
-                // Toggle active state based on which button was clicked
-                if (this.classList.contains('status-blue-unpainted')) {
-                    // Clicking blue button: activate blue, transform to active
-                    this.classList.remove('status-blue-unpainted');
-                    this.classList.add('status-blue');
-                    this.classList.add('active');
+                // Get current status from the item element's data attribute
+                let currentStatus = itemElement.dataset.status || '0';
+                let newStatus;
 
-                    const redBtn = itemElement.querySelector('.status-red-unpainted, .status-red');
-                    if (redBtn) {
-                        redBtn.classList.remove('active');
-                        redBtn.classList.remove('status-red');
-                        redBtn.classList.add('status-red-unpainted');
+                // Determine which button was clicked
+                if (this.dataset.cycleButton) {
+                    // Left button - cycles through states 0->1->2->0
+                    switch (currentStatus) {
+                        case '0':
+                            newStatus = '1'; // Pending -> In Process
+                            updateButtonStyles(itemElement, newStatus);
+                            break;
+                        case '1':
+                            newStatus = '2'; // In Process -> Completed
+                            updateButtonStyles(itemElement, newStatus);
+                            break;
+                        case '2':
+                            newStatus = '0'; // Completed -> Back to Pending
+                            updateButtonStyles(itemElement, newStatus);
+                            break;
+                        case '3':
+                            newStatus = '1'; // If was rejected, set to In Process
+                            updateButtonStyles(itemElement, newStatus);
+                            break;
+                        default:
+                            newStatus = '1';
+                            updateButtonStyles(itemElement, newStatus);
                     }
-                } else if (this.classList.contains('status-red-unpainted')) {
-                    // Clicking red button: activate red, transform to active
-                    this.classList.remove('status-red-unpainted');
-                    this.classList.add('status-red');
-                    this.classList.add('active');
-
-                    const blueBtn = itemElement.querySelector('.status-blue-unpainted, .status-blue');
-                    if (blueBtn) {
-                        blueBtn.classList.remove('active');
-                        blueBtn.classList.remove('status-blue');
-                        blueBtn.classList.add('status-blue-unpainted');
+                } else {
+                    // Right button - toggles rejected state
+                    if (currentStatus === '3') {
+                        newStatus = '0'; // If already rejected, set back to pending
+                    } else {
+                        newStatus = '3'; // Set to rejected
                     }
-                } else if (this.classList.contains('status-blue')) {
-                    // Already active blue button - toggle active state
-                    this.classList.toggle('active');
-                    if (!this.classList.contains('active')) {
-                        this.classList.remove('status-blue');
-                        this.classList.add('status-blue-unpainted');
-                    }
-                } else if (this.classList.contains('status-red')) {
-                    // Already active red button - toggle active state
-                    this.classList.toggle('active');
-                    if (!this.classList.contains('active')) {
-                        this.classList.remove('status-red');
-                        this.classList.add('status-red-unpainted');
-                    }
+                    updateButtonStyles(itemElement, newStatus);
                 }
 
-                // Always move card to proceso container when any button is clicked
-                moveCardToProcess(orderId, cardElement);
+                // Update the data attribute for future reference
+                itemElement.dataset.status = newStatus;
 
-                // Visual feedback for just this item
+                // Send update to server
+                updateProductStatus(orderId, productId, newStatus, cardElement);
+
+                // Visual feedback for the updated item
                 itemElement.classList.add('item-updated');
                 setTimeout(() => {
                     itemElement.classList.remove('item-updated');
                 }, 1000);
-
-                // Check if all items are now red or all blue
-                checkForCompletedOrder(cardElement);
             });
         });
 
