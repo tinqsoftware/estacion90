@@ -62,6 +62,21 @@
                 <!-- Contenedor de notificaciones -->
 <div id="notification-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999; width: 300px;"></div>
 
+@if((isset($cloneItems) && count($cloneItems) > 0 && !request()->has('confirmar')) || $clonacionExitosa)
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    @if($clonacionExitosa)
+        <strong><i class="fas fa-check-circle me-2"></i>Menú clonado exitosamente!</strong> Los elementos se han agregado al menú de esta fecha.
+    @else
+        <strong><i class="fas fa-clone me-2"></i>Menú clonado:</strong> Se ha cargado el menú del día {{ $cloneFromFormateado }}. 
+        <a href="{{ url('/menusemana/agregar/'.$fecha.'?clone_from='.request()->query('clone_from').'&confirmar=1') }}" class="btn btn-success btn-sm ms-2">
+            <i class="fas fa-check me-1"></i>Confirmar clonación
+        </a>
+    @endif
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+
 <!-- Botón volver -->
 <div class="row mb-3 align-items-center">
     <div class="col-md-6">
@@ -339,6 +354,46 @@
 
 
     <script>
+         document.addEventListener('DOMContentLoaded', function() {
+        // Datos de los elementos clonados
+        const clonedItems = @json($cloneItems);
+
+        const clonacionExitosaAlert = document.querySelector('.alert:has(i.fa-check-circle)');
+    if (clonacionExitosaAlert) {
+        setTimeout(function() {
+            // Usar Bootstrap para ocultar el alert
+            const bsAlert = new bootstrap.Alert(clonacionExitosaAlert);
+            bsAlert.close();
+        }, 4000);
+    }
+        
+        // Para cada elemento clonado, simulamos su adición a la tabla
+        clonedItems.forEach(item => {
+            // Rellenar el select correspondiente
+            const catSelector = `.custom-col[data-categoria="${item.categoria_id}"] .producto-select`;
+            const select = document.querySelector(catSelector);
+            
+            if (select) {
+                // Seleccionar el producto
+                select.value = item.producto_id;
+                
+                // Disparar evento change para actualizar campos dependientes
+                const event = new Event('change');
+                select.dispatchEvent(event);
+                
+                // Rellenar campos de stock y precio
+                const col = select.closest('.custom-col');
+                col.querySelector('.stock-input').value = item.stock_diario;
+                col.querySelector('.precio-input').value = item.precio;
+                
+                // Simular clic en botón añadir
+                setTimeout(() => {
+                    col.querySelector('.btn-anadir').click();
+                }, 100);
+            }
+        });
+    });
+
     $(document).ready(function() {
 
         $('#btn-volver').on('click', function(e) {
@@ -734,20 +789,6 @@ function reorganizarTabla() {
         padding: 3px 8px !important;
     }
     
-    /* Adjust styling for mobile devices */
-    @media (max-width: 767.98px) {
-        .producto-select, 
-        .bootstrap-select .dropdown-toggle,
-        .bootstrap-select .dropdown-menu,
-        .bootstrap-select .bs-searchbox .form-control {
-            font-size: 0.7rem !important;
-        }
-        
-        .col-md-2 {
-            padding-left: 5px;
-            padding-right: 5px;
-        }
-    }
 
 
     #notification-container .alert {
@@ -871,15 +912,7 @@ br {
     display: none !important;
 }
 
-/* Fix for mobile displays */
-@media (max-width: 992px) {
-    .custom-col {
-        flex: 0 0 22% !important;
-        max-width: 22% !important;
-        margin-right: 1.5% !important;
-        margin-left: 1.5% !important;
-    }
-}
+
 </style>
 
 

@@ -218,13 +218,65 @@ public function eliminarMenu($id)
         return response()->json($menuItem);
     }
 
-    public function agregar(Request $request){
+public function agregar(Request $request, $fecha = null)
+{
     // Get date from request or default to today
-    $fecha = $request->fecha ?? Carbon::today()->toDateString();
+    $fecha = $fecha ?? Carbon::today()->toDateString();
     $fechaObj = Carbon::parse($fecha);
     
     // Format the date for display (e.g., "Lunes 5 MAYO")
     $fechaFormateada = $fechaObj->locale('es')->isoFormat('dddd D MMMM');
+    
+    // Check if we're cloning a menu from another date
+    $cloneItems = null;
+    $cloneFromFormateado = null;
+    $clonacionExitosa = false;
+    
+    if ($request->has('clone_from')) {
+        $cloneFrom = $request->query('clone_from');
+        
+        // Format the source date for display
+        $cloneFromObj = Carbon::parse($cloneFrom);
+        $cloneFromFormateado = $cloneFromObj->locale('es')->isoFormat('dddd D MMMM');
+        
+        // Get menu items from the source date
+        $cloneItems = PlaneacionMenu::select(
+            'planeacion_menu.id',
+            'planeacion_menu.fecha_plan',
+            'planeacion_menu.stock_diario',
+            'planeacion_menu.precio',
+            'productos.nombre as producto_nombre',
+            'productos.id as producto_id',
+            'categorias.id as categoria_id'
+        )
+        ->join('productos', 'planeacion_menu.id_producto', '=', 'productos.id')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+        ->where('fecha_plan', $cloneFrom)
+        ->get();
+        
+        // Clonar los elementos directamente a la tabla si se solicita confirmar=1
+        if ($request->query('confirmar') == '1') {
+            foreach ($cloneItems as $item) {
+                // Comprobar si ya existe este producto en el menú de la fecha actual
+                $exists = PlaneacionMenu::where('fecha_plan', $fecha)
+                    ->where('id_producto', $item->producto_id)
+                    ->exists();
+                
+                if (!$exists) {
+                    // Crear una nueva entrada en el menú
+                    PlaneacionMenu::create([
+                        'fecha_plan' => $fecha,
+                        'id_producto' => $item->producto_id,
+                        'stock_diario' => $item->stock_diario,
+                        'precio' => $item->precio
+                    ]);
+                }
+            }
+            
+            // Redirigir a la URL limpia después de confirmar la clonación
+            return redirect("/menusemana/agregar/{$fecha}")->with('clonacion_exitosa', true);
+        }
+    }
     
     // Get menu items for this date
     $menuItems = PlaneacionMenu::select(
@@ -245,12 +297,91 @@ public function eliminarMenu($id)
     $productos = Producto::all();
     $categorias = Categoria::all();
     
+    // Comprobar si hay un mensaje flash de clonación exitosa
+    $clonacionExitosa = session('clonacion_exitosa', false);
+    
     return view('menu.menu_agregar', compact(
         'productos', 
         'categorias', 
         'menuItems', 
         'fecha', 
-        'fechaFormateada'
+        'fechaFormateada',
+        'cloneItems',
+        'cloneFromFormateado',
+        'clonacionExitosa'
     ));
 }
+
+    public function getDiasConMenu(Request $request)
+{
+    // Validate the request
+    $request->validate([
+        'year' => 'required|integer',
+        'month' => 'required|integer|between:1,12',
+    ]);
+    
+    $year = $request->year;
+    $month = $request->month;
+    
+    // Get days with menu data for this month
+    $daysWithMenu = PlaneacionMenu::select(DB::raw('DISTINCT DATE(fecha_plan) as date'))
+        ->whereYear('fecha_plan', $year)
+        ->whereMonth('fecha_plan', $month)
+        ->get()
+        ->pluck('date');
+    
+    return response()->json([
+        'days_with_menu' => $daysWithMenu
+    ]);
+}
+
+/**
+ * Get menu data for a specific day
+ * 
+ * @param Request $request
+ * @return \Illuminate\Http\JsonResponse
+ */
+public function getMenuDia(Request $request)
+{
+    // Validate the request
+    $request->validate([
+        'date' => 'required|date_format:Y-m-d',
+    ]);
+    
+    $date = $request->date;
+    
+    // Fetch menu data for the specified date
+    $menuItems = PlaneacionMenu::select(
+        'planeacion_menu.id',
+        'planeacion_menu.fecha_plan',
+        'planeacion_menu.stock_diario',
+        'planeacion_menu.precio',
+        'productos.id as producto_id',
+        'productos.nombre as producto_nombre',
+        'productos.descripcion as producto_descripcion',
+        'categorias.nombre as categoria_nombre',
+        'categorias.id as categoria_id'
+    )
+    ->join('productos', 'planeacion_menu.id_producto', '=', 'productos.id')
+    ->join('categorias', 'productos.id_categoria', '=', 'categorias.id')
+    ->where('fecha_plan', $date)
+    ->orderBy('categorias.id')
+    ->get();
+    
+    return response()->json([
+        'date' => $date,
+        'items' => $menuItems
+    ]);
+}
+
+/**
+ * Show the form for creating/editing a menu with clone capability
+ *
+ * @param  string  $fecha
+ * @return \Illuminate\Http\Response
+ */
+
+
+
+
 }

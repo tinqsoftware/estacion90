@@ -60,6 +60,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/menusemana/agregar/{fecha?}', [PlaneacionMenuController::class, 'agregar']);
     Route::post('/api/menu/registrar', [PlaneacionMenuController::class, 'registrarMenu']);
     Route::delete('/api/menu/eliminar/{id}', [PlaneacionMenuController::class, 'eliminarMenu']);
+    //CalendarioClon
+    Route::get('/api/calendar-with-menu', [PlaneacionMenuController::class, 'getDiasConMenu']);
+    Route::get('/api/menu-day', [PlaneacionMenuController::class, 'getMenuDia']);
 
     //Usuarios
     Route::get('/usuarios', [UsuarioController::class, 'prin']);
