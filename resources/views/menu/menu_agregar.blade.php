@@ -356,42 +356,88 @@
     <script>
          document.addEventListener('DOMContentLoaded', function() {
         // Datos de los elementos clonados
-        const clonedItems = @json($cloneItems);
-
-        const clonacionExitosaAlert = document.querySelector('.alert:has(i.fa-check-circle)');
+        const clonedItems = @json($cloneItems ?? []);
+    
+    // Auto-ocultar alerta de éxito después de 4 segundos
+    const clonacionExitosaAlert = document.querySelector('.alert:has(i.fa-check-circle)');
     if (clonacionExitosaAlert) {
         setTimeout(function() {
-            // Usar Bootstrap para ocultar el alert
             const bsAlert = new bootstrap.Alert(clonacionExitosaAlert);
             bsAlert.close();
         }, 4000);
     }
+    
+    // Si hay elementos clonados y estamos en modo previsualización (sin confirmar)
+    if (clonedItems && clonedItems.length > 0 && !window.location.href.includes('confirmar=1')) {
+        console.log('Procesando elementos clonados:', clonedItems);
         
-        // Para cada elemento clonado, simulamos su adición a la tabla
+        // Agrupar elementos por categoría
+        const itemsByCategory = {};
         clonedItems.forEach(item => {
-            // Rellenar el select correspondiente
-            const catSelector = `.custom-col[data-categoria="${item.categoria_id}"] .producto-select`;
-            const select = document.querySelector(catSelector);
-            
-            if (select) {
-                // Seleccionar el producto
-                select.value = item.producto_id;
-                
-                // Disparar evento change para actualizar campos dependientes
-                const event = new Event('change');
-                select.dispatchEvent(event);
-                
-                // Rellenar campos de stock y precio
-                const col = select.closest('.custom-col');
-                col.querySelector('.stock-input').value = item.stock_diario;
-                col.querySelector('.precio-input').value = item.precio;
-                
-                // Simular clic en botón añadir
-                setTimeout(() => {
-                    col.querySelector('.btn-anadir').click();
-                }, 100);
+            const categoriaId = item.categoria_id;
+            if (!itemsByCategory[categoriaId]) {
+                itemsByCategory[categoriaId] = [];
             }
+            itemsByCategory[categoriaId].push(item);
         });
+        
+        // Calcular número máximo de filas necesarias
+        let maxRows = 0;
+        for (let cat = 1; cat <= 7; cat++) {
+            if (itemsByCategory[cat]) {
+                maxRows = Math.max(maxRows, itemsByCategory[cat].length);
+            }
+        }
+        
+        // Obtener referencia a la tabla
+        const tableBody = document.querySelector('table.table-bordered tbody');
+        
+        // Limpiar filas existentes si es necesario
+        if (!tableBody.querySelector('tr')) {
+            // Si no hay filas, crear la cantidad necesaria
+            for (let i = 0; i < maxRows; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < 7; j++) {
+                    row.appendChild(document.createElement('td'));
+                }
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Añadir elementos a la tabla de previsualización
+        for (let cat = 1; cat <= 7; cat++) {
+            const items = itemsByCategory[cat] || [];
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                
+                // Asegurarnos de que hay suficientes filas
+                while (tableBody.children.length <= i) {
+                    const newRow = document.createElement('tr');
+                    for (let j = 0; j < 7; j++) {
+                        newRow.appendChild(document.createElement('td'));
+                    }
+                    tableBody.appendChild(newRow);
+                }
+                
+                // Crear el contenido HTML para el elemento
+                const cell = tableBody.children[i].children[cat-1];
+                cell.innerHTML = `
+                    <div>${item.producto_nombre}</div>
+                    <div class="menu-item preview-item" data-id="preview-${item.id || i}" data-producto-id="${item.producto_id}">
+                        <span class="badge bg-info me-1">Vista previa</span>
+                        <span><b>${item.stock_diario}</b> - (S/${item.precio})</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Insertar una nota sobre la previsualización sobre la tabla
+        const tableContainer = document.querySelector('.table-responsive') || document.querySelector('table').parentNode;
+        const previewNote = document.createElement('div');
+        previewNote.className = 'alert alert-warning mb-3';
+        previewNote.innerHTML = '<i class="fas fa-eye me-2"></i> <strong>Previsualización:</strong> Esta es una vista previa de los elementos que se clonarán. Haga clic en "Confirmar clonación" para guardar estos datos.';
+        tableContainer.insertBefore(previewNote, tableContainer.firstChild);
+    }
     });
 
     $(document).ready(function() {
