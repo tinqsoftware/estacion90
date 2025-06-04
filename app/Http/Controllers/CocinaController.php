@@ -13,13 +13,13 @@ class CocinaController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+   public function index()
 {
     $today = Carbon::today()->format('Y-m-d');
     
-    // Get orders scheduled for today with status 1 or 2 only
+    // Get orders scheduled for today with status 0, 1 or 2
     $pedidos = Pedido::whereDate('fecha_programada', $today)
-        ->whereIn('estado', ['1', '2'])
+        ->whereIn('estado', ['0', '1', '2'])
         ->with(['detalles.producto', 'comensales', 'horaLlegada'])
         ->get();
         
@@ -29,14 +29,14 @@ class CocinaController extends Controller
     /**
      * Get new orders via AJAX for real-time updates
      */
-    public function getNewOrders(Request $request)
+public function getNewOrders(Request $request)
 {
     $today = Carbon::today()->format('Y-m-d');
     $lastId = $request->input('last_id', 0);
     
     $newPedidos = Pedido::whereDate('fecha_programada', $today)
         ->where('id', '>', $lastId)
-        ->whereIn('estado', ['1', '2'])
+        ->whereIn('estado', ['0', '1', '2'])
         ->with(['detalles.producto', 'comensales', 'horaLlegada'])
         ->get();
         
@@ -63,7 +63,7 @@ public function getOrdersByDate(Request $request)
     $date = $request->input('date', Carbon::today()->format('Y-m-d'));
     
     $pedidos = Pedido::whereDate('fecha_programada', $date)
-        ->whereIn('estado', ['1', '2'])
+        ->whereIn('estado', ['0', '1', '2'])
         ->with(['detalles.producto', 'comensales', 'horaLlegada'])
         ->get();
         
