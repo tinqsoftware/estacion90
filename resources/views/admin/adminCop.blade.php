@@ -138,6 +138,10 @@
                                 </button>
                             </div>
                             <div class="card-body">
+                                <div class="alert alert-info mb-3">
+                                    <strong>Nota:</strong> Estos valores representan los minutos de llegada desde que se
+                                    realiza el pedido hasta la entrega.
+                                </div>
                                 <div class="table-responsive">
                                     <table id="tablaHorasLlegada" class="display" style="width:100%">
                                         <thead>
