@@ -549,8 +549,9 @@
                         // Update card appearance based on overall order status
                         updateCardStatus(cardElement, data.new_order_status);
 
-                        // If the order is now completed or combined (status 2 or 9), show success animation
-                        if (data.new_order_status === '2' || data.new_order_status === '9') {
+                        // If the order is now completed, combined, or mixed status, show success animation
+                        if (data.new_order_status === '2' || data.new_order_status === '8' || data
+                            .new_order_status === '9') {
                             handleOrderCompletion(cardElement, orderId, data.new_order_status);
                         }
 
@@ -1113,60 +1114,57 @@
 
     function checkForCompletedOrder(cardElement) {
         const allItems = cardElement.querySelectorAll('.order-item');
-        let allBlueActive = true;
-        let allRedActive = true;
+        let allCompleted = true;
+        let allRejected = true;
 
-        // Add tracking for mixed status (some completed, some rejected)
+        // Tracking variables for mixed status detection
         let hasCompleted = false;
         let hasRejected = false;
+        let hasPending = false;
+        let hasInProcess = false;
 
         // Check status of all items
         allItems.forEach(item => {
             const currentStatus = item.dataset.status;
-            const blueBtn = item.querySelector('.status-btn.status-blue');
-            const redBtn = item.querySelector('.status-btn.status-red');
 
-            // Check for completed items (status 2)
-            if (currentStatus === '2') {
+            // Check for each possible status
+            if (currentStatus === '0') {
+                hasPending = true;
+                allCompleted = false;
+                allRejected = false;
+            } else if (currentStatus === '1') {
+                hasInProcess = true;
+                allCompleted = false;
+                allRejected = false;
+            } else if (currentStatus === '2') {
                 hasCompleted = true;
-            }
-
-            // Check for rejected items (status 9)
-            if (currentStatus === '9') {
+                allRejected = false;
+            } else if (currentStatus === '9') {
                 hasRejected = true;
-            }
-
-            // Check blue status for all-blue condition
-            if (!blueBtn || !blueBtn.classList.contains('active')) {
-                allBlueActive = false;
-            }
-
-            // Check red status for all-red condition
-            if (!redBtn || !redBtn.classList.contains('active')) {
-                allRedActive = false;
+                allCompleted = false;
             }
         });
 
-        // Case 1: If all items have same status
-        if (allBlueActive || allRedActive) {
+        // Case 1: If all items are completed (estado 2)
+        if (allCompleted) {
             // Visual feedback - highlight the whole card
             cardElement.classList.add('order-completed');
-
-            // After animation, remove the card and update the backend
             setTimeout(() => {
                 const orderId = cardElement.dataset.orderId;
-
-                // Complete with different status based on which buttons are active
-                const finalStatus = allBlueActive ? '9' : '5';
-                completeOrder(orderId, cardElement, finalStatus);
+                completeOrder(orderId, cardElement, '2');
             }, 1500);
         }
-        // Case 2: Mixed status - both completed and rejected items exist
-        else if (hasCompleted && hasRejected) {
-            // Visual feedback - highlight the whole card with mixed status style
+        // Case 2: If all items are rejected (estado 9)
+        else if (allRejected) {
             cardElement.classList.add('order-completed');
-
-            // After animation, remove the card and update the backend with status 8
+            setTimeout(() => {
+                const orderId = cardElement.dataset.orderId;
+                completeOrder(orderId, cardElement, '9');
+            }, 1500);
+        }
+        // Case 3: Mixed status - both completed and rejected items exist, with NO pending or in-process items
+        else if (hasCompleted && hasRejected && !hasPending && !hasInProcess) {
+            cardElement.classList.add('order-completed');
             setTimeout(() => {
                 const orderId = cardElement.dataset.orderId;
                 completeOrder(orderId, cardElement, '8');
