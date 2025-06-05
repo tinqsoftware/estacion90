@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
     //CalendarioClon
     Route::get('/api/calendar-with-menu', [PlaneacionMenuController::class, 'getDiasConMenu']);
     Route::get('/api/menu-day', [PlaneacionMenuController::class, 'getMenuDia']);
+    Route::post('/api/menu-clone', [App\Http\Controllers\PlaneacionMenuController::class, 'clonarMenuDirecto']);
 
     //Usuarios
     Route::get('/usuarios', [UsuarioController::class, 'prin']);

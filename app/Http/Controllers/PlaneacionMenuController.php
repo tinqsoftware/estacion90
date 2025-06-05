@@ -381,7 +381,56 @@ public function getMenuDia(Request $request)
  * @return \Illuminate\Http\Response
  */
 
-
+public function clonarMenuDirecto(Request $request)
+{
+    // Validate the request
+    $request->validate([
+        'source_date' => 'required|date_format:Y-m-d',
+        'target_date' => 'required|date_format:Y-m-d',
+    ]);
+    
+    $sourceDate = $request->source_date;
+    $targetDate = $request->target_date;
+    
+    try {
+        // Begin transaction
+        DB::beginTransaction();
+        
+        // 1. Delete all existing menu items for the target date
+        PlaneacionMenu::where('fecha_plan', $targetDate)->delete();
+        
+        // 2. Get all menu items from the source date
+        $sourceItems = PlaneacionMenu::where('fecha_plan', $sourceDate)->get();
+        
+        // 3. Clone each item to the target date
+        foreach ($sourceItems as $item) {
+            PlaneacionMenu::create([
+                'fecha_plan' => $targetDate,
+                'id_producto' => $item->id_producto,
+                'stock_diario' => $item->stock_diario,
+                'precio' => $item->precio
+            ]);
+        }
+        
+        // Commit transaction
+        DB::commit();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Menu clonado correctamente',
+            'items_count' => count($sourceItems)
+        ]);
+        
+    } catch (\Exception $e) {
+        // Rollback transaction on error
+        DB::rollBack();
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al clonar el menú: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 
 }
