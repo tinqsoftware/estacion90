@@ -116,15 +116,16 @@ public function updateItemStatus(Request $request)
         $detalles = $pedido->detalles;
         
         // Determine order status based on product statuses
-        $allFinished = true;
-        $anyInProcess = false;
-        $anyRejected = false;
-        $allMarked = true;
+        $allFinished = true;         // All items have estado=2
+        $anyInProcess = false;       // Any item has estado=1
+        $anyPending = false;         // Any item has estado=0
+        $anyRejected = false;        // Any item has estado=9
+        $anyCompleted = false;       // Any item has estado=2
         
         foreach ($detalles as $item) {
-            // Check if any item is not marked (estado is null or 0)
-            if ($item->estado === null || $item->estado == '0') {
-                $allMarked = false;
+            // Check if any item is pending (estado is 0)
+            if ($item->estado == '0') {
+                $anyPending = true;
                 $allFinished = false;
             }
             
@@ -134,27 +135,31 @@ public function updateItemStatus(Request $request)
                 $allFinished = false;
             }
             
-            // Check if any item is rejected
-            if ($item->estado == '3') {
-                $anyRejected = true;
+            // Check if any item is completed
+            if ($item->estado == '2') {
+                $anyCompleted = true;
             }
             
-            // Check if any item is not finished
-            if ($item->estado != '2') {
+            // Check if any item is rejected
+            if ($item->estado == '9') {
+                $anyRejected = true;
                 $allFinished = false;
             }
         }
         
         // Determine new order status
-        if ($allMarked && $anyRejected) {
-            // If all items are marked and at least one is rejected
-            $newOrderStatus = '9'; // "Pedido Combinado"
-        } elseif ($allFinished) {
-            $newOrderStatus = '2'; // All products completed
-        } elseif ($anyInProcess) {
-            $newOrderStatus = '1'; // At least one product in process
+        if ($allFinished) {
+            // All items are completed
+            $newOrderStatus = '2';
+        } else if ($anyCompleted && $anyRejected && !$anyPending && !$anyInProcess) {
+            // Mix of completed and rejected items, but no pending or in-process items
+            $newOrderStatus = '8';
+        } else if ($anyInProcess || $anyRejected) {
+            // Any item is in process OR any item is rejected (with some items still in process)
+            $newOrderStatus = '1';
         } else {
-            $newOrderStatus = '0'; // Default - pending
+            // Default - all items pending
+            $newOrderStatus = '0';
         }
         
         // Only update if status changed
