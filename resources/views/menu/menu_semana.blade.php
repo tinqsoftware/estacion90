@@ -14,6 +14,7 @@
     <meta property="og:description" content="estacion90" />
     <meta property="og:image" content="access/images/logo_white.png" />
     <meta name="format-detection" content="telephone=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Mobile Specific 
 	<meta name="viewport" content="width=device-width, initial-scale=1">-->
@@ -519,6 +520,220 @@
             modalClonarMenu.show();
         });
 
+        $(document).on('click', '.btn-clonar-directo', function() {
+            const targetDate = $(this).data('date');
+
+            // Format the date for display
+            const targetDateObj = new Date(targetDate + 'T12:00:00');
+            const targetDateFormatted = formatDateToSpanish(targetDate);
+
+            // Show the first confirmation
+            Swal.fire({
+                title: 'Clonar Menú',
+                html: `<p>Seleccione la fecha de origen para clonar el menú hacia <b>${targetDateFormatted}</b>:</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Seleccionar Fecha',
+                cancelButtonText: 'Cancelar',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    // Show calendar picker dialog
+                    return new Promise((resolve) => {
+                        // Show a date picker
+                        Swal.fire({
+                            title: 'Seleccione Fecha de Origen',
+                            html: '<div id="swal-datepicker" class="mb-3"></div>',
+                            showCancelButton: true,
+                            confirmButtonText: 'Continuar',
+                            cancelButtonText: 'Cancelar',
+                            didOpen: () => {
+                                // Initialize date picker
+                                let selectedDate = null;
+                                let availableDates = [];
+
+                                // Get current month/year
+                                const today = new Date();
+                                const currentYear = today.getFullYear();
+                                const currentMonth = today.getMonth() +
+                                    1; // 1-indexed for API
+
+                                // Get all dates with menus
+                                fetch(
+                                        `/api/calendar-with-menu?year=${currentYear}&month=${currentMonth}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        availableDates = data
+                                            .days_with_menu || [];
+
+                                        // Create calendar display
+                                        const container = document
+                                            .getElementById(
+                                                'swal-datepicker');
+                                        container.innerHTML =
+                                            '<p>Cargando fechas disponibles...</p>';
+
+                                        if (availableDates
+                                            .length === 0) {
+                                            container.innerHTML =
+                                                '<p class="text-danger">No hay menús disponibles para clonar.</p>';
+                                            return;
+                                        }
+
+                                        // Create buttons for each available date
+                                        container.innerHTML =
+                                            '<div class="d-flex flex-wrap gap-2 justify-content-center"></div>';
+                                        const wrapper = container
+                                            .querySelector('div');
+
+                                        availableDates.forEach(
+                                            date => {
+                                                if (date ===
+                                                    targetDate)
+                                                    return; // Skip the target date
+
+                                                const dateObj =
+                                                    new Date(
+                                                        date +
+                                                        'T12:00:00'
+                                                        );
+                                                const btn =
+                                                    document
+                                                    .createElement(
+                                                        'button'
+                                                        );
+                                                btn.className =
+                                                    'btn btn-outline-secondary btn-sm date-option';
+                                                btn.dataset
+                                                    .date =
+                                                    date;
+                                                btn.innerHTML =
+                                                    `${dateObj.getDate()}/${dateObj.getMonth()+1}`;
+                                                btn.onclick =
+                                                () => {
+                                                        document
+                                                            .querySelectorAll(
+                                                                '.date-option'
+                                                                )
+                                                            .forEach(
+                                                                el =>
+                                                                el
+                                                                .classList
+                                                                .remove(
+                                                                    'btn-primary',
+                                                                    'text-white'
+                                                                    )
+                                                                );
+                                                        btn.classList
+                                                            .add(
+                                                                'btn-primary',
+                                                                'text-white'
+                                                                );
+                                                        selectedDate
+                                                            =
+                                                            date;
+                                                    };
+                                                wrapper
+                                                    .appendChild(
+                                                        btn);
+                                            });
+                                    })
+                                    .catch(error => {
+                                        container.innerHTML =
+                                            `<p class="text-danger">Error: ${error.message}</p>`;
+                                    });
+                            }
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                const selectedDate = document.querySelector(
+                                        '.date-option.btn-primary')?.dataset
+                                    .date;
+                                if (!selectedDate) {
+                                    Swal.showValidationMessage(
+                                        'Por favor seleccione una fecha'
+                                        );
+                                    return false;
+                                }
+                                resolve(selectedDate);
+                            } else {
+                                resolve(null);
+                            }
+                        });
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then(result => {
+                if (result.value) {
+                    const sourceDate = result.value;
+                    const sourceDateObj = new Date(sourceDate + 'T12:00:00');
+                    const sourceDateFormatted = formatDateToSpanish(sourceDate);
+
+                    // Final confirmation before cloning
+                    Swal.fire({
+                        title: 'Confirmar Clonación',
+                        html: `¿Está seguro de clonar el menú de <b>${sourceDateFormatted}</b> a <b>${targetDateFormatted}</b>?
+                       <p class="text-danger mt-2"><strong>¡Advertencia!</strong> Esta acción reemplazará todos los 
+                       productos existentes para ${targetDateFormatted}.</p>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, Clonar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#d33'
+                    }).then(confirmResult => {
+                        if (confirmResult.isConfirmed) {
+                            // Show loading
+                            Swal.fire({
+                                title: 'Procesando',
+                                html: 'Clonando menú, por favor espere...',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // Perform the cloning via AJAX
+                            fetch(`/api/menu-clone`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
+                                    },
+                                    body: JSON.stringify({
+                                        source_date: sourceDate,
+                                        target_date: targetDate
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire({
+                                            title: '¡Completado!',
+                                            text: 'El menú se ha clonado correctamente.',
+                                            icon: 'success',
+                                            confirmButtonText: 'Aceptar'
+                                        }).then(() => {
+                                            // Reload the page to show the updated menu
+                                            window.location.reload();
+                                        });
+                                    } else {
+                                        throw new Error(data.message ||
+                                            'Error al clonar el menú');
+                                    }
+                                })
+                                .catch(error => {
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: error.message,
+                                        icon: 'error',
+                                        confirmButtonText: 'Aceptar'
+                                    });
+                                });
+                        }
+                    });
+                }
+            });
+        });
+
         // Función para renderizar el calendario del modal
         function renderModalCalendar(year, month) {
             // Actualizar el título del mes
@@ -947,10 +1162,13 @@
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2>${dateHeader}</h2>
         ${dayData.items && dayData.items.length > 0 ? 
-  `<button class="btn btn-outline-dark btn-sm" data-date="${dateStr}">EDITAR</button>` : 
-  `<button type="button" class="btn btn-info btn-sm btn-clonar-menu" data-date="${dateStr}">
-    <i class="fas fa-clone me-1"></i>Clonar Menú
-  </button>`
+  `<button class="btn btn-outline-dark btn-sm me-2" data-date="${dateStr}">EDITAR</button>
+           <button type="button" class="btn btn-info btn-sm btn-clonar-directo" data-date="${dateStr}">
+             <i class="fas fa-clone me-1"></i>Clonar
+           </button>` : 
+          `<button type="button" class="btn btn-info btn-sm btn-clonar-menu" data-date="${dateStr}">
+             <i class="fas fa-clone me-1"></i>Clonar Menú
+           </button>`
 }
     </div>
     <div class="table-responsive">
