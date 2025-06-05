@@ -890,7 +890,7 @@
 
                 // Determine which button was clicked
                 if (this.dataset.cycleButton) {
-                    // Left button - cycles through states 0->1->2->0
+                    // Left button - cycles through states 0->1->2 (no going back from 2)
                     switch (currentStatus) {
                         case '0':
                             newStatus = '1'; // Pending -> In Process
@@ -901,9 +901,9 @@
                             updateButtonStyles(itemElement, newStatus);
                             break;
                         case '2':
-                            newStatus = '0'; // Completed -> Back to Pending
-                            updateButtonStyles(itemElement, newStatus);
-                            break;
+                            // No change - completed items stay completed
+                            newStatus = '2';
+                            return; // Exit without doing anything
                         case '9': // Changed from '3' to '9'
                             newStatus = '1'; // If was rejected, set to In Process
                             updateButtonStyles(itemElement, newStatus);
@@ -914,12 +914,12 @@
                     }
                 } else {
                     // Right button - toggles rejected state
-                    if (currentStatus === '9') { // Changed from '3' to '9'
+                    if (currentStatus === '9') {
                         newStatus = '0'; // If already rejected, set back to pending
                     } else {
-                        newStatus = '9'; // Changed from '3' to '9' - Set to rejected
+                        newStatus = '9'; // Set to rejected (this is always allowed, even for estado=2)
+                        updateButtonStyles(itemElement, newStatus);
                     }
-                    updateButtonStyles(itemElement, newStatus);
                 }
 
                 // Update the data attribute for future reference
