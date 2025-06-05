@@ -93,27 +93,26 @@ public function getDaysWithOrders(Request $request)
 public function updateItemStatus(Request $request)
 {
     try {
-        // Get the pedido detalle record
-        $detalle = \App\Models\PedidoDetalle::where('id_pedido', $request->order_id)
+        // Instead of updating a single item, update ALL items with the same product_id in this order
+        $updatedCount = \App\Models\PedidoDetalle::where('id_pedido', $request->order_id)
             ->where('id_producto', $request->product_id)
-            ->first();
+            ->update(['estado' => $request->status]);
 
-        if (!$detalle) {
+        if ($updatedCount == 0) {
             return response()->json([
                 'success' => false, 
-                'message' => 'Order item not found'
+                'message' => 'Order items not found'
             ]);
         }
-
-        // Update the status
-        $detalle->estado = $request->status;
-        $detalle->save();
 
         // Now recalculate the overall order status
         $pedido = Pedido::findOrFail($request->order_id);
         
         // Get all product statuses for this order
         $detalles = $pedido->detalles;
+        
+        // Rest of the function remains the same...
+        // [existing status determination code]
         
         // Determine order status based on product statuses
         $allFinished = true;         // All items have estado=2
