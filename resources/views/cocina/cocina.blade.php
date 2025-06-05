@@ -258,18 +258,21 @@
                 let procesoCount = 0;
 
                 pedidos.forEach(pedido => {
-                    const card = createOrderCard(pedido);
-                    if (card) {
-                        if (pedido.estado === '2') {
-                            procesoContainer.appendChild(card);
-                            procesoCount++;
-                        } else { // Status 0 or 1 go to pendientes
-                            pendientesContainer.appendChild(card);
-                            pendientesCount++;
-                        }
+                    // Only process orders with status 0 or 1
+                    if (pedido.estado === '0' || pedido.estado === '1') {
+                        const card = createOrderCard(pedido);
+                        if (card) {
+                            if (pedido.estado === '1') {
+                                procesoContainer.appendChild(card);
+                                procesoCount++;
+                            } else { // Status 0 goes to pendientes
+                                pendientesContainer.appendChild(card);
+                                pendientesCount++;
+                            }
 
-                        if (pedido.id > lastOrderId) {
-                            lastOrderId = pedido.id;
+                            if (pedido.id > lastOrderId) {
+                                lastOrderId = pedido.id;
+                            }
                         }
                     }
                 });
@@ -794,8 +797,21 @@
             if (!itemsByProduct[productName]) {
                 itemsByProduct[productName] = {
                     count: 0,
-                    producto: detalle.producto
+                    producto: detalle.producto,
+                    estado: detalle.estado || '0' // Store the estado from database
                 };
+            } else {
+                // If we have multiple items with the same product name, keep the highest status
+                // This handles cases where the same product appears multiple times with different statuses
+                const currentStatus = itemsByProduct[productName].estado || '0';
+                const newStatus = detalle.estado || '0';
+
+                // Higher priority: 2 > 1 > 9 > 0
+                if (newStatus === '2' ||
+                    (newStatus === '1' && currentStatus !== '2') ||
+                    (newStatus === '9' && currentStatus !== '2' && currentStatus !== '1')) {
+                    itemsByProduct[productName].estado = newStatus;
+                }
             }
             itemsByProduct[productName].count += detalle.cantidad || 1;
         });
@@ -947,9 +963,14 @@
         card.className = 'card';
         if (order.estado === '1') {
             card.classList.add('card-in-process');
+        } else if (order.estado === '2') {
+            card.classList.add('card-completed');
+        } else if (order.estado === '8' || order.estado === '9') {
+            card.classList.add('card-combined');
         }
 
-
+        // Also set the order status data attribute for future reference
+        card.dataset.orderStatus = order.estado;
 
         return card;
     }
@@ -968,18 +989,22 @@
         let procesoCount = 0;
 
         pedidos.forEach(pedido => {
-            const card = createOrderCard(pedido);
-            if (card) {
-                if (pedido.estado === '1') {
-                    procesoContainer.appendChild(card);
-                    procesoCount++;
-                } else { // Status 0 goes to pendientes
-                    pendientesContainer.appendChild(card);
-                    pendientesCount++;
-                }
+            // Only process orders with status 0 or 1
+            if (pedido.estado === '0' || pedido.estado === '1') {
+                const card = createOrderCard(pedido);
+                if (card) {
+                    // Orders with status 1 go to proceso container
+                    if (pedido.estado === '1') {
+                        procesoContainer.appendChild(card);
+                        procesoCount++;
+                    } else { // Orders with status 0 go to pendientes container
+                        pendientesContainer.appendChild(card);
+                        pendientesCount++;
+                    }
 
-                if (pedido.id > lastOrderId) {
-                    lastOrderId = pedido.id;
+                    if (pedido.id > lastOrderId) {
+                        lastOrderId = pedido.id;
+                    }
                 }
             }
         });

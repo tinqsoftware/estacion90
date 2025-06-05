@@ -19,7 +19,7 @@ class CocinaController extends Controller
     
     // Get orders scheduled for today with status 0, 1 or 2
     $pedidos = Pedido::whereDate('fecha_programada', $today)
-        ->whereIn('estado', ['0', '1', '2'])
+        ->whereIn('estado', ['0', '1'])
         ->with(['detalles.producto', 'comensales', 'horaLlegada'])
         ->get();
         
@@ -36,7 +36,7 @@ public function getNewOrders(Request $request)
     
     $newPedidos = Pedido::whereDate('fecha_programada', $today)
         ->where('id', '>', $lastId)
-        ->whereIn('estado', ['0', '1', '2'])
+        ->whereIn('estado', ['0', '1'])
         ->with(['detalles.producto', 'comensales', 'horaLlegada'])
         ->get();
         
@@ -63,7 +63,7 @@ public function getOrdersByDate(Request $request)
     $date = $request->input('date', Carbon::today()->format('Y-m-d'));
     
     $pedidos = Pedido::whereDate('fecha_programada', $date)
-        ->whereIn('estado', ['0', '1', '2'])
+        ->whereIn('estado', ['0', '1'])
         ->with(['detalles.producto', 'comensales', 'horaLlegada'])
         ->get();
         
@@ -79,7 +79,7 @@ public function getDaysWithOrders(Request $request)
     $endDate = $request->input('end');
     
     $dates = Pedido::whereBetween('fecha_programada', [$startDate, $endDate])
-        ->whereIn('estado', ['1', '2'])
+        ->whereIn('estado', ['0', '1'])
         ->distinct()
         ->pluck('fecha_programada')
         ->map(function($date) {
