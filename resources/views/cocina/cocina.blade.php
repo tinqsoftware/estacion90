@@ -517,7 +517,7 @@
         } else if (status === '2') {
             leftButton.classList.add('status-green', 'active');
             rightButton.className = 'status-btn status-red-unpainted';
-        } else if (status === '3') {
+        } else if (status === '9') { // Changed from '3' to '9'
             leftButton.className = 'status-btn status-gray';
             rightButton.className = 'status-btn status-red active';
         } else {
@@ -558,6 +558,19 @@
                         if (data.new_order_status === '1') {
                             moveCardToProcess(orderId, cardElement);
                         }
+                    } else {
+                        // Special case: If any item is marked as rejected (status 9), 
+                        // move the order to "En Proceso" (status 1)
+                        if (status === '9') {
+                            // Only if the card is not already in the proceso container
+                            if (cardElement.parentNode.id !== 'proceso-container') {
+                                // Move card to proceso and update order status to 1
+                                moveCardToProcess(orderId, cardElement);
+                            }
+                        }
+
+                        // Check if the order should be completed due to mixed states
+                        checkForCompletedOrder(cardElement);
                     }
                 } else {
                     console.error('Error updating item status:', data.message || 'Unknown error');
@@ -816,9 +829,9 @@
                 imageHtml = `<div class="item-image-placeholder"><i class="fa fa-image"></i></div>`;
             }
 
-            // Determine initial status based on data from backend
+            // Determine initial status based on data from pedido_detalles
             // Default is state 0 (gray/unpainted)
-            const itemStatus = item.producto.estado || '0';
+            const itemStatus = item.estado || '0';
 
             // Set button classes based on status
             let leftButtonClass, rightButtonClass;
@@ -832,8 +845,8 @@
                 leftButtonClass = 'status-btn status-gray';
             }
 
-            // Right button (for state 3 - rejected)
-            rightButtonClass = itemStatus === '3' ? 'status-btn status-red active' :
+            // Right button (for state 9 - rejected)
+            rightButtonClass = itemStatus === '9' ? 'status-btn status-red active' :
                 'status-btn status-red-unpainted';
 
             itemsHTML += `
@@ -898,7 +911,7 @@
                             newStatus = '0'; // Completed -> Back to Pending
                             updateButtonStyles(itemElement, newStatus);
                             break;
-                        case '3':
+                        case '9': // Changed from '3' to '9'
                             newStatus = '1'; // If was rejected, set to In Process
                             updateButtonStyles(itemElement, newStatus);
                             break;
@@ -908,10 +921,10 @@
                     }
                 } else {
                     // Right button - toggles rejected state
-                    if (currentStatus === '3') {
+                    if (currentStatus === '9') { // Changed from '3' to '9'
                         newStatus = '0'; // If already rejected, set back to pending
                     } else {
-                        newStatus = '3'; // Set to rejected
+                        newStatus = '9'; // Changed from '3' to '9' - Set to rejected
                     }
                     updateButtonStyles(itemElement, newStatus);
                 }
@@ -931,7 +944,7 @@
         });
 
         card.className = 'card';
-        if (order.estado === '2') {
+        if (order.estado === '1') {
             card.classList.add('card-in-process');
         }
 
@@ -956,10 +969,10 @@
         pedidos.forEach(pedido => {
             const card = createOrderCard(pedido);
             if (card) {
-                if (pedido.estado === '2') {
+                if (pedido.estado === '1') {
                     procesoContainer.appendChild(card);
                     procesoCount++;
-                } else { // Status 0 or 1 go to pendientes
+                } else { // Status 0 goes to pendientes
                     pendientesContainer.appendChild(card);
                     pendientesCount++;
                 }
@@ -1021,14 +1034,14 @@
         newEmptySlot.className = 'empty-slot';
         pendientesContainer.appendChild(newEmptySlot);
 
-        // Update data attribute
-        cardElement.dataset.orderStatus = '2';
+        // Update data attribute - changed from '2' to '1' to represent "En Proceso"
+        cardElement.dataset.orderStatus = '1';
 
         // Update counters
         updateCounters();
 
-        // Send update to server
-        updateOrderStatus(orderId, '2');
+        // Send update to server - changed from '2' to '1'
+        updateOrderStatus(orderId, '1');
 
         // Add visual feedback for status change
         cardElement.classList.add('status-updated');
@@ -1103,23 +1116,38 @@
         let allBlueActive = true;
         let allRedActive = true;
 
-        // Check if all items are marked with the same status
+        // Add tracking for mixed status (some completed, some rejected)
+        let hasCompleted = false;
+        let hasRejected = false;
+
+        // Check status of all items
         allItems.forEach(item => {
+            const currentStatus = item.dataset.status;
             const blueBtn = item.querySelector('.status-btn.status-blue');
             const redBtn = item.querySelector('.status-btn.status-red');
 
-            // Check blue status
+            // Check for completed items (status 2)
+            if (currentStatus === '2') {
+                hasCompleted = true;
+            }
+
+            // Check for rejected items (status 9)
+            if (currentStatus === '9') {
+                hasRejected = true;
+            }
+
+            // Check blue status for all-blue condition
             if (!blueBtn || !blueBtn.classList.contains('active')) {
                 allBlueActive = false;
             }
 
-            // Check red status
+            // Check red status for all-red condition
             if (!redBtn || !redBtn.classList.contains('active')) {
                 allRedActive = false;
             }
         });
 
-        // If all items are marked with the same status
+        // Case 1: If all items have same status
         if (allBlueActive || allRedActive) {
             // Visual feedback - highlight the whole card
             cardElement.classList.add('order-completed');
@@ -1131,6 +1159,17 @@
                 // Complete with different status based on which buttons are active
                 const finalStatus = allBlueActive ? '9' : '5';
                 completeOrder(orderId, cardElement, finalStatus);
+            }, 1500);
+        }
+        // Case 2: Mixed status - both completed and rejected items exist
+        else if (hasCompleted && hasRejected) {
+            // Visual feedback - highlight the whole card with mixed status style
+            cardElement.classList.add('order-completed');
+
+            // After animation, remove the card and update the backend with status 8
+            setTimeout(() => {
+                const orderId = cardElement.dataset.orderId;
+                completeOrder(orderId, cardElement, '8');
             }, 1500);
         }
     }
