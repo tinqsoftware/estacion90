@@ -981,9 +981,10 @@
         const pendientesContainer = document.getElementById('pendientes-container');
         const procesoContainer = document.getElementById('proceso-container');
 
-        // Clear existing cards
+        // Clear existing cards and reset tracking
         pendientesContainer.innerHTML = '';
         procesoContainer.innerHTML = '';
+        displayedOrderIds = new Set();
 
         let pendientesCount = 0;
         let procesoCount = 0;
@@ -991,6 +992,8 @@
         pedidos.forEach(pedido => {
             // Only process orders with status 0 or 1
             if (pedido.estado === '0' || pedido.estado === '1') {
+                displayedOrderIds.add(pedido.id); // Track this order ID
+
                 const card = createOrderCard(pedido);
                 if (card) {
                     // Orders with status 1 go to proceso container
@@ -1098,6 +1101,7 @@
         });
     }
 
+    let displayedOrderIds = new Set();
     // Check for new orders periodically
     function checkForNewOrders() {
         fetch(`/cocina/new-orders?last_id=${lastOrderId}`, {
@@ -1109,29 +1113,41 @@
             .then(newOrders => {
                 if (newOrders.length > 0) {
                     const pendientesContainer = document.getElementById('pendientes-container');
+                    let hasNewOrders = false;
 
                     newOrders.forEach(order => {
-                        const card = createOrderCard(order);
-                        if (card) {
-                            // Replace an empty slot if one exists
-                            const emptySlot = pendientesContainer.querySelector('.empty-slot');
-                            if (emptySlot) {
-                                pendientesContainer.replaceChild(card, emptySlot);
-                            } else {
-                                pendientesContainer.appendChild(card);
-                            }
+                        // Check if this order has already been displayed
+                        if (!displayedOrderIds.has(order.id)) {
+                            displayedOrderIds.add(order.id);
 
-                            if (order.id > lastOrderId) {
-                                lastOrderId = order.id;
+                            const card = createOrderCard(order);
+                            if (card) {
+                                // Replace an empty slot if one exists
+                                const emptySlot = pendientesContainer.querySelector('.empty-slot');
+                                if (emptySlot) {
+                                    pendientesContainer.replaceChild(card, emptySlot);
+                                } else {
+                                    pendientesContainer.appendChild(card);
+                                }
+
+                                hasNewOrders = true;
                             }
+                        }
+
+                        // Always update lastOrderId to avoid re-fetching
+                        if (order.id > lastOrderId) {
+                            lastOrderId = order.id;
                         }
                     });
 
-                    // Play a sound for new orders
-                    const audio = new Audio('/access/sounds/new-order.mp3');
-                    audio.play();
+                    // Only play sound if we actually added new orders
+                    if (hasNewOrders) {
+                        // Play a sound for new orders
+                        const audio = new Audio('/access/sounds/new-order.mp3');
+                        audio.play();
 
-                    updateCounters();
+                        updateCounters();
+                    }
                 }
             })
             .catch(error => console.error('Error checking for new orders:', error));
