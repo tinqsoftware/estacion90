@@ -297,8 +297,6 @@
                 document.getElementById('proceso-header').textContent = `${procesoCount} EN PROCESO`;
                 document.getElementById('pendientes-header').textContent = `${pendientesCount} PENDIENTES`;
 
-                // Reinitialize drag and drop
-                initializeDragAndDrop();
             })
             .catch(error => {
                 console.error('Error loading orders:', error);
@@ -418,23 +416,7 @@
     let draggedFromContainer = null;
     let lastOrderId = 0;
 
-    // Inicializar arrastrar y soltar
-    function initializeDragAndDrop() {
-        const cards = document.querySelectorAll('.card');
-        const containers = document.querySelectorAll('.cards-container');
 
-        cards.forEach(card => {
-            card.addEventListener('dragstart', handleDragStart);
-            card.addEventListener('dragend', handleDragEnd);
-        });
-
-        containers.forEach(container => {
-            container.addEventListener('dragover', handleDragOver);
-            container.addEventListener('drop', handleDrop);
-            container.addEventListener('dragenter', handleDragEnter);
-            container.addEventListener('dragleave', handleDragLeave);
-        });
-    }
 
     // Funciones para drag & drop (manteniendo las mismas)
     function handleDragStart(e) {
@@ -823,7 +805,6 @@
 
         const card = document.createElement('div');
         card.className = 'card';
-        card.draggable = true;
         card.dataset.orderId = order.id;
 
         if (order.id > lastOrderId) {
@@ -878,7 +859,6 @@
         });
 
         card.innerHTML = `
-        <div class="drag-handle">⋮⋮</div>
         <div class="card-header">
             <span class="entry-time">${entryTime}</span>
             <span class="order-number">ORDEN #${order.id}</span>
@@ -893,10 +873,6 @@
         </div>
         
     `;
-
-        // Add drag events
-        card.addEventListener('dragstart', handleDragStart);
-        card.addEventListener('dragend', handleDragEnd);
 
         // Add click handler for status buttons
         const statusButtons = card.querySelectorAll('.status-btn');
@@ -1216,7 +1192,6 @@
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', function() {
         loadInitialOrders();
-        initializeDragAndDrop();
 
         // Check for new orders every 30 seconds
         setInterval(checkForNewOrders, 30000);
@@ -1397,7 +1372,6 @@
         border: 2px solid #ddd;
         border-radius: 8px;
         padding: 15px;
-        cursor: move;
         transition: all 0.3s ease;
         position: relative;
         min-height: 120px;
