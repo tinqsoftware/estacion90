@@ -171,7 +171,7 @@
                                         ? $menuItems[1]->pluck('producto_id')->toArray() 
                                         : [];
                                 @endphp
-                                @foreach($productos->where('id_categoria', 1)->whereNotIn('id', $existingProductIds) as $producto)
+                                @foreach($productos->where('id_categoria', 1)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
                                     {{ $producto->nombre }}</option>
                                 @endforeach
@@ -193,7 +193,7 @@
                                         ? $menuItems[2]->pluck('producto_id')->toArray() 
                                         : [];
                                 @endphp
-                                @foreach($productos->where('id_categoria', 2)->whereNotIn('id', $existingProductIds) as $producto)
+                                @foreach($productos->where('id_categoria', 2)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
                                     {{ $producto->nombre }}</option>
                                 @endforeach
@@ -215,7 +215,7 @@
                                         ? $menuItems[3]->pluck('producto_id')->toArray() 
                                         : [];
                                 @endphp
-                                @foreach($productos->where('id_categoria', 3)->whereNotIn('id', $existingProductIds) as $producto)
+                                @foreach($productos->where('id_categoria', 3)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
                                     {{ $producto->nombre }}</option>
                                 @endforeach
@@ -237,7 +237,7 @@
                 ? $menuItems[4]->pluck('producto_id')->toArray() 
                 : [];
         @endphp
-        @foreach($productos->where('id_categoria', 4)->whereNotIn('id', $existingProductIds) as $producto)
+        @foreach($productos->where('id_categoria', 4)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
         <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
             {{ $producto->nombre }}</option>
         @endforeach
@@ -259,7 +259,7 @@
                 ? $menuItems[5]->pluck('producto_id')->toArray() 
                 : [];
         @endphp
-        @foreach($productos->where('id_categoria', 5)->whereNotIn('id', $existingProductIds) as $producto)
+        @foreach($productos->where('id_categoria', 5)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
         <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
             {{ $producto->nombre }}</option>
         @endforeach
@@ -281,7 +281,7 @@
                 ? $menuItems[6]->pluck('producto_id')->toArray() 
                 : [];
         @endphp
-        @foreach($productos->where('id_categoria', 6)->whereNotIn('id', $existingProductIds) as $producto)
+        @foreach($productos->where('id_categoria', 6)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
         <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
             {{ $producto->nombre }}</option>
         @endforeach
@@ -303,7 +303,7 @@
                 ? $menuItems[7]->pluck('producto_id')->toArray() 
                 : [];
         @endphp
-        @foreach($productos->where('id_categoria', 7)->whereNotIn('id', $existingProductIds) as $producto)
+        @foreach($productos->where('id_categoria', 7)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
         <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
             {{ $producto->nombre }}</option>
         @endforeach
