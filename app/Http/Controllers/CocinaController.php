@@ -117,6 +117,7 @@ public function updateItemStatus(Request $request)
         
         // Determine order status based on product statuses
         $allFinished = true;         // All items have estado=2
+        $allRejected = true;         // All items have estado=9
         $anyInProcess = false;       // Any item has estado=1
         $anyPending = false;         // Any item has estado=0
         $anyRejected = false;        // Any item has estado=9
@@ -127,17 +128,20 @@ public function updateItemStatus(Request $request)
             if ($item->estado == '0') {
                 $anyPending = true;
                 $allFinished = false;
+                $allRejected = false;
             }
             
             // Check if any item is in process
             if ($item->estado == '1') {
                 $anyInProcess = true;
                 $allFinished = false;
+                $allRejected = false;
             }
             
             // Check if any item is completed
             if ($item->estado == '2') {
                 $anyCompleted = true;
+                $allRejected = false;
             }
             
             // Check if any item is rejected
@@ -145,10 +149,18 @@ public function updateItemStatus(Request $request)
                 $anyRejected = true;
                 $allFinished = false;
             }
+            
+            // If it's anything other than 9, it's not all rejected
+            if ($item->estado != '9') {
+                $allRejected = false;
+            }
         }
         
         // Determine new order status
-        if ($allFinished) {
+        if ($allRejected) {
+            // All items are rejected - set status to 9
+            $newOrderStatus = '9';
+        } else if ($allFinished) {
             // All items are completed
             $newOrderStatus = '2';
         } else if ($anyCompleted && $anyRejected && !$anyPending && !$anyInProcess) {
