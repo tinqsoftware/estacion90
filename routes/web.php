@@ -14,6 +14,7 @@ use App\Http\Controllers\PlaneacionMenuController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\DespachoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\OrdenController;
 
@@ -158,4 +159,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/horallegada/obtener', [AdministradorController::class, 'obtenerHoraLlegada'])->name('admin.horaLlegada.obtener');
     Route::post('/admin/horallegada/actualizar', [AdministradorController::class, 'actualizarHoraLlegada'])->name('admin.horaLlegada.actualizar');
     Route::post('/admin/horallegada/cambiarestado', [AdministradorController::class, 'cambiarEstadoHoraLlegada'])->name('admin.horaLlegada.cambiarEstado');
+
+// Despacho
+
+   Route::get('/despacho', [DespachoController:: class, 'despacho'])->name('despacho.despacho');
+    Route::get('/despacho-moto', [DespachoController:: class, 'despachoMoto'])->name('despacho.despacho_moto');
+
+
 });
