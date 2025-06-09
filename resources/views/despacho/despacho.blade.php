@@ -264,198 +264,198 @@
     }
 
     .orders-container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-.card-container {
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-    margin-bottom: 15px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    position: relative;
-}
+    .card-container {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #fff;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
 
-.card-header {
-    padding: 10px 15px;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
+    .card-header {
+        padding: 10px 15px;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
 
-.card-title {
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 5px;
-}
+    .card-title {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
 
-.card-times {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    font-size: 14px;
-}
+    .card-times {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        font-size: 14px;
+    }
 
-.card-time-label {
-    font-weight: bold;
-    display: block;
-}
+    .card-time-label {
+        font-weight: bold;
+        display: block;
+    }
 
-.card-time-value {
-    display: block;
-}
+    .card-time-value {
+        display: block;
+    }
 
-.card-time-delivery {
-    color: #ff6f00;
-}
+    .card-time-delivery {
+        color: #ff6f00;
+    }
 
-.card-body {
-    display: flex;
-    flex-wrap: wrap;
-}
+    .card-body {
+        display: flex;
+        flex-wrap: wrap;
+    }
 
-.card-column {
-    padding: 15px;
-    flex: 1;
-    min-width: 300px;
-}
+    .card-column {
+        padding: 15px;
+        flex: 1;
+        min-width: 300px;
+    }
 
-.card-column-left {
-    border-right: 1px solid #dee2e6;
-}
+    .card-column-left {
+        border-right: 1px solid #dee2e6;
+    }
 
-.customer-info {
-    border: 1px solid #dee2e6;
-    padding: 15px;
-    margin-bottom: 15px;
-}
+    .customer-info {
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
 
-.customer-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
+    .customer-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
 
-.customer-name {
-    font-weight: bold;
-}
+    .customer-name {
+        font-weight: bold;
+    }
 
-.customer-address {
-    margin-bottom: 5px;
-}
+    .customer-address {
+        margin-bottom: 5px;
+    }
 
-.payment-info {
-    border: 1px solid #dee2e6;
-    padding: 15px;
-    margin-bottom: 15px;
-}
+    .payment-info {
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
 
-.payment-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
+    .payment-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
 
-.payment-label {
-    font-weight: normal;
-}
+    .payment-label {
+        font-weight: normal;
+    }
 
-.payment-value {
-    font-weight: bold;
-}
+    .payment-value {
+        font-weight: bold;
+    }
 
-.order-items {
-    margin-bottom: 15px;
-}
+    .order-items {
+        margin-bottom: 15px;
+    }
 
-.order-person {
-    margin-bottom: 10px;
-}
+    .order-person {
+        margin-bottom: 10px;
+    }
 
-.order-person-name {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
+    .order-person-name {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
-.order-item {
-    padding-left: 15px;
-    margin-bottom: 3px;
-}
+    .order-item {
+        padding-left: 15px;
+        margin-bottom: 3px;
+    }
 
-.order-totals {
-    text-align: right;
-    border-top: 1px solid #dee2e6;
-    padding-top: 10px;
-    margin-top: 10px;
-}
+    .order-totals {
+        text-align: right;
+        border-top: 1px solid #dee2e6;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
 
-.order-delivery {
-    margin-bottom: 5px;
-}
+    .order-delivery {
+        margin-bottom: 5px;
+    }
 
-.order-total {
-    font-weight: bold;
-    font-size: 16px;
-}
+    .order-total {
+        font-weight: bold;
+        font-size: 16px;
+    }
 
-.print-button {
-    background-color: #343a40;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 120px;
-    margin-top: 10px;
-}
+    .print-button {
+        background-color: #343a40;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 120px;
+        margin-top: 10px;
+    }
 
-.status-indicator {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #ff8c00;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
+    .status-indicator {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #ff8c00;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
 
-/* Section Headers */
-.section-header {
-    background-color: #f0f0f0;
-    padding: 8px 12px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    display: inline-block;
-    font-weight: bold;
-}
+    /* Section Headers */
+    .section-header {
+        background-color: #f0f0f0;
+        padding: 8px 12px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        display: inline-block;
+        font-weight: bold;
+    }
 
-.moto-section {
-    background-color: #b7562a;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    font-weight: bold;
-}
+    .moto-section {
+        background-color: #b7562a;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
 
-/* Drag containers */
-.drag-area {
-    border: 2px dashed #ddd;
-    padding: 15px;
-    min-height: 100px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-}
+    /* Drag containers */
+    .drag-area {
+        border: 2px dashed #ddd;
+        padding: 15px;
+        min-height: 100px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
     </style>
 
 </head>
@@ -496,102 +496,13 @@
                 <div class="row">
                     <!-- Left Side - Pedidos Preparados -->
                     <div class="col-lg-6">
-                        <div class="section-header">3 PEDIDOS PREPARADOS</div>
+                        <div class="section-header">
+                            <span id="pedidos-count"></span> PEDIDOS PREPARADOS
+                        </div>
 
-                        <div id="orders-pending">
-                            <!-- Pedido #001 -->
-                            <div class="card-container">
-                                <div class="card-header">
-                                    <div class="card-title">PEDIDO #001 - 15 Junio 2025</div>
-                                    <div class="card-times">
-                                        <div>
-                                            <span class="card-time-label">Hora pedido:</span>
-                                            <span class="card-time-value">15 Junio 12:15 PM</span>
-                                        </div>
-                                        <div>
-                                            <span class="card-time-label">Hora entrega aprox:</span>
-                                            <span class="card-time-value card-time-delivery">15 Junio 1:00 PM</span>
-                                        </div>
-                                    </div>
-                                    <div>PEDIDO LISTO <input type="checkbox" style="width: 20px; height: 20px;"></div>
-                                </div>
-
-                                <div class="card-body">
-                                    <!-- Left column - Order items -->
-                                    <div class="card-column card-column-left">
-                                        <div class="order-items">
-                                            <!-- Diego's order -->
-                                            <div class="order-person">
-                                                <div class="order-person-name">Diego: (s/ 21.00)</div>
-                                                <div class="order-item">- Solo segundo: Milanesa de pollo (s/ 13.00)
-                                                </div>
-                                                <div class="order-item">- A la carta: Tequeños (s/ 8.00)</div>
-                                            </div>
-
-                                            <!-- Lucía's order -->
-                                            <div class="order-person">
-                                                <div class="order-person-name">Lucía: (s/ 34.00)</div>
-                                                <div class="order-item">- Solo entrada: Crema de zapallo (s/ 12.00)
-                                                </div>
-                                                <div class="order-item">- Combo: Hamburguesa + Papas + Gaseosa (s/
-                                                    22.00)</div>
-                                            </div>
-
-                                            <!-- Total section -->
-                                            <div class="order-totals">
-                                                <div class="order-delivery">Delivery: s/1.00</div>
-                                                <div class="order-total">TOTAL: s/56.00</div>
-                                            </div>
-                                        </div>
-
-                                        <button class="print-button">Imprimir</button>
-                                    </div>
-
-                                    <!-- Right column - Customer info -->
-                                    <div class="card-column">
-                                        <!-- Customer contact info section -->
-                                        <div class="customer-info">
-                                            <div class="customer-header">
-                                                <div class="customer-name">JUAN CARLOS</div>
-                                                <div>TEL:957362484</div>
-                                            </div>
-                                            <div class="customer-address">Av. Primavera 123, Dpto. 402</div>
-                                            <div class="customer-address">Frente a Plaza Vea</div>
-                                            <div class="customer-address">Surco</div>
-                                        </div>
-
-                                        <!-- Payment details section -->
-                                        <div class="payment-info">
-                                            <div class="payment-row">
-                                                <div class="payment-label">Método pago:</div>
-                                                <div class="payment-value">Efectivo</div>
-                                            </div>
-                                            <div class="payment-row">
-                                                <div class="payment-label">Vuelto de:</div>
-                                                <div class="payment-value">100 soles</div>
-                                            </div>
-                                            <div class="payment-row">
-                                                <div class="payment-label">Comprobante pago:</div>
-                                                <div class="payment-value">Sí</div>
-                                            </div>
-                                            <div class="payment-row">
-                                                <div class="payment-label">Tipo:</div>
-                                                <div class="payment-value">Boleta</div>
-                                            </div>
-                                            <div class="payment-row">
-                                                <div class="payment-label">Nº documento:</div>
-                                                <div class="payment-value">10456789011</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Customer comment section -->
-                                        <div class="customer-info">
-                                            <div style="margin-bottom: 5px;">Comentario cliente</div>
-                                            <div style="height: 50px;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Añadir el contenedor para los pedidos -->
+                        <div id="orders-pending" class="drag-area mb-4">
+                            <!-- Aquí se cargarán dinámicamente las tarjetas de pedido -->
                         </div>
                     </div>
 
@@ -603,7 +514,7 @@
                             <div id="unassigned-orders" class="drag-area mb-4">
                                 <!-- Draggable order card -->
                                 <div class="card-container draggable mb-3">
-                                   <div
+                                    <div
                                         style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
                                         <div style="font-weight: bold; font-size: 16px;">PEDIDO #003 - 15 Junio 2025
                                         </div>
@@ -645,7 +556,7 @@
                                                 <button class="btn btn-dark"
                                                     style="width: 180px; font-weight: bold; padding: 8px 0; font-size: 16px;">Imprimir</button>
                                             </div>
-                                           
+
                                         </div>
 
                                         <!-- Right column - Customer info -->
@@ -884,6 +795,190 @@
     <script src="{{ asset('access/js/demo.js') }}"></script>
 
     <script>
+    let displayedOrderIds = [];
+
+    function actualizarPedidos() {
+        $.ajax({
+            url: "{{ route('despacho.pedidos-nuevos') }}",
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                // Verificar si hay nuevos pedidos
+                $('#pedidos-count').text(data.length);
+                let nuevosEncontrados = false;
+
+                data.forEach(function(pedido) {
+                    if (!displayedOrderIds.includes(pedido.id)) {
+                        // Este es un pedido nuevo
+                        nuevosEncontrados = true;
+                        displayedOrderIds.push(pedido.id);
+
+                        // Crear la tarjeta del pedido y agregarla al contenedor
+                        const cardHtml = crearTarjetaPedido(pedido);
+                        $('#orders-pending').prepend(cardHtml);
+                    }
+                });
+
+                // Si hay nuevos pedidos, mostrar una notificación
+                if (nuevosEncontrados) {
+                    Swal.fire({
+                        title: '¡Nuevos pedidos!',
+                        text: 'Se han agregado nuevos pedidos para despacho',
+                        icon: 'info',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error al obtener pedidos:", error);
+            }
+        });
+    }
+
+    // Función para crear HTML de la tarjeta de pedido
+    function crearTarjetaPedido(pedido) {
+        // Construir la sección de comensales y sus ítems
+        let comensalesHtml = '';
+        pedido.comensales.forEach(function(comensal) {
+            comensalesHtml +=
+                `
+            <div class="order-person">
+                <div class="order-person-name">${comensal.nombre}: (s/ ${parseFloat(comensal.total).toFixed(2)})</div>`;
+
+            comensal.items.forEach(function(item) {
+                comensalesHtml +=
+                    `<div class="order-item">- ${item.nombre} (s/ ${parseFloat(item.precio).toFixed(2)})</div>`;
+            });
+
+            comensalesHtml += `</div>`;
+        });
+
+        // HTML completo de la tarjeta
+        return `
+    <div class="card-container">
+        <div class="card-header">
+            <div class="card-title">PEDIDO #${pedido.id} - ${pedido.fecha}</div>
+            <div class="card-times">
+                <div>
+                    <span class="card-time-label">Hora pedido:</span>
+                    <span class="card-time-value">${pedido.hora_pedido}</span>
+                </div>
+                <div>
+                    <span class="card-time-label">Hora entrega aprox:</span>
+                    <span class="card-time-value card-time-delivery">${pedido.hora_entrega}</span>
+                </div>
+            </div>
+            <div>PEDIDO LISTO <input type="checkbox" style="width: 20px; height: 20px;"></div>
+        </div>
+
+        <div class="card-body">
+            <!-- Left column - Order items -->
+            <div class="card-column card-column-left">
+                <div class="order-items">
+                    ${comensalesHtml}
+
+                    <!-- Total section -->
+                    <div class="order-totals">
+                        <div class="order-delivery">Delivery: s/1.00</div>
+                        <div class="order-total">TOTAL: s/${parseFloat(pedido.total).toFixed(2)}</div>
+                    </div>
+                </div>
+
+                <button class="print-button" onclick="imprimirPedido(${pedido.id})">Imprimir</button>
+            </div>
+
+            <!-- Right column - Customer info -->
+            <div class="card-column">
+                <!-- Customer contact info section -->
+                <div class="customer-info">
+                    <div class="customer-header">
+                        <div class="customer-name">${pedido.nombre_contacto}</div>
+                        <div>TEL:${pedido.telefono_contacto}</div>
+                    </div>
+                    <div class="customer-address">${pedido.direccion}</div>
+                    <div class="customer-address">${pedido.referencia || ''}</div>
+                    <div class="customer-address">${pedido.distrito || ''}</div>
+                </div>
+
+                <!-- Payment details section -->
+                <div class="payment-info">
+                    <div class="payment-row">
+                        <div class="payment-label">Método pago:</div>
+                        <div class="payment-value">${pedido.metodo_pago}</div>
+                    </div>
+                    ${pedido.vuelto ? `
+                    <div class="payment-row">
+                        <div class="payment-label">Vuelto de:</div>
+                        <div class="payment-value">${pedido.vuelto} soles</div>
+                    </div>
+                    ` : ''}
+                    <div class="payment-row">
+                        <div class="payment-label">Comprobante pago:</div>
+                        <div class="payment-value">${pedido.comprobante}</div>
+                    </div>
+                    ${pedido.tipo_comprobante ? `
+                    <div class="payment-row">
+                        <div class="payment-label">Tipo:</div>
+                        <div class="payment-value">${pedido.tipo_comprobante}</div>
+                    </div>
+                    ` : ''}
+                    ${pedido.documento ? `
+                    <div class="payment-row">
+                        <div class="payment-label">Nº documento:</div>
+                        <div class="payment-value">${pedido.documento}</div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <!-- Customer comment section -->
+                <div class="customer-info">
+                    <div style="margin-bottom: 5px;">Comentario cliente</div>
+                    <div style="height: 50px;">${pedido.comentarios || ''}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    }
+
+    // Función para imprimir pedido (puedes implementarla después)
+    function imprimirPedido(id) {
+        console.log("Imprimiendo pedido #" + id);
+        // Implementar lógica de impresión
+    }
+
+    $(document).ready(function() {
+        // Cargar los pedidos iniciales
+        actualizarPedidos();
+
+        // Inicializar el array con los IDs de pedidos ya mostrados
+        // Esto evita duplicados en la primera carga
+        @php
+        $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
+        @endphp
+        
+        pedidosIniciales.forEach(function(pedido) {
+            displayedOrderIds.push(pedido.id);
+        });
+
+        // Configurar la actualización automática cada 30 segundos
+        setInterval(actualizarPedidos, 30000);
+
+        // Vaciar el contenedor de pedidos si ya existen tarjetas estáticas
+        $('#orders-pending').empty();
+
+        // Cargar los pedidos iniciales después de vaciar
+        pedidosIniciales.forEach(function(pedido) {
+            $('#orders-pending').append(crearTarjetaPedido(pedido));
+        });
+    });
+
+
+
+
     // Inicializar Sortable para permitir arrastrar y soltar
     document.addEventListener('DOMContentLoaded', function() {
         // Contenedores donde se pueden arrastrar las tarjetas
@@ -934,16 +1029,8 @@
             renderCalendar(currentMonth, currentYear, currentDayIndex);
         });
 
-        document.getElementById('prevDays').addEventListener('click', function() {
-            currentDayIndex = Math.max(0, currentDayIndex - 7);
-            renderCalendar(currentMonth, currentYear, currentDayIndex);
-        });
 
-        document.getElementById('nextDays').addEventListener('click', function() {
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            currentDayIndex = Math.min(currentDayIndex + 7, daysInMonth - 7);
-            renderCalendar(currentMonth, currentYear, currentDayIndex);
-        });
+
     }
 
     function renderCalendar(month, year, startDayIndex) {
