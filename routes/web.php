@@ -162,8 +162,8 @@ Route::middleware(['auth'])->group(function () {
 
 // Despacho
 
-   Route::get('/despacho', [DespachoController:: class, 'despacho'])->name('despacho.despacho');
+    Route::get('/despacho', [DespachoController:: class, 'despacho'])->name('despacho.despacho');
     Route::get('/despacho-moto', [DespachoController:: class, 'despachoMoto'])->name('despacho.despacho_moto');
-
+    Route::get('/despacho/pedidos-nuevos', [DespachoController::class, 'obtenerPedidosNuevos'])->name('despacho.pedidos-nuevos');
 
 });
