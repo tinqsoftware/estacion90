@@ -166,4 +166,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/despacho-moto', [DespachoController:: class, 'despachoMoto'])->name('despacho.despacho_moto');
     Route::get('/despacho/pedidos-nuevos', [DespachoController::class, 'obtenerPedidosNuevos'])->name('despacho.pedidos-nuevos');
     Route::post('/despacho/pedido/actualizar-estado', [DespachoController::class, 'actualizarEstadoPedido'])->name('despacho.actualizar-estado');
+    Route::post('/despacho/pedido/asignar-moto', [DespachoController::class, 'asignarPedidoAMoto'])->name('despacho.asignar-moto');
 });

@@ -594,6 +594,51 @@
         });
     }
 
+    function asignarPedidoAMoto(pedidoId, motoId) {
+    $.ajax({
+        url: "{{ route('despacho.asignar-moto') }}",
+        type: "POST",
+        data: {
+            pedido_id: pedidoId,
+            moto_id: motoId,
+            _token: "{{ csrf_token() }}"
+        },
+        success: function(response) {
+            if (response.success) {
+                let mensaje = '';
+                if (motoId === 0) {
+                    mensaje = 'El pedido ha vuelto a la sección "Por asignar"';
+                } else {
+                    mensaje = `El pedido ha sido asignado a la moto ${motoId}`;
+                }
+                
+                // Notificar al usuario
+                Swal.fire({
+                    title: 'Pedido actualizado',
+                    text: mensaje,
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al asignar pedido a moto:", error);
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudo completar la acción',
+                icon: 'error',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    });
+}
+
     // Función para crear HTML de la tarjeta de pedido
     function crearTarjetaPedido(pedido) {
         // Construir la sección de comensales y sus ítems
@@ -702,7 +747,7 @@
 
     function crearTarjetaPorAsignar(pedido) {
     return `
-    <div class="card-container draggable mb-3">
+    <div class="card-container draggable mb-3" data-pedido-id="${pedido.id}">
         <div style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-weight: bold; font-size: 16px;">PEDIDO #${pedido.id} - ${pedido.fecha}</div>
             <div>
@@ -777,14 +822,32 @@
      @php
     $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
     $pedidosPorAsignarJs = isset($pedidosPorAsignar) ? json_encode($pedidosPorAsignar) : '[]';
+    $pedidosMoto1Js = isset($pedidosMoto1) ? json_encode($pedidosMoto1) : '[]';
+    $pedidosMoto2Js = isset($pedidosMoto2) ? json_encode($pedidosMoto2) : '[]';
     @endphp
     const pedidosIniciales = {!! $pedidosJs !!};
     const pedidosPorAsignar = {!! $pedidosPorAsignarJs !!};
-    
+    const pedidosMoto1 = {!! $pedidosMoto1Js !!};
+    const pedidosMoto2 = {!! $pedidosMoto2Js !!};
+
     // Cargar los IDs iniciales para evitar duplicados
     if (pedidosIniciales && pedidosIniciales.length > 0) {
         pedidosIniciales.forEach(function(pedido) {
             displayedOrderIds.push(pedido.id);
+        });
+    }
+
+    // Cargar los pedidos asignados a moto 1
+    if (pedidosMoto1 && pedidosMoto1.length > 0) {
+        pedidosMoto1.forEach(function(pedido) {
+            $('#moto1-container').append(crearTarjetaPorAsignar(pedido));
+        });
+    }
+    
+    // Cargar los pedidos asignados a moto 2
+    if (pedidosMoto2 && pedidosMoto2.length > 0) {
+        pedidosMoto2.forEach(function(pedido) {
+            $('#moto2-container').append(crearTarjetaPorAsignar(pedido));
         });
     }
     
@@ -897,12 +960,33 @@
         ];
 
         containers.forEach(function(container) {
-            new Sortable(container, {
-                group: 'orders',
-                animation: 150,
-                ghostClass: 'order-card-ghost',
-                chosenClass: 'order-card-chosen',
-                dragClass: 'order-card-drag'
+        new Sortable(container, {
+            group: 'orders',
+            animation: 150,
+            ghostClass: 'order-card-ghost',
+            chosenClass: 'order-card-chosen',
+            dragClass: 'order-card-drag',
+            onEnd: function(evt) {
+                const pedidoId = evt.item.getAttribute('data-pedido-id');
+                
+                // Si no se pudo obtener el ID del pedido, no hacer nada
+                if (!pedidoId) return;
+                
+                // Determinar a qué moto se asignó (o si se quitó la asignación)
+                let motoId = null;
+                if (evt.to.id === 'moto1-container') {
+                    motoId = 1;
+                } else if (evt.to.id === 'moto2-container') {
+                    motoId = 2;
+                } else if (evt.to.id === 'unassigned-orders') {
+                    motoId = 0; // 0 significa sin asignar
+                }
+                
+                // Si se asignó a una moto o se quitó la asignación
+                if (motoId !== null) {
+                    asignarPedidoAMoto(pedidoId, motoId);
+                    }
+                }
             });
         });
 
