@@ -21,8 +21,12 @@ class DespachoController extends Controller
         // Obtener pedidos por asignar (estado 3)
         $pedidosPorAsignar = $this->getPedidosPorAsignar();
         
-        return view('despacho.despacho', compact('pedidos', 'pedidosPorAsignar'));
-    }
+        // Obtener pedidos asignados a motos
+        $pedidosMoto1 = $this->getPedidosAsignadosAMoto(1);
+        $pedidosMoto2 = $this->getPedidosAsignadosAMoto(2);
+    
+    return view('despacho.despacho', compact('pedidos', 'pedidosPorAsignar', 'pedidosMoto1', 'pedidosMoto2'));
+}
 
     /**
      * Display the despacho moto view.
@@ -87,6 +91,10 @@ class DespachoController extends Controller
             'distritoContacto'
         ])
         ->where('estado', 3) // Filtrar pedidos con estado 3
+        ->where(function($query) {
+            $query->whereNull('id_user_moto')
+              ->orWhere('id_user_moto', 0);
+        }) 
         ->whereDate('created_at', Carbon::today()) // Filtrar solo pedidos de hoy
         ->orderBy('created_at', 'desc')
         ->get();
@@ -193,4 +201,44 @@ class DespachoController extends Controller
             'pedido' => $pedido
         ]);
     }
+
+    public function asignarPedidoAMoto(Request $request)
+{
+    $pedidoId = $request->input('pedido_id');
+    $motoId = $request->input('moto_id'); 
+    
+    $pedido = Pedido::find($pedidoId);
+    if (!$pedido) {
+        return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
+    }
+    
+    // Actualizar el pedido con el ID de la moto asignada
+    $pedido->id_user_moto = $motoId;
+    $pedido->save();
+    
+    return response()->json([
+        'success' => true,
+        'message' => "Pedido asignado a moto $motoId correctamente",
+        'pedido' => $pedido
+    ]);
+}
+
+private function getPedidosAsignadosAMoto($motoId)
+{
+    $pedidosDB = Pedido::with([
+        'detalles.producto', 
+        'detalles.comensal', 
+        'comensales',
+        'tipoPago',
+        'comprobantePago',
+        'distritoContacto'
+    ])
+    ->where('id_user_moto', $motoId)
+    ->where('estado', 3)
+    ->whereDate('created_at', Carbon::today())
+    ->orderBy('created_at', 'desc')
+    ->get();
+    
+    return $this->formatearPedidos($pedidosDB);
+}
 }
