@@ -474,7 +474,7 @@
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
-
+    <script src="https://unpkg.com/heic2any@0.0.4/dist/heic2any.min.js"></script>
 
     <script>
     // Cargar detalles de producto en el modal
@@ -667,18 +667,61 @@
 
     // Previsualización de imagen
     $('#imagen').change(function() {
-        const file = this.files[0];
-        if (file) {
+    const file = this.files[0];
+    if (file) {
+        // Check if it's a HEIC file
+        if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
+            // Show loading indicator
+            $('#imagen-preview-container').show();
+            $('#imagen-preview').attr('src', 'access/images/loadings.gif');
+            
+            // Convert HEIC to JPEG blob
+            heic2any({
+                blob: file,
+                toType: 'image/jpeg',
+                quality: 0.8
+            })
+            .then(function(conversionResult) {
+                // Create a new file from the JPEG blob
+                const convertedFile = new File(
+                    [conversionResult], 
+                    file.name.replace(/\.heic$/i, '.jpg'),
+                    {type: 'image/jpeg'}
+                );
+                
+                // Replace the original file in the input field
+                // We need to use a DataTransfer object to set files
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(convertedFile);
+                document.getElementById('imagen').files = dataTransfer.files;
+                
+                // Show preview of converted image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagen-preview').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(conversionResult);
+                
+                console.log('HEIC converted to JPEG successfully');
+            })
+            .catch(function(error) {
+                console.error('HEIC conversion error:', error);
+                // Fallback: show a placeholder or error message
+                $('#imagen-preview').attr('src', 'access/images/image-not-supported.jpg');
+            });
+        } else {
+            // Standard non-HEIC image preview (unchanged)
             const reader = new FileReader();
             reader.onload = function(e) {
                 $('#imagen-preview').attr('src', e.target.result);
                 $('#imagen-preview-container').show();
             }
             reader.readAsDataURL(file);
-        } else {
-            $('#imagen-preview-container').hide();
         }
-    });
+    } else {
+        $('#imagen-preview-container').hide();
+    }
+});
 
     // Reset del modal cuando se cierra
     $('#agregarProductoModal').on('hidden.bs.modal', function() {
