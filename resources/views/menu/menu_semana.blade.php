@@ -559,7 +559,8 @@
 
                                 // Get all dates with menus
                                 fetch(
-                                        `/api/calendar-with-menu?year=${currentYear}&month=${currentMonth}`)
+                                        `/api/calendar-with-menu?year=${currentYear}&month=${currentMonth}`
+                                        )
                                     .then(response => response.json())
                                     .then(data => {
                                         availableDates = data
@@ -595,12 +596,12 @@
                                                     new Date(
                                                         date +
                                                         'T12:00:00'
-                                                        );
+                                                    );
                                                 const btn =
                                                     document
                                                     .createElement(
                                                         'button'
-                                                        );
+                                                    );
                                                 btn.className =
                                                     'btn btn-outline-secondary btn-sm date-option';
                                                 btn.dataset
@@ -609,11 +610,11 @@
                                                 btn.innerHTML =
                                                     `${dateObj.getDate()}/${dateObj.getMonth()+1}`;
                                                 btn.onclick =
-                                                () => {
+                                                    () => {
                                                         document
                                                             .querySelectorAll(
                                                                 '.date-option'
-                                                                )
+                                                            )
                                                             .forEach(
                                                                 el =>
                                                                 el
@@ -621,13 +622,13 @@
                                                                 .remove(
                                                                     'btn-primary',
                                                                     'text-white'
-                                                                    )
-                                                                );
+                                                                )
+                                                            );
                                                         btn.classList
                                                             .add(
                                                                 'btn-primary',
                                                                 'text-white'
-                                                                );
+                                                            );
                                                         selectedDate
                                                             =
                                                             date;
@@ -650,7 +651,7 @@
                                 if (!selectedDate) {
                                     Swal.showValidationMessage(
                                         'Por favor seleccione una fecha'
-                                        );
+                                    );
                                     return false;
                                 }
                                 resolve(selectedDate);
@@ -731,6 +732,102 @@
                         }
                     });
                 }
+            });
+        });
+
+        $(document).ready(function() {
+            // Manejador para cuando se abre el modal
+            $('#modalClonarMenu').on('show.bs.modal', function(event) {
+                const button = $(event.relatedTarget);
+                const targetDate = button.data('date');
+
+                // Guardar la fecha destino como atributo del modal
+                $(this).data('target-date', targetDate);
+
+                // Resetear el estado del modal
+                selectedMenuDate = null;
+                menuToClone = null;
+                btnCopiarMenu.disabled = true;
+                modalMenuContent.innerHTML =
+                    '<p class="text-center text-muted">Seleccione una fecha con menú para visualizar</p>';
+                modalSelectedDate.textContent = 'Seleccione una fecha';
+
+                // Inicializar el calendario del modal
+                const targetDateObj = new Date(targetDate + 'T12:00:00');
+                modalCurrentYear = targetDateObj.getFullYear();
+                modalCurrentMonth = targetDateObj.getMonth();
+
+                renderModalCalendar(modalCurrentYear, modalCurrentMonth);
+            });
+
+            // Modificar el evento del botón copiar menú
+            $('#btn-copiar-menu').on('click', function() {
+                if (!selectedMenuDate) return;
+
+                // Obtener la fecha destino del modal
+                const targetDate = $('#modalClonarMenu').data('target-date');
+
+                // Confirmar la clonación
+                Swal.fire({
+                    title: 'Confirmar clonación',
+                    html: `¿Está seguro de clonar el menú del <b>${formatDateToSpanish(selectedMenuDate)}</b> al <b>${formatDateToSpanish(targetDate)}</b>?
+                   <p class="text-danger mt-2"><strong>¡Advertencia!</strong> Esta acción reemplazará TODOS los 
+                   productos existentes para ${formatDateToSpanish(targetDate)}.</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, clonar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Mostrar indicador de carga
+                        Swal.fire({
+                            title: 'Procesando',
+                            text: 'Clonando menú...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Realizar la clonación mediante AJAX
+                        fetch('/api/menu-clone', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    source_date: selectedMenuDate,
+                                    target_date: targetDate
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: '¡Completado!',
+                                        text: 'El menú se ha clonado correctamente.',
+                                        icon: 'success'
+                                    }).then(() => {
+                                        // Recargar la página para mostrar el menú actualizado
+                                        window.location.reload();
+                                    });
+                                } else {
+                                    throw new Error(data.message ||
+                                        'Error al clonar el menú');
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: error.message,
+                                    icon: 'error'
+                                });
+                            });
+                    }
+                });
             });
         });
 
@@ -1163,7 +1260,7 @@
         <h2>${dateHeader}</h2>
         ${dayData.items && dayData.items.length > 0 ? 
   `<button class="btn btn-outline-dark btn-sm me-2" data-date="${dateStr}">EDITAR</button>
-           <button type="button" class="btn btn-info btn-sm btn-clonar-directo" data-date="${dateStr}">
+           <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalClonarMenu" data-date="${dateStr}">
              <i class="fas fa-clone me-1"></i>Clonar
            </button>` : 
           `<button type="button" class="btn btn-info btn-sm btn-clonar-menu" data-date="${dateStr}">
