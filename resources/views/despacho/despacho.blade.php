@@ -473,17 +473,7 @@
         <div class="content-body">
             <div class="container-fluid">
 
-                <!-- Calendar Component -->
-                <div class="calendar-container mb-4">
-                    <div class="month-selector">
-                        <button class="month-nav" id="prevMonth">&lt;</button>
-                        <span
-                            id="currentMonth">{{ strtoupper(Carbon\Carbon::now()->locale('es')->format('F Y')) }}</span>
-                        <button class="month-nav" id="nextMonth">&gt;</button>
-                    </div>
-                    <div class="days-column" id="calendarDays"></div>
-
-                </div>
+                
                 <!-- Dashboard Header -->
                 <div class="dashboard-header">
                     <div class="dashboard-title">DASHBOARD ORGANIZAR REPARTO</div>
@@ -508,258 +498,24 @@
 
                     <!-- Right Side - Asignaciones -->
                     <div class="col-lg-6">
-                        <div class="section-header">2 POR ASIGNAR</div>
+                        <div class="section-header"><span id="pedidos-pendingcount"></span> POR ASIGNAR</div>
 
                         <div id="orders-assigned">
                             <div id="unassigned-orders" class="drag-area mb-4">
                                 <!-- Draggable order card -->
-                                <div class="card-container draggable mb-3">
-                                    <div
-                                        style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
-                                        <div style="font-weight: bold; font-size: 16px;">PEDIDO #003 - 15 Junio 2025
-                                        </div>
-                                        <div>
-                                            <span style="margin-right: 15px;">Hora pedido: <strong>15 Junio 12:15
-                                                    PM</strong></span>
-                                            <span style="color: #ff6f00;"><strong> 1:00
-                                                    PM</strong></span>
-                                        </div>
-                                    </div>
-
-                                    <div style="display: flex;">
-                                        <!-- Left column - Order summary -->
-                                        <div style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6;">
-                                            <div style="text-align: right; margin-bottom: 20px;">
-                                                <div style="font-size: 16px; margin-bottom: 10px;">
-                                                    <strong>Diego:</strong> s/ 21.00
-                                                </div>
-                                                <div style="font-size: 16px; margin-bottom: 15px;">
-                                                    <strong>Lucía:</strong> s/ 34.00
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                style="border: 1px s olid #dee2e6; padding: 10px; text-align: center; margin-bottom: 20px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                    <div>Delivery:</div>
-                                                    <div>s/1.00</div>
-                                                </div>
-                                                <div
-                                                    style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
-                                                    <div>TOTAL:</div>
-                                                    <div>s/56.00</div>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <button class="btn btn-dark"
-                                                    style="width: 180px; font-weight: bold; padding: 8px 0; font-size: 16px;">Imprimir</button>
-                                            </div>
-
-                                        </div>
-
-                                        <!-- Right column - Customer info -->
-                                        <div style="width: 50%; padding: 15px;">
-                                            <!-- Customer contact info section -->
-                                            <div style="border: 1px solid #dee2e6; padding: 15px; margin-bottom: 15px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                    <div style="font-weight: bold; font-size: 16px;">JUAN CARLOS</div>
-                                                    <div>TEL:957362484</div>
-                                                </div>
-                                                <div style="margin-bottom: 5px;">Av. Primavera 123, Dpto. 402</div>
-                                                <div style="margin-bottom: 5px;">Frente a Plaza Vea</div>
-                                                <div>Surco</div>
-                                            </div>
-
-                                            <!-- Payment details section - simplified -->
-                                            <div style="border: 1px solid #dee2e6; padding: 15px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                    <div>Método pago:</div>
-                                                    <div style="font-weight: bold;">Efectivo</div>
-                                                </div>
-                                                <div style="display: flex; justify-content: space-between;">
-                                                    <div>Vuelto de:</div>
-                                                    <div style="font-weight: bold;">100 soles</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                               
                             </div>
 
                             <!-- Moto 1 -->
-                            <div class="moto-section">MOTO 1 (JUAN)</div>
+                            <div class="moto-section">MOTO </div>
                             <div id="moto1-container" class="drag-area mb-4">
-                                <div class="card-container draggable">
-                                    <div
-                                        style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
-                                        <div style="font-weight: bold; font-size: 16px;">PEDIDO #003 - 15 Junio 2025
-                                        </div>
-                                        <div>
-                                            <span style="margin-right: 15px;">Hora pedido: <strong>15 Junio 12:15
-                                                    PM</strong></span>
-                                            <span style="color: #ff6f00;"><strong> 1:00
-                                                    PM</strong></span>
-                                        </div>
-                                    </div>
-
-                                    <div style="display: flex;">
-                                        <!-- Left column - Order summary -->
-                                        <div style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6;">
-                                            <div style="text-align: right; margin-bottom: 20px;">
-                                                <div style="font-size: 16px; margin-bottom: 10px;">
-                                                    <strong>Diego:</strong> s/ 21.00
-                                                </div>
-                                                <div style="font-size: 16px; margin-bottom: 15px;">
-                                                    <strong>Lucía:</strong> s/ 34.00
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                style="border: 1px s olid #dee2e6; padding: 10px; text-align: center; margin-bottom: 20px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                    <div>Delivery:</div>
-                                                    <div>s/1.00</div>
-                                                </div>
-                                                <div
-                                                    style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
-                                                    <div>TOTAL:</div>
-                                                    <div>s/56.00</div>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <button class="btn btn-dark"
-                                                    style="width: 180px; font-weight: bold; padding: 8px 0; font-size: 16px;">Imprimir</button>
-                                            </div>
-                                            <!-- Status indicator -->
-                                            <div style="position: absolute; bottom: 0; left: 0; margin-top: 10px;">
-                                                <div
-                                                    style="width: 30px; height: 30px; border-radius: 50%; background-color: #ff8c00; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                                    2
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right column - Customer info -->
-                                        <div style="width: 50%; padding: 15px;">
-                                            <!-- Customer contact info section -->
-                                            <div style="border: 1px solid #dee2e6; padding: 15px; margin-bottom: 15px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                    <div style="font-weight: bold; font-size: 16px;">JUAN CARLOS</div>
-                                                    <div>TEL:957362484</div>
-                                                </div>
-                                                <div style="margin-bottom: 5px;">Av. Primavera 123, Dpto. 402</div>
-                                                <div style="margin-bottom: 5px;">Frente a Plaza Vea</div>
-                                                <div>Surco</div>
-                                            </div>
-
-                                            <!-- Payment details section - simplified -->
-                                            <div style="border: 1px solid #dee2e6; padding: 15px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                    <div>Método pago:</div>
-                                                    <div style="font-weight: bold;">Efectivo</div>
-                                                </div>
-                                                <div style="display: flex; justify-content: space-between;">
-                                                    <div>Vuelto de:</div>
-                                                    <div style="font-weight: bold;">100 soles</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                
                             </div>
 
                             <!-- Moto 2 -->
-                            <div class="moto-header">MOTO 2 (JUAN)</div>
+                            <div class="moto-header">MOTO </div>
                             <div id="moto2-container" class="drag-container">
-                                <div class="order-card draggable">
-                                    <div
-                                        style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
-                                        <div style="font-weight: bold; font-size: 16px;">PEDIDO #003 - 15 Junio 2025
-                                        </div>
-                                        <div>
-                                            <span style="margin-right: 15px;">Hora pedido: <strong>15 Junio 12:15
-                                                    PM</strong></span>
-                                            <span style="color: #ff6f00;"><strong> 1:00
-                                                    PM</strong></span>
-                                        </div>
-                                    </div>
-
-                                    <div style="display: flex;">
-                                        <!-- Left column - Order summary -->
-                                        <div style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6;">
-                                            <div style="text-align: right; margin-bottom: 20px;">
-                                                <div style="font-size: 16px; margin-bottom: 10px;">
-                                                    <strong>Diego:</strong> s/ 21.00
-                                                </div>
-                                                <div style="font-size: 16px; margin-bottom: 15px;">
-                                                    <strong>Lucía:</strong> s/ 34.00
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                style="border: 1px s olid #dee2e6; padding: 10px; text-align: center; margin-bottom: 20px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                    <div>Delivery:</div>
-                                                    <div>s/1.00</div>
-                                                </div>
-                                                <div
-                                                    style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
-                                                    <div>TOTAL:</div>
-                                                    <div>s/56.00</div>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <button class="btn btn-dark"
-                                                    style="width: 180px; font-weight: bold; padding: 8px 0; font-size: 16px;">Imprimir</button>
-                                            </div>
-                                            <!-- Status indicator -->
-                                            <div style="position: absolute; bottom: 0; left: 0; margin-top: 10px;">
-                                                <div
-                                                    style="width: 30px; height: 30px; border-radius: 50%; background-color: #ff8c00; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                                    2
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right column - Customer info -->
-                                        <div style="width: 50%; padding: 15px;">
-                                            <!-- Customer contact info section -->
-                                            <div style="border: 1px solid #dee2e6; padding: 15px; margin-bottom: 15px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                    <div style="font-weight: bold; font-size: 16px;">JUAN CARLOS</div>
-                                                    <div>TEL:957362484</div>
-                                                </div>
-                                                <div style="margin-bottom: 5px;">Av. Primavera 123, Dpto. 402</div>
-                                                <div style="margin-bottom: 5px;">Frente a Plaza Vea</div>
-                                                <div>Surco</div>
-                                            </div>
-
-                                            <!-- Payment details section - simplified -->
-                                            <div style="border: 1px solid #dee2e6; padding: 15px;">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                    <div>Método pago:</div>
-                                                    <div style="font-weight: bold;">Efectivo</div>
-                                                </div>
-                                                <div style="display: flex; justify-content: space-between;">
-                                                    <div>Vuelto de:</div>
-                                                    <div style="font-weight: bold;">100 soles</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -815,7 +571,7 @@
 
                         // Crear la tarjeta del pedido y agregarla al contenedor
                         const cardHtml = crearTarjetaPedido(pedido);
-                        $('#orders-pending').prepend(cardHtml);
+                        $('#orders-pending').append(cardHtml);
                     }
                 });
 
@@ -871,7 +627,7 @@
                     <span class="card-time-value card-time-delivery">${pedido.hora_entrega}</span>
                 </div>
             </div>
-            <div>PEDIDO LISTO <input type="checkbox" style="width: 20px; height: 20px;"></div>
+            <div>PEDIDO LISTO <input type="checkbox" class="pedido-listo-check" data-id="${pedido.id}" style="width: 20px; height: 20px;"></div>
         </div>
 
         <div class="card-body">
@@ -944,37 +700,189 @@
     `;
     }
 
-    // Función para imprimir pedido (puedes implementarla después)
-    function imprimirPedido(id) {
-        console.log("Imprimiendo pedido #" + id);
-        // Implementar lógica de impresión
-    }
+    function crearTarjetaPorAsignar(pedido) {
+    return `
+    <div class="card-container draggable mb-3">
+        <div style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: bold; font-size: 16px;">PEDIDO #${pedido.id} - ${pedido.fecha}</div>
+            <div>
+                <span style="margin-right: 15px;">Hora pedido: <strong>${pedido.hora_pedido}</strong></span>
+                <span style="color: #ff6f00;"><strong>${pedido.hora_entrega}</strong></span>
+            </div>
+        </div>
+
+        <div style="display: flex;">
+            <!-- Left column - Order summary -->
+            <div style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6;">
+                <div style="text-align: right; margin-bottom: 20px;">
+                    ${pedido.comensales.map(comensal => `
+                        <div style="font-size: 16px; margin-bottom: 10px;">
+                            <strong>${comensal.nombre}:</strong> s/ ${parseFloat(comensal.total).toFixed(2)}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="border: 1px solid #dee2e6; padding: 10px; text-align: center; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <div>Delivery:</div>
+                        <div>s/1.00</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
+                        <div>TOTAL:</div>
+                        <div>s/${parseFloat(pedido.total).toFixed(2)}</div>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="btn btn-dark" onclick="imprimirPedido(${pedido.id})"
+                        style="width: 180px; font-weight: bold; padding: 8px 0; font-size: 16px;">Imprimir</button>
+                </div>
+            </div>
+
+            <!-- Right column - Customer info -->
+            <div style="width: 50%; padding: 15px;">
+                <!-- Customer contact info section -->
+                <div style="border: 1px solid #dee2e6; padding: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <div style="font-weight: bold; font-size: 16px;">${pedido.nombre_contacto}</div>
+                        <div>TEL:${pedido.telefono_contacto}</div>
+                    </div>
+                    <div style="margin-bottom: 5px;">${pedido.direccion}</div>
+                    <div style="margin-bottom: 5px;">${pedido.referencia || ''}</div>
+                    <div>${pedido.distrito || ''}</div>
+                </div>
+
+                <!-- Payment details section - simplified -->
+                <div style="border: 1px solid #dee2e6; padding: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <div>Método pago:</div>
+                        <div style="font-weight: bold;">${pedido.metodo_pago}</div>
+                    </div>
+                    ${pedido.vuelto ? `
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>Vuelto de:</div>
+                        <div style="font-weight: bold;">${pedido.vuelto} soles</div>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
 
     $(document).ready(function() {
-        // Cargar los pedidos iniciales
-        actualizarPedidos();
-
-        // Inicializar el array con los IDs de pedidos ya mostrados
-        // Esto evita duplicados en la primera carga
-        @php
-        $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
-        @endphp
-        
+    // Definir pedidosIniciales correctamente antes de usarlo
+     @php
+    $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
+    $pedidosPorAsignarJs = isset($pedidosPorAsignar) ? json_encode($pedidosPorAsignar) : '[]';
+    @endphp
+    const pedidosIniciales = {!! $pedidosJs !!};
+    const pedidosPorAsignar = {!! $pedidosPorAsignarJs !!};
+    
+    // Cargar los IDs iniciales para evitar duplicados
+    if (pedidosIniciales && pedidosIniciales.length > 0) {
         pedidosIniciales.forEach(function(pedido) {
             displayedOrderIds.push(pedido.id);
         });
-
-        // Configurar la actualización automática cada 30 segundos
-        setInterval(actualizarPedidos, 30000);
-
-        // Vaciar el contenedor de pedidos si ya existen tarjetas estáticas
-        $('#orders-pending').empty();
-
-        // Cargar los pedidos iniciales después de vaciar
+    }
+    
+    // Cargar los pedidos iniciales
+    actualizarPedidos();
+    
+    // Configurar la actualización automática cada 10 segundos
+    setInterval(actualizarPedidos, 10000);
+    
+    // Vaciar el contenedor de pedidos si ya existen tarjetas estáticas
+    $('#orders-pending').empty();
+    
+    // Cargar los pedidos iniciales después de vaciar
+    if (pedidosIniciales && pedidosIniciales.length > 0) {
         pedidosIniciales.forEach(function(pedido) {
             $('#orders-pending').append(crearTarjetaPedido(pedido));
         });
+    }
+
+    // Cargar los pedidos por asignar en su contenedor
+    if (pedidosPorAsignar && pedidosPorAsignar.length > 0) {
+        pedidosPorAsignar.forEach(function(pedido) {
+            $('#unassigned-orders').append(crearTarjetaPorAsignar(pedido));
+        });
+        
+        // Actualizar el contador de pedidos pendientes
+        $('#pedidos-pendingcount').text(pedidosPorAsignar.length);
+    }
+
+    $(document).on('change', '.pedido-listo-check', function() {
+        if (this.checked) {
+            const pedidoId = $(this).data('id');
+            const $tarjeta = $(this).closest('.card-container');
+            
+            // Actualizar el estado del pedido via AJAX
+            $.ajax({
+                url: "{{ route('despacho.actualizar-estado') }}",
+                type: "POST",
+                data: {
+                    pedido_id: pedidoId,
+                    estado: 3,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    
+                    if (response.success) {
+                        // Buscar el pedido en los datos originales
+                        let pedidoData = null;
+                        for (let i = 0; i < pedidosIniciales.length; i++) {
+                            if (pedidosIniciales[i].id === pedidoId) {
+                                pedidoData = pedidosIniciales[i];
+                                break;
+                            }
+                        }
+                        
+                        if (pedidoData) {
+                            // Crear la nueva tarjeta en formato "Por asignar"
+                            const nuevaTarjeta = crearTarjetaPorAsignar(pedidoData);
+                            
+                            // Eliminar la tarjeta original
+                            $tarjeta.fadeOut(300, function() {
+                                $(this).remove();
+                                
+                                // Añadir la nueva tarjeta al contenedor "unassigned-orders"
+                                $('#unassigned-orders').append(nuevaTarjeta);
+                                const contadorActual = $('#pedidos-pendingcount').text() || "0";
+                                $('#pedidos-pendingcount').text(parseInt(contadorActual) + 1);
+                                
+                                // Notificar al usuario
+                                Swal.fire({
+                                    title: 'Pedido actualizado',
+                                    text: 'El pedido ha sido marcado como listo y movido a la sección Por Asignar',
+                                    icon: 'success',
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                            });
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error al actualizar el estado del pedido:", error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo actualizar el estado del pedido',
+                        icon: 'error',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            });
+        }
     });
+});
 
 
 
@@ -1006,88 +914,8 @@
         let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();
         let currentDayIndex = today.getDate() - 1; // Start at today
-
-        renderCalendar(currentMonth, currentYear, currentDayIndex);
-
-        document.getElementById('prevMonth').addEventListener('click', function() {
-            currentMonth--;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            currentDayIndex = 0; // Reset to start of month
-            renderCalendar(currentMonth, currentYear, currentDayIndex);
-        });
-
-        document.getElementById('nextMonth').addEventListener('click', function() {
-            currentMonth++;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            currentDayIndex = 0; // Reset to start of month
-            renderCalendar(currentMonth, currentYear, currentDayIndex);
-        });
-
-
-
     }
 
-    function renderCalendar(month, year, startDayIndex) {
-        const monthNames = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE',
-            'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
-        ];
-        const dayNames = ['LU', 'MA', 'MI', 'JU', 'VI', 'SA', 'DO'];
-
-        document.getElementById('currentMonth').innerText = `${monthNames[month]} ${year}`;
-
-        const calendarDays = document.getElementById('calendarDays');
-        calendarDays.innerHTML = '';
-
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const today = new Date();
-
-        // Show 7 days at a time, starting from startDayIndex
-        const endDayIndex = Math.min(startDayIndex + 7, daysInMonth);
-
-        // Get the day of the week for the first visible day
-        let firstDayDate = new Date(year, month, startDayIndex + 1);
-
-        // Display 7 days, or fewer if we're at the end of the month
-        for (let i = startDayIndex; i < endDayIndex; i++) {
-            let date = new Date(year, month, i + 1);
-            let dayOfWeek = date.getDay();
-            dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert to 0 = Monday
-
-            const dayItem = document.createElement('div');
-            dayItem.className = 'day-item';
-
-            // Add day name (Mon, Tue, etc)
-            const dayNameElem = document.createElement('div');
-            dayNameElem.className = 'day-name';
-            dayNameElem.innerText = dayNames[dayOfWeek];
-            dayItem.appendChild(dayNameElem);
-
-            // Add day number
-            const day = document.createElement('div');
-            day.className = 'day';
-            day.innerText = i + 1;
-
-            // Check if this day is today
-            if (today.getDate() === (i + 1) && today.getMonth() === month && today.getFullYear() === year) {
-                day.classList.add('current');
-            }
-
-            day.addEventListener('click', function() {
-                const selectedDays = document.querySelectorAll('.day.selected');
-                selectedDays.forEach(d => d.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-
-            dayItem.appendChild(day);
-            calendarDays.appendChild(dayItem);
-        }
-    }
     </script>
 </body>
 
