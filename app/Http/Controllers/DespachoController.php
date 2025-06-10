@@ -91,10 +91,6 @@ class DespachoController extends Controller
             'distritoContacto'
         ])
         ->where('estado', 3) // Filtrar pedidos con estado 3
-        ->where(function($query) {
-            $query->whereNull('id_user_moto')
-              ->orWhere('id_user_moto', 0);
-        }) 
         ->whereDate('created_at', Carbon::today()) // Filtrar solo pedidos de hoy
         ->orderBy('created_at', 'desc')
         ->get();
@@ -212,8 +208,15 @@ class DespachoController extends Controller
         return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
     }
     
-    // Actualizar el pedido con el ID de la moto asignada
+
     $pedido->id_user_moto = $motoId;
+    
+    if ($motoId > 0) {
+        $pedido->estado = 4; // Asignado a motorizado
+    } else {
+        $pedido->estado = 3; // Por asignar
+    }
+    
     $pedido->save();
     
     return response()->json([
@@ -234,11 +237,42 @@ private function getPedidosAsignadosAMoto($motoId)
         'distritoContacto'
     ])
     ->where('id_user_moto', $motoId)
-    ->where('estado', 3)
+    ->whereIn('estado', [4, 5]) 
     ->whereDate('created_at', Carbon::today())
     ->orderBy('created_at', 'desc')
     ->get();
     
     return $this->formatearPedidos($pedidosDB);
 }
+
+
+public function marcarPedidoEnCamino(Request $request)
+{
+    $pedidoId = $request->input('pedido_id');
+    
+    $pedido = Pedido::find($pedidoId);
+    if (!$pedido) {
+        return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
+    }
+    
+    $pedido->estado = 5; // En camino
+    $pedido->save();
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Pedido marcado como en camino',
+        'pedido' => $pedido
+    ]);
+}
+
+public function obtenerEstadoPedidos()
+{
+    $pedidosDB = Pedido::whereIn('estado', [4, 5])
+        ->whereDate('created_at', Carbon::today())
+        ->select('id', 'estado', 'id_user_moto')
+        ->get();
+    
+    return response()->json($pedidosDB);
+}
+
 }

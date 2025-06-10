@@ -473,7 +473,7 @@
         <div class="content-body">
             <div class="container-fluid">
 
-                
+
                 <!-- Dashboard Header -->
                 <div class="dashboard-header">
                     <div class="dashboard-title">DASHBOARD ORGANIZAR REPARTO</div>
@@ -503,19 +503,19 @@
                         <div id="orders-assigned">
                             <div id="unassigned-orders" class="drag-area mb-4">
                                 <!-- Draggable order card -->
-                               
+
                             </div>
 
                             <!-- Moto 1 -->
                             <div class="moto-section">MOTO </div>
                             <div id="moto1-container" class="drag-area mb-4">
-                                
+
                             </div>
 
                             <!-- Moto 2 -->
                             <div class="moto-header">MOTO </div>
                             <div id="moto2-container" class="drag-container">
-                                
+
                             </div>
                         </div>
                     </div>
@@ -573,7 +573,7 @@
                         const cardHtml = crearTarjetaPedido(pedido);
                         $('#orders-pending').append(cardHtml);
                     }
-                });
+                }); // End of $(document).ready()
 
                 // Si hay nuevos pedidos, mostrar una notificación
                 if (nuevosEncontrados) {
@@ -595,49 +595,49 @@
     }
 
     function asignarPedidoAMoto(pedidoId, motoId) {
-    $.ajax({
-        url: "{{ route('despacho.asignar-moto') }}",
-        type: "POST",
-        data: {
-            pedido_id: pedidoId,
-            moto_id: motoId,
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(response) {
-            if (response.success) {
-                let mensaje = '';
-                if (motoId === 0) {
-                    mensaje = 'El pedido ha vuelto a la sección "Por asignar"';
-                } else {
-                    mensaje = `El pedido ha sido asignado a la moto ${motoId}`;
+        $.ajax({
+            url: "{{ route('despacho.asignar-moto') }}",
+            type: "POST",
+            data: {
+                pedido_id: pedidoId,
+                moto_id: motoId,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                if (response.success) {
+                    let mensaje = '';
+                    if (motoId === 0) {
+                        mensaje = 'El pedido ha vuelto a la sección "Por asignar"';
+                    } else {
+                        mensaje = `El pedido ha sido asignado a la moto ${motoId}`;
+                    }
+
+                    // Notificar al usuario
+                    Swal.fire({
+                        title: 'Pedido actualizado',
+                        text: mensaje,
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 }
-                
-                // Notificar al usuario
+            },
+            error: function(xhr, status, error) {
+                console.error("Error al asignar pedido a moto:", error);
                 Swal.fire({
-                    title: 'Pedido actualizado',
-                    text: mensaje,
-                    icon: 'success',
+                    title: 'Error',
+                    text: 'No se pudo completar la acción',
+                    icon: 'error',
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
                     timer: 3000
                 });
             }
-        },
-        error: function(xhr, status, error) {
-            console.error("Error al asignar pedido a moto:", error);
-            Swal.fire({
-                title: 'Error',
-                text: 'No se pudo completar la acción',
-                icon: 'error',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000
-            });
-        }
-    });
-}
+        });
+    }
 
     // Función para crear HTML de la tarjeta de pedido
     function crearTarjetaPedido(pedido) {
@@ -745,9 +745,9 @@
     `;
     }
 
-    function crearTarjetaPorAsignar(pedido) {
-    return `
-    <div class="card-container draggable mb-3" data-pedido-id="${pedido.id}">
+    function crearTarjetaPorAsignar(pedido, orden = null) {
+        return `
+    <div class="card-container draggable mb-3" data-pedido-id="${pedido.id}" data-estado="${pedido.estado || 3}">
         <div style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-weight: bold; font-size: 16px;">PEDIDO #${pedido.id} - ${pedido.fecha}</div>
             <div>
@@ -778,13 +778,25 @@
                     </div>
                 </div>
 
-                <div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
                     <button class="btn btn-dark" onclick="imprimirPedido(${pedido.id})"
                         style="width: 180px; font-weight: bold; padding: 8px 0; font-size: 16px;">Imprimir</button>
+                    ${pedido.estado === 5 ? `
+<div style="display: flex; align-items: center; margin-left: 15px;">
+    <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+        ${orden !== null ? orden : ''}
+    </div>
+    <div style="color: #FF5722; font-weight: bold;">EN CAMINO</div>
+</div>
+` : pedido.estado === 4 && orden !== null ? `
+<div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
+    ${orden}
+</div>
+` : ''}
                 </div>
             </div>
 
-            <!-- Right column - Customer info -->
+            <!-- Right column -->
             <div style="width: 50%; padding: 15px;">
                 <!-- Customer contact info section -->
                 <div style="border: 1px solid #dee2e6; padding: 15px; margin-bottom: 15px;">
@@ -814,138 +826,140 @@
         </div>
     </div>
     `;
-}
+    }
 
 
     $(document).ready(function() {
-    // Definir pedidosIniciales correctamente antes de usarlo
-     @php
-    $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
-    $pedidosPorAsignarJs = isset($pedidosPorAsignar) ? json_encode($pedidosPorAsignar) : '[]';
-    $pedidosMoto1Js = isset($pedidosMoto1) ? json_encode($pedidosMoto1) : '[]';
-    $pedidosMoto2Js = isset($pedidosMoto2) ? json_encode($pedidosMoto2) : '[]';
-    @endphp
-    const pedidosIniciales = {!! $pedidosJs !!};
-    const pedidosPorAsignar = {!! $pedidosPorAsignarJs !!};
-    const pedidosMoto1 = {!! $pedidosMoto1Js !!};
-    const pedidosMoto2 = {!! $pedidosMoto2Js !!};
+        // Definir pedidosIniciales correctamente antes de usarlo
+        @php
+        $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
+        $pedidosPorAsignarJs = isset($pedidosPorAsignar) ? json_encode($pedidosPorAsignar) : '[]';
+        $pedidosMoto1Js = isset($pedidosMoto1) ? json_encode($pedidosMoto1) : '[]';
+        $pedidosMoto2Js = isset($pedidosMoto2) ? json_encode($pedidosMoto2) : '[]';
+        @endphp
+        const pedidosIniciales = {!!$pedidosJs!!};
+        const pedidosPorAsignar = {!!$pedidosPorAsignarJs!!};
+        const pedidosMoto1 = {!!$pedidosMoto1Js!!};
+        const pedidosMoto2 = {!!$pedidosMoto2Js!!};
 
-    // Cargar los IDs iniciales para evitar duplicados
-    if (pedidosIniciales && pedidosIniciales.length > 0) {
-        pedidosIniciales.forEach(function(pedido) {
-            displayedOrderIds.push(pedido.id);
-        });
-    }
-
-    // Cargar los pedidos asignados a moto 1
-    if (pedidosMoto1 && pedidosMoto1.length > 0) {
-        pedidosMoto1.forEach(function(pedido) {
-            $('#moto1-container').append(crearTarjetaPorAsignar(pedido));
-        });
-    }
-    
-    // Cargar los pedidos asignados a moto 2
-    if (pedidosMoto2 && pedidosMoto2.length > 0) {
-        pedidosMoto2.forEach(function(pedido) {
-            $('#moto2-container').append(crearTarjetaPorAsignar(pedido));
-        });
-    }
-    
-    // Cargar los pedidos iniciales
-    actualizarPedidos();
-    
-    // Configurar la actualización automática cada 10 segundos
-    setInterval(actualizarPedidos, 10000);
-    
-    // Vaciar el contenedor de pedidos si ya existen tarjetas estáticas
-    $('#orders-pending').empty();
-    
-    // Cargar los pedidos iniciales después de vaciar
-    if (pedidosIniciales && pedidosIniciales.length > 0) {
-        pedidosIniciales.forEach(function(pedido) {
-            $('#orders-pending').append(crearTarjetaPedido(pedido));
-        });
-    }
-
-    // Cargar los pedidos por asignar en su contenedor
-    if (pedidosPorAsignar && pedidosPorAsignar.length > 0) {
-        pedidosPorAsignar.forEach(function(pedido) {
-            $('#unassigned-orders').append(crearTarjetaPorAsignar(pedido));
-        });
-        
-        // Actualizar el contador de pedidos pendientes
-        $('#pedidos-pendingcount').text(pedidosPorAsignar.length);
-    }
-
-    $(document).on('change', '.pedido-listo-check', function() {
-        if (this.checked) {
-            const pedidoId = $(this).data('id');
-            const $tarjeta = $(this).closest('.card-container');
-            
-            // Actualizar el estado del pedido via AJAX
-            $.ajax({
-                url: "{{ route('despacho.actualizar-estado') }}",
-                type: "POST",
-                data: {
-                    pedido_id: pedidoId,
-                    estado: 3,
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(response) {
-                    
-                    if (response.success) {
-                        // Buscar el pedido en los datos originales
-                        let pedidoData = null;
-                        for (let i = 0; i < pedidosIniciales.length; i++) {
-                            if (pedidosIniciales[i].id === pedidoId) {
-                                pedidoData = pedidosIniciales[i];
-                                break;
-                            }
-                        }
-                        
-                        if (pedidoData) {
-                            // Crear la nueva tarjeta en formato "Por asignar"
-                            const nuevaTarjeta = crearTarjetaPorAsignar(pedidoData);
-                            
-                            // Eliminar la tarjeta original
-                            $tarjeta.fadeOut(300, function() {
-                                $(this).remove();
-                                
-                                // Añadir la nueva tarjeta al contenedor "unassigned-orders"
-                                $('#unassigned-orders').append(nuevaTarjeta);
-                                const contadorActual = $('#pedidos-pendingcount').text() || "0";
-                                $('#pedidos-pendingcount').text(parseInt(contadorActual) + 1);
-                                
-                                // Notificar al usuario
-                                Swal.fire({
-                                    title: 'Pedido actualizado',
-                                    text: 'El pedido ha sido marcado como listo y movido a la sección Por Asignar',
-                                    icon: 'success',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 3000
-                                });
-                            });
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error al actualizar el estado del pedido:", error);
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'No se pudo actualizar el estado del pedido',
-                        icon: 'error',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                }
+        // Cargar los IDs iniciales para evitar duplicados
+        if (pedidosIniciales && pedidosIniciales.length > 0) {
+            pedidosIniciales.forEach(function(pedido) {
+                displayedOrderIds.push(pedido.id);
             });
         }
+
+        // Cargar los pedidos asignados a moto 1
+        if (pedidosMoto1 && pedidosMoto1.length > 0) {
+            pedidosMoto1.forEach(function(pedido) {
+                $('#moto1-container').append(crearTarjetaPorAsignar(pedido));
+            });
+        }
+
+        // Cargar los pedidos asignados a moto 2
+        if (pedidosMoto2 && pedidosMoto2.length > 0) {
+            pedidosMoto2.forEach(function(pedido) {
+                $('#moto2-container').append(crearTarjetaPorAsignar(pedido));
+            });
+        }
+
+        // Cargar los pedidos iniciales
+        actualizarPedidos();
+
+        // Configurar la actualización automática cada 5 segundos
+        setInterval(actualizarPedidos, 5000);
+
+        // Vaciar el contenedor de pedidos si ya existen tarjetas estáticas
+        $('#orders-pending').empty();
+
+        // Cargar los pedidos iniciales después de vaciar
+        if (pedidosIniciales && pedidosIniciales.length > 0) {
+            pedidosIniciales.forEach(function(pedido) {
+                $('#orders-pending').append(crearTarjetaPedido(pedido));
+            });
+        }
+
+        // Cargar los pedidos por asignar en su contenedor
+        if (pedidosPorAsignar && pedidosPorAsignar.length > 0) {
+            pedidosPorAsignar.forEach(function(pedido) {
+                $('#unassigned-orders').append(crearTarjetaPorAsignar(pedido));
+            });
+
+            // Actualizar el contador de pedidos pendientes
+            $('#pedidos-pendingcount').text(pedidosPorAsignar.length);
+        }
+
+        $(document).on('change', '.pedido-listo-check', function() {
+            if (this.checked) {
+                const pedidoId = $(this).data('id');
+                const $tarjeta = $(this).closest('.card-container');
+
+                // Actualizar el estado del pedido via AJAX
+                $.ajax({
+                    url: "{{ route('despacho.actualizar-estado') }}",
+                    type: "POST",
+                    data: {
+                        pedido_id: pedidoId,
+                        estado: 3,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+
+                        if (response.success) {
+                            // Buscar el pedido en los datos originales
+                            let pedidoData = null;
+                            for (let i = 0; i < pedidosIniciales.length; i++) {
+                                if (pedidosIniciales[i].id === pedidoId) {
+                                    pedidoData = pedidosIniciales[i];
+                                    break;
+                                }
+                            }
+
+                            if (pedidoData) {
+                                // Crear la nueva tarjeta en formato "Por asignar"
+                                const nuevaTarjeta = crearTarjetaPorAsignar(pedidoData);
+
+                                // Eliminar la tarjeta original
+                                $tarjeta.fadeOut(300, function() {
+                                    $(this).remove();
+
+                                    // Añadir la nueva tarjeta al contenedor "unassigned-orders"
+                                    $('#unassigned-orders').append(nuevaTarjeta);
+                                    const contadorActual = $(
+                                        '#pedidos-pendingcount').text() || "0";
+                                    $('#pedidos-pendingcount').text(parseInt(
+                                        contadorActual) + 1);
+
+                                    // Notificar al usuario
+                                    Swal.fire({
+                                        title: 'Pedido actualizado',
+                                        text: 'El pedido ha sido marcado como listo y movido a la sección Por Asignar',
+                                        icon: 'success',
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000
+                                    });
+                                });
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error al actualizar el estado del pedido:", error);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo actualizar el estado del pedido',
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                });
+            }
+        });
     });
-});
 
 
 
@@ -960,31 +974,31 @@
         ];
 
         containers.forEach(function(container) {
-        new Sortable(container, {
-            group: 'orders',
-            animation: 150,
-            ghostClass: 'order-card-ghost',
-            chosenClass: 'order-card-chosen',
-            dragClass: 'order-card-drag',
-            onEnd: function(evt) {
-                const pedidoId = evt.item.getAttribute('data-pedido-id');
-                
-                // Si no se pudo obtener el ID del pedido, no hacer nada
-                if (!pedidoId) return;
-                
-                // Determinar a qué moto se asignó (o si se quitó la asignación)
-                let motoId = null;
-                if (evt.to.id === 'moto1-container') {
-                    motoId = 1;
-                } else if (evt.to.id === 'moto2-container') {
-                    motoId = 2;
-                } else if (evt.to.id === 'unassigned-orders') {
-                    motoId = 0; // 0 significa sin asignar
-                }
-                
-                // Si se asignó a una moto o se quitó la asignación
-                if (motoId !== null) {
-                    asignarPedidoAMoto(pedidoId, motoId);
+            new Sortable(container, {
+                group: 'orders',
+                animation: 150,
+                ghostClass: 'order-card-ghost',
+                chosenClass: 'order-card-chosen',
+                dragClass: 'order-card-drag',
+                onEnd: function(evt) {
+                    const pedidoId = evt.item.getAttribute('data-pedido-id');
+
+                    // Si no se pudo obtener el ID del pedido, no hacer nada
+                    if (!pedidoId) return;
+
+                    // Determinar a qué moto se asignó (o si se quitó la asignación)
+                    let motoId = null;
+                    if (evt.to.id === 'moto1-container') {
+                        motoId = 1;
+                    } else if (evt.to.id === 'moto2-container') {
+                        motoId = 2;
+                    } else if (evt.to.id === 'unassigned-orders') {
+                        motoId = 0; // 0 significa sin asignar
+                    }
+
+                    // Si se asignó a una moto o se quitó la asignación
+                    if (motoId !== null) {
+                        asignarPedidoAMoto(pedidoId, motoId);
                     }
                 }
             });
@@ -1000,6 +1014,49 @@
         let currentDayIndex = today.getDate() - 1; // Start at today
     }
 
+
+    function actualizarEstadoPedidos() {
+        $.ajax({
+            url: "{{ route('despacho.estado-pedidos') }}",
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                // Actualizar pedidos en camino
+                data.forEach(function(pedido) {
+                    let $pedidoElement = $(`.card-container[data-pedido-id="${pedido.id}"]`);
+
+                    if ($pedidoElement.length > 0 && pedido.estado === 5 && $pedidoElement.attr(
+                            'data-estado') !== '5') {
+                        // El pedido existe en la UI y ha cambiado a estado 5
+                        // Encontrar en qué contenedor está (moto1 o moto2)
+                        const motoId = $pedidoElement.parent().attr('id') === 'moto1-container' ?
+                            1 : 2;
+                        const orden = calcularOrdenPedido(motoId, pedido.id);
+
+                        // Actualizar la tarjeta con el estado "EN CAMINO"
+                        $pedidoElement.replaceWith(crearTarjetaPorAsignar(pedido, orden));
+                        $pedidoElement.attr('data-estado', '5');
+                    }
+                });
+            }
+        });
+    }
+
+    // Añadir esta función para calcular el orden del pedido
+    function calcularOrdenPedido(motoId, pedidoId) {
+        const containerId = `moto${motoId}-container`;
+        const $container = $(`#${containerId}`);
+        const pedidos = $container.find('.card-container').toArray();
+
+        // Encontrar la posición del pedido en el contenedor
+        for (let i = 0; i < pedidos.length; i++) {
+            if ($(pedidos[i]).attr('data-pedido-id') === String(pedidoId)) {
+                return i + 1;
+            }
+        }
+
+        return null;
+    }
     </script>
 </body>
 
