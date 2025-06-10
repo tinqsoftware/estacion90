@@ -15,10 +15,13 @@ class DespachoController extends Controller
      */
      public function despacho()
     {
-        // Obtener pedidos listos para despacho
+        // Obtener pedidos listos para despacho (estado 2)
         $pedidos = $this->getPedidosPreparados();
         
-        return view('despacho.despacho', compact('pedidos'));
+        // Obtener pedidos por asignar (estado 3)
+        $pedidosPorAsignar = $this->getPedidosPorAsignar();
+        
+        return view('despacho.despacho', compact('pedidos', 'pedidosPorAsignar'));
     }
 
     /**
@@ -30,7 +33,7 @@ class DespachoController extends Controller
     {
         return view('despacho.despacho_moto');
     }
-    
+
     /**
      * Obtener pedidos nuevos para actualización AJAX
      *
@@ -41,7 +44,7 @@ class DespachoController extends Controller
         $pedidos = $this->getPedidosPreparados();
         return response()->json($pedidos);
     }
-    
+
     /**
      * Obtener pedidos preparados y formatearlos para la vista
      *
@@ -51,6 +54,31 @@ class DespachoController extends Controller
     {
         // Obtener pedidos que tienen estado 2 (listos para despacho)
         $pedidosDB = Pedido::with([
+                'detalles.producto', 
+                'detalles.comensal', 
+                'comensales',
+                'tipoPago',
+                'comprobantePago',
+                'distritoContacto'
+            ])
+            ->whereIn('estado', [2, 8]) // Filtrar pedidos con estado 2 o 8
+            ->whereDate('created_at', Carbon::today()) // Filtrar solo pedidos de hoy
+            ->orderBy('created_at', 'desc')
+            ->take(10) // Limitar la cantidad para rendimiento
+            ->get();
+        
+        return $this->formatearPedidos($pedidosDB);
+    }
+
+    /**
+     * Obtener pedidos por asignar (estado 3)
+     *
+     * @return array
+     */
+    private function getPedidosPorAsignar()
+    {
+        // Obtener pedidos que tienen estado 3 (pendientes por asignar)
+        $pedidosDB = Pedido::with([
             'detalles.producto', 
             'detalles.comensal', 
             'comensales',
@@ -58,12 +86,22 @@ class DespachoController extends Controller
             'comprobantePago',
             'distritoContacto'
         ])
-        ->where('estado', 2) // Filtrar pedidos con estado 2
+        ->where('estado', 3) // Filtrar pedidos con estado 3
         ->whereDate('created_at', Carbon::today()) // Filtrar solo pedidos de hoy
         ->orderBy('created_at', 'desc')
-        ->take(10) // Limitar la cantidad para rendimiento
         ->get();
         
+        return $this->formatearPedidos($pedidosDB);
+    }
+    
+    /**
+     * Formatear los pedidos para la vista
+     * 
+     * @param \Illuminate\Database\Eloquent\Collection $pedidosDB
+     * @return array
+     */
+    private function formatearPedidos($pedidosDB)
+    {
         $pedidosFormateados = [];
         
         foreach ($pedidosDB as $pedido) {
@@ -92,7 +130,7 @@ class DespachoController extends Controller
                 }
                 
                 $comensalesDatos[] = [
-                    'nombre' => $comensal->nombre,
+                    'nombre' => $comensal->nombre_comensal,
                     'total' => $totalComensal,
                     'items' => $items
                 ];
@@ -128,5 +166,31 @@ class DespachoController extends Controller
         }
         
         return $pedidosFormateados;
+    }
+
+    /**
+     * Actualizar el estado de un pedido
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function actualizarEstadoPedido(Request $request)
+    {
+        $pedidoId = $request->input('pedido_id');
+        $nuevoEstado = $request->input('estado', 3);
+        
+        $pedido = Pedido::find($pedidoId);
+        if (!$pedido) {
+            return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
+        }
+        
+        $pedido->estado = $nuevoEstado;
+        $pedido->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado del pedido actualizado correctamente',
+            'pedido' => $pedido
+        ]);
     }
 }
