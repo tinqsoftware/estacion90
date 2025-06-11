@@ -275,6 +275,7 @@
         margin-bottom: 15px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         position: relative;
+        width: 100%;
     }
 
     .card-header {
@@ -455,6 +456,8 @@
         min-height: 100px;
         margin-bottom: 20px;
         border-radius: 5px;
+        display: flex;
+        flex-direction: column;
     }
     </style>
 
@@ -830,25 +833,13 @@
         @php
         $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
         $pedidosPorAsignarJs = isset($pedidosPorAsignar) ? json_encode($pedidosPorAsignar) : '[]';
-        $pedidosMoto1Js = isset($pedidosMoto1) ? json_encode($pedidosMoto1) : '[]';
-        $pedidosMoto2Js = isset($pedidosMoto2) ? json_encode($pedidosMoto2) : '[]';
+        $pedidosMotorizadosJs = isset($pedidosMotorizados) ? json_encode($pedidosMotorizados) : '{}';
         @endphp
         const pedidosIniciales = {!!$pedidosJs!!};
         const pedidosPorAsignar = {!!$pedidosPorAsignarJs!!};
-        const pedidosMoto1 = {!!$pedidosMoto1Js!!};
-        const pedidosMoto2 = {!!$pedidosMoto2Js!!};
+        const pedidosMotorizados = {!!$pedidosMotorizadosJs!!};
 
-        // Cargar los pedidos asignados a cada motorizado
-        // Cargar los pedidos asignados a cada motorizado
-    @foreach($motorizados as $motorizado)
-        if (pedidosMotorizados[{{ $motorizado->id }}] && pedidosMotorizados[{{ $motorizado->id }}].length > 0) {
-            pedidosMotorizados[{{ $motorizado->id }}].forEach(function(pedido, index) {
-                $('#moto{{ $motorizado->id }}-container').append(
-                    crearTarjetaPorAsignar(pedido, index + 1)
-                );
-            });
-        }
-    @endforeach
+        
 
         // Cargar los IDs iniciales para evitar duplicados
         if (pedidosIniciales && pedidosIniciales.length > 0) {
@@ -857,19 +848,15 @@
             });
         }
 
-        // Cargar los pedidos asignados a moto 1
-        if (pedidosMoto1 && pedidosMoto1.length > 0) {
-            pedidosMoto1.forEach(function(pedido) {
-                $('#moto1-container').append(crearTarjetaPorAsignar(pedido));
-            });
-        }
-
-        // Cargar los pedidos asignados a moto 2
-        if (pedidosMoto2 && pedidosMoto2.length > 0) {
-            pedidosMoto2.forEach(function(pedido) {
-                $('#moto2-container').append(crearTarjetaPorAsignar(pedido));
-            });
-        }
+        @foreach($motorizados as $motorizado)
+    if (pedidosMotorizados[{{ $motorizado->id }}] && pedidosMotorizados[{{ $motorizado->id }}].length > 0) {
+            pedidosMotorizados[{{ $motorizado->id }}].forEach(function(pedido, index) {
+                $('#moto{{ $motorizado->id }}-container').append(
+                    crearTarjetaPorAsignar(pedido, index + 1)
+                    );
+                });
+            }
+    @endforeach
 
         // Cargar los pedidos iniciales
         actualizarPedidos();
@@ -993,6 +980,9 @@
                 ghostClass: 'order-card-ghost',
                 chosenClass: 'order-card-chosen',
                 dragClass: 'order-card-drag',
+                direction: 'vertical',
+                fallbackOnBody: true,
+                swapThreshold: 0.65,
                 onEnd: function(evt) {
                     const pedidoId = evt.item.getAttribute('data-pedido-id');
                     
