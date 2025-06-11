@@ -169,4 +169,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/despacho/pedido/asignar-moto', [DespachoController::class, 'asignarPedidoAMoto'])->name('despacho.asignar-moto');
     Route::post('/despacho/pedido/en-camino', [DespachoController::class, 'marcarPedidoEnCamino'])->name('despacho.en-camino');
     Route::get('/despacho/estado-pedidos', [DespachoController::class, 'obtenerEstadoPedidos'])->name('despacho.estado-pedidos');
+    Route::get('/despacho/pedido/imprimir/{id}', [DespachoController::class, 'imprimirPedido'])->name('despacho.imprimir');
 });
