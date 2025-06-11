@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pedido;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -21,22 +22,35 @@ class DespachoController extends Controller
         // Obtener pedidos por asignar (estado 3)
         $pedidosPorAsignar = $this->getPedidosPorAsignar();
         
-        // Obtener pedidos asignados a motos
-        $pedidosMoto1 = $this->getPedidosAsignadosAMoto(1);
-        $pedidosMoto2 = $this->getPedidosAsignadosAMoto(2);
+        // Obtener los motorizados activos
+    $motorizados = $this->getMotorizadosActivos();
     
-    return view('despacho.despacho', compact('pedidos', 'pedidosPorAsignar', 'pedidosMoto1', 'pedidosMoto2'));
+    // Obtener pedidos asignados a cada motorizado
+    $pedidosMotorizados = [];
+    foreach ($motorizados as $motorizado) {
+        $pedidosMotorizados[$motorizado->id] = $this->getPedidosAsignadosAMoto($motorizado->id);
+    }
+    
+    return view('despacho.despacho', compact(
+        'pedidos', 
+        'pedidosPorAsignar', 
+        'motorizados', 
+        'pedidosMotorizados'
+    ));
 }
 
     /**
-     * Display the despacho moto view.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function despachoMoto()
-    {
-        return view('despacho.despacho_moto');
-    }
+ * Obtener los usuarios con rol de motorizado activos
+ * 
+ * @return \Illuminate\Database\Eloquent\Collection
+ */
+private function getMotorizadosActivos()
+{
+    return User::where('id_rol', 3)
+        ->where('estado', 1)
+        ->orderBy('name')
+        ->get();
+}
 
     /**
      * Obtener pedidos nuevos para actualización AJAX
