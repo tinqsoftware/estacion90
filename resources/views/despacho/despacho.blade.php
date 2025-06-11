@@ -1084,6 +1084,28 @@
 
         return null;
     }
+
+
+    function imprimirPedido(pedidoId) {
+    // Abrir en una nueva ventana la URL de impresión
+    const imprimirWindow = window.open("{{ url('despacho/pedido/imprimir') }}/" + pedidoId, '_blank');
+    
+    if (imprimirWindow) {
+        // Enfocar la ventana para asegurar que se abra correctamente
+        imprimirWindow.focus();
+    } else {
+        // Si el navegador bloqueó la ventana emergente
+        Swal.fire({
+            title: 'Error',
+            text: 'Por favor, permita ventanas emergentes para imprimir el pedido',
+            icon: 'error',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    }
+}
     </script>
 </body>
 

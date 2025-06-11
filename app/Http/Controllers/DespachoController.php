@@ -289,4 +289,98 @@ public function obtenerEstadoPedidos()
     return response()->json($pedidosDB);
 }
 
+
+/**
+ * Generar vista de impresión para un pedido
+ *
+ * @param int $id
+ * @return \Illuminate\View\View
+ */
+public function imprimirPedido($id)
+{
+    $pedidoDB = Pedido::with([
+        'detalles.producto', 
+        'detalles.comensal', 
+        'comensales',
+        'tipoPago',
+        'comprobantePago',
+        'distritoContacto'
+    ])->findOrFail($id);
+    
+    // Formatear los datos para la vista de impresión
+    $pedido = $this->formatearPedidoParaImpresion($pedidoDB);
+    
+    return view('despacho.imprimir-pedido', compact('pedido'));
+}
+
+/**
+ * Formatear un pedido para la vista de impresión
+ * 
+ * @param Pedido $pedidoDB
+ * @return array
+ */
+private function formatearPedidoParaImpresion($pedidoDB)
+{
+    // Agrupar los detalles por comensal
+    $comensalesDatos = [];
+    $totalPedido = 0;
+    
+    foreach ($pedidoDB->comensales as $comensal) {
+        $items = [];
+        $totalComensal = 0;
+        
+        // Obtener los items de este comensal
+        foreach ($pedidoDB->detalles as $detalle) {
+            if ($detalle->id_comensal == $comensal->id) {
+                $nombreProducto = $detalle->producto ? $detalle->producto->nombre : 'Producto no disponible';
+                $precioUnitario = $detalle->precio;
+                
+                $items[] = [
+                    'nombre' => $nombreProducto,
+                    'precio' => $precioUnitario,
+                    'cantidad' => $detalle->cantidad,
+                    'subtotal' => $precioUnitario * $detalle->cantidad
+                ];
+                
+                $totalComensal += ($precioUnitario * $detalle->cantidad);
+            }
+        }
+        
+        $comensalesDatos[] = [
+            'nombre' => $comensal->nombre_comensal,
+            'total' => $totalComensal,
+            'items' => $items
+        ];
+        
+        $totalPedido += $totalComensal;
+    }
+    
+    // Formatear la fecha para mostrar
+    $fechaPedido = Carbon::parse($pedidoDB->created_at);
+    $fechaEntrega = $pedidoDB->hora_programada ? 
+        Carbon::parse($pedidoDB->hora_programada) : 
+        $fechaPedido->copy()->addMinutes(45);
+    
+    return [
+        'id' => $pedidoDB->id,
+        'fecha' => $fechaPedido->format('d/m/Y'),
+        'hora_pedido' => $fechaPedido->format('h:i A'),
+        'hora_entrega' => $fechaEntrega->format('h:i A'),
+        'nombre_contacto' => $pedidoDB->nombre_contacto,
+        'telefono_contacto' => $pedidoDB->telefono_contacto,
+        'direccion' => $pedidoDB->direccion_contacto,
+        'referencia' => $pedidoDB->referencia_contacto,
+        'distrito' => $pedidoDB->distritoContacto ? $pedidoDB->distritoContacto->nombre : '',
+        'metodo_pago' => $pedidoDB->tipoPago ? $pedidoDB->tipoPago->nombre : $pedidoDB->metodo_pago,
+        'vuelto' => $pedidoDB->vuelto,
+        'comprobante' => $pedidoDB->desea_comprobante ? 'Sí' : 'No',
+        'tipo_comprobante' => $pedidoDB->comprobantePago ? $pedidoDB->comprobantePago->nombre : '',
+        'documento' => $pedidoDB->datos_comprobante ? json_decode($pedidoDB->datos_comprobante)->numero_documento ?? '' : '',
+        'comentarios' => $pedidoDB->comentarios,
+        'estado' => $pedidoDB->estado,
+        'total' => $totalPedido,
+        'comensales' => $comensalesDatos,
+    ];
+}
+
 }
