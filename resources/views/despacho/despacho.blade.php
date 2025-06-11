@@ -506,17 +506,13 @@
 
                             </div>
 
-                            <!-- Moto 1 -->
-                            <div class="moto-section">MOTO </div>
-                            <div id="moto1-container" class="drag-area mb-4">
-
+                            @foreach($motorizados as $motorizado)
+                            <div class="moto-section">MOTO: {{ $motorizado->name }} {{ $motorizado->apellido }}</div>
+                            <div id="moto{{ $motorizado->id }}-container" class="drag-area mb-4"
+                                data-moto-id="{{ $motorizado->id }}">
+                                <!-- Aquí se cargarán los pedidos asignados a este motorizado -->
                             </div>
-
-                            <!-- Moto 2 -->
-                            <div class="moto-header">MOTO </div>
-                            <div id="moto2-container" class="drag-container">
-
-                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -842,6 +838,18 @@
         const pedidosMoto1 = {!!$pedidosMoto1Js!!};
         const pedidosMoto2 = {!!$pedidosMoto2Js!!};
 
+        // Cargar los pedidos asignados a cada motorizado
+        // Cargar los pedidos asignados a cada motorizado
+    @foreach($motorizados as $motorizado)
+        if (pedidosMotorizados[{{ $motorizado->id }}] && pedidosMotorizados[{{ $motorizado->id }}].length > 0) {
+            pedidosMotorizados[{{ $motorizado->id }}].forEach(function(pedido, index) {
+                $('#moto{{ $motorizado->id }}-container').append(
+                    crearTarjetaPorAsignar(pedido, index + 1)
+                );
+            });
+        }
+    @endforeach
+
         // Cargar los IDs iniciales para evitar duplicados
         if (pedidosIniciales && pedidosIniciales.length > 0) {
             pedidosIniciales.forEach(function(pedido) {
@@ -966,14 +974,19 @@
 
     // Inicializar Sortable para permitir arrastrar y soltar
     document.addEventListener('DOMContentLoaded', function() {
-        // Contenedores donde se pueden arrastrar las tarjetas
-        var containers = [
-            document.getElementById('unassigned-orders'),
-            document.getElementById('moto1-container'),
-            document.getElementById('moto2-container')
-        ];
-
-        containers.forEach(function(container) {
+    // Array para almacenar todos los contenedores
+    var containers = [
+        document.getElementById('unassigned-orders')
+    ];
+    
+    // Agregar dinámicamente los contenedores de motorizados
+    @foreach($motorizados as $motorizado)
+        containers.push(document.getElementById('moto{{ $motorizado->id }}-container'));
+    @endforeach
+    
+    // Inicializar Sortable en cada contenedor
+    containers.forEach(function(container) {
+        if (container) { // Asegurarse que el contenedor existe
             new Sortable(container, {
                 group: 'orders',
                 animation: 150,
@@ -982,27 +995,31 @@
                 dragClass: 'order-card-drag',
                 onEnd: function(evt) {
                     const pedidoId = evt.item.getAttribute('data-pedido-id');
-
+                    
                     // Si no se pudo obtener el ID del pedido, no hacer nada
                     if (!pedidoId) return;
-
+                    
                     // Determinar a qué moto se asignó (o si se quitó la asignación)
                     let motoId = null;
-                    if (evt.to.id === 'moto1-container') {
-                        motoId = 1;
-                    } else if (evt.to.id === 'moto2-container') {
-                        motoId = 2;
-                    } else if (evt.to.id === 'unassigned-orders') {
+                    
+                    if (evt.to.id === 'unassigned-orders') {
                         motoId = 0; // 0 significa sin asignar
+                    } else {
+                        // Extraer el ID del motorizado del ID del contenedor (motoX-container)
+                        const match = evt.to.id.match(/moto(\d+)-container/);
+                        if (match && match[1]) {
+                            motoId = parseInt(match[1]);
+                        }
                     }
-
+                    
                     // Si se asignó a una moto o se quitó la asignación
                     if (motoId !== null) {
                         asignarPedidoAMoto(pedidoId, motoId);
                     }
                 }
             });
-        });
+        }
+    });
 
         initCalendar();
     });
@@ -1013,6 +1030,26 @@
         let currentYear = today.getFullYear();
         let currentDayIndex = today.getDate() - 1; // Start at today
     }
+
+    function calcularOrdenPedido(motoId, pedidoId) {
+    const containerId = `moto${motoId}-container`;
+    const $container = $(`#${containerId}`);
+    
+    if (!$container.length) {
+        return null;
+    }
+    
+    const pedidos = $container.find('.card-container').toArray();
+    
+    // Encontrar la posición del pedido en el contenedor
+    for (let i = 0; i < pedidos.length; i++) {
+        if ($(pedidos[i]).attr('data-pedido-id') === String(pedidoId)) {
+            return i + 1;
+        }
+    }
+    
+    return null;
+}
 
 
     function actualizarEstadoPedidos() {
