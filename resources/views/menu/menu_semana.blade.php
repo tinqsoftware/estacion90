@@ -560,7 +560,7 @@
                                 // Get all dates with menus
                                 fetch(
                                         `/api/calendar-with-menu?year=${currentYear}&month=${currentMonth}`
-                                        )
+                                    )
                                     .then(response => response.json())
                                     .then(data => {
                                         availableDates = data
@@ -744,6 +744,12 @@
                 // Guardar la fecha destino como atributo del modal
                 $(this).data('target-date', targetDate);
 
+                // Determinar si es una clonación que reemplazará contenido existente
+                const buttonText = button.text().trim();
+                const isReplacement = buttonText.includes('Clonar') && !buttonText.includes(
+                    'Menú');
+                $(this).data('is-replacement', isReplacement);
+
                 // Resetear el estado del modal
                 selectedMenuDate = null;
                 menuToClone = null;
@@ -760,6 +766,7 @@
                 renderModalCalendar(modalCurrentYear, modalCurrentMonth);
             });
 
+
             // Modificar el evento del botón copiar menú
             $('#btn-copiar-menu').on('click', function() {
                 if (!selectedMenuDate) return;
@@ -767,17 +774,32 @@
                 // Obtener la fecha destino del modal
                 const targetDate = $('#modalClonarMenu').data('target-date');
 
+                // Determinar si es una operación de reemplazo o de nueva creación
+                const isReplacement = $('#modalClonarMenu').data('is-replacement');
+
+                // Preparar el mensaje de confirmación según el tipo de operación
+                let warningMessage = '';
+                let iconType = 'question';
+
+                if (isReplacement) {
+                    warningMessage = `<p class="text-danger mt-2"><strong>¡Advertencia!</strong> Esta acción reemplazará TODOS los 
+        productos existentes para ${formatDateToSpanish(targetDate)}.</p>`;
+                    iconType = 'warning';
+                } else {
+                    warningMessage =
+                        `<p class="text-primary mt-2">Se clonará todo el menú del día seleccionado a ${formatDateToSpanish(targetDate)}.</p>`;
+                }
+
                 // Confirmar la clonación
                 Swal.fire({
                     title: 'Confirmar clonación',
                     html: `¿Está seguro de clonar el menú del <b>${formatDateToSpanish(selectedMenuDate)}</b> al <b>${formatDateToSpanish(targetDate)}</b>?
-                   <p class="text-danger mt-2"><strong>¡Advertencia!</strong> Esta acción reemplazará TODOS los 
-                   productos existentes para ${formatDateToSpanish(targetDate)}.</p>`,
-                    icon: 'warning',
+        ${warningMessage}`,
+                    icon: iconType,
                     showCancelButton: true,
                     confirmButtonText: 'Sí, clonar',
                     cancelButtonText: 'Cancelar',
-                    confirmButtonColor: '#d33'
+                    confirmButtonColor: isReplacement ? '#d33' : '#3085d6'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Mostrar indicador de carga
@@ -815,8 +837,7 @@
                                         window.location.reload();
                                     });
                                 } else {
-                                    throw new Error(data.message ||
-                                        'Error al clonar el menú');
+                                    throw new Error(data.message || 'Error al clonar el menú');
                                 }
                             })
                             .catch(error => {
@@ -1263,7 +1284,7 @@
            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalClonarMenu" data-date="${dateStr}">
              <i class="fas fa-clone me-1"></i>Clonar
            </button>` : 
-          `<button type="button" class="btn btn-info btn-sm btn-clonar-menu" data-date="${dateStr}">
+          `<button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalClonarMenu" data-date="${dateStr}">
              <i class="fas fa-clone me-1"></i>Clonar Menú
            </button>`
 }
