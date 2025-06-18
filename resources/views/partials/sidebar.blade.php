@@ -110,6 +110,7 @@
                                     <li><a href="deliver-order.html">Ordenes</a></li>
                                     <li><a href="/motorizado/moto">Envios</a></li>
                                     @endif
+                                    <li><a href="/motorizado/moto">Envios</a></li>
                                     
                                 </ul>
                             </li>
