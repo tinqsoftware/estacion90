@@ -85,7 +85,7 @@
             <span class="badge bg-primary p-2">
                 @php
                     $hayProductos = false;
-                    foreach ([1, 2, 3, 4, 5, 6, 7] as $cat) {
+                    foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $cat) {
                         if (isset($menuItems[$cat]) && count($menuItems[$cat]) > 0) {
                             $hayProductos = true;
                             break;
@@ -114,13 +114,15 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th width="14.28%">Entrada S/15.00</th>
-                                    <th width="14.28%">Entrada S/20.00</th>
-                                    <th width="14.28%">Fondo S/15.00</th>
-                                    <th width="14.28%">Fondo S/20.00</th>
-                                    <th width="14.28%">Carta</th>
-                                    <th width="14.28%">Combos</th>
-                                    <th width="14.28%">Extras</th>
+        <th width="11.11%">Entrada S/15.00</th>
+        <th width="11.11%">Entrada S/20.00</th>
+        <th width="11.11%">Fondo S/15.00</th>
+        <th width="11.11%">Fondo S/20.00</th>
+        <th width="11.11%">Carta</th>
+        <th width="11.11%">Combos</th>
+        <th width="11.11%">Extras</th>
+        <th width="11.11%">Caldos</th>
+        <th width="11.11%">Desayunos</th>
                                 </tr>
                             </thead>
                              <tbody>
@@ -132,13 +134,15 @@
                                 count($menuItems[4] ?? []),
                                 count($menuItems[5] ?? []),
                                 count($menuItems[6] ?? []),
-                                count($menuItems[7] ?? [])
+                                count($menuItems[7] ?? []),
+                                count($menuItems[8] ?? []),
+                                count($menuItems[9] ?? [])
                                 );
                                 @endphp
 
                                 @for ($i = 0; $i < $maxRows; $i++)
                                 <tr>
-                                    @foreach ([1, 2, 3, 4, 5, 6, 7] as $categoriaId)
+                                    @foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $categoriaId)
                                     <td>
                                         @if(isset($menuItems[$categoriaId][$i]))
                                         <div>{{ $menuItems[$categoriaId][$i]->producto_nombre }}</span>
@@ -315,6 +319,50 @@
     <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
     <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
 </div>
+
+<!-- Columna 8 - Caldos -->
+<div class="col custom-col" data-categoria="8">
+    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+        <option value="" selected disabled>Productos</option>
+        @php
+            $existingProductIds = isset($menuItems[8]) 
+                ? $menuItems[8]->pluck('producto_id')->toArray() 
+                : [];
+        @endphp
+        @foreach($productos->where('id_categoria', 8)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
+        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+            {{ $producto->nombre }}</option>
+        @endforeach
+    </select>
+    <br><br>
+    <input type="hidden" class="producto-id" value="">
+    <input type="hidden" class="producto-nombre" value="">
+    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+</div>
+
+<!-- Columna 9 - Desayunos -->
+<div class="col custom-col" data-categoria="9">
+    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+        <option value="" selected disabled>Productos</option>
+        @php
+            $existingProductIds = isset($menuItems[9]) 
+                ? $menuItems[9]->pluck('producto_id')->toArray() 
+                : [];
+        @endphp
+        @foreach($productos->where('id_categoria', 9)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
+        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+            {{ $producto->nombre }}</option>
+        @endforeach
+    </select>
+    <br><br>
+    <input type="hidden" class="producto-id" value="">
+    <input type="hidden" class="producto-nombre" value="">
+    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+</div>
                           
                     
                        
@@ -397,7 +445,7 @@
             // Si no hay filas, crear la cantidad necesaria
             for (let i = 0; i < maxRows; i++) {
                 const row = document.createElement('tr');
-                for (let j = 0; j < 7; j++) {
+                for (let j = 0; j < 9; j++) {
                     row.appendChild(document.createElement('td'));
                 }
                 tableBody.appendChild(row);
@@ -413,7 +461,7 @@
                 // Asegurarnos de que hay suficientes filas
                 while (tableBody.children.length <= i) {
                     const newRow = document.createElement('tr');
-                    for (let j = 0; j < 7; j++) {
+                    for (let j = 0; j < 9; j++) {
                         newRow.appendChild(document.createElement('td'));
                     }
                     tableBody.appendChild(newRow);
@@ -623,7 +671,7 @@
     // If no empty cell was found, add a new row
     if(!emptyCell) {
         let newRow = $('<tr></tr>');
-        for(let i = 0; i < 7; i++) {
+        for(let i = 0; i < 9; i++) {
             newRow.append('<td></td>');
         }
         $('table tbody').append(newRow);
@@ -730,7 +778,7 @@ function reorganizarTabla() {
     const tableRows = $('table tbody tr');
     
     // Recorrer cada columna (categoría)
-    for (let col = 0; col < 7; col++) {
+    for (let col = 0; col < 9; col++) {
         // Obtener todos los elementos de esta columna
         const items = [];
         tableRows.each(function() {
@@ -920,12 +968,12 @@ function reorganizarTabla() {
     }
 }
 .custom-col {
-    flex: 0 0 13.28% !important;  /* More precise width calculation for 7 columns */
-    max-width: 13.28% !important; /* Must match the flex value */
-    margin-right: 0.5% !important;  
-    margin-left: 0.5% !important;   
-    padding-left: 5px !important;  /* Reduced padding to avoid overflow */
-    padding-right: 5px !important; 
+    flex: 0 0 10.5% !important;  /* Updated from 13.28% to accommodate 9 columns */
+    max-width: 10.5% !important; /* Must match the flex value */
+    margin-right: 0.3% !important;  /* Reduced margin to fit all 9 columns */
+    margin-left: 0.3% !important;   
+    padding-left: 3px !important;  /* Reduced padding further */
+    padding-right: 3px !important; 
     margin-bottom: 1rem !important;
     display: inline-block !important;
     vertical-align: top !important;

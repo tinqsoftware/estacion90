@@ -70,7 +70,9 @@ class PlaneacionMenuController extends Controller
             4 => 'fondo_20',
             5 => 'carta',       
             6 => 'combos',
-            7 => 'extras' 
+            7 => 'extras',
+            8 => 'caldos',
+            9 => 'desayunos',
         ];
         
         // Process each date's menu items
