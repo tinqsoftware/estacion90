@@ -423,15 +423,12 @@
                                 <textarea class="form-control" name="descripcion" id="descripcion" rows="3"
                                     required></textarea>
                             </div>
-                            <div class="col-md-6 mb-3">
+                              <div class="col-md-6 mb-3" id="precio-container">
                                 <label class="form-label">Precio</label>
-                                <input type="number" step="0.01" class="form-control" name="precio" id="precio"
+                              <input type="number" step="0.01" class="form-control" name="precio" id="precio"
                                     required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Stock</label>
-                                <input type="number" class="form-control" name="stock" id="stock" required>
-                            </div>
+                                <input type="hidden" name="stock" id="stock" value="">
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Imagen</label>
                                 <input type="file" class="form-control" name="imagen" id="imagen" accept="image/*">
@@ -539,7 +536,7 @@
     $(document).ready(function() {
 
         $(document).ready(function() {
-            const $filasProductos = $("#todos-productos .fila-producto");
+           const $filasProductos = $("#todos-productos .fila-producto");
     
     // Variable para almacenar la URL original
     const originalUrl = window.location.href;
@@ -569,19 +566,55 @@
             $(this).toggle(textoFila.indexOf(valor) > -1);
         });
     });
+
+    // Define fixed-price categories
+    const fixedPriceCategories = {
+        '1': 15.00, // Entrada S/15.00
+        '2': 20.00, // Entrada S/20.00
+        '3': 15.00, // Fondo S/15.00
+        '4': 20.00  // Fondo S/20.00
+    };
+    
+    // Function to handle category change
+    function handleCategoryChange() {
+        const selectedCategoryId = $('#categoria_id').val();
+        
+        // Check if selected category is a fixed-price category
+        if (selectedCategoryId in fixedPriceCategories) {
+            // Hide price input and set fixed price
+            $('#precio-container').hide();
+            $('#precio').val(fixedPriceCategories[selectedCategoryId]);
+        } else {
+            // Show price input for custom price categories
+            $('#precio-container').show();
+        }
+    }
+    
+    // Run on page load and when opening modal
+    $('#agregarProductoModal').on('shown.bs.modal', function() {
+        handleCategoryChange();
+    });
+    
+    // Run when category selection changes
+    $('#categoria_id').on('change', handleCategoryChange);
+    
+    // Run when editing a product
+    $(document).on('click', '.btn-editar', function() {
+        setTimeout(handleCategoryChange, 300); // Short delay to ensure form is populated
+    });
     
     // Si hay un filtro aplicado inicialmente, ejecutarlo
     if (searchParam) {
         $("#filtro-todos-productos").trigger("keyup");
     }
-    
+
     // Añadir botón para limpiar el filtro
     if ($("#limpiar-filtro").length === 0) {
         $("#filtro-todos-productos").after(
             '<button id="limpiar-filtro" class="btn btn-sm btn-outline-secondary mt-2">Limpiar filtro</button>'
         );
     }
-    
+
     // Manejar clic en botón de limpiar
     $(document).on('click', '#limpiar-filtro', function() {
         $("#filtro-todos-productos").val("");
