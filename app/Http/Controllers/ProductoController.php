@@ -66,46 +66,46 @@ class ProductoController extends Controller
 
     // Guardar un nuevo producto
     public function store(Request $request)
-    {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'precio' => 'required|numeric|min:0',
-            'categoria_id' => 'required|exists:categorias,id',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC', // Added heic format and increased max size
-            'stock' => 'required|integer|min:0',
-        ]);
+{
+    $request->validate([
+        'nombre' => 'required|string|max:255',
+        'descripcion' => 'nullable|string',
+        'precio' => 'required|numeric|min:0',
+        'categoria_id' => 'required|exists:categorias,id',
+        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC', // Added heic format and increased max size
+        // Remove stock validation requirement
+    ]);
 
-        DB::beginTransaction();
-        try {
-            $producto = new Producto();
-            $producto->nombre = $request->nombre;
-            $producto->descripcion = $request->descripcion;
-            $producto->precio = $request->precio;
-            $producto->id_categoria = $request->categoria_id;
-            $producto->stock = $request->stock;
-            $producto->estado = 1; // Estado activo por defecto
-            $producto->id_user_create = \Illuminate\Support\Facades\Auth::id() ?? 1;
+    DB::beginTransaction();
+    try {
+        $producto = new Producto();
+        $producto->nombre = $request->nombre;
+        $producto->descripcion = $request->descripcion;
+        $producto->precio = $request->precio;
+        $producto->id_categoria = $request->categoria_id;
+        $producto->stock = null; // Set stock to null by default
+        $producto->estado = 1; // Estado activo por defecto
+        $producto->id_user_create = \Illuminate\Support\Facades\Auth::id() ?? 1;
+        
+        // Procesar la imagen si existe
+        if ($request->hasFile('imagen')) {
+            $producto->imagen = $this->processAndSaveImage($request->file('imagen'));
             
-            // Procesar la imagen si existe
-            if ($request->hasFile('imagen')) {
-                $producto->imagen = $this->processAndSaveImage($request->file('imagen'));
-                
-                if ($producto->imagen === null) {
-                    throw new \Exception('Error al procesar la imagen');
-                }
+            if ($producto->imagen === null) {
+                throw new \Exception('Error al procesar la imagen');
             }
-            
-            $producto->save();
-            DB::commit();
-            
-            return redirect()->route('productos_tab')->with('success', 'Producto creado exitosamente');
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error('Error al crear producto: ' . $e->getMessage());
-            return back()->with('error', 'Error al crear el producto: ' . $e->getMessage());
         }
+        
+        $producto->save();
+        DB::commit();
+        
+        return redirect()->route('productos_tab')->with('success', 'Producto creado exitosamente');
+    } catch (\Exception $e) {
+        DB::rollback();
+        Log::error('Error al crear producto: ' . $e->getMessage());
+        return back()->with('error', 'Error al crear el producto: ' . $e->getMessage());
     }
+}
 
     // Mostrar formulario de edición
     public function edit($id)
@@ -117,51 +117,51 @@ class ProductoController extends Controller
 
     // Actualizar el producto
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'precio' => 'required|numeric|min:0',
-            'categoria_id' => 'required|exists:categorias,id',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC', // Added heic format and increased max size
-            'stock' => 'required|integer|min:0',
-        ]);
+{
+    $request->validate([
+        'nombre' => 'required|string|max:255',
+        'descripcion' => 'nullable|string',
+        'precio' => 'required|numeric|min:0',
+        'categoria_id' => 'required|exists:categorias,id',
+        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC', // Added heic format and increased max size
+        // Remove stock validation requirement
+    ]);
 
-        DB::beginTransaction();
-        try {
-            $producto = Producto::findOrFail($id);
-            $producto->nombre = $request->nombre;
-            $producto->descripcion = $request->descripcion;
-            $producto->precio = $request->precio;
-            $producto->id_categoria = $request->categoria_id;
-            $producto->stock = $request->stock;
-            
-            // Procesar la imagen si existe
-            if ($request->hasFile('imagen')) {
-                // Eliminar la imagen anterior si existe y no es la imagen por defecto
-                if ($producto->imagen && file_exists(public_path($producto->imagen)) && 
-                    !str_contains($producto->imagen, 'product/1.jpg')) {
-                    unlink(public_path($producto->imagen));
-                }
-                
-                // Procesar y guardar la nueva imagen
-                $producto->imagen = $this->processAndSaveImage($request->file('imagen'));
-                
-                if ($producto->imagen === null) {
-                    throw new \Exception('Error al procesar la imagen');
-                }
+    DB::beginTransaction();
+    try {
+        $producto = Producto::findOrFail($id);
+        $producto->nombre = $request->nombre;
+        $producto->descripcion = $request->descripcion;
+        $producto->precio = $request->precio;
+        $producto->id_categoria = $request->categoria_id;
+        $producto->stock = null; // Set stock to null
+        
+        // Procesar la imagen si existe
+        if ($request->hasFile('imagen')) {
+            // Eliminar la imagen anterior si existe y no es la imagen por defecto
+            if ($producto->imagen && file_exists(public_path($producto->imagen)) && 
+                !str_contains($producto->imagen, 'product/1.jpg')) {
+                unlink(public_path($producto->imagen));
             }
             
-            $producto->save();
-            DB::commit();
+            // Procesar y guardar la nueva imagen
+            $producto->imagen = $this->processAndSaveImage($request->file('imagen'));
             
-            return redirect()->route('productos_tab')->with('success', 'Producto actualizado exitosamente');
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error('Error al actualizar producto: ' . $e->getMessage());
-            return back()->with('error', 'Error al actualizar el producto: ' . $e->getMessage());
+            if ($producto->imagen === null) {
+                throw new \Exception('Error al procesar la imagen');
+            }
         }
+        
+        $producto->save();
+        DB::commit();
+        
+        return redirect()->route('productos_tab')->with('success', 'Producto actualizado exitosamente');
+    } catch (\Exception $e) {
+        DB::rollback();
+        Log::error('Error al actualizar producto: ' . $e->getMessage());
+        return back()->with('error', 'Error al actualizar el producto: ' . $e->getMessage());
     }
+}
     // Eliminar el producto
     public function destroy($id)
     {
