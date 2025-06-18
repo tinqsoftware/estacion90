@@ -31,6 +31,7 @@ class Pedido extends Model
         'id_horallegada',
         'id_distrito_contacto',
         'id_user_moto',
+        'ruta_evidencia',
         'created_at',
         'updated_at'
     ];

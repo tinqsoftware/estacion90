@@ -55,7 +55,7 @@
                             <ul aria-expanded="false">
                                 <li><a href="deliver-main.html">Inicio</a></li>
                                 <li><a href="deliver-order.html">Ordenes</a></li>
-                                <li><a href="feedback.html">Comentario</a></li>
+                                <li><a href="/motorizado/moto">Envios</a></li>
                             </ul>
                         </li>
                         @endif
@@ -108,8 +108,9 @@
                                     @if(str_ends_with(request()->getHost(), '.test'))
                                     <li><a href="deliver-main.html">Inicio</a></li>
                                     <li><a href="deliver-order.html">Ordenes</a></li>
-                                    <li><a href="feedback.html">Comentario</a></li>
+                                    <li><a href="/motorizado/moto">Envios</a></li>
                                     @endif
+                                    
                                 </ul>
                             </li>
                         @endif
