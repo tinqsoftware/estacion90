@@ -5,6 +5,7 @@ use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\ControllerPopupDia;
 use App\Http\Controllers\EditUserController;
+use App\Http\Controllers\MotoController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -170,4 +171,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/despacho/pedido/en-camino', [DespachoController::class, 'marcarPedidoEnCamino'])->name('despacho.en-camino');
     Route::get('/despacho/estado-pedidos', [DespachoController::class, 'obtenerEstadoPedidos'])->name('despacho.estado-pedidos');
     Route::get('/despacho/pedido/imprimir/{id}', [DespachoController::class, 'imprimirPedido'])->name('despacho.imprimir');
+
+// Delivery
+    Route::get('/motorizado/moto', [MotoController::class, 'showMoto'])->name('motorizado.moto');
+    Route::post('/motorizado/marcar-en-camino', [MotoController::class, 'marcarEnCamino'])->name('motorizado.marcar-en-camino');
+    Route::post('/motorizado/marcar-entregado', [MotoController::class, 'marcarEntregado'])->name('motorizado.marcar-entregado');
+    Route::get('/motorizado/actualizaciones', [MotoController::class, 'obtenerActualizaciones'])->name('motorizado.actualizaciones');
 });
