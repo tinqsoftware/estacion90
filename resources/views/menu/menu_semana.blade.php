@@ -992,6 +992,8 @@
                         <th>Carta</th>
                         <th>Combos</th>
                         <th>Extras</th>
+                        <th>Caldos</th>
+                        <th>Desayunos</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -1004,13 +1006,15 @@
                 (itemsByCategory[4] || []).length,
                 (itemsByCategory[5] || []).length,
                 (itemsByCategory[6] || []).length,
-                (itemsByCategory[7] || []).length
+                (itemsByCategory[7] || []).length,
+                (itemsByCategory[8] || []).length,
+                (itemsByCategory[9] || []).length
             );
 
             // Crear filas para la tabla
             for (let i = 0; i < maxRows; i++) {
                 tableHtml += '<tr>';
-                for (let catId = 1; catId <= 7; catId++) {
+                for (let catId = 1; catId <= 9; catId++) {
                     const category = itemsByCategory[catId] || [];
                     const item = category[i];
 
@@ -1300,6 +1304,8 @@
                     <th>Carta</th>
                     <th>Combos</th>
                     <th>Extras</th>
+                    <th>Caldos</th>
+                    <th>Desayunos</th>
                 </tr>
             </thead>
             <tbody>
@@ -1365,14 +1371,14 @@
 
         // Función auxiliar para generar filas de tabla desde datos
         function generateTableRows(items, date) {
-            if (!items || items.length === 0) {
-                return '<tr><td colspan="6" class="text-center">No hay menú disponible para este día</td></tr>' +
-                    '<tr><td colspan="6" class="text-center mt-3"><a href="/menusemana/agregar/' + date +
-                    '" class="btn btn-primary mt-2">' +
-                    '<i class="fas fa-plus-circle me-2"></i>AGREGAR MENU</a></td></tr>';
-            }
+    if (!items || items.length === 0) {
+        return '<tr><td colspan="9" class="text-center">No hay menú disponible para este día</td></tr>' + 
+               '<tr><td colspan="9" class="text-center mt-3"><a href="/menusemana/agregar/' + date + 
+               '" class="btn btn-primary mt-2">' +
+               '<i class="fas fa-plus-circle me-2"></i>AGREGAR MENU</a></td></tr>';
+    }
 
-            return items.map(row => `
+    return items.map(row => `
         <tr>
             <td>${row.entrada_15 || ' '}</td>
             <td>${row.entrada_20 || ' '}</td>
@@ -1381,9 +1387,11 @@
             <td>${row.carta || ' '}</td>
             <td>${row.combos || ' '}</td>
             <td>${row.extras || ' '}</td>
+            <td>${row.caldos || ' '}</td>
+            <td>${row.desayunos || ' '}</td>
         </tr>
     `).join('');
-        }
+}
 
         // Función para manejar la edición de un día de menú (implementación pendiente)
         function editMenuDay(date) {
@@ -1419,10 +1427,10 @@
 
     .equal-width-table th,
     .equal-width-table td {
-        width: 14.28%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+    width: 11.11%; /* Updated from 14.28% to 11.11% for 9 columns */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
     </style>
 
 
