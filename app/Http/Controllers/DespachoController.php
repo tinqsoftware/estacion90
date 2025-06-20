@@ -282,7 +282,7 @@ public function marcarPedidoEnCamino(Request $request)
 
 public function obtenerEstadoPedidos()
 {
-    $pedidosDB = Pedido::whereIn('estado', [4, 5])
+    $pedidosDB = Pedido::whereIn('estado', [4, 5, 6, 10, 11])
         ->whereDate('created_at', Carbon::today())
         ->select('id', 'estado', 'id_user_moto')
         ->get();

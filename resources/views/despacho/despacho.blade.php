@@ -745,7 +745,8 @@
     }
 
     function crearTarjetaPorAsignar(pedido, orden = null) {
-        return `
+    // Base structure without status indicators
+    const cardHtml = `
     <div class="card-container draggable mb-3" data-pedido-id="${pedido.id}" data-estado="${pedido.estado || 3}">
         <div style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-weight: bold; font-size: 16px;">PEDIDO #${pedido.id} - ${pedido.fecha}</div>
@@ -777,21 +778,11 @@
                     </div>
                 </div>
 
+                <div id="status-container-${pedido.id}" class="status-indicator-container"></div>
+
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <button class="btn btn-dark" onclick="imprimirPedido(${pedido.id})"
                         style="width: 180px; font-weight: bold; padding: 8px 0; font-size: 16px;">Imprimir</button>
-                    ${pedido.estado === 5 ? `
-<div style="display: flex; align-items: center; margin-left: 15px;">
-    <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-        ${orden !== null ? orden : ''}
-    </div>
-    <div style="color: #FF5722; font-weight: bold;">EN CAMINO</div>
-</div>
-` : pedido.estado === 4 && orden !== null ? `
-<div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
-    ${orden}
-</div>
-` : ''}
                 </div>
             </div>
 
@@ -825,7 +816,68 @@
         </div>
     </div>
     `;
+    
+    // Create a DOM element
+    const cardElement = document.createElement('div');
+    cardElement.innerHTML = cardHtml;
+    const card = cardElement.firstElementChild;
+    
+    // Find the status container
+    const statusContainer = card.querySelector(`#status-container-${pedido.id}`);
+    if (statusContainer) {
+        // Add status indicator based on estado
+        const estado = parseInt(pedido.estado || 3);
+        if (estado === 5) {
+            statusContainer.innerHTML = `
+                <div style="display: flex; align-items: center; background-color: #FFF3E0; padding: 8px; border-radius: 4px; margin-bottom: 15px;">
+                    <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                        ${orden !== null ? orden : ''}
+                    </div>
+                    <div style="color: #FF5722; font-weight: bold;">EN CAMINO</div>
+                </div>
+            `;
+        } else if (estado === 4) {
+            statusContainer.innerHTML = `
+                <div style="display: flex; align-items: center; background-color: #FFF3E0; padding: 8px; border-radius: 4px; margin-bottom: 15px;">
+                    <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                        ${orden !== null ? orden : ''}
+                    </div>
+                    <div style="color: #FF5722; font-weight: bold;">ASIGNADO</div>
+                </div>
+            `;
+        }
     }
+    
+    return card.outerHTML;
+}
+
+// Add this helper function to update an existing card's status
+function actualizarEstadoTarjeta(pedidoId, estado, orden = null) {
+    const statusContainer = document.querySelector(`#status-container-${pedidoId}`);
+    if (!statusContainer) return;
+    
+    if (estado === 5) {
+        statusContainer.innerHTML = `
+            <div style="display: flex; align-items: center; background-color: #FFF3E0; padding: 8px; border-radius: 4px; margin-bottom: 15px;">
+                <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                    ${orden !== null ? orden : ''}
+                </div>
+                <div style="color: #FF5722; font-weight: bold;">EN CAMINO</div>
+            </div>
+        `;
+    } else if (estado === 4) {
+        statusContainer.innerHTML = `
+            <div style="display: flex; align-items: center; background-color: #FFF3E0; padding: 8px; border-radius: 4px; margin-bottom: 15px;">
+                <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                    ${orden !== null ? orden : ''}
+                </div>
+                <div style="color: #FF5722; font-weight: bold;">ASIGNADO</div>
+            </div>
+        `;
+    } else {
+        statusContainer.innerHTML = '';
+    }
+}
 
 
     $(document).ready(function() {
@@ -860,9 +912,8 @@
 
         // Cargar los pedidos iniciales
         actualizarPedidos();
-
-        // Configurar la actualización automática cada 5 segundos
-        setInterval(actualizarPedidos, 5000);
+        actualizarEstadoPedidos();
+        setInterval(actualizarEstadoPedidos, 10000);
 
         // Vaciar el contenedor de pedidos si ya existen tarjetas estáticas
         $('#orders-pending').empty();
@@ -1043,31 +1094,54 @@
 
 
     function actualizarEstadoPedidos() {
-        $.ajax({
-            url: "{{ route('despacho.estado-pedidos') }}",
-            type: "GET",
-            dataType: "json",
-            success: function(data) {
-                // Actualizar pedidos en camino
-                data.forEach(function(pedido) {
-                    let $pedidoElement = $(`.card-container[data-pedido-id="${pedido.id}"]`);
-
-                    if ($pedidoElement.length > 0 && pedido.estado === 5 && $pedidoElement.attr(
-                            'data-estado') !== '5') {
-                        // El pedido existe en la UI y ha cambiado a estado 5
-                        // Encontrar en qué contenedor está (moto1 o moto2)
-                        const motoId = $pedidoElement.parent().attr('id') === 'moto1-container' ?
-                            1 : 2;
-                        const orden = calcularOrdenPedido(motoId, pedido.id);
-
-                        // Actualizar la tarjeta con el estado "EN CAMINO"
-                        $pedidoElement.replaceWith(crearTarjetaPorAsignar(pedido, orden));
-                        $pedidoElement.attr('data-estado', '5');
+    $.ajax({
+        url: "{{ route('despacho.estado-pedidos') }}",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            // Process each order from the response
+            data.forEach(function(pedido) {
+                let $pedidoElement = $(`.card-container[data-pedido-id="${pedido.id}"]`);
+                
+                if ($pedidoElement.length > 0) {
+                    const currentState = parseInt($pedidoElement.attr('data-estado'));
+                    const newState = parseInt(pedido.estado);
+                    
+                    // If state has changed
+                    if (currentState !== newState) {
+                        // Update the state attribute
+                        $pedidoElement.attr('data-estado', newState);
+                        
+                        // If the order is now delivered or has problems, schedule it for removal
+                        if (newState === 6 || newState === 10 || newState === 11) {
+                            // Mark for removal with fade effect after 10 seconds
+                            setTimeout(function() {
+                                $pedidoElement.fadeOut(500, function() {
+                                    $(this).remove();
+                                });
+                            }, 10000);
+                        } 
+                        // If the order is in progress (status 4 or 5), update its display
+                        else if (newState === 4 || newState === 5) {
+                            // Find which container it's in
+                            const containerId = $pedidoElement.parent().attr('id');
+                            const motoId = containerId.match(/moto(\d+)-container/);
+                            
+                            if (motoId && motoId[1]) {
+                                const orden = calcularOrdenPedido(motoId[1], pedido.id);
+                                // Update status indicator directly
+                                actualizarEstadoTarjeta(pedido.id, newState, orden);
+                            }
+                        }
                     }
-                });
-            }
-        });
-    }
+                }
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al obtener el estado de los pedidos:", error);
+        }
+    });
+}
 
     // Añadir esta función para calcular el orden del pedido
     function calcularOrdenPedido(motoId, pedidoId) {
