@@ -179,6 +179,7 @@ private function getMotorizadosActivos()
                 'documento' => $pedido->datos_comprobante ? json_decode($pedido->datos_comprobante)->numero_documento ?? '' : '',
                 'comentarios' => $pedido->comentarios,
                 'total' => $totalPedido,
+                'monto_total' => $pedido->monto_total,
                 'comensales' => $comensalesDatos,
             ];
         }

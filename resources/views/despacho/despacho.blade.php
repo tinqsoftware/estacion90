@@ -683,7 +683,7 @@
                     <!-- Total section -->
                     <div class="order-totals">
                         <div class="order-delivery">Delivery: s/1.00</div>
-                        <div class="order-total">TOTAL: s/${parseFloat(pedido.total).toFixed(2)}</div>
+                        <div class="order-total">TOTAL: s/${parseFloat(pedido.monto_total).toFixed(2)}</div>
                     </div>
                 </div>
 
@@ -773,7 +773,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
                         <div>TOTAL:</div>
-                        <div>s/${parseFloat(pedido.total).toFixed(2)}</div>
+                        <div>s/${parseFloat(pedido.monto_total).toFixed(2)}</div>
                     </div>
                 </div>
 
