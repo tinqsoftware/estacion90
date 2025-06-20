@@ -386,8 +386,11 @@
                                 </div>
                             </div>
                             <p id="modal-producto-descripcion" class="mb-3"></p>
-                            <h5 class="text-primary">S/. <span id="modal-producto-precio"></span></h5>
-                            <p>Stock disponible: <span id="modal-producto-stock" class="badge bg-success"></span></p>
+                            <!-- El precio solo se mostrará para categorías específicas -->
+                            <div id="precio-container" style="display: none;">
+                                <h5 class="text-primary">S/. <span id="modal-producto-precio"></span></h5>
+                            </div>
+                           
                         </div>
                         <div class="card-footer d-flex justify-content-between">
                             <small class="text-muted" id="modal-producto-fecha"></small>
@@ -486,61 +489,67 @@
     <script>
     // Cargar detalles de producto en el modal
     function verProductoDetalle(productoId) {
-        $.ajax({
-            url: `/productos/${productoId}`,
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                // Nombre del producto
-                $('#verProductoModal').data('producto-id', productoId);
-                $('#modal-producto-nombre').text(response.nombre || 'SIN REGISTRO');
+    $.ajax({
+        url: `/productos/${productoId}`,
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // Nombre del producto
+            $('#verProductoModal').data('producto-id', productoId);
+            $('#modal-producto-nombre').text(response.nombre || 'SIN REGISTRO');
 
-                // Descripción del producto
-                $('#modal-producto-descripcion').text(response.descripcion || 'SIN REGISTRO');
+            // Descripción del producto
+            $('#modal-producto-descripcion').text(response.descripcion || 'SIN REGISTRO');
 
-                // Precio y stock
+            // Precio - Mostrar solo para categorías específicas
+            if ([5, 6, 7, 8, 9].includes(response.id_categoria)) {
+                $('#precio-container').show();
                 $('#modal-producto-precio').text(parseFloat(response.precio).toFixed(2));
-                $('#modal-producto-stock').text(response.stock);
-
-                // Imagen del producto
-                if (response.imagen) {
-                    $('#modal-producto-imagen').attr('src', response.imagen);
-                } else {
-                    $('#modal-producto-imagen').attr('src', 'access/images/product/1.jpg');
-                }
-
-                // Usuario que registró
-                if (response.creador && response.creador.name) {
-                    $('#modal-producto-usuario').text(`Registrado por: ${response.creador.name}`);
-                } else {
-                    $('#modal-producto-usuario').text('Registrado por: SIN REGISTRO');
-                }
-
-                // Formatear fecha al estilo "6 Mayo 2025"
-                if (response.updated_at_formatted) {
-                    const fechaParts = response.updated_at_formatted.split(' ')[0].split('/');
-                    const day = parseInt(fechaParts[0], 10);
-                    const month = parseInt(fechaParts[1], 10);
-                    const year = fechaParts[2];
-
-                    const meses = [
-                        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                    ];
-
-                    const fechaFormateada = `${day} ${meses[month-1]} ${year}`;
-                    $('#modal-producto-fecha').text(fechaFormateada);
-                } else {
-                    $('#modal-producto-fecha').text('Fecha desconocida');
-                }
-
-                $('#verProductoModal').modal('show');
-            },
-            error: function() {
-                alert('Error al cargar los datos del producto');
+            } else {
+                $('#precio-container').hide();
             }
-        });
-    }
+
+            // Se eliminó la asignación del stock
+
+            // Imagen del producto
+            if (response.imagen) {
+                $('#modal-producto-imagen').attr('src', response.imagen);
+            } else {
+                $('#modal-producto-imagen').attr('src', 'access/images/product/1.jpg');
+            }
+
+            // Usuario que registró
+            if (response.creador && response.creador.name) {
+                $('#modal-producto-usuario').text(`Registrado por: ${response.creador.name}`);
+            } else {
+                $('#modal-producto-usuario').text('Registrado por: SIN REGISTRO');
+            }
+
+            // Formatear fecha al estilo "6 Mayo 2025"
+            if (response.updated_at_formatted) {
+                const fechaParts = response.updated_at_formatted.split(' ')[0].split('/');
+                const day = parseInt(fechaParts[0], 10);
+                const month = parseInt(fechaParts[1], 10);
+                const year = fechaParts[2];
+
+                const meses = [
+                    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                ];
+
+                const fechaFormateada = `${day} ${meses[month-1]} ${year}`;
+                $('#modal-producto-fecha').text(fechaFormateada);
+            } else {
+                $('#modal-producto-fecha').text('Fecha desconocida');
+            }
+
+            $('#verProductoModal').modal('show');
+        },
+        error: function() {
+            alert('Error al cargar los datos del producto');
+        }
+    });
+}
 
     // Asignar evento a los botones de ver detalle
     $(document).ready(function() {
