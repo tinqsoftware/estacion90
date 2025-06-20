@@ -43,7 +43,7 @@
     <!-- Global Stylesheet -->
     <link href="{{ asset('access/css/style.css') }}" rel="stylesheet">
     <!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 </head>
 
@@ -60,49 +60,53 @@
         <div class="content-body">
             <div class="container-fluid">
                 <!-- Contenedor de notificaciones -->
-<div id="notification-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999; width: 300px;"></div>
+                <div id="notification-container"
+                    style="position: fixed; top: 80px; right: 20px; z-index: 9999; width: 300px;"></div>
 
-@if((isset($cloneItems) && count($cloneItems) > 0 && !request()->has('confirmar')) || $clonacionExitosa)
-<div class="alert alert-info alert-dismissible fade show" role="alert">
-    @if($clonacionExitosa)
-        <strong><i class="fas fa-check-circle me-2"></i>Menú clonado exitosamente!</strong> Los elementos se han agregado al menú de esta fecha.
-    @else
-        <strong><i class="fas fa-clone me-2"></i>Menú clonado:</strong> Se ha cargado el menú del día {{ $cloneFromFormateado }}. 
-        <a href="{{ url('/menusemana/agregar/'.$fecha.'?clone_from='.request()->query('clone_from').'&confirmar=1') }}" class="btn btn-success btn-sm ms-2">
-            <i class="fas fa-check me-1"></i>Confirmar clonación
-        </a>
-    @endif
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
+                @if((isset($cloneItems) && count($cloneItems) > 0 && !request()->has('confirmar')) || $clonacionExitosa)
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    @if($clonacionExitosa)
+                    <strong><i class="fas fa-check-circle me-2"></i>Menú clonado exitosamente!</strong> Los elementos se
+                    han agregado al menú de esta fecha.
+                    @else
+                    <strong><i class="fas fa-clone me-2"></i>Menú clonado:</strong> Se ha cargado el menú del día
+                    {{ $cloneFromFormateado }}.
+                    <a href="{{ url('/menusemana/agregar/'.$fecha.'?clone_from='.request()->query('clone_from').'&confirmar=1') }}"
+                        class="btn btn-success btn-sm ms-2">
+                        <i class="fas fa-check me-1"></i>Confirmar clonación
+                    </a>
+                    @endif
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
 
 
-<!-- Botón volver -->
-<div class="row mb-3 align-items-center">
-    <div class="col-md-6">
-        <!-- Título dinámico basado en si hay datos en la tabla -->
-        <h5 class="m-0">
-            <span class="badge bg-primary p-2">
-                @php
-                    $hayProductos = false;
-                    foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $cat) {
-                        if (isset($menuItems[$cat]) && count($menuItems[$cat]) > 0) {
-                            $hayProductos = true;
-                            break;
-                        }
-                    }
-                @endphp
-                <i class="fa {{ $hayProductos ? 'fa-edit' : 'fa-plus-circle' }}"></i>
-                {{ $hayProductos ? 'Editando menú' : 'Agregando nuevo menú' }}
-            </span>
-        </h5>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="#" id="btn-volver" class="btn btn-primary btn-sm">
-            <i class="fa fa-arrow-left"></i> Volver
-        </a>
-    </div>
-</div>
+                <!-- Botón volver -->
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-6">
+                        <!-- Título dinámico basado en si hay datos en la tabla -->
+                        <h5 class="m-0">
+                            <span class="badge bg-primary p-2">
+                                @php
+                                $hayProductos = false;
+                                foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $cat) {
+                                if (isset($menuItems[$cat]) && count($menuItems[$cat]) > 0) {
+                                $hayProductos = true;
+                                break;
+                                }
+                                }
+                                @endphp
+                                <i class="fa {{ $hayProductos ? 'fa-edit' : 'fa-plus-circle' }}"></i>
+                                {{ $hayProductos ? 'Editando menú' : 'Agregando nuevo menú' }}
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="#" id="btn-volver" class="btn btn-primary btn-sm">
+                            <i class="fa fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
 
                 <div class="row mt-4">
                     <!-- Contenido principal -->
@@ -114,18 +118,18 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-        <th width="11.11%">Entrada S/15.00</th>
-        <th width="11.11%">Entrada S/20.00</th>
-        <th width="11.11%">Fondo S/15.00</th>
-        <th width="11.11%">Fondo S/20.00</th>
-        <th width="11.11%">Carta</th>
-        <th width="11.11%">Combos</th>
-        <th width="11.11%">Extras</th>
-        <th width="11.11%">Caldos</th>
-        <th width="11.11%">Desayunos</th>
+                                    <th width="11.11%">Entrada S/15.00</th>
+                                    <th width="11.11%">Entrada S/20.00</th>
+                                    <th width="11.11%">Fondo S/15.00</th>
+                                    <th width="11.11%">Fondo S/20.00</th>
+                                    <th width="11.11%">Carta</th>
+                                    <th width="11.11%">Combos</th>
+                                    <th width="11.11%">Extras</th>
+                                    <th width="11.11%">Caldos</th>
+                                    <th width="11.11%">Desayunos</th>
                                 </tr>
                             </thead>
-                             <tbody>
+                            <tbody>
                                 @php
                                 $maxRows = max(
                                 count($menuItems[1] ?? []),
@@ -140,51 +144,57 @@
                                 );
                                 @endphp
 
-                                @for ($i = 0; $i < $maxRows; $i++)
-                                <tr>
+                                @for ($i = 0; $i < $maxRows; $i++) <tr>
                                     @foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $categoriaId)
                                     <td>
                                         @if(isset($menuItems[$categoriaId][$i]))
                                         <div>{{ $menuItems[$categoriaId][$i]->producto_nombre }}</span>
-                                        <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}" data-producto-id="{{ $menuItems[$categoriaId][$i]->producto_id }}">
-                                            <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar"
-                                                data-id="{{ $menuItems[$categoriaId][$i]->id }}" title="Eliminar">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
-                                            <span> <b>{{ $menuItems[$categoriaId][$i]->stock_diario }}</b> - (S/{{ $menuItems[$categoriaId][$i]->precio }}) </span>
-                                        </div>
-                                        
-                                        @endif
+                                            <div class="menu-item" data-id="{{ $menuItems[$categoriaId][$i]->id }}"
+                                                data-producto-id="{{ $menuItems[$categoriaId][$i]->producto_id }}">
+                                                <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar"
+                                                    data-id="{{ $menuItems[$categoriaId][$i]->id }}" title="Eliminar">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                                <span> <b>{{ $menuItems[$categoriaId][$i]->stock_diario }}</b> -
+                                                    (S/{{ $menuItems[$categoriaId][$i]->precio }}) </span>
+                                            </div>
+
+                                            @endif
                                     </td>
                                     @endforeach
-                                </tr>
-                                @endfor
+                                    </tr>
+                                    @endfor
                             </tbody>
                         </table>
                     </div>
 
-                     <!-- Sección de búsqueda y añadir productos -->
+                    <!-- Sección de búsqueda y añadir productos -->
                     <div class="row mt-4 justify-content-center">
                         <!-- Columna 1 - Entrada S/15.00 -->
                         <div class="col custom-col" data-categoria="1">
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @php
-                                    // Get product IDs already in menu for this category
-                                    $existingProductIds = isset($menuItems[1]) 
-                                        ? $menuItems[1]->pluck('producto_id')->toArray() 
-                                        : [];
+                                // Get product IDs already in menu for this category
+                                $existingProductIds = isset($menuItems[1])
+                                ? $menuItems[1]->pluck('producto_id')->toArray()
+                                : [];
                                 @endphp
-                                @foreach($productos->where('id_categoria', 1)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-                                    {{ $producto->nombre }}</option>
+                                @foreach($productos->where('id_categoria', 1)->where('estado', 1)->whereNotIn('id',
+                                $existingProductIds) as $producto)
+                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
+                                    data-precio="{{ $producto->precio }}">
+                                    {{ $producto->nombre }}
+                                </option>
                                 @endforeach
                             </select>
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
@@ -193,20 +203,23 @@
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @php
-                                    $existingProductIds = isset($menuItems[2]) 
-                                        ? $menuItems[2]->pluck('producto_id')->toArray() 
-                                        : [];
+                                $existingProductIds = isset($menuItems[2])
+                                ? $menuItems[2]->pluck('producto_id')->toArray()
+                                : [];
                                 @endphp
                                 @foreach($productos->where('id_categoria', 2)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-                                    {{ $producto->nombre }}</option>
-                                @endforeach
+    <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}" data-precio="{{ $producto->precio }}">
+        {{ $producto->nombre }}
+    </option>
+@endforeach
                             </select>
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
@@ -215,157 +228,189 @@
                             <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
                                 <option value="" selected disabled>Productos</option>
                                 @php
-                                    $existingProductIds = isset($menuItems[3]) 
-                                        ? $menuItems[3]->pluck('producto_id')->toArray() 
-                                        : [];
+                                $existingProductIds = isset($menuItems[3])
+                                ? $menuItems[3]->pluck('producto_id')->toArray()
+                                : [];
                                 @endphp
                                 @foreach($productos->where('id_categoria', 3)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+    <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}" data-precio="{{ $producto->precio }}">
+        {{ $producto->nombre }}
+    </option>
+@endforeach
+                            </select>
+                            <br><br>
+                            <input type="hidden" class="producto-id" value="">
+                            <input type="hidden" class="producto-nombre" value="">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
+                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+                        </div>
+
+                        <!-- Columna 4 - Fondo S/20.00 -->
+                        <div class="col custom-col" data-categoria="4">
+                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+                                <option value="" selected disabled>Productos</option>
+                                @php
+                                $existingProductIds = isset($menuItems[4])
+                                ? $menuItems[4]->pluck('producto_id')->toArray()
+                                : [];
+                                @endphp
+                                @foreach($productos->where('id_categoria', 4)->where('estado', 1)->whereNotIn('id',
+                                $existingProductIds) as $producto)
+                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
+                                    data-precio="{{ $producto->precio }}">
+                                    {{ $producto->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <br><br>
+                            <input type="hidden" class="producto-id" value="">
+                            <input type="hidden" class="producto-nombre" value="">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
+                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+                        </div>
+
+                        <!-- Columna 5 - Carta (con campo de precio) -->
+                        <div class="col custom-col" data-categoria="5">
+                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+                                <option value="" selected disabled>Productos</option>
+                                @php
+                                $existingProductIds = isset($menuItems[5])
+                                ? $menuItems[5]->pluck('producto_id')->toArray()
+                                : [];
+                                @endphp
+                                @foreach($productos->where('id_categoria', 5)->where('estado', 1)->whereNotIn('id',
+                                $existingProductIds) as $producto)
+                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
+                                    data-precio="{{ $producto->precio }}">
                                     {{ $producto->nombre }}</option>
                                 @endforeach
                             </select>
                             <br><br>
                             <input type="hidden" class="producto-id" value="">
                             <input type="hidden" class="producto-nombre" value="">
-                            <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-                            <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
                             <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
                         </div>
 
-                        <!-- Columna 4 - Fondo S/20.00 -->
-<div class="col custom-col" data-categoria="4">
-    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-        <option value="" selected disabled>Productos</option>
-        @php
-            $existingProductIds = isset($menuItems[4]) 
-                ? $menuItems[4]->pluck('producto_id')->toArray() 
-                : [];
-        @endphp
-        @foreach($productos->where('id_categoria', 4)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-            {{ $producto->nombre }}</option>
-        @endforeach
-    </select>
-    <br><br>
-    <input type="hidden" class="producto-id" value="">
-    <input type="hidden" class="producto-nombre" value="">
-    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-</div>
+                        <!-- Columna 6 - Combo (con campo de precio) -->
+                        <div class="col custom-col" data-categoria="6">
+                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+                                <option value="" selected disabled>Productos</option>
+                                @php
+                                $existingProductIds = isset($menuItems[6])
+                                ? $menuItems[6]->pluck('producto_id')->toArray()
+                                : [];
+                                @endphp
+                                @foreach($productos->where('id_categoria', 6)->where('estado', 1)->whereNotIn('id',
+                                $existingProductIds) as $producto)
+                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
+                                    data-precio="{{ $producto->precio }}">
+                                    {{ $producto->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <br><br>
+                            <input type="hidden" class="producto-id" value="">
+                            <input type="hidden" class="producto-nombre" value="">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
+                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+                        </div>
 
-<!-- Columna 5 - Carta (con campo de precio) -->
-<div class="col custom-col" data-categoria="5">
-    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-        <option value="" selected disabled>Productos</option>
-        @php
-            $existingProductIds = isset($menuItems[5]) 
-                ? $menuItems[5]->pluck('producto_id')->toArray() 
-                : [];
-        @endphp
-        @foreach($productos->where('id_categoria', 5)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-            {{ $producto->nombre }}</option>
-        @endforeach
-    </select>
-    <br><br>
-    <input type="hidden" class="producto-id" value="">
-    <input type="hidden" class="producto-nombre" value="">
-    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-</div>
+                        <!-- Columna 7 - Extras (con campo de precio) -->
+                        <div class="col custom-col" data-categoria="7">
+                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+                                <option value="" selected disabled>Productos</option>
+                                @php
+                                $existingProductIds = isset($menuItems[7])
+                                ? $menuItems[7]->pluck('producto_id')->toArray()
+                                : [];
+                                @endphp
+                                @foreach($productos->where('id_categoria', 7)->where('estado', 1)->whereNotIn('id',
+                                $existingProductIds) as $producto)
+                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
+                                    data-precio="{{ $producto->precio }}">
+                                    {{ $producto->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <br><br>
+                            <input type="hidden" class="producto-id" value="">
+                            <input type="hidden" class="producto-nombre" value="">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
+                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+                        </div>
 
-<!-- Columna 6 - Combo (con campo de precio) -->
-<div class="col custom-col" data-categoria="6">
-    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-        <option value="" selected disabled>Productos</option>
-        @php
-            $existingProductIds = isset($menuItems[6]) 
-                ? $menuItems[6]->pluck('producto_id')->toArray() 
-                : [];
-        @endphp
-        @foreach($productos->where('id_categoria', 6)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-            {{ $producto->nombre }}</option>
-        @endforeach
-    </select>
-    <br><br>
-    <input type="hidden" class="producto-id" value="">
-    <input type="hidden" class="producto-nombre" value="">
-    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-</div>
+                        <!-- Columna 8 - Caldos -->
+                        <div class="col custom-col" data-categoria="8">
+                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+                                <option value="" selected disabled>Productos</option>
+                                @php
+                                $existingProductIds = isset($menuItems[8])
+                                ? $menuItems[8]->pluck('producto_id')->toArray()
+                                : [];
+                                @endphp
+                                @foreach($productos->where('id_categoria', 8)->where('estado', 1)->whereNotIn('id',
+                                $existingProductIds) as $producto)
+                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
+                                    data-precio="{{ $producto->precio }}">
+                                    {{ $producto->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <br><br>
+                            <input type="hidden" class="producto-id" value="">
+                            <input type="hidden" class="producto-nombre" value="">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
+                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+                        </div>
 
-<!-- Columna 7 - Extras (con campo de precio) -->
-<div class="col custom-col" data-categoria="7">
-    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-        <option value="" selected disabled>Productos</option>
-        @php
-            $existingProductIds = isset($menuItems[7]) 
-                ? $menuItems[7]->pluck('producto_id')->toArray() 
-                : [];
-        @endphp
-        @foreach($productos->where('id_categoria', 7)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-            {{ $producto->nombre }}</option>
-        @endforeach
-    </select>
-    <br><br>
-    <input type="hidden" class="producto-id" value="">
-    <input type="hidden" class="producto-nombre" value="">
-    <input type="text" class="form-control form-control-sm mb-2 stock-input"  placeholder="Stock">
-    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-</div>
+                        <!-- Columna 9 - Desayunos -->
+                        <div class="col custom-col" data-categoria="9">
+                            <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+                                <option value="" selected disabled>Productos</option>
+                                @php
+                                $existingProductIds = isset($menuItems[9])
+                                ? $menuItems[9]->pluck('producto_id')->toArray()
+                                : [];
+                                @endphp
+                                @foreach($productos->where('id_categoria', 9)->where('estado', 1)->whereNotIn('id',
+                                $existingProductIds) as $producto)
+                                <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
+                                    data-precio="{{ $producto->precio }}">
+                                    {{ $producto->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <br><br>
+                            <input type="hidden" class="producto-id" value="">
+                            <input type="hidden" class="producto-nombre" value="">
+                            <input type="text" class="form-control form-control-sm mb-2 stock-input"
+                                placeholder="Stock">
+                            <input type="text" class="form-control form-control-sm mb-2 precio-input"
+                                placeholder="Precio">
+                            <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+                        </div>
 
-<!-- Columna 8 - Caldos -->
-<div class="col custom-col" data-categoria="8">
-    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-        <option value="" selected disabled>Productos</option>
-        @php
-            $existingProductIds = isset($menuItems[8]) 
-                ? $menuItems[8]->pluck('producto_id')->toArray() 
-                : [];
-        @endphp
-        @foreach($productos->where('id_categoria', 8)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-            {{ $producto->nombre }}</option>
-        @endforeach
-    </select>
-    <br><br>
-    <input type="hidden" class="producto-id" value="">
-    <input type="hidden" class="producto-nombre" value="">
-    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-</div>
 
-<!-- Columna 9 - Desayunos -->
-<div class="col custom-col" data-categoria="9">
-    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
-        <option value="" selected disabled>Productos</option>
-        @php
-            $existingProductIds = isset($menuItems[9]) 
-                ? $menuItems[9]->pluck('producto_id')->toArray() 
-                : [];
-        @endphp
-        @foreach($productos->where('id_categoria', 9)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
-        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
-            {{ $producto->nombre }}</option>
-        @endforeach
-    </select>
-    <br><br>
-    <input type="hidden" class="producto-id" value="">
-    <input type="hidden" class="producto-nombre" value="">
-    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
-    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
-    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
-</div>
-                          
-                    
-                       
+
                     </div>
                 </div>
             </div>
@@ -393,7 +438,7 @@
     <script src="{{ asset('access/vendor/jquery-nice-select/js/jquery.nice-select.min.js') }}"></script>
     <script src="{{ asset('access/vendor/swiper/js/swiper-bundle.min.js') }}"></script>
     <!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- Dashboard -->
     <script src="{{ asset('access/js/dlabnav-init.js') }}"></script>
@@ -402,249 +447,267 @@
 
 
     <script>
-         document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         // Datos de los elementos clonados
         const clonedItems = @json($cloneItems ?? []);
-    
-    // Auto-ocultar alerta de éxito después de 4 segundos
-    const clonacionExitosaAlert = document.querySelector('.alert:has(i.fa-check-circle)');
-    if (clonacionExitosaAlert) {
-        setTimeout(function() {
-            const bsAlert = new bootstrap.Alert(clonacionExitosaAlert);
-            bsAlert.close();
-        }, 4000);
-    }
-    
-    // Si hay elementos clonados y estamos en modo previsualización (sin confirmar)
-    if (clonedItems && clonedItems.length > 0 && !window.location.href.includes('confirmar=1')) {
-        console.log('Procesando elementos clonados:', clonedItems);
-        
-        // Agrupar elementos por categoría
-        const itemsByCategory = {};
-        clonedItems.forEach(item => {
-            const categoriaId = item.categoria_id;
-            if (!itemsByCategory[categoriaId]) {
-                itemsByCategory[categoriaId] = [];
-            }
-            itemsByCategory[categoriaId].push(item);
-        });
-        
-        // Calcular número máximo de filas necesarias
-        let maxRows = 0;
-        for (let cat = 1; cat <= 7; cat++) {
-            if (itemsByCategory[cat]) {
-                maxRows = Math.max(maxRows, itemsByCategory[cat].length);
-            }
+
+        // Auto-ocultar alerta de éxito después de 4 segundos
+        const clonacionExitosaAlert = document.querySelector('.alert:has(i.fa-check-circle)');
+        if (clonacionExitosaAlert) {
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(clonacionExitosaAlert);
+                bsAlert.close();
+            }, 4000);
         }
-        
-        // Obtener referencia a la tabla
-        const tableBody = document.querySelector('table.table-bordered tbody');
-        
-        // Limpiar filas existentes si es necesario
-        if (!tableBody.querySelector('tr')) {
-            // Si no hay filas, crear la cantidad necesaria
-            for (let i = 0; i < maxRows; i++) {
-                const row = document.createElement('tr');
-                for (let j = 0; j < 9; j++) {
-                    row.appendChild(document.createElement('td'));
+
+        // Si hay elementos clonados y estamos en modo previsualización (sin confirmar)
+        if (clonedItems && clonedItems.length > 0 && !window.location.href.includes('confirmar=1')) {
+            console.log('Procesando elementos clonados:', clonedItems);
+
+            // Agrupar elementos por categoría
+            const itemsByCategory = {};
+            clonedItems.forEach(item => {
+                const categoriaId = item.categoria_id;
+                if (!itemsByCategory[categoriaId]) {
+                    itemsByCategory[categoriaId] = [];
                 }
-                tableBody.appendChild(row);
+                itemsByCategory[categoriaId].push(item);
+            });
+
+            // Calcular número máximo de filas necesarias
+            let maxRows = 0;
+            for (let cat = 1; cat <= 7; cat++) {
+                if (itemsByCategory[cat]) {
+                    maxRows = Math.max(maxRows, itemsByCategory[cat].length);
+                }
             }
-        }
-        
-        // Añadir elementos a la tabla de previsualización
-        for (let cat = 1; cat <= 7; cat++) {
-            const items = itemsByCategory[cat] || [];
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                
-                // Asegurarnos de que hay suficientes filas
-                while (tableBody.children.length <= i) {
-                    const newRow = document.createElement('tr');
+
+            // Obtener referencia a la tabla
+            const tableBody = document.querySelector('table.table-bordered tbody');
+
+            // Limpiar filas existentes si es necesario
+            if (!tableBody.querySelector('tr')) {
+                // Si no hay filas, crear la cantidad necesaria
+                for (let i = 0; i < maxRows; i++) {
+                    const row = document.createElement('tr');
                     for (let j = 0; j < 9; j++) {
-                        newRow.appendChild(document.createElement('td'));
+                        row.appendChild(document.createElement('td'));
                     }
-                    tableBody.appendChild(newRow);
+                    tableBody.appendChild(row);
                 }
-                
-                // Crear el contenido HTML para el elemento
-                const cell = tableBody.children[i].children[cat-1];
-                cell.innerHTML = `
+            }
+
+            // Añadir elementos a la tabla de previsualización
+            for (let cat = 1; cat <= 7; cat++) {
+                const items = itemsByCategory[cat] || [];
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+
+                    // Asegurarnos de que hay suficientes filas
+                    while (tableBody.children.length <= i) {
+                        const newRow = document.createElement('tr');
+                        for (let j = 0; j < 9; j++) {
+                            newRow.appendChild(document.createElement('td'));
+                        }
+                        tableBody.appendChild(newRow);
+                    }
+
+                    // Crear el contenido HTML para el elemento
+                    const cell = tableBody.children[i].children[cat - 1];
+                    cell.innerHTML = `
                     <div>${item.producto_nombre}</div>
                     <div class="menu-item preview-item" data-id="preview-${item.id || i}" data-producto-id="${item.producto_id}">
                         <span class="badge bg-info me-1">Vista previa</span>
                         <span><b>${item.stock_diario}</b> - (S/${item.precio})</span>
                     </div>
                 `;
+                }
             }
+
+            // Insertar una nota sobre la previsualización sobre la tabla
+            const tableContainer = document.querySelector('.table-responsive') || document.querySelector(
+                'table').parentNode;
+            const previewNote = document.createElement('div');
+            previewNote.className = 'alert alert-warning mb-3';
+            previewNote.innerHTML =
+                '<i class="fas fa-eye me-2"></i> <strong>Previsualización:</strong> Esta es una vista previa de los elementos que se clonarán. Haga clic en "Confirmar clonación" para guardar estos datos.';
+            tableContainer.insertBefore(previewNote, tableContainer.firstChild);
         }
-        
-        // Insertar una nota sobre la previsualización sobre la tabla
-        const tableContainer = document.querySelector('.table-responsive') || document.querySelector('table').parentNode;
-        const previewNote = document.createElement('div');
-        previewNote.className = 'alert alert-warning mb-3';
-        previewNote.innerHTML = '<i class="fas fa-eye me-2"></i> <strong>Previsualización:</strong> Esta es una vista previa de los elementos que se clonarán. Haga clic en "Confirmar clonación" para guardar estos datos.';
-        tableContainer.insertBefore(previewNote, tableContainer.firstChild);
-    }
     });
 
     $(document).ready(function() {
 
         $('#btn-volver').on('click', function(e) {
-        e.preventDefault();
-        // Verificar si hay un referrer (página anterior)
-        if(document.referrer && document.referrer.includes('menuSemanal')) {
-            // Si la página anterior es el menú semanal, recargar esa URL
-            window.location.href = document.referrer;
-        } else {
-            // Si no hay referrer o no es el menú semanal, ir a la página de menú semanal
-            window.location.href = '/menuSemanal';
-        }
-    });
+            e.preventDefault();
+            // Verificar si hay un referrer (página anterior)
+            if (document.referrer && document.referrer.includes('menuSemanal')) {
+                // Si la página anterior es el menú semanal, recargar esa URL
+                window.location.href = document.referrer;
+            } else {
+                // Si no hay referrer o no es el menú semanal, ir a la página de menú semanal
+                window.location.href = '/menuSemanal';
+            }
+        });
 
         $('.producto-select').select2({
-        placeholder: 'Buscar producto...',
-        allowClear: true,
-        width: '100%',
-        language: {
-            noResults: function() {
-                return "No se encontraron resultados";
-            },
-            searching: function() {
-                return "Buscando...";
+            placeholder: 'Buscar producto...',
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "No se encontraron resultados";
+                },
+                searching: function() {
+                    return "Buscando...";
+                }
             }
-        }
-    });
+        });
 
-    // Usar el evento change nativo
-    $('.producto-select').on('select2:select', function(e) {
-        const container = $(this).closest('div[data-categoria]');
-        const productoId = $(this).val();
-        const productoNombre = $(this).find('option:selected').text().trim();
-        
-        container.find('.producto-id').val(productoId);
-        container.find('.producto-nombre').val(productoNombre);
-        
-        console.log("Producto seleccionado:", productoId, productoNombre);
-    });
+        // Usar el evento change nativo
+        $('.producto-select').on('select2:select', function(e) {
+            const container = $(this).closest('div[data-categoria]');
+            const categoriaId = parseInt(container.data('categoria'));
+            const productoId = $(this).val();
+            const productoNombre = $(this).find('option:selected').text().trim();
+
+            // Store the product ID and name in hidden fields
+            container.find('.producto-id').val(productoId);
+            container.find('.producto-nombre').val(productoNombre);
+
+            // Auto-populate price for all categories (1-9)
+            const precio = $(this).find('option:selected').data('precio');
+
+            // If price exists, populate the price field
+            if (precio) {
+                container.find('.precio-input').val(precio);
+            }
+
+            console.log("Producto seleccionado:", productoId, productoNombre,
+                "Categoría:", categoriaId,
+                "Precio auto:", precio);
+        });
 
         let nuevosItems = [];
 
-        
+
 
         // Handle the "AÑADIR" button click
         $('.btn-anadir').click(function() {
-    const container = $(this).closest('.custom-col');
-    const categoriaId = container.data('categoria');
-    
-    // Obtener directamente del select en lugar de los campos ocultos
-    const select = container.find('.producto-select');
-    const productoId = select.val();
-    const productoNombre = select.find('option:selected').text().trim();
-    
-    const stock = container.find('.stock-input').val();
-    const precio = container.find('.precio-input').val();
+            const container = $(this).closest('.custom-col');
+            const categoriaId = container.data('categoria');
 
-    console.log("Datos obtenidos directamente:", {
-        categoriaId, 
-        productoId, // Ahora debería tener el valor correcto
-        productoNombre,
-        stock,
-        precio
-    });
-    // Validation
-    if (!productoId) {
-        alert('Por favor elija un producto');
-        return;
-    }
+            // Obtener directamente del select en lugar de los campos ocultos
+            const select = container.find('.producto-select');
+            const productoId = select.val();
+            const productoNombre = select.find('option:selected').text().trim();
 
-    if (!stock || isNaN(stock) || stock <= 0) {
-        alert('Por favor ingrese un valor válido para stock');
-        return;
-    }
+            const stock = container.find('.stock-input').val();
+            const precio = container.find('.precio-input').val();
 
-    if ( (!precio || isNaN(precio) || precio <= 0)) {
-        alert('Por favor ingrese un precio válido');
-        return;
-    }
-    
+            console.log("Datos obtenidos directamente:", {
+                categoriaId,
+                productoId, // Ahora debería tener el valor correcto
+                productoNombre,
+                stock,
+                precio
+            });
+            // Validation
+            if (!productoId) {
+                alert('Por favor elija un producto');
+                return;
+            }
 
-    // Show loading state
-    $(this).prop('disabled', true);
-    $(this).html('<i class="fa fa-spinner fa-spin"></i> Añadiendo...');
+            if (!stock || isNaN(stock) || stock <= 0) {
+                alert('Por favor ingrese un valor válido para stock');
+                return;
+            }
 
-    // Get current date from page
-    const fecha = '{{ $fecha }}';
+            if ((!precio || isNaN(precio) || precio <= 0)) {
+                alert('Por favor ingrese un precio válido');
+                return;
+            }
 
-    // Prepare data for AJAX request
-    const itemData = {
-        categoria_id: categoriaId,
-        producto_id: productoId,
-        stock_diario: stock,
-        precio: precio
-    };
 
-    // Send AJAX request
-    $.ajax({
-        url: '/api/menu/registrar',
-        type: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            fecha: fecha,
-            items: [itemData]
-        },
-        success: function(response) {
-    if (response.success) {
-        // Update the item with real ID from server
-        const newItem = {
-            id: response.item_id,
-            categoria_id: categoriaId,
-            producto_id: productoId,
-            producto_nombre: productoNombre,
-            stock_diario: stock,
-            precio: precio
-        };
+            // Show loading state
+            $(this).prop('disabled', true);
+            $(this).html('<i class="fa fa-spinner fa-spin"></i> Añadiendo...');
 
-        // Add the item to the UI
-        addItemToTable(newItem);
+            // Get current date from page
+            const fecha = '{{ $fecha }}';
 
-        showNotification(`Producto "${productoNombre}" añadido correctamente`, 'success');
+            // Prepare data for AJAX request
+            const itemData = {
+                categoria_id: categoriaId,
+                producto_id: productoId,
+                stock_diario: stock,
+                precio: precio
+            };
 
-        // Remove the product from the dropdown to prevent duplicates
-        container.find('.producto-select option[value="' + productoId + '"]').remove();
+            // Send AJAX request
+            $.ajax({
+                url: '/api/menu/registrar',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    fecha: fecha,
+                    items: [itemData]
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update the item with real ID from server
+                        const newItem = {
+                            id: response.item_id,
+                            categoria_id: categoriaId,
+                            producto_id: productoId,
+                            producto_nombre: productoNombre,
+                            stock_diario: stock,
+                            precio: precio
+                        };
 
-        // Reset the form fields - solo resetear los valores sin usar selectpicker
-        container.find('.producto-select').val('');
-        container.find('.producto-id').val('');
-        container.find('.producto-nombre').val('');
-        container.find('.stock-input').val('');
-        if (container.find('.precio-input').length) {
-            container.find('.precio-input').val('');
-        }
-    } else {
-        alert('Error al guardar el producto: ' + (response.message || 'Error desconocido'));
-    }
-},
-        error: function(xhr) {
-            alert('Error al guardar el producto: ' + xhr.responseText);
-        },
-        complete: function() {
-            // Reset button state
-            container.find('.btn-anadir').prop('disabled', false);
-            container.find('.btn-anadir').html('AÑADIR');
-        }
-    });
-});
+                        // Add the item to the UI
+                        addItemToTable(newItem);
+
+                        showNotification(
+                            `Producto "${productoNombre}" añadido correctamente`,
+                            'success');
+
+                        // Remove the product from the dropdown to prevent duplicates
+                        container.find('.producto-select option[value="' + productoId +
+                            '"]').remove();
+
+                        // Reset the form fields - solo resetear los valores sin usar selectpicker
+                        container.find('.producto-select').val('');
+                        container.find('.producto-id').val('');
+                        container.find('.producto-nombre').val('');
+                        container.find('.stock-input').val('');
+                        if (container.find('.precio-input').length) {
+                            container.find('.precio-input').val('');
+                        }
+                    } else {
+                        alert('Error al guardar el producto: ' + (response.message ||
+                            'Error desconocido'));
+                    }
+                },
+                error: function(xhr) {
+                    alert('Error al guardar el producto: ' + xhr.responseText);
+                },
+                complete: function() {
+                    // Reset button state
+                    container.find('.btn-anadir').prop('disabled', false);
+                    container.find('.btn-anadir').html('AÑADIR');
+                }
+            });
+        });
 
         // Function to add an item to the table
         function addItemToTable(item) {
-    const categoriaId = item.categoria_id;
-    const columnIndex = categoriaId - 1;
+            const categoriaId = item.categoria_id;
+            const columnIndex = categoriaId - 1;
 
-    
-    
-    // Create the item HTML with data-producto-id attribute
-    let itemHtml = `
+
+
+            // Create the item HTML with data-producto-id attribute
+            let itemHtml = `
         <div>${item.producto_nombre}</span>
         <div class="menu-item" data-id="${item.id}" data-producto-id="${item.producto_id}">
             <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar" 
@@ -655,177 +718,184 @@
         </div>
     `;
 
-    // Find the first empty cell in this column or create a new row if needed
-    let emptyCell = false;
-    let tableRows = $('table tbody tr');
-    
-    for(let i = 0; i < tableRows.length; i++) {
-        let cell = $(tableRows[i]).find('td').eq(columnIndex);
-        if(cell.find('.menu-item').length === 0) {
-            cell.append(itemHtml);
-            emptyCell = true;
-            break;
-        }
-    }
-    
-    // If no empty cell was found, add a new row
-    if(!emptyCell) {
-        let newRow = $('<tr></tr>');
-        for(let i = 0; i < 9; i++) {
-            newRow.append('<td></td>');
-        }
-        $('table tbody').append(newRow);
-        
-        // Add the item to the right cell in the new row
-        newRow.find('td').eq(columnIndex).append(itemHtml);
-    }
-}
+            // Find the first empty cell in this column or create a new row if needed
+            let emptyCell = false;
+            let tableRows = $('table tbody tr');
 
-$(document).on('click', '.btn-eliminar', function(e) {
-    e.preventDefault();
-    
-    // Obtener el ID del elemento a eliminar
-    const itemId = $(this).data('id');
-    const menuItem = $(this).closest('.menu-item');
-    
-    // Obtener el ID del producto directamente del atributo data
-    const productoId = menuItem.data('producto-id');
-    
-    // Extraer el nombre del producto de manera segura
-    let productoNombre = "producto";
-    const spanText = menuItem.find('span').text().trim();
-    
-    
-    // Determinar la categoría basada en la posición de la celda
-    const categoriaId = menuItem.closest('td').index() + 1;
-    
-    // Mostrar un indicador visual de que se está procesando
-    menuItem.addClass('deleting');
-    menuItem.find('.btn-eliminar').prop('disabled', true);
-    
-    // Enviar solicitud AJAX para eliminar
-    $.ajax({
-        url: '/api/menu/eliminar/' + itemId,
-        type: 'DELETE',
-        data: {
-            _token: '{{ csrf_token() }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                // Usar el producto_id de la respuesta o el que obtuvimos del DOM
-                const idProducto = response.producto_id || productoId;
-                
-                if (idProducto) {
-                    // Buscar el selector correspondiente a esta categoría
-                    const select = $(`.custom-col[data-categoria="${categoriaId}"] .producto-select`);
-                    
-                    // Verificar si ya existe esta opción para evitar duplicados
-                    if (select.find(`option[value="${idProducto}"]`).length === 0) {
-                        // Crear y añadir nueva opción
-                        const newOption = new Option(productoNombre, idProducto, false, false);
-                        $(newOption).data('nombre', productoNombre);
-                        select.append(newOption);
-                        
-                        // Refrescar Select2 si está en uso
-                        if ($.fn.select2) {
-                            select.trigger('change');
-                        }
-                    }
+            for (let i = 0; i < tableRows.length; i++) {
+                let cell = $(tableRows[i]).find('td').eq(columnIndex);
+                if (cell.find('.menu-item').length === 0) {
+                    cell.append(itemHtml);
+                    emptyCell = true;
+                    break;
                 }
-                
-                showNotification(`Producto "${productoNombre}" eliminado correctamente`, 'danger');
-                
-                // Eliminar el elemento de la UI con animación
-                 menuItem.closest('td').children().fadeOut(300, function() {
-            $(this).remove(); // Eliminar todos los elementos hijos de la celda
-            reorganizarTabla();
-        });
-            } else {
-                menuItem.removeClass('deleting');
-                alert('Error al eliminar: ' + (response.message || 'Error desconocido'));
-                menuItem.find('.btn-eliminar').prop('disabled', false);
             }
-        },
-        error: function(xhr) {
-            menuItem.removeClass('deleting');
-            alert('Error al eliminar: ' + xhr.responseText);
-            menuItem.find('.btn-eliminar').prop('disabled', false);
-        }
-    });
-});
 
-function showNotification(message, type = 'success') {
-    // Crear elemento de notificación
-    const notification = $(`
+            // If no empty cell was found, add a new row
+            if (!emptyCell) {
+                let newRow = $('<tr></tr>');
+                for (let i = 0; i < 9; i++) {
+                    newRow.append('<td></td>');
+                }
+                $('table tbody').append(newRow);
+
+                // Add the item to the right cell in the new row
+                newRow.find('td').eq(columnIndex).append(itemHtml);
+            }
+        }
+
+        $(document).on('click', '.btn-eliminar', function(e) {
+            e.preventDefault();
+
+            // Obtener el ID del elemento a eliminar
+            const itemId = $(this).data('id');
+            const menuItem = $(this).closest('.menu-item');
+
+            // Obtener el ID del producto directamente del atributo data
+            const productoId = menuItem.data('producto-id');
+
+            // Extraer el nombre del producto de manera segura
+            let productoNombre = "producto";
+            const spanText = menuItem.find('span').text().trim();
+
+
+            // Determinar la categoría basada en la posición de la celda
+            const categoriaId = menuItem.closest('td').index() + 1;
+
+            // Mostrar un indicador visual de que se está procesando
+            menuItem.addClass('deleting');
+            menuItem.find('.btn-eliminar').prop('disabled', true);
+
+            // Enviar solicitud AJAX para eliminar
+            $.ajax({
+                url: '/api/menu/eliminar/' + itemId,
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Usar el producto_id de la respuesta o el que obtuvimos del DOM
+                        const idProducto = response.producto_id || productoId;
+
+                        if (idProducto) {
+                            // Buscar el selector correspondiente a esta categoría
+                            const select = $(
+                                `.custom-col[data-categoria="${categoriaId}"] .producto-select`
+                                );
+
+                            // Verificar si ya existe esta opción para evitar duplicados
+                            if (select.find(`option[value="${idProducto}"]`).length === 0) {
+                                // Crear y añadir nueva opción
+                                const newOption = new Option(productoNombre, idProducto,
+                                    false, false);
+                                $(newOption).data('nombre', productoNombre);
+                                select.append(newOption);
+
+                                // Refrescar Select2 si está en uso
+                                if ($.fn.select2) {
+                                    select.trigger('change');
+                                }
+                            }
+                        }
+
+                        showNotification(
+                            `Producto "${productoNombre}" eliminado correctamente`,
+                            'danger');
+
+                        // Eliminar el elemento de la UI con animación
+                        menuItem.closest('td').children().fadeOut(300, function() {
+                            $(this)
+                        .remove(); // Eliminar todos los elementos hijos de la celda
+                            reorganizarTabla();
+                        });
+                    } else {
+                        menuItem.removeClass('deleting');
+                        alert('Error al eliminar: ' + (response.message ||
+                            'Error desconocido'));
+                        menuItem.find('.btn-eliminar').prop('disabled', false);
+                    }
+                },
+                error: function(xhr) {
+                    menuItem.removeClass('deleting');
+                    alert('Error al eliminar: ' + xhr.responseText);
+                    menuItem.find('.btn-eliminar').prop('disabled', false);
+                }
+            });
+        });
+
+        function showNotification(message, type = 'success') {
+            // Crear elemento de notificación
+            const notification = $(`
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     `);
-    
-    // Añadir al contenedor
-    $('#notification-container').append(notification);
-    
-    // Auto-ocultar después de 2 segundos
-    setTimeout(function() {
-        notification.alert('close');
-    }, 2000);
-}
 
-// Función para reorganizar la tabla después de eliminar elementos
-function reorganizarTabla() {
-    // Obtener todas las filas de la tabla
-    const tableRows = $('table tbody tr');
-    
-    // Recorrer cada columna (categoría)
-    for (let col = 0; col < 9; col++) {
-        // Obtener todos los elementos de esta columna
-        const items = [];
-        tableRows.each(function() {
-            const cell = $(this).find('td').eq(col);
-            const menuItem = cell.find('.menu-item');
-            if (menuItem.length > 0) {
-                items.push(menuItem);
-                menuItem.detach(); // Quitar temporalmente sin eliminar
-            }
-        });
-        
-        // Reinsertarlos desde arriba hacia abajo
-        for (let i = 0; i < items.length; i++) {
-            const row = i < tableRows.length ? tableRows.eq(i) : null;
-            if (!row) {
-                // Si no hay suficientes filas, ya no hay qué hacer
-                break;
-            }
-            row.find('td').eq(col).append(items[i]);
+            // Añadir al contenedor
+            $('#notification-container').append(notification);
+
+            // Auto-ocultar después de 2 segundos
+            setTimeout(function() {
+                notification.alert('close');
+            }, 2000);
         }
-    }
-    
-    // Eliminar filas vacías desde abajo hacia arriba
-    for (let i = tableRows.length - 1; i >= 0; i--) {
-        const row = tableRows.eq(i);
-        let isEmpty = true;
-        
-        row.find('td').each(function() {
-            if ($(this).find('.menu-item').length > 0) {
-                isEmpty = false;
-                return false; // Romper el bucle
+
+        // Función para reorganizar la tabla después de eliminar elementos
+        function reorganizarTabla() {
+            // Obtener todas las filas de la tabla
+            const tableRows = $('table tbody tr');
+
+            // Recorrer cada columna (categoría)
+            for (let col = 0; col < 9; col++) {
+                // Obtener todos los elementos de esta columna
+                const items = [];
+                tableRows.each(function() {
+                    const cell = $(this).find('td').eq(col);
+                    const menuItem = cell.find('.menu-item');
+                    if (menuItem.length > 0) {
+                        items.push(menuItem);
+                        menuItem.detach(); // Quitar temporalmente sin eliminar
+                    }
+                });
+
+                // Reinsertarlos desde arriba hacia abajo
+                for (let i = 0; i < items.length; i++) {
+                    const row = i < tableRows.length ? tableRows.eq(i) : null;
+                    if (!row) {
+                        // Si no hay suficientes filas, ya no hay qué hacer
+                        break;
+                    }
+                    row.find('td').eq(col).append(items[i]);
+                }
             }
-        });
-        
-        if (isEmpty) {
-            row.remove();
-        } else {
-            // Si encontramos una fila no vacía, podemos detenernos
-            break;
+
+            // Eliminar filas vacías desde abajo hacia arriba
+            for (let i = tableRows.length - 1; i >= 0; i--) {
+                const row = tableRows.eq(i);
+                let isEmpty = true;
+
+                row.find('td').each(function() {
+                    if ($(this).find('.menu-item').length > 0) {
+                        isEmpty = false;
+                        return false; // Romper el bucle
+                    }
+                });
+
+                if (isEmpty) {
+                    row.remove();
+                } else {
+                    // Si encontramos una fila no vacía, podemos detenernos
+                    break;
+                }
+            }
         }
-    }
-}
 
-    
 
-           
-        
+
+
+
 
     });
     </script>
@@ -838,7 +908,7 @@ function reorganizarTabla() {
         padding: 2px 8px !important;
         max-width: 100% !important;
     }
-    
+
     /* Style for Bootstrap Select elements */
     .bootstrap-select .dropdown-toggle {
         font-size: 0.75rem !important;
@@ -846,7 +916,7 @@ function reorganizarTabla() {
         padding: 2px 8px !important;
         border-radius: 0.2rem !important;
     }
-    
+
     /* Fix dropdown menu scrolling */
     .bootstrap-select .dropdown-menu {
         font-size: 0.75rem !important;
@@ -854,20 +924,20 @@ function reorganizarTabla() {
         max-height: 250px !important;
         overflow-y: auto !important;
     }
-    
+
     /* Ensure dropdown content is scrollable */
     .bootstrap-select .dropdown-menu .inner {
         max-height: 200px !important;
         overflow-y: auto !important;
         overflow-x: hidden;
     }
-    
+
     /* Style dropdown items */
     .bootstrap-select .dropdown-menu li a {
         padding: 3px 8px !important;
         white-space: normal;
     }
-    
+
     /* Fix button text overflow */
     .bootstrap-select .filter-option-inner-inner {
         overflow: hidden;
@@ -875,139 +945,146 @@ function reorganizarTabla() {
         white-space: nowrap;
         line-height: 1.2 !important;
     }
-    
+
     /* Make the search box smaller */
     .bootstrap-select .bs-searchbox .form-control {
         height: 28px !important;
         font-size: 0.75rem !important;
         padding: 3px 8px !important;
     }
-    
+
 
 
     #notification-container .alert {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-left: 4px solid;
-    animation: fadeIn 0.3s;
-}
-
-#notification-container .alert-success {
-    border-left-color: #28a745;
-}
-
-#notification-container .alert-danger {
-    border-left-color: #dc3545;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid;
+        animation: fadeIn 0.3s;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    #notification-container .alert-success {
+        border-left-color: #28a745;
     }
-}
 
-/* Estilo para el botón volver */
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-.btn-primary:hover {
-    background-color: #0069d9;
-    border-color: #0062cc;
-}
-
-.select2-container--default .select2-selection--single {
-    height: 32px;
-    font-size: 0.875rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 30px;
-    padding-left: 12px;
-    color: #495057;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 30px;
-}
-
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #6f42c1;
-}
-
-.select2-dropdown {
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.select2-search--dropdown .select2-search__field {
-    padding: 6px;
-    border-radius: 3px;
-}
-
-/* Ajustes para móviles */
-@media (max-width: 767.98px) {
-    .select2-container {
-        font-size: 0.75rem;
+    #notification-container .alert-danger {
+        border-left-color: #dc3545;
     }
-    
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Estilo para el botón volver */
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0069d9;
+        border-color: #0062cc;
+    }
+
     .select2-container--default .select2-selection--single {
+        height: 32px;
+        font-size: 0.875rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 30px;
+        padding-left: 12px;
+        color: #495057;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 30px;
     }
-    
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 28px;
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #6f42c1;
     }
-}
-.custom-col {
-    flex: 0 0 10.5% !important;  /* Updated from 13.28% to accommodate 9 columns */
-    max-width: 10.5% !important; /* Must match the flex value */
-    margin-right: 0.3% !important;  /* Reduced margin to fit all 9 columns */
-    margin-left: 0.3% !important;   
-    padding-left: 3px !important;  /* Reduced padding further */
-    padding-right: 3px !important; 
-    margin-bottom: 1rem !important;
-    display: inline-block !important;
-    vertical-align: top !important;
-}
 
-/* Container adjustments */
-.row.mt-4.justify-content-center {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    align-items: flex-start !important;
-    padding: 0 15px !important;
-}
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-/* Consistent form control spacing */
-.form-select, .form-control, select, input {
-    height: 34px !important;
-    margin-bottom: 8px !important;
-    width: 100% !important;
-}
+    .select2-search--dropdown .select2-search__field {
+        padding: 6px;
+        border-radius: 3px;
+    }
 
-/* Select2 container width fix */
-.select2-container {
-    width: 100% !important;
-    margin-bottom: 12px !important;
-}
+    /* Ajustes para móviles */
+    @media (max-width: 767.98px) {
+        .select2-container {
+            font-size: 0.75rem;
+        }
 
-/* Completely remove <br> tags */
-br {
-    display: none !important;
-}
+        .select2-container--default .select2-selection--single {
+            height: 30px;
+        }
 
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px;
+        }
+    }
 
-</style>
+    .custom-col {
+        flex: 0 0 10.5% !important;
+        /* Updated from 13.28% to accommodate 9 columns */
+        max-width: 10.5% !important;
+        /* Must match the flex value */
+        margin-right: 0.3% !important;
+        /* Reduced margin to fit all 9 columns */
+        margin-left: 0.3% !important;
+        padding-left: 3px !important;
+        /* Reduced padding further */
+        padding-right: 3px !important;
+        margin-bottom: 1rem !important;
+        display: inline-block !important;
+        vertical-align: top !important;
+    }
+
+    /* Container adjustments */
+    .row.mt-4.justify-content-center {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+        padding: 0 15px !important;
+    }
+
+    /* Consistent form control spacing */
+    .form-select,
+    .form-control,
+    select,
+    input {
+        height: 34px !important;
+        margin-bottom: 8px !important;
+        width: 100% !important;
+    }
+
+    /* Select2 container width fix */
+    .select2-container {
+        width: 100% !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Completely remove <br> tags */
+    br {
+        display: none !important;
+    }
+    </style>
 
 
 </body>
