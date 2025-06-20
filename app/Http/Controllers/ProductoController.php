@@ -13,11 +13,15 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class ProductoController extends Controller
 {
-   public function productos_tab()
+
+public function productos_tab()
 {
     $categorias = Categoria::all();
     $activeTabId = request()->get('tab_id', 'todos');
     $search = request()->get('search');
+    
+    // Define categorías que deben mostrar precio
+    $categoriasConPrecio = [5, 6, 7, 8, 9];
     
     // Para cada categoría, cargamos sus productos con paginación
     foreach ($categorias as $categoria) {
@@ -29,6 +33,9 @@ class ProductoController extends Controller
         
         // Importante: Asegurarse que los links de paginación mantengan el tab activo
         $categoria->productosPaginados->appends(['tab_id' => $activeTabId]);
+        
+        // Marcar si esta categoría debe mostrar columna de precio
+        $categoria->mostrarPrecio = in_array($categoria->id, $categoriasConPrecio);
     }
 
     // Tab "Todos" - ordenado alfabéticamente por nombre, sin paginación
@@ -50,7 +57,7 @@ class ProductoController extends Controller
     // Obtener todos los productos sin paginación
     $todosProductos = $query->orderBy('nombre', 'asc')->get();
     
-    return view('productos.productos', compact('categorias', 'activeTabId', 'todosProductos', 'search'));
+    return view('productos.productos', compact('categorias', 'activeTabId', 'todosProductos', 'search', 'categoriasConPrecio'));
 }
 
     // Mostrar un producto específico
