@@ -34,7 +34,7 @@ class OrdenController extends Controller
             'tipoPago'
         ])
         ->where('id_usuario', $usuarioId)
-        ->whereIn('estado', [0, 1, 2, 3])
+        ->whereIn('estado', [0, 1, 2, 3,4,5,6,8])
         ->orderByDesc('created_at')
         ->get();
 

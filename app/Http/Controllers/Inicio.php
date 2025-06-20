@@ -10,6 +10,7 @@ use App\Models\TipoPago;
 use App\Models\ComprobantePago;
 use App\Models\Distrito;
 use App\Models\DireccionUser;
+use App\Models\Banners;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -51,6 +52,33 @@ class Inicio extends Controller
         ->having('stock_restante', '>', 0)
         ->get();
     }
+
+    public function web(Request $request)
+    {
+        $hoy = Carbon::now()->format('Y-m-d');
+
+        // Banners activos por fecha
+        $banners = Banners::where('fecha_inicio', '<=', $hoy)
+            ->where('fecha_fin', '>=', $hoy)
+            ->where('tipo', '1')
+            ->where('tipo', '1')
+            ->get();
+
+        // Productos por categoría (sin filtro de stock ni fecha)
+        $entradas15 = Producto::where('id_categoria', 1)->where('estado', 1)->get();
+        $entradas20 = Producto::where('id_categoria', 2)->where('estado', 1)->get();
+        $fondos15 = Producto::where('id_categoria', 3)->where('estado', 1)->get();
+        $fondos20 = Producto::where('id_categoria', 4)->where('estado', 1)->get();
+        $platosCarta = Producto::where('id_categoria', 5)->where('estado', 1)->get();
+        $caldos = Producto::where('id_categoria', 8)->where('estado', 1)->get();
+        $desayunos = Producto::where('id_categoria', 9)->where('estado', 1)->get();
+        $img15 = Banners::where('tipo', '2')->first();
+        $img20 = Banners::where('tipo', '3')->first();
+
+        return view('web', compact('entradas15', 'fondos15', 'entradas20', 'fondos20', 'platosCarta','banners','caldos','desayunos','img15','img20'));
+    }
+
+
 
     public function inicio(Request $request)
     {

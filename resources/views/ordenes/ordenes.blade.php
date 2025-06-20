@@ -99,8 +99,13 @@
                                             @switch($pedido->estado)
                                                 @case(0) <span class="badge bg-warning text-dark">Pendiente</span> @break
                                                 @case(1) <span class="badge bg-info text-dark">En preparación</span> @break
-                                                @case(2) <span class="badge bg-success">Preparado</span> @break
-                                                @case(3) <span class="badge bg-primary">En traslado</span> @break
+                                                @case(2) <span class="badge bg-primary">Preparado</span> @break
+                                                @case(3) <span class="badge bg-primary">Listo para reparto</span> @break
+                                                @case(4) <span class="badge bg-warning">Asignado a motorizado</span> @break
+                                                @case(5) <span class="badge bg-warning">En camino</span> @break
+                                                @case(6) <span class="badge bg-success">Entregado</span> @break
+                                                @case(8) <span class="badge bg-primary">Preparado *</span> @break
+                                                @case(9) <span class="badge bg-danger">Rechazado</span> @break
                                             @endswitch
                                         </p>
 
