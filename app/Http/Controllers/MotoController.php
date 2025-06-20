@@ -122,6 +122,8 @@ class MotoController extends Controller
                 'documento' => $pedido->datos_comprobante ? json_decode($pedido->datos_comprobante)->numero_documento ?? '' : '',
                 'comentarios' => $pedido->comentarios,
                 'total' => $totalPedido,
+                'monto_total' => $pedido->monto_total,
+                'ruta_evidencia' => $pedido->ruta_evidencia,
                 'comensales' => $comensalesDatos,
                 'lat' => $pedido->lat_contacto,
                 'lon' => $pedido->lon_contacto,

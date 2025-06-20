@@ -323,7 +323,7 @@
                                     </div>
                                     <div class="order-totals">
                                         <div>Delivery: s/1.00</div>
-                                        <div class="order-total">TOTAL: s/{{ number_format($pedido['total'], 2) }}</div>
+                                        <div class="order-total">TOTAL: s/{{ number_format($pedido['monto_total'], 2) }}</div>
                                     </div>
                                     <div class="action-buttons">
                                         <a href="https://waze.com/ul?ll={{ $pedido['lat'] }},{{ $pedido['lon'] }}&navigate=yes"

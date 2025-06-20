@@ -179,6 +179,7 @@ private function getMotorizadosActivos()
                 'documento' => $pedido->datos_comprobante ? json_decode($pedido->datos_comprobante)->numero_documento ?? '' : '',
                 'comentarios' => $pedido->comentarios,
                 'total' => $totalPedido,
+                'monto_total' => $pedido->monto_total,
                 'comensales' => $comensalesDatos,
             ];
         }
@@ -281,7 +282,7 @@ public function marcarPedidoEnCamino(Request $request)
 
 public function obtenerEstadoPedidos()
 {
-    $pedidosDB = Pedido::whereIn('estado', [4, 5])
+    $pedidosDB = Pedido::whereIn('estado', [4, 5, 6, 10, 11])
         ->whereDate('created_at', Carbon::today())
         ->select('id', 'estado', 'id_user_moto')
         ->get();
