@@ -23,7 +23,8 @@ Route::get('/', function () {
 Auth::routes();
 
 // Public routes
-Route::get('/', [Inicio::class, 'inicio']);
+Route::get('/', [Inicio::class, 'web']);
+Route::get('/inicio', [Inicio::class, 'inicio']);
 Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
 Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
 
