@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\AdministradorController;
+use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\ControllerPopupDia;
 use App\Http\Controllers\EditUserController;
+use App\Http\Controllers\MotoController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -12,6 +15,7 @@ use App\Http\Controllers\PlaneacionMenuController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\DespachoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\OrdenController;
 
@@ -59,6 +63,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/menusemana/agregar/{fecha?}', [PlaneacionMenuController::class, 'agregar']);
     Route::post('/api/menu/registrar', [PlaneacionMenuController::class, 'registrarMenu']);
     Route::delete('/api/menu/eliminar/{id}', [PlaneacionMenuController::class, 'eliminarMenu']);
+    //CalendarioClon
+    Route::get('/api/calendar-with-menu', [PlaneacionMenuController::class, 'getDiasConMenu']);
+    Route::get('/api/menu-day', [PlaneacionMenuController::class, 'getMenuDia']);
+    Route::post('/api/menu-clone', [App\Http\Controllers\PlaneacionMenuController::class, 'clonarMenuDirecto']);
 
     //Usuarios
     Route::get('/usuarios', [UsuarioController::class, 'prin']);
@@ -123,4 +131,51 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/usuariosEditPerfil/set-default-address', [EditUserController::class, 'setDefaultAddress'])->name('usuarios.set_default_address');
     Route::delete('/usuariosEditPerfil/delete-address/{id}', [EditUserController::class, 'deleteAddress'])->name('usuarios.delete_address');
     Route::post('/usuariosEditPerfil/update-address', [EditUserController::class, 'updateAddress'])->name('usuarios.update_address');
+
+    // Cocina Rutas.
+
+    Route::get('/cocina', [CocinaController::class, 'index'])->name('cocina.index');
+    Route::get('/cocina/new-orders', [CocinaController::class, 'getNewOrders'])->name('cocina.new-orders');
+    Route::post('/pedidos/update-status', [CocinaController::class, 'updateStatus'])->name('pedidos.update-status');
+    Route::get('/cocina/orders-by-date', [CocinaController::class, 'getOrdersByDate'])->name('cocina.orders-by-date');
+    Route::get('/cocina/days-with-orders', [CocinaController::class, 'getDaysWithOrders'])->name('cocina.days-with-orders');
+     Route::post('/cocina/update-item-status', [CocinaController::class, 'updateItemStatus'])->name('cocina.update-item-status');
+
+    // Administrador Routes
+
+    Route::get('/admin/config', [AdministradorController::class, 'index'])->name('admin.config');
+
+// TipoPago
+    Route::get('/admin/tipopago/listar', [AdministradorController::class, 'listarTiposPago'])->name('admin.tipoPago.listar');
+    Route::post('/admin/tipopago/guardar', [AdministradorController::class, 'guardarTipoPago'])->name('admin.tipoPago.guardar');
+    Route::post('/admin/tipopago/cambiarestado', [AdministradorController::class, 'cambiarEstadoTipoPago'])->name('admin.tipoPago.cambiarEstado');
+
+// ComprobantePago
+    Route::get('/admin/comprobante/listar', [AdministradorController::class, 'listarComprobantes'])->name('admin.comprobante.listar');
+    Route::post('/admin/comprobante/guardar', [AdministradorController::class, 'guardarComprobante'])->name('admin.comprobante.guardar');
+    Route::post('/admin/comprobante/cambiarestado', [AdministradorController::class, 'cambiarEstadoComprobante'])->name('admin.comprobante.cambiarEstado');
+
+// HoraLlegada
+    Route::get('/admin/horallegada/listar', [AdministradorController::class, 'listarHorasLlegada'])->name('admin.horaLlegada.listar');
+    Route::post('/admin/horallegada/guardar', [AdministradorController::class, 'guardarHoraLlegada'])->name('admin.horaLlegada.guardar');
+    Route::get('/admin/horallegada/obtener', [AdministradorController::class, 'obtenerHoraLlegada'])->name('admin.horaLlegada.obtener');
+    Route::post('/admin/horallegada/actualizar', [AdministradorController::class, 'actualizarHoraLlegada'])->name('admin.horaLlegada.actualizar');
+    Route::post('/admin/horallegada/cambiarestado', [AdministradorController::class, 'cambiarEstadoHoraLlegada'])->name('admin.horaLlegada.cambiarEstado');
+
+// Despacho
+
+    Route::get('/despacho', [DespachoController:: class, 'despacho'])->name('despacho.despacho');
+    Route::get('/despacho-moto', [DespachoController:: class, 'despachoMoto'])->name('despacho.despacho_moto');
+    Route::get('/despacho/pedidos-nuevos', [DespachoController::class, 'obtenerPedidosNuevos'])->name('despacho.pedidos-nuevos');
+    Route::post('/despacho/pedido/actualizar-estado', [DespachoController::class, 'actualizarEstadoPedido'])->name('despacho.actualizar-estado');
+    Route::post('/despacho/pedido/asignar-moto', [DespachoController::class, 'asignarPedidoAMoto'])->name('despacho.asignar-moto');
+    Route::post('/despacho/pedido/en-camino', [DespachoController::class, 'marcarPedidoEnCamino'])->name('despacho.en-camino');
+    Route::get('/despacho/estado-pedidos', [DespachoController::class, 'obtenerEstadoPedidos'])->name('despacho.estado-pedidos');
+    Route::get('/despacho/pedido/imprimir/{id}', [DespachoController::class, 'imprimirPedido'])->name('despacho.imprimir');
+
+// Delivery
+    Route::get('/motorizado/moto', [MotoController::class, 'showMoto'])->name('motorizado.moto');
+    Route::post('/motorizado/marcar-en-camino', [MotoController::class, 'marcarEnCamino'])->name('motorizado.marcar-en-camino');
+    Route::post('/motorizado/marcar-entregado', [MotoController::class, 'marcarEntregado'])->name('motorizado.marcar-entregado');
+    Route::get('/motorizado/actualizaciones', [MotoController::class, 'obtenerActualizaciones'])->name('motorizado.actualizaciones');
 });

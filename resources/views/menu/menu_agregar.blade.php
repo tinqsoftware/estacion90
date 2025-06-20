@@ -62,6 +62,21 @@
                 <!-- Contenedor de notificaciones -->
 <div id="notification-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999; width: 300px;"></div>
 
+@if((isset($cloneItems) && count($cloneItems) > 0 && !request()->has('confirmar')) || $clonacionExitosa)
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    @if($clonacionExitosa)
+        <strong><i class="fas fa-check-circle me-2"></i>Menú clonado exitosamente!</strong> Los elementos se han agregado al menú de esta fecha.
+    @else
+        <strong><i class="fas fa-clone me-2"></i>Menú clonado:</strong> Se ha cargado el menú del día {{ $cloneFromFormateado }}. 
+        <a href="{{ url('/menusemana/agregar/'.$fecha.'?clone_from='.request()->query('clone_from').'&confirmar=1') }}" class="btn btn-success btn-sm ms-2">
+            <i class="fas fa-check me-1"></i>Confirmar clonación
+        </a>
+    @endif
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+
 <!-- Botón volver -->
 <div class="row mb-3 align-items-center">
     <div class="col-md-6">
@@ -70,7 +85,7 @@
             <span class="badge bg-primary p-2">
                 @php
                     $hayProductos = false;
-                    foreach ([1, 2, 3, 4, 5, 6, 7] as $cat) {
+                    foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $cat) {
                         if (isset($menuItems[$cat]) && count($menuItems[$cat]) > 0) {
                             $hayProductos = true;
                             break;
@@ -99,13 +114,15 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th width="14.28%">Entrada S/15.00</th>
-                                    <th width="14.28%">Entrada S/20.00</th>
-                                    <th width="14.28%">Fondo S/15.00</th>
-                                    <th width="14.28%">Fondo S/20.00</th>
-                                    <th width="14.28%">Carta</th>
-                                    <th width="14.28%">Combos</th>
-                                    <th width="14.28%">Extras</th>
+        <th width="11.11%">Entrada S/15.00</th>
+        <th width="11.11%">Entrada S/20.00</th>
+        <th width="11.11%">Fondo S/15.00</th>
+        <th width="11.11%">Fondo S/20.00</th>
+        <th width="11.11%">Carta</th>
+        <th width="11.11%">Combos</th>
+        <th width="11.11%">Extras</th>
+        <th width="11.11%">Caldos</th>
+        <th width="11.11%">Desayunos</th>
                                 </tr>
                             </thead>
                              <tbody>
@@ -117,13 +134,15 @@
                                 count($menuItems[4] ?? []),
                                 count($menuItems[5] ?? []),
                                 count($menuItems[6] ?? []),
-                                count($menuItems[7] ?? [])
+                                count($menuItems[7] ?? []),
+                                count($menuItems[8] ?? []),
+                                count($menuItems[9] ?? [])
                                 );
                                 @endphp
 
                                 @for ($i = 0; $i < $maxRows; $i++)
                                 <tr>
-                                    @foreach ([1, 2, 3, 4, 5, 6, 7] as $categoriaId)
+                                    @foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $categoriaId)
                                     <td>
                                         @if(isset($menuItems[$categoriaId][$i]))
                                         <div>{{ $menuItems[$categoriaId][$i]->producto_nombre }}</span>
@@ -156,7 +175,7 @@
                                         ? $menuItems[1]->pluck('producto_id')->toArray() 
                                         : [];
                                 @endphp
-                                @foreach($productos->where('id_categoria', 1)->whereNotIn('id', $existingProductIds) as $producto)
+                                @foreach($productos->where('id_categoria', 1)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
                                     {{ $producto->nombre }}</option>
                                 @endforeach
@@ -178,7 +197,7 @@
                                         ? $menuItems[2]->pluck('producto_id')->toArray() 
                                         : [];
                                 @endphp
-                                @foreach($productos->where('id_categoria', 2)->whereNotIn('id', $existingProductIds) as $producto)
+                                @foreach($productos->where('id_categoria', 2)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
                                     {{ $producto->nombre }}</option>
                                 @endforeach
@@ -200,7 +219,7 @@
                                         ? $menuItems[3]->pluck('producto_id')->toArray() 
                                         : [];
                                 @endphp
-                                @foreach($productos->where('id_categoria', 3)->whereNotIn('id', $existingProductIds) as $producto)
+                                @foreach($productos->where('id_categoria', 3)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
                                     {{ $producto->nombre }}</option>
                                 @endforeach
@@ -222,7 +241,7 @@
                 ? $menuItems[4]->pluck('producto_id')->toArray() 
                 : [];
         @endphp
-        @foreach($productos->where('id_categoria', 4)->whereNotIn('id', $existingProductIds) as $producto)
+        @foreach($productos->where('id_categoria', 4)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
         <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
             {{ $producto->nombre }}</option>
         @endforeach
@@ -244,7 +263,7 @@
                 ? $menuItems[5]->pluck('producto_id')->toArray() 
                 : [];
         @endphp
-        @foreach($productos->where('id_categoria', 5)->whereNotIn('id', $existingProductIds) as $producto)
+        @foreach($productos->where('id_categoria', 5)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
         <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
             {{ $producto->nombre }}</option>
         @endforeach
@@ -266,7 +285,7 @@
                 ? $menuItems[6]->pluck('producto_id')->toArray() 
                 : [];
         @endphp
-        @foreach($productos->where('id_categoria', 6)->whereNotIn('id', $existingProductIds) as $producto)
+        @foreach($productos->where('id_categoria', 6)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
         <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
             {{ $producto->nombre }}</option>
         @endforeach
@@ -288,7 +307,7 @@
                 ? $menuItems[7]->pluck('producto_id')->toArray() 
                 : [];
         @endphp
-        @foreach($productos->where('id_categoria', 7)->whereNotIn('id', $existingProductIds) as $producto)
+        @foreach($productos->where('id_categoria', 7)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
         <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
             {{ $producto->nombre }}</option>
         @endforeach
@@ -297,6 +316,50 @@
     <input type="hidden" class="producto-id" value="">
     <input type="hidden" class="producto-nombre" value="">
     <input type="text" class="form-control form-control-sm mb-2 stock-input"  placeholder="Stock">
+    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+</div>
+
+<!-- Columna 8 - Caldos -->
+<div class="col custom-col" data-categoria="8">
+    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+        <option value="" selected disabled>Productos</option>
+        @php
+            $existingProductIds = isset($menuItems[8]) 
+                ? $menuItems[8]->pluck('producto_id')->toArray() 
+                : [];
+        @endphp
+        @foreach($productos->where('id_categoria', 8)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
+        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+            {{ $producto->nombre }}</option>
+        @endforeach
+    </select>
+    <br><br>
+    <input type="hidden" class="producto-id" value="">
+    <input type="hidden" class="producto-nombre" value="">
+    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
+    <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
+    <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
+</div>
+
+<!-- Columna 9 - Desayunos -->
+<div class="col custom-col" data-categoria="9">
+    <select class="form-select form-select-sm producto-select mb-2" data-live-search="true">
+        <option value="" selected disabled>Productos</option>
+        @php
+            $existingProductIds = isset($menuItems[9]) 
+                ? $menuItems[9]->pluck('producto_id')->toArray() 
+                : [];
+        @endphp
+        @foreach($productos->where('id_categoria', 9)->where('estado', 1)->whereNotIn('id', $existingProductIds) as $producto)
+        <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}">
+            {{ $producto->nombre }}</option>
+        @endforeach
+    </select>
+    <br><br>
+    <input type="hidden" class="producto-id" value="">
+    <input type="hidden" class="producto-nombre" value="">
+    <input type="text" class="form-control form-control-sm mb-2 stock-input" placeholder="Stock">
     <input type="text" class="form-control form-control-sm mb-2 precio-input"  placeholder="Precio">
     <button class="btn btn-secondary btn-sm w-100 btn-anadir">AÑADIR</button>
 </div>
@@ -339,6 +402,92 @@
 
 
     <script>
+         document.addEventListener('DOMContentLoaded', function() {
+        // Datos de los elementos clonados
+        const clonedItems = @json($cloneItems ?? []);
+    
+    // Auto-ocultar alerta de éxito después de 4 segundos
+    const clonacionExitosaAlert = document.querySelector('.alert:has(i.fa-check-circle)');
+    if (clonacionExitosaAlert) {
+        setTimeout(function() {
+            const bsAlert = new bootstrap.Alert(clonacionExitosaAlert);
+            bsAlert.close();
+        }, 4000);
+    }
+    
+    // Si hay elementos clonados y estamos en modo previsualización (sin confirmar)
+    if (clonedItems && clonedItems.length > 0 && !window.location.href.includes('confirmar=1')) {
+        console.log('Procesando elementos clonados:', clonedItems);
+        
+        // Agrupar elementos por categoría
+        const itemsByCategory = {};
+        clonedItems.forEach(item => {
+            const categoriaId = item.categoria_id;
+            if (!itemsByCategory[categoriaId]) {
+                itemsByCategory[categoriaId] = [];
+            }
+            itemsByCategory[categoriaId].push(item);
+        });
+        
+        // Calcular número máximo de filas necesarias
+        let maxRows = 0;
+        for (let cat = 1; cat <= 7; cat++) {
+            if (itemsByCategory[cat]) {
+                maxRows = Math.max(maxRows, itemsByCategory[cat].length);
+            }
+        }
+        
+        // Obtener referencia a la tabla
+        const tableBody = document.querySelector('table.table-bordered tbody');
+        
+        // Limpiar filas existentes si es necesario
+        if (!tableBody.querySelector('tr')) {
+            // Si no hay filas, crear la cantidad necesaria
+            for (let i = 0; i < maxRows; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < 9; j++) {
+                    row.appendChild(document.createElement('td'));
+                }
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Añadir elementos a la tabla de previsualización
+        for (let cat = 1; cat <= 7; cat++) {
+            const items = itemsByCategory[cat] || [];
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                
+                // Asegurarnos de que hay suficientes filas
+                while (tableBody.children.length <= i) {
+                    const newRow = document.createElement('tr');
+                    for (let j = 0; j < 9; j++) {
+                        newRow.appendChild(document.createElement('td'));
+                    }
+                    tableBody.appendChild(newRow);
+                }
+                
+                // Crear el contenido HTML para el elemento
+                const cell = tableBody.children[i].children[cat-1];
+                cell.innerHTML = `
+                    <div>${item.producto_nombre}</div>
+                    <div class="menu-item preview-item" data-id="preview-${item.id || i}" data-producto-id="${item.producto_id}">
+                        <span class="badge bg-info me-1">Vista previa</span>
+                        <span><b>${item.stock_diario}</b> - (S/${item.precio})</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Insertar una nota sobre la previsualización sobre la tabla
+        const tableContainer = document.querySelector('.table-responsive') || document.querySelector('table').parentNode;
+        const previewNote = document.createElement('div');
+        previewNote.className = 'alert alert-warning mb-3';
+        previewNote.innerHTML = '<i class="fas fa-eye me-2"></i> <strong>Previsualización:</strong> Esta es una vista previa de los elementos que se clonarán. Haga clic en "Confirmar clonación" para guardar estos datos.';
+        tableContainer.insertBefore(previewNote, tableContainer.firstChild);
+    }
+    });
+
     $(document).ready(function() {
 
         $('#btn-volver').on('click', function(e) {
@@ -522,7 +671,7 @@
     // If no empty cell was found, add a new row
     if(!emptyCell) {
         let newRow = $('<tr></tr>');
-        for(let i = 0; i < 7; i++) {
+        for(let i = 0; i < 9; i++) {
             newRow.append('<td></td>');
         }
         $('table tbody').append(newRow);
@@ -629,7 +778,7 @@ function reorganizarTabla() {
     const tableRows = $('table tbody tr');
     
     // Recorrer cada columna (categoría)
-    for (let col = 0; col < 7; col++) {
+    for (let col = 0; col < 9; col++) {
         // Obtener todos los elementos de esta columna
         const items = [];
         tableRows.each(function() {
@@ -734,20 +883,6 @@ function reorganizarTabla() {
         padding: 3px 8px !important;
     }
     
-    /* Adjust styling for mobile devices */
-    @media (max-width: 767.98px) {
-        .producto-select, 
-        .bootstrap-select .dropdown-toggle,
-        .bootstrap-select .dropdown-menu,
-        .bootstrap-select .bs-searchbox .form-control {
-            font-size: 0.7rem !important;
-        }
-        
-        .col-md-2 {
-            padding-left: 5px;
-            padding-right: 5px;
-        }
-    }
 
 
     #notification-container .alert {
@@ -833,12 +968,12 @@ function reorganizarTabla() {
     }
 }
 .custom-col {
-    flex: 0 0 13.28% !important;  /* More precise width calculation for 7 columns */
-    max-width: 13.28% !important; /* Must match the flex value */
-    margin-right: 0.5% !important;  
-    margin-left: 0.5% !important;   
-    padding-left: 5px !important;  /* Reduced padding to avoid overflow */
-    padding-right: 5px !important; 
+    flex: 0 0 10.5% !important;  /* Updated from 13.28% to accommodate 9 columns */
+    max-width: 10.5% !important; /* Must match the flex value */
+    margin-right: 0.3% !important;  /* Reduced margin to fit all 9 columns */
+    margin-left: 0.3% !important;   
+    padding-left: 3px !important;  /* Reduced padding further */
+    padding-right: 3px !important; 
     margin-bottom: 1rem !important;
     display: inline-block !important;
     vertical-align: top !important;
@@ -871,15 +1006,7 @@ br {
     display: none !important;
 }
 
-/* Fix for mobile displays */
-@media (max-width: 992px) {
-    .custom-col {
-        flex: 0 0 22% !important;
-        max-width: 22% !important;
-        margin-right: 1.5% !important;
-        margin-left: 1.5% !important;
-    }
-}
+
 </style>
 
 

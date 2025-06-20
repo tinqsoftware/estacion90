@@ -423,15 +423,12 @@
                                 <textarea class="form-control" name="descripcion" id="descripcion" rows="3"
                                     required></textarea>
                             </div>
-                            <div class="col-md-6 mb-3">
+                              <div class="col-md-6 mb-3" id="precio-container">
                                 <label class="form-label">Precio</label>
-                                <input type="number" step="0.01" class="form-control" name="precio" id="precio"
+                              <input type="number" step="0.01" class="form-control" name="precio" id="precio"
                                     required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Stock</label>
-                                <input type="number" class="form-control" name="stock" id="stock" required>
-                            </div>
+                                <input type="hidden" name="stock" id="stock" value="">
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Imagen</label>
                                 <input type="file" class="form-control" name="imagen" id="imagen" accept="image/*">
@@ -474,7 +471,7 @@
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
-
+    <script src="https://unpkg.com/heic2any@0.0.4/dist/heic2any.min.js"></script>
 
     <script>
     // Cargar detalles de producto en el modal
@@ -539,7 +536,7 @@
     $(document).ready(function() {
 
         $(document).ready(function() {
-            const $filasProductos = $("#todos-productos .fila-producto");
+           const $filasProductos = $("#todos-productos .fila-producto");
     
     // Variable para almacenar la URL original
     const originalUrl = window.location.href;
@@ -569,19 +566,55 @@
             $(this).toggle(textoFila.indexOf(valor) > -1);
         });
     });
+
+    // Define fixed-price categories
+    const fixedPriceCategories = {
+        '1': 15.00, // Entrada S/15.00
+        '2': 20.00, // Entrada S/20.00
+        '3': 15.00, // Fondo S/15.00
+        '4': 20.00  // Fondo S/20.00
+    };
+    
+    // Function to handle category change
+    function handleCategoryChange() {
+        const selectedCategoryId = $('#categoria_id').val();
+        
+        // Check if selected category is a fixed-price category
+        if (selectedCategoryId in fixedPriceCategories) {
+            // Hide price input and set fixed price
+            $('#precio-container').hide();
+            $('#precio').val(fixedPriceCategories[selectedCategoryId]);
+        } else {
+            // Show price input for custom price categories
+            $('#precio-container').show();
+        }
+    }
+    
+    // Run on page load and when opening modal
+    $('#agregarProductoModal').on('shown.bs.modal', function() {
+        handleCategoryChange();
+    });
+    
+    // Run when category selection changes
+    $('#categoria_id').on('change', handleCategoryChange);
+    
+    // Run when editing a product
+    $(document).on('click', '.btn-editar', function() {
+        setTimeout(handleCategoryChange, 300); // Short delay to ensure form is populated
+    });
     
     // Si hay un filtro aplicado inicialmente, ejecutarlo
     if (searchParam) {
         $("#filtro-todos-productos").trigger("keyup");
     }
-    
+
     // Añadir botón para limpiar el filtro
     if ($("#limpiar-filtro").length === 0) {
         $("#filtro-todos-productos").after(
             '<button id="limpiar-filtro" class="btn btn-sm btn-outline-secondary mt-2">Limpiar filtro</button>'
         );
     }
-    
+
     // Manejar clic en botón de limpiar
     $(document).on('click', '#limpiar-filtro', function() {
         $("#filtro-todos-productos").val("");
@@ -667,18 +700,61 @@
 
     // Previsualización de imagen
     $('#imagen').change(function() {
-        const file = this.files[0];
-        if (file) {
+    const file = this.files[0];
+    if (file) {
+        // Check if it's a HEIC file
+        if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
+            // Show loading indicator
+            $('#imagen-preview-container').show();
+            $('#imagen-preview').attr('src', 'access/images/loadings.gif');
+            
+            // Convert HEIC to JPEG blob
+            heic2any({
+                blob: file,
+                toType: 'image/jpeg',
+                quality: 0.8
+            })
+            .then(function(conversionResult) {
+                // Create a new file from the JPEG blob
+                const convertedFile = new File(
+                    [conversionResult], 
+                    file.name.replace(/\.heic$/i, '.jpg'),
+                    {type: 'image/jpeg'}
+                );
+                
+                // Replace the original file in the input field
+                // We need to use a DataTransfer object to set files
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(convertedFile);
+                document.getElementById('imagen').files = dataTransfer.files;
+                
+                // Show preview of converted image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagen-preview').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(conversionResult);
+                
+                console.log('HEIC converted to JPEG successfully');
+            })
+            .catch(function(error) {
+                console.error('HEIC conversion error:', error);
+                // Fallback: show a placeholder or error message
+                $('#imagen-preview').attr('src', 'access/images/image-not-supported.jpg');
+            });
+        } else {
+            // Standard non-HEIC image preview (unchanged)
             const reader = new FileReader();
             reader.onload = function(e) {
                 $('#imagen-preview').attr('src', e.target.result);
                 $('#imagen-preview-container').show();
             }
             reader.readAsDataURL(file);
-        } else {
-            $('#imagen-preview-container').hide();
         }
-    });
+    } else {
+        $('#imagen-preview-container').hide();
+    }
+});
 
     // Reset del modal cuando se cierra
     $('#agregarProductoModal').on('hidden.bs.modal', function() {

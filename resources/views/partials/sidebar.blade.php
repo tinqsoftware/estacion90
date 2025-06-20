@@ -41,6 +41,10 @@
                                 <li><a href="/menuSemanal">Menu Semanal</a></li>
                                 <li><a href="/usuarios">Usuarios</a></li>
                                 <li><a href="/popups">PopUps</a></li>
+                                <li><a href="/cocina">Cocina</a></li>
+                                <li><a href="/admin/config">Administrador</a></li>
+                                 <li><a href="/despacho">Despacho</a></li>
+
                             </ul>
                         </li>
                         @if(str_ends_with(request()->getHost(), '.test'))
@@ -51,7 +55,7 @@
                             <ul aria-expanded="false">
                                 <li><a href="deliver-main.html">Inicio</a></li>
                                 <li><a href="deliver-order.html">Ordenes</a></li>
-                                <li><a href="feedback.html">Comentario</a></li>
+                                <li><a href="/motorizado/moto">Envios</a></li>
                             </ul>
                         </li>
                         @endif
@@ -104,8 +108,10 @@
                                     @if(str_ends_with(request()->getHost(), '.test'))
                                     <li><a href="deliver-main.html">Inicio</a></li>
                                     <li><a href="deliver-order.html">Ordenes</a></li>
-                                    <li><a href="feedback.html">Comentario</a></li>
+                                    <li><a href="/motorizado/moto">Envios</a></li>
                                     @endif
+                                    <li><a href="/motorizado/moto">Envios</a></li>
+                                    
                                 </ul>
                             </li>
                         @endif
