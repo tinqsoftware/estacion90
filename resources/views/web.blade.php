@@ -50,8 +50,9 @@
 		}
 
 		.bannerSwiper {
+			top: 24px;
 			width: 100%;
-			height: 50rem;
+			aspect-ratio: 17 / 7;
 			margin-bottom: -30px;
 
 		}
@@ -73,7 +74,7 @@
 
 		.franjas-colores-center {
 			position: absolute;
-			top: -110px;
+			top: -85px;
 			left: 50%;
 			transform: translateX(-50%);
 			height: 100%;
@@ -152,14 +153,14 @@
 			display: flex;
 			flex-direction: row;
 			position:relative;
-			top:0px;
+			top:26px;
 			z-index: 10;
 		}
 
 		.franjav {
 			width: 100%;
 			position: absolute;
-			margin-top:0px;
+			margin-top:-1px;
 		}
 
 		.franjav.rojo { 
@@ -1076,7 +1077,7 @@
 				<div class="cartaSwiper-wrapper">
 					<div class="swiper cartaSwiper">
 						<div class="d-flex justify-content-between align-items-center mb-2 ">
-							<h2 class="titulo-seccion m-0">Caldos</h2>
+							<h2 class="titulo-seccion m-0">Sopas</h2>
 							<a href="javascript:void(0);" id="btn-ver-caldos" class="btn-ver-todo">VER TODO</a>
 						</div>
 						<div class="swiper-wrapper">
@@ -1105,7 +1106,7 @@
 				<div class="cartaSwiper-wrapper">
 					<div class="swiper cartaSwiper">
 						<div class="d-flex justify-content-between align-items-center mb-2">
-							<h2 class="titulo-seccion m-0">Desayunos</h2>
+							<h2 class="titulo-seccion m-0">Desayunos 90</h2>
 							<a href="javascript:void(0);" id="btn-ver-desayunos" class="btn-ver-todo">VER TODO</a>
 						</div>
 						<div class="swiper-wrapper">
@@ -1159,7 +1160,7 @@
 	<div id="popup-caldos" class="popup-carta-overlay">
 		<div class="popup-carta-content">
 			<div class="popup-carta-header d-flex justify-content-between align-items-center">
-				<h3 class="titulo-seccion m-0">CALDOS</h3>
+				<h3 class="titulo-seccion m-0">SOPAS</h3>
 				<button class="cerrar-popup-caldos">&times;</button>
 			</div>
 			<div class="popup-carta-scroll">
@@ -1182,7 +1183,7 @@
 	<div id="popup-desayunos" class="popup-carta-overlay">
 		<div class="popup-carta-content">
 			<div class="popup-carta-header d-flex justify-content-between align-items-center">
-				<h3 class="titulo-seccion m-0">DESAYUNOS</h3>
+				<h3 class="titulo-seccion m-0">DESAYUNOS 90</h3>
 				<button class="cerrar-popup-desayunos">&times;</button>
 			</div>
 			<div class="popup-carta-scroll">
@@ -1208,9 +1209,9 @@
 		<p class="mt-2">ESTACIÓN 90 ES UN VIAJE AL SABOR RETRO...</p>
 		<p>+51 913689664 | estacion90@gmail.com</p>
 		<p class="mb-0">Síguenos:
-			<i class="fab fa-facebook mx-1"></i>
-			<i class="fab fa-instagram mx-1"></i>
-			<i class="fab fa-youtube mx-1"></i>
+			<a href="https://www.facebook.com/estacion90restaurant" target="_blank"><i class="fab fa-facebook mx-1"></i></a>
+			<a href="https://www.instagram.com/estacion90restaurant" target="_blank"><i class="fab fa-instagram mx-1"></i></a>
+			<a href="https://www.tiktok.com/@estacion90restaurant" target="_blank"><i class="fab fa-youtube mx-1"></i></a>
 		</p>
 	</footer>
     <!--**********************************
@@ -1246,7 +1247,7 @@
 	<script>
 		const swiper = new Swiper(".bannerSwiper", {
 			slidesPerView: 2,
-			spaceBetween: 0,
+			spaceBetween: 80,
 			breakpoints: {
 				0: {
 					slidesPerView: 1,
