@@ -641,10 +641,11 @@
 				height: 24rem;
 				width: calc(100% - 40px);
 				left: 20px;
+				top: 6px;
 			}
 
 			.franjas-colores-center {
-				top: -230px;
+				top: -224px;
 				left: 20px;
 				width: 40px;
 			}
@@ -687,7 +688,7 @@
 			.franjas-verticales {
 				width:calc(100% - 40px); /* 5 franjas x 6px = 30px */
 				left: 40px;
-				top:-2px;
+				top:4px;
 			}
 
 			.franjav {
