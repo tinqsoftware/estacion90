@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use App\Services\HistorialEstadoService;
 
 class MotoController extends Controller
 {
@@ -145,8 +146,14 @@ class MotoController extends Controller
             return response()->json(['error' => 'Pedido no encontrado o no asignado a este motorizado', 'success' => false], 404);
         }
         
+        $estadoAnterior = $pedido->estado;
         $pedido->estado = 5; // En camino
         $pedido->save();
+        
+        // Registrar cambio de estado en el historial solo si cambió
+        if ($estadoAnterior !== '5') {
+            HistorialEstadoService::registrarCambioEstado($pedido->id, '5');
+        }
         
         return response()->json([
             'success' => true,
@@ -169,6 +176,7 @@ class MotoController extends Controller
             return response()->json(['error' => 'Pedido no encontrado o no asignado a este motorizado', 'success' => false], 404);
         }
         
+        $estadoAnterior = $pedido->estado;
         $pedido->estado = $estado;
         
         // Para entregas correctas - procesar foto si se proporciona
@@ -183,6 +191,11 @@ class MotoController extends Controller
         }
         
         $pedido->save();
+        
+        // Registrar cambio de estado en el historial solo si cambió
+        if ($estadoAnterior !== $estado) {
+            HistorialEstadoService::registrarCambioEstado($pedido->id, $estado);
+        }
         
         $mensaje = 'Pedido finalizado correctamente';
         if ($estado == 6) {

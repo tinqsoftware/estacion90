@@ -178,4 +178,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/motorizado/marcar-en-camino', [MotoController::class, 'marcarEnCamino'])->name('motorizado.marcar-en-camino');
     Route::post('/motorizado/marcar-entregado', [MotoController::class, 'marcarEntregado'])->name('motorizado.marcar-entregado');
     Route::get('/motorizado/actualizaciones', [MotoController::class, 'obtenerActualizaciones'])->name('motorizado.actualizaciones');
+
+// Historial de pedidos
+    Route::get('/pedido/{id}/historial', [App\Http\Controllers\HistorialPedidoController::class, 'obtenerHistorial'])->name('pedido.historial');
+    Route::get('/pedidos/estadisticas', [App\Http\Controllers\HistorialPedidoController::class, 'obtenerEstadisticas'])->name('pedidos.estadisticas');
 });

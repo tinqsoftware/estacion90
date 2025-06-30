@@ -17,6 +17,7 @@ use App\Models\Pedido;
 use Illuminate\Support\Facades\DB;
 use App\Models\PedidoComensal;
 use App\Models\User;
+use App\Services\HistorialEstadoService;
 
 
 
@@ -101,6 +102,9 @@ class PedidoController extends Controller
             $pedido->fecha_programada = $fechaHoy;
             $pedido->hora_programada = $now->addMinutes((int)($data['minutos_llegada'] ?? 0))->format('H:i:s');
             $pedido->save();
+
+            // Registrar el estado inicial en el historial
+            HistorialEstadoService::registrarCambioEstado($pedido->id, '0', $data['user_id'] ?? null);
 
             
 

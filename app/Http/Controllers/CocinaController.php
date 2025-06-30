@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pedido;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Services\HistorialEstadoService;
 
 class CocinaController extends Controller
 {
@@ -49,8 +50,16 @@ public function getNewOrders(Request $request)
 {
     try {
         $pedido = Pedido::findOrFail($request->order_id);
-        $pedido->estado = $request->status;
+        $estadoAnterior = $pedido->estado;
+        $nuevoEstado = $request->status;
+        
+        $pedido->estado = $nuevoEstado;
         $pedido->save();
+        
+        // Registrar cambio de estado en el historial solo si cambió
+        if ($estadoAnterior !== $nuevoEstado) {
+            HistorialEstadoService::registrarCambioEstado($pedido->id, $nuevoEstado);
+        }
         
         return response()->json(['success' => true]);
     } catch (\Exception $e) {
@@ -175,8 +184,12 @@ public function updateItemStatus(Request $request)
         
         // Only update if status changed
         if ($pedido->estado != $newOrderStatus) {
+            $estadoAnterior = $pedido->estado;
             $pedido->estado = $newOrderStatus;
             $pedido->save();
+            
+            // Registrar cambio de estado en el historial
+            HistorialEstadoService::registrarCambioEstado($pedido->id, $newOrderStatus);
         }
         
         return response()->json([
