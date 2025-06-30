@@ -85,4 +85,10 @@ class Pedido extends Model
         return $this->belongsTo(HoraLlegada::class, 'id_horallegada', 'id');
     }
 
+    // Relación: un pedido tiene muchos registros de historial de estados
+    public function historialEstados()
+    {
+        return $this->hasMany(HistorialPedidos::class, 'id_pedido', 'id')->orderBy('created_at', 'desc');
+    }
+
 }

@@ -6,6 +6,7 @@ use App\Models\Pedido;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Services\HistorialEstadoService;
 
 class DespachoController extends Controller
 {
@@ -203,8 +204,14 @@ private function getMotorizadosActivos()
             return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
         }
         
+        $estadoAnterior = $pedido->estado;
         $pedido->estado = $nuevoEstado;
         $pedido->save();
+        
+        // Registrar cambio de estado en el historial solo si cambió
+        if ($estadoAnterior !== $nuevoEstado) {
+            HistorialEstadoService::registrarCambioEstado($pedido->id, $nuevoEstado);
+        }
         
         return response()->json([
             'success' => true,
@@ -223,7 +230,7 @@ private function getMotorizadosActivos()
         return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
     }
     
-
+    $estadoAnterior = $pedido->estado;
     $pedido->id_user_moto = $motoId;
     
     if ($motoId > 0) {
@@ -233,6 +240,11 @@ private function getMotorizadosActivos()
     }
     
     $pedido->save();
+    
+    // Registrar cambio de estado en el historial solo si cambió
+    if ($estadoAnterior !== $pedido->estado) {
+        HistorialEstadoService::registrarCambioEstado($pedido->id, $pedido->estado);
+    }
     
     return response()->json([
         'success' => true,
@@ -270,8 +282,14 @@ public function marcarPedidoEnCamino(Request $request)
         return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
     }
     
+    $estadoAnterior = $pedido->estado;
     $pedido->estado = 5; // En camino
     $pedido->save();
+    
+    // Registrar cambio de estado en el historial solo si cambió
+    if ($estadoAnterior !== '5') {
+        HistorialEstadoService::registrarCambioEstado($pedido->id, '5');
+    }
     
     return response()->json([
         'success' => true,
