@@ -43,7 +43,9 @@
                                 <li><a href="/popups">PopUps</a></li>
                                 <li><a href="/cocina">Cocina</a></li>
                                 <li><a href="/admin/config">Administrador</a></li>
-                                 <li><a href="/despacho">Despacho</a></li>
+                                <li><a href="/despacho">Despacho</a></li>
+                                <li><a href="/banners">Banners</a></li>
+                                <li><a href="/menu">Menu</a></li>
 
                             </ul>
                         </li>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdministradorController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\ControllerPopupDia;
@@ -144,6 +145,15 @@ Route::middleware(['auth'])->group(function () {
     // Administrador Routes
 
     Route::get('/admin/config', [AdministradorController::class, 'index'])->name('admin.config');
+
+    // Banners
+    Route::get('/banners', [BannerController::class, 'index'])->name('banners.index');
+    Route::post('/banners', [BannerController::class, 'store'])->name('banners.store');
+    Route::get('/banners/{id}', [BannerController::class, 'show'])->name('banners.show');
+    Route::get('/banners/{id}/edit', [BannerController::class, 'edit'])->name('banners.edit');
+    Route::put('/banners/{id}', [BannerController::class, 'update'])->name('banners.update');
+    Route::delete('/banners/{id}', [BannerController::class, 'destroy'])->name('banners.destroy');
+    Route::get('/api/banners-activos', [BannerController::class, 'getBannersActivos'])->name('banners.activos');
 
 // TipoPago
     Route::get('/admin/tipopago/listar', [AdministradorController::class, 'listarTiposPago'])->name('admin.tipoPago.listar');
