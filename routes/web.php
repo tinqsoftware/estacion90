@@ -6,6 +6,7 @@ use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\ControllerPopupDia;
 use App\Http\Controllers\EditUserController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MotoController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -209,9 +210,9 @@ Route::middleware(['auth'])->group(function () {
 
 // MENU_ADMIN
 
-    Route::get('/menu', [App\Http\Controllers\MenuController::class, 'index'])->name('menu.index');
-    Route::post('/menu', [App\Http\Controllers\MenuController::class, 'store'])->name('menu.store');
-    Route::get('/menu/{id}/edit', [App\Http\Controllers\MenuController::class, 'edit'])->name('menu.edit');
-    Route::put('/menu/{id}', [App\Http\Controllers\MenuController::class, 'update'])->name('menu.update');
-    Route::delete('/menu/{id}', [App\Http\Controllers\MenuController::class, 'destroy'])->name('menu.destroy');
+    Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
+    Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
+    Route::get('/menu/{id}/edit', [MenuController::class, 'edit'])->name('menu.edit');
+    Route::put('/menu/{id}', [MenuController::class, 'update'])->name('menu.update');
+    Route::delete('/menu/{id}', [MenuController::class, 'destroy'])->name('menu.destroy');
 });
