@@ -924,17 +924,17 @@
 			</div>
 			<!-- Swiper Carousel -->
 			<div class="swiper bannerSwiper">
-				<div class="swiper-wrapper">
-					@foreach($banners as $banner)
-						<div class="swiper-slide position-relative">
-							<!-- Franja móvil (solo en mobile) -->
-							<a >
-								<img src="{{ asset('access/images/banners/' . $banner->url_imagen) }}" class="w-100 h-100 object-fit-cover" />
-							</a>
-						</div>
-					@endforeach
-				</div>
-			</div>
+    <div class="swiper-wrapper">
+        @foreach($banners as $banner)
+            <div class="swiper-slide position-relative">
+                <!-- Franja móvil (solo en mobile) -->
+                <a >
+                    <img src="{{ asset($banner->url_imagen) }}" class="w-100 h-100 object-fit-cover" />
+                </a>
+            </div>
+        @endforeach
+    </div>
+</div>
 		</div>
 		<!-- Franja siempre al centro (visible solo en desktop) -->
 		<div class="franjas-verticales">

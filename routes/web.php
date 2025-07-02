@@ -206,4 +206,12 @@ Route::middleware(['auth'])->group(function () {
 // Historial de pedidos
     Route::get('/pedido/{id}/historial', [App\Http\Controllers\HistorialPedidoController::class, 'obtenerHistorial'])->name('pedido.historial');
     Route::get('/pedidos/estadisticas', [App\Http\Controllers\HistorialPedidoController::class, 'obtenerEstadisticas'])->name('pedidos.estadisticas');
+
+// MENU_ADMIN
+
+    Route::get('/menu', [App\Http\Controllers\MenuController::class, 'index'])->name('menu.index');
+    Route::post('/menu', [App\Http\Controllers\MenuController::class, 'store'])->name('menu.store');
+    Route::get('/menu/{id}/edit', [App\Http\Controllers\MenuController::class, 'edit'])->name('menu.edit');
+    Route::put('/menu/{id}', [App\Http\Controllers\MenuController::class, 'update'])->name('menu.update');
+    Route::delete('/menu/{id}', [App\Http\Controllers\MenuController::class, 'destroy'])->name('menu.destroy');
 });
