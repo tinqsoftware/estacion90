@@ -59,15 +59,66 @@ class LoginController extends Controller
                 ]);
         }
         
-        return redirect()->intended($this->redirectPath());
+        
+    }
+public function redirectPath()
+    {
+        if (Auth::check()) {
+            $userRole = Auth::user()->id_rol;
+            
+            switch ($userRole) {
+                case 1: // ADMIN
+                    return '/menuSemanal';
+                case 2: // CLIENTE
+                    return '/inicio';
+                case 3: // REPARTIDOR
+                    return '/motorizado/moto';
+                case 4: // CHEF
+                    return '/cocina';
+                default:
+                    return '/inicio';
+            }
+        }
+        
+        return '/';
     }
 
     public function loginAjax(Request $request)
     {
-        if (Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['success' => true]);
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            
+            // Verificar si el usuario está activo
+            if ($user->estado === 0 || $user->estado === null) {
+                Auth::logout();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario desactivado'
+                ], 401);
+            }
+            
+            $request->session()->regenerate();
+            
+            // Usar el mismo método de redirección
+            $redirectUrl = $this->redirectPath();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Login exitoso',
+                'redirect' => $redirectUrl,
+                'user' => $user
+            ]);
         }
-        return response()->json(['success' => false, 'message' => 'Credenciales inválidas']);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Las credenciales no coinciden con nuestros registros.'
+        ], 401);
     }
 
 

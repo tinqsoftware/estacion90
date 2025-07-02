@@ -20,15 +20,29 @@ use App\Http\Controllers\DespachoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\OrdenController;
 
-/*
 Route::get('/', function () {
-    return view('welcome');
-});*/
+    if (Auth::check()) {
+        $userRole = Auth::user()->id_rol;
+        
+        switch ($userRole) {
+            case 1: // ADMIN
+                return redirect('/menuSemanal');
+            case 2: // CLIENTE
+                return redirect('/inicio');
+            case 3: // REPARTIDOR
+                return redirect('/motorizado/moto');
+            case 4: // CHEF
+                return redirect('/cocina');
+            default:
+                return redirect('/inicio');
+        }
+    }
+    return app(Inicio::class)->web(request());
+});
 
 Auth::routes();
 
 // Public routes
-Route::get('/', [Inicio::class, 'web']);
 Route::get('/inicio', [Inicio::class, 'inicio']);
 Route::get('/popups/for-user', [ControllerPopupDia::class, 'getPopupsForUser'])->name('popups.for-user');
 Route::post('/popups/view', [ControllerPopupDia::class, 'recordPopupView'])->name('popups.view');
