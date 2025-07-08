@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ComprobantePago;
 use App\Models\HoraLlegada;
 use App\Models\TipoPago;
+use App\Models\ConfiguracionSistema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -171,4 +172,48 @@ class AdministradorController extends Controller
             'estado' => $hora->estado
         ]);
     }
+
+    public function obtenerFlujoPedidos()
+{
+    try {
+        $flujo = ConfiguracionSistema::obtenerFlujoPedidos();
+        return response()->json(['flujo' => $flujo]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al obtener configuración'], 500);
+    }
+}
+
+public function cambiarFlujoPedidos(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'modo' => 'required|in:cocina,despacho',
+        'password' => 'required|string'
+    ], [
+        'modo.required' => 'El modo es requerido',
+        'modo.in' => 'El modo debe ser cocina o despacho',
+        'password.required' => 'La contraseña es requerida'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    // Verificar contraseña
+    if (!ConfiguracionSistema::verificarPasswordFlujo($request->password)) {
+        return response()->json(['message' => 'Contraseña incorrecta'], 403);
+    }
+
+    try {
+        $modo = $request->input('modo');
+        ConfiguracionSistema::cambiarFlujoPedidos($modo);
+        
+        $mensaje = $modo === 'cocina' 
+            ? 'Configurado: Los pedidos irán a cocina primero'
+            : 'Configurado: Los pedidos irán directo a despacho';
+        
+        return response()->json(['message' => $mensaje]);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al cambiar configuración'], 500);
+    }
+}
 }
