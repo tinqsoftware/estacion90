@@ -79,8 +79,7 @@ public function productos_tab()
         'descripcion' => 'nullable|string',
         'precio' => 'required|numeric|min:0',
         'categoria_id' => 'required|exists:categorias,id',
-        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC', // Added heic format and increased max size
-        // Remove stock validation requirement
+        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC',
     ]);
 
     DB::beginTransaction();
@@ -90,8 +89,8 @@ public function productos_tab()
         $producto->descripcion = $request->descripcion;
         $producto->precio = $request->precio;
         $producto->id_categoria = $request->categoria_id;
-        $producto->stock = null; // Set stock to null by default
-        $producto->estado = 1; // Estado activo por defecto
+        $producto->stock = 0; // Cambiar de null a 0
+        $producto->estado = 1;
         $producto->id_user_create = \Illuminate\Support\Facades\Auth::id() ?? 1;
         
         // Procesar la imagen si existe
@@ -130,8 +129,7 @@ public function productos_tab()
         'descripcion' => 'nullable|string',
         'precio' => 'required|numeric|min:0',
         'categoria_id' => 'required|exists:categorias,id',
-        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC', // Added heic format and increased max size
-        // Remove stock validation requirement
+        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC',
     ]);
 
     DB::beginTransaction();
@@ -141,7 +139,7 @@ public function productos_tab()
         $producto->descripcion = $request->descripcion;
         $producto->precio = $request->precio;
         $producto->id_categoria = $request->categoria_id;
-        $producto->stock = null; // Set stock to null
+        $producto->stock = 0; // Cambiar de null a 0
         
         // Procesar la imagen si existe
         if ($request->hasFile('imagen')) {
