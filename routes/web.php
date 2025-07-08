@@ -160,6 +160,8 @@ Route::middleware(['auth'])->group(function () {
     // Administrador Routes
 
     Route::get('/admin/config', [AdministradorController::class, 'index'])->name('admin.config');
+    Route::get('/admin/configuracion/flujo-pedidos', [AdministradorController::class, 'obtenerFlujoPedidos'])->name('admin.configuracion.obtenerFlujo');
+    Route::post('/admin/configuracion/flujo-pedidos', [AdministradorController::class, 'cambiarFlujoPedidos'])->name('admin.configuracion.cambiarFlujo');
 
     // Banners
     Route::get('/banners', [BannerController::class, 'index'])->name('banners.index');

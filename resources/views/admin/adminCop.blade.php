@@ -161,6 +161,45 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Configuración de Flujo de Pedidos -->
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Configuración de Flujo de Pedidos</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning mb-3">
+                                    <strong>Importante:</strong> Esta configuración define si los pedidos van directo a cocina o saltan directo a despacho.
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Modo de Operación Actual:</label>
+                                            <div class="form-check form-switch form-check-lg">
+                                                <input class="form-check-input" type="checkbox" id="switchFlujoPedidos">
+                                                <label class="form-check-label" for="switchFlujoPedidos" id="labelFlujoPedidos">
+                                                    Pedidos van a Cocina
+                                                </label>
+                                            </div>
+                                            <small class="text-muted" id="descripcionFlujo">
+                                                Los pedidos seguirán el flujo normal: Pedido → Cocina → Despacho
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-info">
+                                            <h6>Modos de Operación:</h6>
+                                            <ul class="mb-0">
+                                                <li><strong>Cocina:</strong> Pedido → Cocina → Despacho</li>
+                                                <li><strong>Despacho Directo:</strong> Pedido → Despacho (automático)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -241,6 +280,34 @@
             </div>
         </div>
 
+        <!-- Modal Contraseña Flujo Pedidos -->
+        <div class="modal fade" id="modalPasswordFlujo">
+            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Autorización Requerida</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="formPasswordFlujo">
+                        <div class="modal-body">
+                            <div class="alert alert-warning">
+                                <strong>Atención:</strong> Se requiere contraseña especial para cambiar el flujo de pedidos.
+                            </div>
+                            <div class="form-group">
+                                <label class="text-black font-w500">Contraseña:</label>
+                                <input type="password" id="passwordFlujo" name="password" class="form-control" placeholder="Ingrese la contraseña especial">
+                                <div class="invalid-feedback" id="passwordFlujoError"></div>
+                            </div>
+                            <input type="hidden" id="nuevoModoFlujo" name="modo">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger light" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Confirmar Cambio</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         <!-- Footer start -->
         <div class="footer">
             <div class="copyright border-top">
@@ -294,6 +361,7 @@
         cargarTiposPago();
         cargarComprobantes();
         cargarHorasLlegada();
+        cargarConfiguracionFlujo();
 
         // Formulario Tipo Pago
         $('#formTipoPago').on('submit', function(e) {
@@ -492,6 +560,28 @@
             });
         }
 
+        function cargarConfiguracionFlujo() {
+            $.ajax({
+                url: '{{ route("admin.configuracion.obtenerFlujo") }}',
+                method: 'GET',
+                success: function(response) {
+                    var esCocina = response.flujo === 'cocina';
+                    $('#switchFlujoPedidos').prop('checked', !esCocina); // Invertido porque switch off = cocina
+                    
+                    if (esCocina) {
+                        $('#labelFlujoPedidos').text('Pedidos van a Cocina');
+                        $('#descripcionFlujo').text('Los pedidos seguirán el flujo normal: Pedido → Cocina → Despacho');
+                    } else {
+                        $('#labelFlujoPedidos').text('Pedidos van Directo a Despacho');
+                        $('#descripcionFlujo').text('Los pedidos saltarán cocina y irán directo: Pedido → Despacho');
+                    }
+                },
+                error: function() {
+                    console.error('Error al cargar configuración de flujo');
+                }
+            });
+        }
+
         // Acciones en tablas
         $(document).on('click', '.toggleEstadoTipoPago', function() {
             var id = $(this).data('id');
@@ -596,6 +686,81 @@
             $('#horaValor').removeClass('is-invalid');
             $('#horaId').val('');
             $('#modalHoraLlegada .modal-title').text('Agregar Hora de Llegada');
+        });
+
+         // Cambiar flujo de pedidos - solicitar contraseña
+        $('#switchFlujoPedidos').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var modo = isChecked ? 'despacho' : 'cocina';
+            
+            // Guardar el modo que se quiere cambiar
+            $('#nuevoModoFlujo').val(modo);
+            
+            // Revertir el switch temporalmente
+            $(this).prop('checked', !isChecked);
+            
+            // Mostrar modal de contraseña
+            $('#modalPasswordFlujo').modal('show');
+            $('#passwordFlujo').val('').focus();
+            $('#passwordFlujo').removeClass('is-invalid');
+            $('#passwordFlujoError').text('');
+        });
+
+        // Procesar cambio de flujo con contraseña
+        $('#formPasswordFlujo').on('submit', function(e) {
+            e.preventDefault();
+            
+            var password = $('#passwordFlujo').val();
+            var modo = $('#nuevoModoFlujo').val();
+            
+            $.ajax({
+                url: '{{ route("admin.configuracion.cambiarFlujo") }}',
+                method: 'POST',
+                data: { 
+                    modo: modo,
+                    password: password
+                },
+                success: function(response) {
+                    $('#modalPasswordFlujo').modal('hide');
+                    
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: response.message,
+                        icon: 'success',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Recargar configuración
+                    cargarConfiguracionFlujo();
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        var errors = xhr.responseJSON.errors;
+                        
+                        if (errors.password) {
+                            $('#passwordFlujo').addClass('is-invalid');
+                            $('#passwordFlujoError').text(errors.password[0]);
+                        }
+                    } else if (xhr.status === 403) {
+                        $('#passwordFlujo').addClass('is-invalid');
+                        $('#passwordFlujoError').text('Contraseña incorrecta');
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo cambiar la configuración',
+                            icon: 'error'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Reset modal contraseña
+        $('#modalPasswordFlujo').on('hidden.bs.modal', function() {
+            $('#formPasswordFlujo')[0].reset();
+            $('#passwordFlujo').removeClass('is-invalid');
+            $('#passwordFlujoError').text('');
         });
 
         // Formatear fecha
