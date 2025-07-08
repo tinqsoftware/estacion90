@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConfiguracionSistema;
 use Illuminate\Http\Request;
 use App\Models\Producto;
 use Carbon\Carbon;
@@ -171,6 +172,9 @@ class PedidoController extends Controller
             $pedido->monto_total = $monto_total;
             $pedido->save();
 
+             // APLICAR CONFIGURACIÓN DE FLUJO DESPUÉS DE CREAR EL PEDIDO
+            $this->aplicarFlujoPedido($pedido->id, $data['user_id'] ?? null);
+
             DB::commit();
 
             return response()->json([
@@ -185,6 +189,63 @@ class PedidoController extends Controller
                 'error' => 'Error al registrar el pedido: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+
+    /**
+     * Aplicar el flujo de pedido según la configuración
+     */
+    private function aplicarFlujoPedido($pedidoId, $userId = null)
+    {
+        try {
+            // Obtener configuración de flujo
+            $flujo = ConfiguracionSistema::obtenerFlujoPedidos();
+            
+            if ($flujo === 'despacho') {
+                $this->aplicarFlujoDespachoDirecto($pedidoId, $userId);
+            } else {
+                $this->aplicarFlujoCocina($pedidoId, $userId);
+            }
+        } catch (\Exception $e) {
+            // Log del error pero no interrumpir el proceso
+            \Illuminate\Support\Facades\Log::error('Error al aplicar flujo de pedido: ' . $e->getMessage());
+            // Por defecto aplicar flujo normal a cocina
+            $this->aplicarFlujoCocina($pedidoId, $userId);
+        }
+    }
+
+    /**
+     * Flujo normal: Pedido -> Cocina
+     * Estados: 0 (pendiente) -> 1 (cocina)
+     */
+    private function aplicarFlujoCocina($pedidoId, $userId = null)
+    {
+        $estadoCocina = '1'; // Estado cocina
+        
+        // Actualizar estado del pedido
+        Pedido::where('id', $pedidoId)->update(['estado' => $estadoCocina]);
+        
+        // Registrar en historial
+        HistorialEstadoService::registrarCambioEstado($pedidoId, $estadoCocina, $userId);
+    }
+
+    /**
+     * Flujo directo: Pedido -> Cocina (automático) -> Despacho
+     * Estados: 0 (pendiente) -> 1 (cocina) -> 2 (despacho)
+     */
+    private function aplicarFlujoDespachoDirecto($pedidoId, $userId = null)
+    {
+        $estadoCocina = '1';   // Estado cocina
+        $estadoDespacho = '2'; // Estado despacho
+        
+        // Primer registro: paso automático por cocina
+        HistorialEstadoService::registrarCambioEstado($pedidoId, $estadoCocina, $userId);
+        
+        // Cambiar directamente a despacho
+        Pedido::where('id', $pedidoId)->update(['estado' => $estadoDespacho]);
+        
+        // Segundo registro: llegada a despacho
+        HistorialEstadoService::registrarCambioEstado($pedidoId, $estadoDespacho, $userId);
     }
 
 
