@@ -251,17 +251,61 @@ public function productos_tab()
     }
 
     private function hasTransparency($imageFile)
-    {
-        try {
-            $manager = new ImageManager(new Driver());
-            $img = $manager->read($imageFile->getPathname());
-            // Verificar si tiene canal alfa
-            $color = $img->pickColor(0, 0); // returns [R, G, B, A]
-            return isset($color[3]) && $color[3] < 1.0;
-        } catch (\Exception $e) {
+{
+    try {
+        // Método más simple: verificar por extensión y intentar detectar transparencia con GD
+        $extension = strtolower($imageFile->getClientOriginalExtension());
+        
+        // Solo PNG puede tener transparencia en este contexto
+        if ($extension !== 'png') {
             return false;
         }
+        
+        // Usar GD para verificar transparencia
+        $imagePath = $imageFile->getRealPath();
+        $image = @imagecreatefrompng($imagePath);
+        
+        if (!$image) {
+            return false;
+        }
+        
+        // Verificar si la imagen tiene canal alfa
+        $hasAlpha = false;
+        
+        // Obtener las dimensiones
+        $width = imagesx($image);
+        $height = imagesy($image);
+        
+        // Muestrear algunos píxeles para verificar transparencia
+        $samplePoints = [
+            [0, 0], // esquina superior izquierda
+            [$width-1, 0], // esquina superior derecha
+            [0, $height-1], // esquina inferior izquierda
+            [$width-1, $height-1], // esquina inferior derecha
+            [intval($width/2), intval($height/2)] // centro
+        ];
+        
+        foreach ($samplePoints as $point) {
+            $rgb = imagecolorat($image, $point[0], $point[1]);
+            $alpha = ($rgb & 0x7F000000) >> 24;
+            
+            // Si encontramos algún píxel con transparencia (alpha > 0)
+            if ($alpha > 0) {
+                $hasAlpha = true;
+                break;
+            }
+        }
+        
+        imagedestroy($image);
+        return $hasAlpha;
+        
+    } catch (\Exception $e) {
+        Log::warning("Error checking transparency: " . $e->getMessage());
+        // Si hay error, asumir que es PNG con transparencia para mantenerlo como PNG
+        return $imageFile->getClientOriginalExtension() === 'png';
     }
+}
+
 
     private function isSpecialFormat($extension, $mimeType)
     {
