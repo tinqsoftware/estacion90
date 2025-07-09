@@ -15,9 +15,13 @@ class BannerController extends Controller
      */
     public function index()
     {
-        $banners = Banners::with('creator')->orderBy('id', 'asc')->get();
+        $banners = Banners::with('creator')
+                          ->where('tipo', 1)
+                          ->orderBy('id', 'asc')
+                          ->get();
         return view('banner.banner', compact('banners'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -182,6 +186,7 @@ class BannerController extends Controller
         $hoy = now()->format('Y-m-d');
         $banners = Banners::where('fecha_inicio', '<=', $hoy)
                           ->where('fecha_fin', '>=', $hoy)
+                          ->where('tipo', 1)
                           ->orderBy('created_at', 'desc')
                           ->get();
         
