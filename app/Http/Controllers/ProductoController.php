@@ -73,45 +73,45 @@ public function productos_tab()
 
     // Guardar un nuevo producto
     public function store(Request $request)
-{
-    $request->validate([
-        'nombre' => 'required|string|max:255',
-        'descripcion' => 'nullable|string',
-        'precio' => 'required|numeric|min:0',
-        'categoria_id' => 'required|exists:categorias,id',
-        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC',
-    ]);
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'precio' => 'required|numeric|min:0',
+            'categoria_id' => 'required|exists:categorias,id',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,bmp,tiff,heic,heif,svg|max:10240', // Ampliado soporte y tamaño a 10MB
+        ]);
 
-    DB::beginTransaction();
-    try {
-        $producto = new Producto();
-        $producto->nombre = $request->nombre;
-        $producto->descripcion = $request->descripcion;
-        $producto->precio = $request->precio;
-        $producto->id_categoria = $request->categoria_id;
-        $producto->stock = 0; // Cambiar de null a 0
-        $producto->estado = 1;
-        $producto->id_user_create = \Illuminate\Support\Facades\Auth::id() ?? 1;
-        
-        // Procesar la imagen si existe
-        if ($request->hasFile('imagen')) {
-            $producto->imagen = $this->processAndSaveImage($request->file('imagen'));
+        DB::beginTransaction();
+        try {
+            $producto = new Producto();
+            $producto->nombre = $request->nombre;
+            $producto->descripcion = $request->descripcion;
+            $producto->precio = $request->precio;
+            $producto->id_categoria = $request->categoria_id;
+            $producto->stock = 0;
+            $producto->estado = 1;
+            $producto->id_user_create = \Illuminate\Support\Facades\Auth::id() ?? 1;
             
-            if ($producto->imagen === null) {
-                throw new \Exception('Error al procesar la imagen');
+            // Procesar la imagen si existe
+            if ($request->hasFile('imagen')) {
+                $producto->imagen = $this->processAndSaveImage($request->file('imagen'));
+                
+                if ($producto->imagen === null) {
+                    throw new \Exception('Error al procesar la imagen');
+                }
             }
+            
+            $producto->save();
+            DB::commit();
+            
+            return redirect()->route('productos_tab')->with('success', 'Producto creado exitosamente');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error al crear producto: ' . $e->getMessage());
+            return back()->with('error', 'Error al crear el producto: ' . $e->getMessage());
         }
-        
-        $producto->save();
-        DB::commit();
-        
-        return redirect()->route('productos_tab')->with('success', 'Producto creado exitosamente');
-    } catch (\Exception $e) {
-        DB::rollback();
-        Log::error('Error al crear producto: ' . $e->getMessage());
-        return back()->with('error', 'Error al crear el producto: ' . $e->getMessage());
     }
-}
 
     // Mostrar formulario de edición
     public function edit($id)
@@ -123,50 +123,50 @@ public function productos_tab()
 
     // Actualizar el producto
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'nombre' => 'required|string|max:255',
-        'descripcion' => 'nullable|string',
-        'precio' => 'required|numeric|min:0',
-        'categoria_id' => 'required|exists:categorias,id',
-        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,HEIC',
-    ]);
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'precio' => 'required|numeric|min:0',
+            'categoria_id' => 'required|exists:categorias,id',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,bmp,tiff,heic,heif,svg|max:10240', // Ampliado soporte
+        ]);
 
-    DB::beginTransaction();
-    try {
-        $producto = Producto::findOrFail($id);
-        $producto->nombre = $request->nombre;
-        $producto->descripcion = $request->descripcion;
-        $producto->precio = $request->precio;
-        $producto->id_categoria = $request->categoria_id;
-        $producto->stock = 0; // Cambiar de null a 0
-        
-        // Procesar la imagen si existe
-        if ($request->hasFile('imagen')) {
-            // Eliminar la imagen anterior si existe y no es la imagen por defecto
-            if ($producto->imagen && file_exists(public_path($producto->imagen)) && 
-                !str_contains($producto->imagen, 'product/1.jpg')) {
-                unlink(public_path($producto->imagen));
+        DB::beginTransaction();
+        try {
+            $producto = Producto::findOrFail($id);
+            $producto->nombre = $request->nombre;
+            $producto->descripcion = $request->descripcion;
+            $producto->precio = $request->precio;
+            $producto->id_categoria = $request->categoria_id;
+            $producto->stock = 0;
+            
+            // Procesar la imagen si existe
+            if ($request->hasFile('imagen')) {
+                // Eliminar la imagen anterior si existe y no es la imagen por defecto
+                if ($producto->imagen && file_exists(public_path($producto->imagen)) && 
+                    !str_contains($producto->imagen, 'product/1.jpg')) {
+                    unlink(public_path($producto->imagen));
+                }
+                
+                // Procesar y guardar la nueva imagen
+                $producto->imagen = $this->processAndSaveImage($request->file('imagen'));
+                
+                if ($producto->imagen === null) {
+                    throw new \Exception('Error al procesar la imagen');
+                }
             }
             
-            // Procesar y guardar la nueva imagen
-            $producto->imagen = $this->processAndSaveImage($request->file('imagen'));
+            $producto->save();
+            DB::commit();
             
-            if ($producto->imagen === null) {
-                throw new \Exception('Error al procesar la imagen');
-            }
+            return redirect()->route('productos_tab')->with('success', 'Producto actualizado exitosamente');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error al actualizar producto: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar el producto: ' . $e->getMessage());
         }
-        
-        $producto->save();
-        DB::commit();
-        
-        return redirect()->route('productos_tab')->with('success', 'Producto actualizado exitosamente');
-    } catch (\Exception $e) {
-        DB::rollback();
-        Log::error('Error al actualizar producto: ' . $e->getMessage());
-        return back()->with('error', 'Error al actualizar el producto: ' . $e->getMessage());
     }
-}
     // Eliminar el producto
     public function destroy($id)
     {
@@ -188,53 +188,157 @@ public function productos_tab()
     }
 
     private function processAndSaveImage($imageFile)
-{
-    if (!$imageFile) {
-        return null;
-    }
-
-    try {
-        // Set memory limit higher for processing large images
-        ini_set('memory_limit', '512M');
-        
-        $targetDir = public_path('access/images/popular-img/');
-        if (!file_exists($targetDir)) {
-            if (!mkdir($targetDir, 0755, true)) {
-                Log::error("Failed to create directory: $targetDir");
-                return null;
-            }
-        }
-
-        // Check if directory is writable
-        if (!is_writable($targetDir)) {
-            Log::error("Directory is not writable: $targetDir");
+    {
+        if (!$imageFile) {
             return null;
         }
-        
-        // Get file extension and prepare filename
-        $originalExtension = strtolower($imageFile->getClientOriginalExtension());
-        $mimeType = $imageFile->getMimeType();
-        
-        // Fix for HEIC detection - sometimes it's not correctly identified by extension
-        if ($originalExtension == 'heic' || $mimeType == 'image/heic' || $mimeType == 'image/heif') {
-            Log::info("HEIC image detected: {$originalExtension}, MIME type: {$mimeType}");
-            $saveExtension = 'jpg';
-        } else {
-            $saveExtension = $originalExtension;
+
+        try {
+            // Aumentar límite de memoria para procesar imágenes grandes
+            ini_set('memory_limit', '1024M');
+            set_time_limit(120); // 2 minutos para procesar
+            
+            $targetDir = public_path('access/images/popular-img/');
+            if (!file_exists($targetDir)) {
+                if (!mkdir($targetDir, 0755, true)) {
+                    Log::error("Failed to create directory: $targetDir");
+                    return null;
+                }
+            }
+
+            if (!is_writable($targetDir)) {
+                Log::error("Directory is not writable: $targetDir");
+                return null;
+            }
+            
+            // Obtener información del archivo
+            $originalExtension = strtolower($imageFile->getClientOriginalExtension());
+            $mimeType = $imageFile->getMimeType();
+            $fileSize = $imageFile->getSize();
+            
+            Log::info("Processing image - Extension: {$originalExtension}, MIME: {$mimeType}, Size: {$fileSize}");
+            
+            // Determinar extensión de salida (siempre convertir a JPG para consistencia, excepto PNG con transparencia)
+            $saveExtension = $this->determineSaveExtension($originalExtension, $mimeType, $imageFile);
+            
+            $filename = time() . '_' . uniqid() . '.' . $saveExtension;
+            $imagePath = $targetDir . $filename;
+            $relativePath = 'access/images/popular-img/' . $filename;
+
+            // Procesar según el tipo de imagen
+            if ($this->isSpecialFormat($originalExtension, $mimeType)) {
+                return $this->processSpecialFormat($imageFile, $imagePath, $relativePath, $originalExtension, $mimeType);
+            } else {
+                return $this->processStandardFormat($imageFile, $imagePath, $relativePath, $saveExtension, $fileSize);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error("Image processing failed: " . $e->getMessage());
+            Log::error("Error trace: " . $e->getTraceAsString());
+            return null;
+        }
+    }
+
+    private function determineSaveExtension($originalExtension, $mimeType, $imageFile)
+    {
+        // Mantener PNG si tiene transparencia
+        if ($originalExtension === 'png' && $this->hasTransparency($imageFile)) {
+            return 'png';
         }
         
-        $filename = time() . '_' . uniqid() . '.' . $saveExtension;
-        $imagePath = $targetDir . $filename;
-        $relativePath = 'access/images/popular-img/' . $filename;
+        // Para formatos especiales o imágenes sin transparencia, convertir a JPG
+        return 'jpg';
+    }
 
-        // For HEIC files, try multiple approaches for conversion
-        if ($originalExtension == 'heic' || $mimeType == 'image/heic' || $mimeType == 'image/heif') {
-            Log::info("Processing HEIC image with fallback methods");
+    private function hasTransparency($imageFile)
+    {
+        try {
+            $manager = new ImageManager(new Driver());
+            $img = $manager->read($imageFile->getPathname());
+            // Verificar si tiene canal alfa
+            $color = $img->pickColor(0, 0); // returns [R, G, B, A]
+            return isset($color[3]) && $color[3] < 1.0;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    private function isSpecialFormat($extension, $mimeType)
+    {
+        $specialFormats = ['heic', 'heif', 'webp', 'bmp', 'tiff', 'tif', 'svg'];
+        return in_array($extension, $specialFormats) || 
+               in_array($mimeType, ['image/heic', 'image/heif', 'image/webp', 'image/bmp', 'image/tiff', 'image/svg+xml']);
+    }
+
+    private function processSpecialFormat($imageFile, $imagePath, $relativePath, $extension, $mimeType)
+    {
+        try {
+            // Para SVG, guardar como está (pero convertir a PNG para web)
+            if ($extension === 'svg' || $mimeType === 'image/svg+xml') {
+                return $this->processSVG($imageFile, $imagePath, $relativePath);
+            }
+
+            // Para HEIC/HEIF
+            if (in_array($extension, ['heic', 'heif']) || in_array($mimeType, ['image/heic', 'image/heif'])) {
+                return $this->processHEIC($imageFile, $imagePath, $relativePath);
+            }
+
+            // Para otros formatos especiales, usar Intervention Image
+            $manager = new ImageManager(new Driver());
+            $img = $manager->read($imageFile->getPathname());
             
-            // Method 1: Get raw file contents - don't rely on Laravel's file handling
+            // Redimensionar manteniendo proporción
+            $img->resize(1200, 1200, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            
+            // Guardar como JPG con buena calidad
+            $img->save($imagePath, 85);
+            
+            Log::info("Special format processed successfully: " . $relativePath);
+            return $relativePath;
+            
+        } catch (\Exception $e) {
+            Log::warning("Special format processing failed, trying fallback: " . $e->getMessage());
+            return $this->processFallback($imageFile, $imagePath, $relativePath);
+        }
+    }
+
+    private function processSVG($imageFile, $imagePath, $relativePath)
+    {
+        try {
+            // Para SVG, convertir a PNG con Intervention Image
+            $manager = new ImageManager(new Driver());
+            $img = $manager->read($imageFile->getPathname());
+            
+            // Redimensionar a un tamaño razonable
+            $img->resize(800, 800, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            
+            // Cambiar extensión a PNG para SVG
+            $newPath = str_replace('.jpg', '.png', $imagePath);
+            $newRelativePath = str_replace('.jpg', '.png', $relativePath);
+            
+            $img->save($newPath, 90);
+            
+            Log::info("SVG processed successfully: " . $newRelativePath);
+            return $newRelativePath;
+            
+        } catch (\Exception $e) {
+            Log::error("SVG processing failed: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function processHEIC($imageFile, $imagePath, $relativePath)
+    {
+        try {
             $tempFile = $imageFile->getRealPath();
             
-            // Method 2: Try using Intervention Image
+            // Método 1: Intervention Image
             try {
                 $manager = new ImageManager(new Driver());
                 $img = $manager->read($tempFile);
@@ -244,171 +348,165 @@ public function productos_tab()
                 });
                 
                 $img->save($imagePath, 85);
-                
-                // If we get here, it worked!
                 Log::info("HEIC processed successfully with Intervention Image");
                 return $relativePath;
             } catch (\Exception $e) {
-                Log::warning("Intervention Image couldn't process HEIC: " . $e->getMessage());
-                // Continue to fallback methods
+                Log::warning("Intervention Image HEIC failed: " . $e->getMessage());
             }
             
-            // Method 3: Try with GD after simple copy
-            try {
-                // First save the file as is
-                copy($tempFile, $imagePath);
+            // Método 2: Conversión con GD (fallback)
+            return $this->processHEICWithGD($tempFile, $imagePath, $relativePath);
+            
+        } catch (\Exception $e) {
+            Log::error("All HEIC processing methods failed: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function processHEICWithGD($tempFile, $imagePath, $relativePath)
+    {
+        try {
+            // Copiar archivo temporalmente
+            copy($tempFile, $imagePath);
+            
+            // Intentar leer con GD
+            $image = @imagecreatefromjpeg($imagePath);
+            if ($image) {
+                $width = imagesx($image);
+                $height = imagesy($image);
                 
-                // Then try to read with GD and resave
-                $image = @imagecreatefromjpeg($imagePath);
-                if ($image) {
-                    // Get dimensions
-                    $width = imagesx($image);
-                    $height = imagesy($image);
+                // Redimensionar si es necesario
+                if ($width > 1200 || $height > 1200) {
+                    $ratio = min(1200 / $width, 1200 / $height);
+                    $newWidth = (int)($width * $ratio);
+                    $newHeight = (int)($height * $ratio);
                     
-                    // Resize if too large
-                    if ($width > 1200 || $height > 1200) {
-                        if ($width > $height) {
-                            $newWidth = 1200;
-                            $newHeight = ($height / $width) * 1200;
-                        } else {
-                            $newHeight = 1200;
-                            $newWidth = ($width / $height) * 1200;
-                        }
-                        
-                        $resized = imagecreatetruecolor((int)$newWidth, (int)$newHeight);
-                        imagecopyresampled($resized, $image, 0, 0, 0, 0, (int)$newWidth, (int)$newHeight, $width, $height);
-                        imagejpeg($resized, $imagePath, 85);
-                        imagedestroy($resized);
-                    } else {
-                        // Just save with compression
-                        imagejpeg($image, $imagePath, 85);
-                    }
-                    
-                    imagedestroy($image);
-                    Log::info("HEIC processed with GD fallback method");
-                    return $relativePath;
+                    $resized = imagecreatetruecolor($newWidth, $newHeight);
+                    imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                    imagejpeg($resized, $imagePath, 85);
+                    imagedestroy($resized);
+                } else {
+                    imagejpeg($image, $imagePath, 85);
                 }
-            } catch (\Exception $e) {
-                Log::warning("GD fallback failed: " . $e->getMessage());
-            }
-            
-            // Method 4: Last resort - just keep the file as is
-            if (file_exists($imagePath)) {
-                Log::info("Using unprocessed HEIC file (converted to JPG)");
+                
+                imagedestroy($image);
+                Log::info("HEIC processed with GD fallback");
                 return $relativePath;
             }
             
-            Log::error("All HEIC processing methods failed");
+            return null;
+        } catch (\Exception $e) {
+            Log::error("GD HEIC processing failed: " . $e->getMessage());
             return null;
         }
-        
-        // For regular images, use your existing code
-        $fileSize = $imageFile->getSize();
-        
-        if ($fileSize > 3000000) { // 3MB
-            // Your existing large file handling code
-            // ...
-            
-            // Use temporary file for processing
-            $tempPath = $imageFile->getRealPath();
-            
-            // Now process with GD library
-            $srcImage = imagecreatefromstring(file_get_contents($tempPath));
-            
-            if (!$srcImage) {
-                Log::error("Failed to create image resource");
-                return null;
-            }
-            
-            // Get original dimensions
-            $width = imagesx($srcImage);
-            $height = imagesy($srcImage);
-            
-            // Calculate new dimensions - maintain aspect ratio
-            $maxDimension = 1200; // Maximum width or height
-            
-            if ($width > $maxDimension || $height > $maxDimension) {
-                if ($width > $height) {
-                    $newWidth = $maxDimension;
-                    $newHeight = ($height / $width) * $newWidth;
-                } else {
-                    $newHeight = $maxDimension;
-                    $newWidth = ($width / $height) * $newHeight;
-                }
-                
-                // Create resized image
-                $resizedImage = imagecreatetruecolor((int)$newWidth, (int)$newHeight);
-                
-                // Preserve transparency for PNG
-                if ($saveExtension == 'png') {
-                    imagealphablending($resizedImage, false);
-                    imagesavealpha($resizedImage, true);
-                    $transparent = imagecolorallocatealpha($resizedImage, 255, 255, 255, 127);
-                    imagefilledrectangle($resizedImage, 0, 0, $newWidth, $newHeight, $transparent);
-                }
-                
-                imagecopyresampled($resizedImage, $srcImage, 0, 0, 0, 0, (int)$newWidth, (int)$newHeight, $width, $height);
-                
-                // Save the image based on format
-                switch ($saveExtension) {
-                    case 'png':
-                        imagepng($resizedImage, $imagePath, 8); // 0-9 compression
-                        break;
-                    case 'gif':
-                        imagegif($resizedImage, $imagePath);
-                        break;
-                    default:
-                        imagejpeg($resizedImage, $imagePath, 85); // 85% quality
-                }
-                
-                // Free memory
-                imagedestroy($resizedImage);
+    }
+
+    private function processStandardFormat($imageFile, $imagePath, $relativePath, $saveExtension, $fileSize)
+    {
+        try {
+            if ($fileSize > 5000000) { // 5MB - usar GD para archivos grandes
+                return $this->processLargeImageWithGD($imageFile, $imagePath, $relativePath, $saveExtension);
             } else {
-                // Just save the original with compression
-                switch ($saveExtension) {
-                    case 'png':
-                        imagepng($srcImage, $imagePath, 8);
-                        break;
-                    case 'gif':
-                        imagegif($srcImage, $imagePath);
-                        break;
-                    default:
-                        imagejpeg($srcImage, $imagePath, 85);
-                }
+                return $this->processImageWithIntervention($imageFile, $imagePath, $relativePath, $saveExtension);
+            }
+        } catch (\Exception $e) {
+            Log::warning("Standard processing failed, trying fallback: " . $e->getMessage());
+            return $this->processFallback($imageFile, $imagePath, $relativePath);
+        }
+    }
+
+    private function processImageWithIntervention($imageFile, $imagePath, $relativePath, $saveExtension)
+    {
+        $manager = new ImageManager(new Driver());
+        $img = $manager->read($imageFile->getPathname());
+        
+        // Redimensionar manteniendo proporción
+        $img->resize(1200, 1200, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+        
+        // Guardar según el formato
+        $quality = $saveExtension === 'png' ? 90 : 85;
+        $img->save($imagePath, $quality);
+        
+        Log::info("Image processed with Intervention: " . $relativePath);
+        return $relativePath;
+    }
+
+    private function processLargeImageWithGD($imageFile, $imagePath, $relativePath, $saveExtension)
+    {
+        $tempPath = $imageFile->getRealPath();
+        
+        // Crear imagen desde archivo
+        $srcImage = imagecreatefromstring(file_get_contents($tempPath));
+        
+        if (!$srcImage) {
+            throw new \Exception("Failed to create image resource");
+        }
+        
+        $width = imagesx($srcImage);
+        $height = imagesy($srcImage);
+        
+        // Calcular nuevas dimensiones
+        $maxDimension = 1200;
+        
+        if ($width > $maxDimension || $height > $maxDimension) {
+            $ratio = min($maxDimension / $width, $maxDimension / $height);
+            $newWidth = (int)($width * $ratio);
+            $newHeight = (int)($height * $ratio);
+            
+            $resizedImage = imagecreatetruecolor($newWidth, $newHeight);
+            
+            // Preservar transparencia para PNG
+            if ($saveExtension === 'png') {
+                imagealphablending($resizedImage, false);
+                imagesavealpha($resizedImage, true);
+                $transparent = imagecolorallocatealpha($resizedImage, 255, 255, 255, 127);
+                imagefilledrectangle($resizedImage, 0, 0, $newWidth, $newHeight, $transparent);
             }
             
-            // Free memory
-            imagedestroy($srcImage);
-        } else {
-            // Use intervention/image for smaller files
-            $manager = new ImageManager(new Driver());
-            $img = $manager->read($imageFile->getPathname());
+            imagecopyresampled($resizedImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
             
-            // Resize to reasonable dimensions while maintaining aspect ratio
-            $img->resize(1200, 1200, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-            
-            // Save the image with reasonable compression
+            // Guardar según formato
             switch ($saveExtension) {
                 case 'png':
-                    $img->save($imagePath, 80); // 80% quality for PNG
-                    break;
-                case 'gif':
-                    $img->save($imagePath); // GIF doesn't use quality param
+                    imagepng($resizedImage, $imagePath, 8);
                     break;
                 default:
-                    $img->save($imagePath, 85); // 85% quality for JPEG
+                    imagejpeg($resizedImage, $imagePath, 85);
+            }
+            
+            imagedestroy($resizedImage);
+        } else {
+            // Guardar sin redimensionar
+            switch ($saveExtension) {
+                case 'png':
+                    imagepng($srcImage, $imagePath, 8);
+                    break;
+                default:
+                    imagejpeg($srcImage, $imagePath, 85);
             }
         }
         
-        Log::info("Image processed successfully: " . $relativePath);
+        imagedestroy($srcImage);
+        
+        Log::info("Large image processed with GD: " . $relativePath);
         return $relativePath;
-    } catch (\Exception $e) {
-        Log::error("Image processing failed: " . $e->getMessage());
-        Log::error("Error trace: " . $e->getTraceAsString());
+    }
+
+    private function processFallback($imageFile, $imagePath, $relativePath)
+    {
+        try {
+            // Último recurso: simplemente mover el archivo
+            if ($imageFile->move(dirname($imagePath), basename($imagePath))) {
+                Log::info("Image saved as fallback: " . $relativePath);
+                return $relativePath;
+            }
+        } catch (\Exception $e) {
+            Log::error("Fallback processing failed: " . $e->getMessage());
+        }
+        
         return null;
     }
-}
 }
