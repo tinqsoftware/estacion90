@@ -897,13 +897,13 @@
 	<!-- HEADER FIJO -->
 	<header id="main-header" class="fixed-top bg-white shadow-sm py-3 z-50">
 		<div class="d-flex justify-content-between align-items-center" style="padding:0px 30px" >
-			<a onclick="solicitarCartaHoy()" class="btn-red btn-sm d-none d-md-block" style="cursor:pointer;">ORDENA AQUÍ</a>
+			<a href="/inicio" class="btn-red btn-sm d-none d-md-block" style="cursor:pointer;">ORDENA AQUÍ</a>
 			<img src="{{ asset('access/images/logo-full.png') }}" class="banner-logo">
-			<nav class ="d-none d-md-block">
+			<nav class="d-none d-md-block">
 				<a href="#menu-dia" class="mx-2">MENU</a>
 				<a href="#platos-carta" class="mx-2">CARTA</a>
 			</nav>
-			<a onclick="solicitarCartaHoy()"class="btn-red btn-sm d-block d-md-none" style="cursor:pointer;">ORDENA AQUÍ</a>
+			
 
 		</div>
 	</header>
@@ -911,7 +911,7 @@
 	<!-- BANNERS CON SEPARADOR -->
 	<section class="mt-5 banner-dual">
 		<div class="container-fluid px-0 position-relative">
-			<a onclick="solicitarCartaHoy()" class="btn-red mt-2 btn-banner d-none d-md-block" style="cursor:pointer;">ORDENA AQUÍ</a>
+			<a href="/inicio" class="btn-red mt-2 btn-banner d-none d-md-block" style="cursor:pointer;">ORDENA AQUÍ</a>
 			<!-- Franja siempre al centro (visible solo en desktop) -->
 			<div class="franjas-colores-center d-md-flex">
 				<div class="franjas-horizontales">
@@ -990,7 +990,7 @@
 				<!-- Título central -->
 				<div class=" text-center">
 					<h2 class="titulo-menu-dia">MENÚ DEL DÍA</h2><br/>
-					<a onclick="solicitarCartaHoy()" class="btn-red mt-5">ORDENA AQUÍ</a>
+					
 
 				</div>
 
@@ -1059,7 +1059,7 @@
 									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
 									<div class="text-white plato-precio fw-bold">S/{{ number_format($plato->precio, 2) }}</div>
-									<div onclick="enviarPedidoWhatsApp('{{ $plato->nombre }}')" class="btn-comprar mt-2">COMPRAR</div>
+									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 								</div>
 							</div>
 							@endforeach
@@ -1088,7 +1088,7 @@
 									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
 									<div class="text-white plato-precio fw-bold">S/{{ number_format($plato->precio, 2) }}</div>
-									<div onclick="enviarPedidoWhatsApp('{{ $plato->nombre }}')" class="btn-comprar mt-2">COMPRAR</div>
+									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 								</div>
 							</div>
 							@endforeach
@@ -1117,7 +1117,7 @@
 									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
 									<div class="text-white plato-precio fw-bold">S/{{ number_format($plato->precio, 2) }}</div>
-									<div onclick="enviarPedidoWhatsApp('{{ $plato->nombre }}')" class="btn-comprar mt-2">COMPRAR</div>
+									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 								</div>
 							</div>
 							@endforeach
@@ -1149,7 +1149,7 @@
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
 								<div class="plato-precio texto-popup">S/{{ number_format($plato->precio, 2) }}</div>
-								<div onclick="enviarPedidoWhatsApp('{{ $plato->nombre }}')" class="btn-comprar-popup">COMPRAR</div>
+								<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 							</div>
 						</div>
 					@endforeach
@@ -1172,7 +1172,7 @@
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
 								<div class="plato-precio texto-popup">S/{{ number_format($plato->precio, 2) }}</div>
-								<div onclick="enviarPedidoWhatsApp('{{ $plato->nombre }}')" class="btn-comprar-popup">COMPRAR</div>
+								<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 							</div>
 						</div>
 					@endforeach
@@ -1195,7 +1195,7 @@
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
 								<div class="plato-precio texto-popup">S/{{ number_format($plato->precio, 2) }}</div>
-								<div onclick="enviarPedidoWhatsApp('{{ $plato->nombre }}')" class="btn-comprar-popup">COMPRAR</div>
+								<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 							</div>
 						</div>
 					@endforeach
