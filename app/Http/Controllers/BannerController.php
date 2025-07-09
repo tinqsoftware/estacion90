@@ -55,11 +55,10 @@ class BannerController extends Controller
             
             // Mover imagen
             $imagen->move($rutaDestino, $nombreImagen);
-            $rutaImagen = 'access/images/banners/' . $nombreImagen;
 
-            // Crear banner con todos los campos requeridos
+            // Crear banner con todos los campos requeridos - solo guardar el nombre
             $banner = Banners::create([
-                'url_imagen' => $rutaImagen,
+                'url_imagen' => $nombreImagen, // Solo el nombre del archivo
                 'link' => '', // Campo por defecto vacío
                 'tipo' => 1, // Campo por defecto 1
                 'fecha_inicio' => $request->fecha_inicio,
@@ -127,8 +126,8 @@ class BannerController extends Controller
             // Si se subió una nueva imagen
             if ($request->hasFile('imagen')) {
                 // Eliminar imagen anterior
-                if ($banner->url_imagen && file_exists(public_path($banner->url_imagen))) {
-                    unlink(public_path($banner->url_imagen));
+                if ($banner->url_imagen && file_exists(public_path('access/images/banners/' . $banner->url_imagen))) {
+                    unlink(public_path('access/images/banners/' . $banner->url_imagen));
                 }
 
                 // Subir nueva imagen
@@ -143,7 +142,7 @@ class BannerController extends Controller
                 
                 // Mover imagen
                 $imagen->move($rutaDestino, $nombreImagen);
-                $datosActualizar['url_imagen'] = 'access/images/banners/' . $nombreImagen;
+                $datosActualizar['url_imagen'] = $nombreImagen; // Solo el nombre del archivo
             }
 
             $banner->update($datosActualizar);
@@ -163,8 +162,8 @@ class BannerController extends Controller
             $banner = Banners::findOrFail($id);
             
             // Eliminar imagen
-            if ($banner->url_imagen && file_exists(public_path($banner->url_imagen))) {
-                unlink(public_path($banner->url_imagen));
+            if ($banner->url_imagen && file_exists(public_path('access/images/banners/' . $banner->url_imagen))) {
+                unlink(public_path('access/images/banners/' . $banner->url_imagen));
             }
 
             $banner->delete();
