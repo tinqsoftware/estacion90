@@ -12,12 +12,21 @@ class Menu extends Model
         'nombre',
         'precio',
         'url_imagen',
+        'id_categoria',
         'created_at',
         'updated_at',
     ];
 
-    public function categoria()
+    // Relación muchos a muchos con categorías
+    public function categorias()
     {
-        return $this->belongsTo(Categoria::class);
+        return $this->belongsToMany(Categoria::class, 'menu_categorias', 'menu_id', 'categoria_id')
+                    ->withTimestamps();
+    }
+
+    // Método para obtener nombres de categorías como string
+    public function getCategoriasNombresAttribute()
+    {
+        return $this->categorias->pluck('nombre')->implode(', ');
     }
 }

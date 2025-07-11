@@ -21,8 +21,10 @@ class Categoria extends Model
         return $this->hasMany(Producto::class, 'id_categoria', 'id');
     }
 
-    public function categoria()
-{
-    return $this->belongsTo(Categoria::class, 'id_categoria');
-}
+    // Relación muchos a muchos con menús
+    public function menus()
+    {
+        return $this->belongsToMany(Menu::class, 'menu_categorias', 'categoria_id', 'menu_id')
+                    ->withTimestamps();
+    }
 }

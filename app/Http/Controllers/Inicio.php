@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use App\Models\Menu; 
 use Carbon\Carbon;
 use App\Models\HoraLlegada;
 use App\Models\TipoPago;
@@ -89,7 +90,10 @@ class Inicio extends Controller
         $comprobantesPago = ComprobantePago::where('estado', 1)->get();
         $distrito = Distrito::all();
 
+        // Obtenemos solo los nombres de los menús
+        $menusDisponibles = Menu::select('nombre')->orderBy('id', 'asc')->get();
 
+        // Mantenemos la lógica anterior para productos con categorías específicas
         $entradas15 = $this->obtenerProductosPorCategoria(1, $hoy);
         $entradas20 = $this->obtenerProductosPorCategoria(2, $hoy);
         $fondos15   = $this->obtenerProductosPorCategoria(3, $hoy);
@@ -98,7 +102,20 @@ class Inicio extends Controller
         $combos      = $this->obtenerProductosPorCategoria(6, $hoy);
         $extras      = $this->obtenerProductosPorCategoria(7, $hoy);
 
-        return view('inicio', compact('entradas15', 'fondos15', 'entradas20', 'fondos20', 'extras','platosCarta','combos','horasLlegada', 'tiposPago', 'comprobantesPago','distrito'));
+        return view('inicio', compact(
+            'entradas15', 
+            'fondos15', 
+            'entradas20', 
+            'fondos20', 
+            'extras',
+            'platosCarta',
+            'combos',
+            'menusDisponibles',
+            'horasLlegada', 
+            'tiposPago', 
+            'comprobantesPago',
+            'distrito'
+        ));
     }
 
 
