@@ -813,28 +813,27 @@
 
     // Función para crear el contenido (selección de menús) para cada comensal
     function createComensalContent(index) {
-        let menuTabs = '';
-        let menuContent = '';
-
-        // Crear tabs para cada menú
-        menus.forEach((menu, menuIndex) => {
-            const isActive = menuIndex === 0 ? 'active' : '';
-            const widthPercent = (100 / menus.length).toFixed(2);
-
-            menuTabs += `
+    let menuTabs = '';
+    let menuContent = '';
+    
+    // Crear tabs para cada menú (CON PRECIO)
+    menus.forEach((menu, menuIndex) => {
+        const isActive = menuIndex === 0 ? 'active' : '';
+        const widthPercent = (100 / menus.length).toFixed(2);
+        
+        menuTabs += `
             <li class="nav-item" style="width: ${widthPercent}%; text-align: center;">
                 <a href="#menu${menu.id}-${index}" class="nav-link ${isActive}" data-bs-toggle="tab">
-                    ${menu.nombre}<br/>
-                    <small>S/${menu.precio}</small>
+                    ${menu.nombre} <span style="color: #007bff; font-weight: 500;">(S/${menu.precio})</span>
                 </a>
             </li>
         `;
-
-            // Crear contenido para cada menú
-            let categoriasContent = '';
-            menu.categorias.forEach(categoria => {
-                if (categoria.productos && categoria.productos.length > 0) {
-                    categoriasContent += `
+        
+        // Crear contenido para cada menú
+        let categoriasContent = '';
+        menu.categorias.forEach(categoria => {
+            if (categoria.productos && categoria.productos.length > 0) {
+                categoriasContent += `
                     <div class="mb-4">
                         <h4 class="cate-title">${categoria.productos.length} ${categoria.nombre}</h4>
                         <a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
@@ -846,24 +845,24 @@
                         </div>
                     </div>
                 `;
-                }
-            });
-
-            menuContent += `
+            }
+        });
+        
+        menuContent += `
             <div id="menu${menu.id}-${index}" class="tab-pane ${isActive}">
                 <div class="menu-info mb-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3>${menu.nombre}</h3>
-                        <h4 class="text-primary">S/${menu.precio}</h4>
+                        <h4 class="text-primary"></h4>
                     </div>
                     <p class="text-muted">Selecciona los productos que incluye este menú</p>
                 </div>
                 ${categoriasContent}
             </div>
         `;
-        });
-
-        return `
+    });
+    
+    return `
         <div class="tab-pane fade show ${index === 0 ? 'active' : ''}" id="comensal${index}" role="tabpanel">
             <div class="pt-4">
                 <ul class="nav nav-pills mb-4 light" style="width: 100%;">
@@ -875,13 +874,13 @@
             </div>
         </div>
     `;
-    }
+}
 
     // Función auxiliar para generar las tarjetas de productos en el carrusel
     function renderProductos(productos, menuCategoria, comensalIndex) {
-        let html = '';
-        productos.forEach(prod => {
-            html += `
+    let html = '';
+    productos.forEach(prod => {
+        html += `
             <div class="swiper-slide">
                 <div class="card dishe-bx">
                     <div class="card-header border-0 pb-0 pt-0 pe-3">
@@ -915,9 +914,9 @@
                 </div>
             </div>
         `;
-        });
-        return html;
-    }
+    });
+    return html;
+}
 
     const userName = @json(Auth::user()->name ?? 'COMENSAL 1');
 
@@ -1043,65 +1042,77 @@
     }
 
     function updateOrdenResumen() {
-        let resumenHTML = '';
-        let totalGeneral = 0;
-
-        // Recorremos cada comensal
-        for (let i = 0; i < comensalCount; i++) {
-            let comensalTotal = 0;
-            let productosSeleccionados = [];
-            let menuActual = null;
-            let precioMenu = 0;
-
-            // Agrupar productos por menú
-            const menuProductos = {};
-
-            // Obtener todos los productos seleccionados para este comensal
-            document.querySelectorAll(`input[name^="menu_producto[${i}]"]:checked`).forEach(input => {
-                const menuCategoria = input.getAttribute('data-menu-categoria');
-                const precio = parseFloat(input.getAttribute('data-precio'));
-                const nombreProducto = input.closest('.card').querySelector('h6').innerText;
-                const imagenProducto = input.closest('.card').querySelector('img').src;
-
-                // Extraer el ID del menú desde menuCategoria
-                const menuId = menuCategoria.split('_').pop();
-
-                if (!menuProductos[menuId]) {
-                    menuProductos[menuId] = {
-                        menu: menus.find(m => m.id == menuId),
-                        productos: []
-                    };
-                }
-
-                menuProductos[menuId].productos.push({
-                    nombre: nombreProducto,
-                    precio: precio,
-                    imagen: imagenProducto,
-                    categoria: menuCategoria.split('_')[0]
-                });
-            });
-
-            // Calcular total por menú
+    let resumenHTML = '';
+    let totalGeneral = 0;
+    
+    // Recorremos cada comensal
+    for (let i = 0; i < comensalCount; i++) {
+        let comensalTotal = 0;
+        let todosLosProductos = []; // Array para almacenar todos los productos seleccionados
+        let menuMasCaro = null;
+        let precioMasCaro = 0;
+        
+        // Agrupar productos por menú
+        const menuProductos = {};
+        
+        // Obtener todos los productos seleccionados para este comensal
+        document.querySelectorAll(`input[name^="menu_producto[${i}]"]:checked`).forEach(input => {
+            const menuCategoria = input.getAttribute('data-menu-categoria');
+            const precio = parseFloat(input.getAttribute('data-precio'));
+            const nombreProducto = input.closest('.card').querySelector('h6').innerText;
+            const imagenProducto = input.closest('.card').querySelector('img').src;
+            
+            // Extraer el ID del menú desde menuCategoria
+            const menuId = menuCategoria.split('_').pop();
+            
+            if (!menuProductos[menuId]) {
+                menuProductos[menuId] = {
+                    menu: menus.find(m => m.id == menuId),
+                    productos: []
+                };
+            }
+            
+            const productoInfo = {
+                nombre: nombreProducto,
+                precio: precio,
+                imagen: imagenProducto,
+                categoria: menuCategoria.split('_')[0],
+                menuId: menuId
+            };
+            
+            menuProductos[menuId].productos.push(productoInfo);
+            todosLosProductos.push(productoInfo); // Agregar a la lista general
+        });
+        
+        // NUEVA LÓGICA: Si solo hay 1 producto, usar precio del producto. Si hay más, usar precio del menú más caro
+        if (todosLosProductos.length === 1) {
+            // Solo 1 producto seleccionado: usar precio del producto
+            comensalTotal = todosLosProductos[0].precio;
+        } else if (todosLosProductos.length > 1) {
+            // Múltiples productos: encontrar el menú más caro
             Object.keys(menuProductos).forEach(menuId => {
                 const menuInfo = menuProductos[menuId];
                 const menu = menuInfo.menu;
-
+                
                 if (menuInfo.productos.length > 0) {
-                    // Si hay productos seleccionados, usar el precio del menú
-                    comensalTotal += parseFloat(menu.precio);
-                    menuActual = menu;
-                    precioMenu = parseFloat(menu.precio);
-                    productosSeleccionados = menuInfo.productos;
+                    const precioMenu = parseFloat(menu.precio);
+                    if (precioMenu > precioMasCaro) {
+                        precioMasCaro = precioMenu;
+                        menuMasCaro = menu;
+                    }
                 }
             });
-
-            totalGeneral += comensalTotal;
-
-            // Generar HTML para el resumen
-            let productosHTML = '';
-            if (productosSeleccionados.length > 0) {
-                productosSeleccionados.forEach(prod => {
-                    productosHTML += `
+            comensalTotal = precioMasCaro;
+        }
+        
+        totalGeneral += comensalTotal;
+        
+        // Generar HTML para el resumen con TODOS los productos
+        let productosHTML = '';
+        if (todosLosProductos.length > 0) {
+            // Mostrar todos los productos seleccionados
+            todosLosProductos.forEach(prod => {
+                productosHTML += `
                     <li>
                         <div class="timeline-panel">
                             <div class="media me-2">
@@ -1110,28 +1121,44 @@
                             <div class="media-body">
                                 <span>${prod.categoria}: </span>
                                 <h5 class="mb-1">${prod.nombre}</h5>
+                                <small class="text-muted">Menu ${menus.find(m => m.id == prod.menuId)?.nombre}</small>
                             </div>
                         </div>
                     </li>
                 `;
-                });
-
+            });
+            
+            // Mostrar información del precio
+            if (todosLosProductos.length === 1) {
                 productosHTML += `
-                <li>
-                    <div class="timeline-panel" style="border: none;">
-                        <div class="media-body" style="padding-left: 12px;">
-                            <span style="font-weight: bold; position: absolute; right: 10%;">
-                                ${menuActual.nombre} - S/${precioMenu.toFixed(2)}
-                            </span>
+                    <li>
+                        <div class="timeline-panel" style="border: none;">
+                            <div class="media-body" style="padding-left: 12px;">
+                                <span style="font-weight: bold; position: absolute; right: 10%;">
+                                    Precio individual: S/${todosLosProductos[0].precio.toFixed(2)}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                </li>
-            `;
+                    </li>
+                `;
+            } else {
+                productosHTML += `
+                    <li>
+                        <div class="timeline-panel" style="border: none;">
+                            <div class="media-body" style="padding-left: 12px;">
+                                <span style="font-weight: bold; position: absolute; right: 10%;">
+                                    Precio: ${menuMasCaro.nombre} - S/${precioMasCaro.toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                `;
             }
-
-            let nombreComensal = comensalNombres[i] || `COMENSAL ${i+1}`;
-
-            resumenHTML += `
+        }
+        
+        let nombreComensal = comensalNombres[i] || `COMENSAL ${i+1}`;
+        
+        resumenHTML += `
             <div class="accordion-item">
                 <div class="accordion-header collapsed rounded-lg" id="accord-${i+1}" 
                      data-bs-toggle="collapse" data-bs-target="#collapse${i+1}" 
@@ -1154,34 +1181,34 @@
                 </div>
             </div>
         `;
-        }
-
-        document.getElementById("resumenComensales").innerHTML = resumenHTML;
-
-        // Calcular extras
-        let extrasTotal = 0;
-        document.querySelectorAll('.extra-item').forEach(item => {
-            let qty = parseInt(item.querySelector('.extra-qty').value) || 0;
-            let price = parseFloat(item.getAttribute('data-price')) || 0;
-            let subtotal = qty * price;
-            extrasTotal += subtotal;
-            item.querySelector('.extra-subtotal').innerText = `+ S/ ${subtotal.toFixed(2)}`;
-        });
-
-        // Delivery fijo
-        const deliveryCost = 1.00;
-        const totalOrder = totalGeneral + extrasTotal + deliveryCost;
-        document.getElementById("orderTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
-        document.getElementById("confirmTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
-
-        // Guardar datos del pedido
-        document.getElementById("orderData").value = JSON.stringify({
-            totalMenus: totalGeneral,
-            extrasTotal: extrasTotal,
-            delivery: deliveryCost,
-            total: totalOrder
-        });
     }
+    
+    document.getElementById("resumenComensales").innerHTML = resumenHTML;
+    
+    // Calcular extras (se mantiene igual)
+    let extrasTotal = 0;
+    document.querySelectorAll('.extra-item').forEach(item => {
+        let qty = parseInt(item.querySelector('.extra-qty').value) || 0;
+        let price = parseFloat(item.getAttribute('data-price')) || 0;
+        let subtotal = qty * price;
+        extrasTotal += subtotal;
+        item.querySelector('.extra-subtotal').innerText = `+ S/ ${subtotal.toFixed(2)}`;
+    });
+    
+    // Delivery fijo
+    const deliveryCost = 1.00;
+    const totalOrder = totalGeneral + extrasTotal + deliveryCost;
+    document.getElementById("orderTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
+    document.getElementById("confirmTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
+    
+    // Guardar datos del pedido
+    document.getElementById("orderData").value = JSON.stringify({
+        totalMenus: totalGeneral,
+        extrasTotal: extrasTotal,
+        delivery: deliveryCost,
+        total: totalOrder
+    });
+}
 
     $(document).on('click', 'input[type="checkbox"]', function(e) {
         const wasChecked = $(this).prop('checked');
@@ -1383,7 +1410,7 @@
         $('#btnConfirmarPedido').prop('disabled', true);
 
         const datosBlade = @json(Auth::user());
-        const direccionBlade = @json(Auth::user() ?->direccion);
+        const direccionBlade = @json(Auth::user()?-> direccion);
         const datosUser = window.datosUsuario || datosBlade || null;
         const direccionUser = window.direccionUsuario || direccionBlade || null;
 
@@ -1799,12 +1826,9 @@
                         lng = marcador.getLatLng().lng;
 
                         const miniMapa = L.map('miniMapa').setView([lat, lng], 15);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(
-                            miniMapa);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(miniMapa);
                         L.marker([lat, lng]).addTo(miniMapa);
-                        setTimeout(() => {
-                            miniMapa.invalidateSize();
-                        }, 300);
+                        setTimeout(() => {miniMapa.invalidateSize();}, 300);
                     }, 200);
 
                     Swal.fire('Dirección guardada', 'Se grabó correctamente tu dirección.', 'success');
