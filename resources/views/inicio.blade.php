@@ -175,47 +175,48 @@
                                                 <hr>
                                                 <!-- Extras: Productos de categoría Extras (id=6) -->
                                                 <div class="col-xl-12">
-                                                    <div class="card dlab-bg dlab-position">
-                                                        <div class="card-header border-0 pb-0">
-                                                            <h4 class="cate-title">¿Te provoca algo más?</h4>
-                                                        </div>
-                                                        <div class="card-body p-0">
-                                                            @foreach($extras as $extra)
-                                                            <div class="order-check d-flex align-items-center ">
-                                                                <div class="dlab-media">
-                                                                    <img src="{{ $extra->imagen }}" alt="">
-                                                                </div>
-                                                                <div class="dlab-info">
-                                                                    <div
-                                                                        class=" align-items-center justify-content-between">
-                                                                        <h4 class="dlab-title"><a
-                                                                                href="javascript:void(0);">{{ $extra->nombre }}</a>
-                                                                        </h4>
-                                                                        <span>S/{{ $extra->precio }}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="extra-item" data-extra-id="{{ $extra->id }}"
-                                                                    data-price="{{ $extra->precio }}"
-                                                                    style="min-width: 90px;">
-                                                                    <div class="quntity">
-                                                                        <button class="extra-decrease p-0"
-                                                                            data-extra-id="{{ $extra->id }}">-</button>
-                                                                        <input type="text" min="0" value="0"
-                                                                            class="extra-qty"
-                                                                            data-extra-id="{{ $extra->id }}"
-                                                                            name="extras[{{ $extra->id }}][qty]">
-                                                                        <button class="extra-increase p-0"
-                                                                            data-extra-id="{{ $extra->id }}">+</button>
-                                                                    </div>
-                                                                    <h4 class="extra-subtotal"
-                                                                        style="text-align:right; color: orange;"
-                                                                        data-extra-id="{{ $extra->id }}">+ S/ 0.00</h4>
-                                                                </div>
-                                                            </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                </div>
+    <div class="card dlab-bg dlab-position">
+        <div class="card-header border-0 pb-0">
+            <h4 class="cate-title">¿Te provoca algo más?</h4>
+        </div>
+        <div class="card-body p-0">
+            @foreach($extras as $extra)
+            <div class="order-check d-flex align-items-center ">
+                <div class="dlab-media">
+                    <img src="{{ ($extra->imagen && $extra->imagen !== 'null' && trim($extra->imagen) !== '') ? $extra->imagen : '/access/images/logo-full.png' }}" 
+                         alt="{{ $extra->nombre }}" 
+                         onerror="this.src='/access/images/logo-full.png'">
+                </div>
+                <div class="dlab-info">
+                    <div class=" align-items-center justify-content-between">
+                        <h4 class="dlab-title">
+                            <a href="javascript:void(0);">{{ $extra->nombre }}</a>
+                        </h4>
+                        <span>S/{{ ($extra->precio && $extra->precio > 0) ? $extra->precio : '1.00' }}</span>
+                    </div>
+                </div>
+                <div class="extra-item" data-extra-id="{{ $extra->id }}"
+                     data-price="{{ ($extra->precio && $extra->precio > 0) ? $extra->precio : 1 }}"
+                     style="min-width: 90px;">
+                    <div class="quntity">
+                        <button class="extra-decrease p-0"
+                                data-extra-id="{{ $extra->id }}">-</button>
+                        <input type="text" min="0" value="0"
+                               class="extra-qty"
+                               data-extra-id="{{ $extra->id }}"
+                               name="extras[{{ $extra->id }}][qty]">
+                        <button class="extra-increase p-0"
+                                data-extra-id="{{ $extra->id }}">+</button>
+                    </div>
+                    <h4 class="extra-subtotal"
+                        style="text-align:right; color: orange;"
+                        data-extra-id="{{ $extra->id }}">+ S/ 0.00</h4>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
 
                                                 <div class="card-footer  pt-0 border-0" id="orderTotals">
                                                     <div class="d-flex align-items-center justify-content-between">
