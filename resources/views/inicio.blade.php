@@ -817,15 +817,19 @@
     let menuTabs = '';
     let menuContent = '';
     
-    // Crear tabs para cada menú (CON PRECIO)
+    // Crear tabs para cada menú
     menus.forEach((menu, menuIndex) => {
         const isActive = menuIndex === 0 ? 'active' : '';
         const widthPercent = (100 / menus.length).toFixed(2);
         
+        // Solo mostrar precio si el menú tiene 2 o más categorías
+        const mostrarPrecio = menu.categorias && menu.categorias.length >= 2;
+        const precioTexto = mostrarPrecio ? ` <span style="color: #007bff; font-weight: 500;">(S/${menu.precio})</span>` : '';
+        
         menuTabs += `
             <li class="nav-item" style="width: ${widthPercent}%; text-align: center;">
                 <a href="#menu${menu.id}-${index}" class="nav-link ${isActive}" data-bs-toggle="tab">
-                    ${menu.nombre} <span style="color: #007bff; font-weight: 500;">(S/${menu.precio})</span>
+                    ${menu.nombre}${precioTexto}
                 </a>
             </li>
         `;
