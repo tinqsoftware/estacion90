@@ -2056,47 +2056,97 @@
     }
 
     function obtenerComensales() {
-        const comensales = [];
+    const comensales = [];
 
-        for (let i = 0; i < comensalCount; i++) {
-            const nombre = comensalNombres[i] || `Comensal ${i + 1}`;
-            const user_id = (i === 0 && @json(Auth::check())) ? @json(Auth::id()) : null;
+    for (let i = 0; i < comensalCount; i++) {
+        const nombre = comensalNombres[i] || `Comensal ${i + 1}`;
+        const user_id = (i === 0 && @json(Auth::check())) ? @json(Auth::id()) : null;
 
-            const productos = [];
+        const productos = [];
+        let comensalTotal = 0;
+        let todosLosProductos = [];
+        let menuMasCaro = null;
+        let precioMasCaro = 0;
 
-            // Obtener productos seleccionados para este comensal
-            document.querySelectorAll(`input[name^="menu_producto[${i}]"]:checked`).forEach(input => {
-                productos.push({
-                    id: parseInt(input.value),
-                    cantidad: 1
-                });
-            });
-
-            comensales.push({
-                id: i,
-                nombre,
-                user_id,
-                productos
-            });
-        }
-
-        // Obtener extras del paso 2 y asignarlos al primer comensal
-        const extras = [];
-        $('.extra-item').each(function() {
-            const cantidad = parseInt($(this).find('.extra-qty').val());
-            if (cantidad > 0) {
-                extras.push({
-                    id: $(this).data('extra-id'),
-                    cantidad
-                });
+        // Agrupar productos por menú (MISMA LÓGICA QUE updateOrdenResumen)
+        const menuProductos = {};
+        
+        document.querySelectorAll(`input[name^="menu_producto[${i}]"]:checked`).forEach(input => {
+            const menuCategoria = input.getAttribute('data-menu-categoria');
+            const precio = parseFloat(input.getAttribute('data-precio'));
+            const menuId = menuCategoria.split('_').pop();
+            
+            if (!menuProductos[menuId]) {
+                menuProductos[menuId] = {
+                    menu: menus.find(m => m.id == menuId),
+                    productos: []
+                };
             }
+            
+            const productoInfo = {
+                id: parseInt(input.value),
+                precio: precio,
+                menuId: menuId
+            };
+            
+            menuProductos[menuId].productos.push(productoInfo);
+            todosLosProductos.push(productoInfo);
+            
+            // Agregar producto individual para el backend
+            productos.push({
+                id: parseInt(input.value),
+                cantidad: 1
+            });
         });
-        if (extras.length > 0 && comensales.length > 0) {
-            comensales[0].productos.push(...extras);
+
+        // Calcular precio final del comensal (MISMA LÓGICA QUE updateOrdenResumen)
+        if (todosLosProductos.length === 1) {
+            // Solo 1 producto: usar precio del producto
+            comensalTotal = todosLosProductos[0].precio;
+        } else if (todosLosProductos.length > 1) {
+            // Múltiples productos: encontrar menú más caro
+            Object.keys(menuProductos).forEach(menuId => {
+                const menuInfo = menuProductos[menuId];
+                const menu = menuInfo.menu;
+                
+                if (menuInfo.productos.length > 0) {
+                    const precioMenu = parseFloat(menu.precio);
+                    if (precioMenu > precioMasCaro) {
+                        precioMasCaro = precioMenu;
+                        menuMasCaro = menu;
+                    }
+                }
+            });
+            comensalTotal = precioMasCaro;
         }
 
-        return comensales;
+        comensales.push({
+            id: i,
+            nombre,
+            user_id,
+            productos,
+            // ✅ AGREGAR: Enviar el precio calculado final
+            precio_final: comensalTotal
+        });
     }
+
+    // Obtener extras del paso 2 y asignarlos al primer comensal
+    const extras = [];
+    $('.extra-item').each(function() {
+        const cantidad = parseInt($(this).find('.extra-qty').val());
+        if (cantidad > 0) {
+            extras.push({
+                id: $(this).data('extra-id'),
+                cantidad
+            });
+        }
+    });
+    if (extras.length > 0 && comensales.length > 0) {
+        comensales[0].productos.push(...extras);
+    }
+
+    return comensales;
+}
     </script>
 
 </body>

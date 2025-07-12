@@ -27,169 +27,135 @@ class PedidoController extends Controller
 
 
     public function store(Request $request)
-    {
-        $data = $request->all();
-        $now = now(); // Fecha y hora actual
-        $fechaHoy = $now->toDateString();
-        $delivery = 1.00;
-        $monto_total = 0;
+{
+    $data = $request->all();
+    $now = now();
+    $fechaHoy = $now->toDateString();
+    $delivery = 1.00;
+    $monto_total = 0;
 
-        try {
-            DB::beginTransaction();
+    try {
+        DB::beginTransaction();
 
-            // AGRUPAR CANTIDADES POR PRODUCTO
-            $productosSolicitados = [];
-            foreach ($data['comensales'] as $comensal) {
-                foreach ($comensal['productos'] as $producto) {
-                    $id = $producto['id'];
-                    $cantidad = $producto['cantidad'];
-                    $productosSolicitados[$id] = ($productosSolicitados[$id] ?? 0) + $cantidad;
-                }
+        // AGRUPAR CANTIDADES POR PRODUCTO
+        $productosSolicitados = [];
+        foreach ($data['comensales'] as $comensal) {
+            foreach ($comensal['productos'] as $producto) {
+                $id = $producto['id'];
+                $cantidad = $producto['cantidad'];
+                $productosSolicitados[$id] = ($productosSolicitados[$id] ?? 0) + $cantidad;
             }
-            
+        }
 
-            // VALIDAR STOCK
-            foreach ($productosSolicitados as $productoId => $cantidadTotalSolicitada) {
-                $planeacion = PlaneacionMenu::where('id_producto', $productoId)
+        // VALIDAR STOCK
+        foreach ($productosSolicitados as $productoId => $cantidadTotalSolicitada) {
+            $planeacion = PlaneacionMenu::where('id_producto', $productoId)
+                ->where('fecha_plan', $fechaHoy)
+                ->first();
+
+            $productoInfo = Producto::with('categoria')->find($productoId);
+            $nombreProd = $productoInfo->nombre ?? 'Desconocido';
+            $categoria = $productoInfo?->categoria?->nombre ?? 'Sin categoría';
+
+            if (!$planeacion) {
+                return response()->json([
+                    'error' => "No hay planificación para: {$nombreProd} ({$categoria})"
+                ], 400);
+            }
+
+            $stockDisponible = $planeacion->stock_diario;
+            $cantidadUsada = PedidoDetalle::where('id_producto', $productoId)
+                ->whereHas('pedido', function ($q) use ($fechaHoy) {
+                    $q->whereDate('fecha_programada', $fechaHoy)
+                    ->where('estado', '!=', 9);
+                })
+                ->sum('cantidad');
+
+            $restante = $stockDisponible - $cantidadUsada;
+
+            if ($restante < $cantidadTotalSolicitada) {
+                return response()->json([
+                    'error' => "Stock insuficiente para: {$nombreProd} ({$categoria}). Solo quedan {$restante} y estás intentando pedir {$cantidadTotalSolicitada}. Ajusta tu pedido."
+                ], 400);
+            }
+        }
+
+        // Crear el pedido
+        $pedido = new Pedido();
+        $pedido->nombre_contacto = $data['nombre'];
+        $pedido->telefono_contacto = $data['telefono'];
+        $pedido->email_contacto = $data['email'];
+        $pedido->id_distrito_contacto = $data['distrito_id'];
+        $pedido->direccion_contacto = $data['direccion'];
+        $pedido->referencia_contacto = $data['referencia'];
+        $pedido->id_usuario = $data['user_id'] ?? null;
+        $pedido->desea_comprobante = $data['desea_comprobante'] ?? 0;
+        $pedido->lat_contacto = $data['lat'];
+        $pedido->lon_contacto = $data['lon'];
+        $pedido->id_tipopago = $data['tipo_pago'];
+        $pedido->comentarios = $data['comentarios'];
+        $pedido->id_comprobantepago = $data['comprobante_pago'];
+        $pedido->datos_comprobante = $data['documento_comprobante'] ?? null;
+        $pedido->id_horallegada = $data['hora_llegada'];
+        $pedido->vuelto = $data['vuelto'] ?? null;
+        $pedido->estado = '0';
+        $pedido->fecha_programada = $fechaHoy;
+        $pedido->hora_programada = $now->addMinutes((int)($data['minutos_llegada'] ?? 0))->format('H:i:s');
+        $pedido->save();
+
+        // Registrar el estado inicial en el historial
+        HistorialEstadoService::registrarCambioEstado($pedido->id, '0', $data['user_id'] ?? null);
+
+        foreach ($data['comensales'] as $i => $comensal) {
+            $nuevoComensal = new PedidoComensal();
+            $nuevoComensal->id_pedido = $pedido->id;
+            $nuevoComensal->nombre_comensal = $comensal['nombre'] ?? "Comensal " . ($i + 1);
+            $nuevoComensal->id_user_cliente = $comensal['user_id'] ?? null;
+            $nuevoComensal->save();
+
+            $subtotalComensal = $comensal['precio_final'] ?? 0;
+            $monto_total += $subtotalComensal;
+
+            foreach ($comensal['productos'] as $producto) {
+                $planeacion = PlaneacionMenu::where('id_producto', $producto['id'])
                     ->where('fecha_plan', $fechaHoy)
                     ->first();
 
-                $productoInfo = Producto::with('categoria')->find($productoId);
-                $nombreProd = $productoInfo->nombre ?? 'Desconocido';
-                $categoria = $productoInfo?->categoria?->nombre ?? 'Sin categoría';
+                $precioUnitario = $planeacion?->precio ?? 0;
 
-                if (!$planeacion) {
-                    return response()->json([
-                        'error' => "No hay planificación para: {$nombreProd} ({$categoria})"
-                    ], 400);
-                }
-
-                $stockDisponible = $planeacion->stock_diario;
-                $cantidadUsada = PedidoDetalle::where('id_producto', $productoId)
-                    ->whereHas('pedido', function ($q) use ($fechaHoy) {
-                        $q->whereDate('fecha_programada', $fechaHoy)
-                        ->where('estado', '!=', 9);
-                    })
-                    ->sum('cantidad');
-
-                $restante = $stockDisponible - $cantidadUsada;
-
-                if ($restante < $cantidadTotalSolicitada) {
-                    return response()->json([
-                        'error' => "Stock insuficiente para: {$nombreProd} ({$categoria}). Solo quedan {$restante} y estás intentando pedir {$cantidadTotalSolicitada}. Ajusta tu pedido."
-                    ], 400);
-                }
+                $detalle = new PedidoDetalle();
+                $detalle->id_pedido = $pedido->id;
+                $detalle->id_comensal = $nuevoComensal->id;
+                $detalle->id_producto = $producto['id'];
+                $detalle->cantidad = $producto['cantidad'];
+                $detalle->precio = $precioUnitario;
+                $detalle->estado = 0;
+                $detalle->save();
             }
-
-            // Crear el pedido
-            $pedido = new Pedido();
-            $pedido->nombre_contacto = $data['nombre'];
-            $pedido->telefono_contacto = $data['telefono'];
-            $pedido->email_contacto = $data['email'];
-            $pedido->id_distrito_contacto = $data['distrito_id'];
-            $pedido->direccion_contacto = $data['direccion'];
-            $pedido->referencia_contacto = $data['referencia'];
-            $pedido->id_usuario = $data['user_id'] ?? null;
-            $pedido->desea_comprobante = $data['desea_comprobante'] ?? 0;
-            $pedido->lat_contacto = $data['lat'];
-            $pedido->lon_contacto = $data['lon'];
-            $pedido->id_tipopago = $data['tipo_pago'];
-            $pedido->comentarios = $data['comentarios'];
-            $pedido->id_comprobantepago = $data['comprobante_pago'];
-            $pedido->datos_comprobante = $data['documento_comprobante'] ?? null;
-            $pedido->id_horallegada = $data['hora_llegada'];
-            $pedido->vuelto = $data['vuelto'] ?? null;
-            $pedido->estado = '0';
-            $pedido->fecha_programada = $fechaHoy;
-            $pedido->hora_programada = $now->addMinutes((int)($data['minutos_llegada'] ?? 0))->format('H:i:s');
-            $pedido->save();
-
-            // Registrar el estado inicial en el historial
-            HistorialEstadoService::registrarCambioEstado($pedido->id, '0', $data['user_id'] ?? null);
-
-            
-
-            // 3. Insertar comensales y sus productos
-            // Insertar comensales y sus productos
-            foreach ($data['comensales'] as $i => $comensal) {
-                $nuevoComensal = new PedidoComensal();
-                $nuevoComensal->id_pedido = $pedido->id;
-                $nuevoComensal->nombre_comensal = $comensal['nombre'] ?? "Comensal " . ($i + 1);
-                $nuevoComensal->id_user_cliente = $comensal['user_id'] ?? null;
-                $nuevoComensal->save();
-
-                $entrada15 = null;
-                $fondo15 = null;
-                $entrada20 = null;
-                $fondo20 = null;
-                $subtotalComensal = 0;
-
-                foreach ($comensal['productos'] as $producto) {
-                    $productoInfo = Producto::with('categoria')->find($producto['id']);
-                    $categoria = $productoInfo->categoria->id;
-
-                    $planeacion = PlaneacionMenu::where('id_producto', $producto['id'])
-                        ->where('fecha_plan', $fechaHoy)
-                        ->first();
-
-                    $precioUnitario = $planeacion?->precio ?? 0;
-
-                    // Categorías para detección de menú
-                    if ($categoria === 1) $entrada15 = $precioUnitario;
-                    elseif ($categoria === 3) $fondo15 = $precioUnitario;
-                    elseif ($categoria === 2) $entrada20 = $precioUnitario;
-                    elseif ($categoria === 4) $fondo20 = $precioUnitario;
-                    else {
-                        $subtotalComensal += $precioUnitario * $producto['cantidad'];
-                    }
-
-                    $detalle = new PedidoDetalle();
-                    $detalle->id_pedido = $pedido->id;
-                    $detalle->id_comensal = $nuevoComensal->id;
-                    $detalle->id_producto = $producto['id'];
-                    $detalle->cantidad = $producto['cantidad'];
-                    $detalle->precio = $precioUnitario;
-                    $detalle->estado = 0;
-                    $detalle->save();
-                }
-
-                // Cálculo de menú
-                if (($entrada15 && $fondo15)) {
-                    $subtotalComensal += 15;
-                } elseif (($entrada20 && $fondo20) || ($entrada20 && $fondo15) || ($entrada15 && $fondo20)) {
-                    $subtotalComensal += 20;
-                } elseif ($entrada15 || $fondo15) {
-                    $subtotalComensal += $entrada15 ?? $fondo15;
-                } elseif ($entrada20 || $fondo20) {
-                    $subtotalComensal += $entrada20 ?? $fondo20;
-                }
-
-                $monto_total += $subtotalComensal;
-            }
-
-            // Agregar delivery fijo
-            $monto_total += $delivery;
-            $pedido->monto_total = $monto_total;
-            $pedido->save();
-
-             // APLICAR CONFIGURACIÓN DE FLUJO DESPUÉS DE CREAR EL PEDIDO
-            $this->aplicarFlujoPedido($pedido->id, $data['user_id'] ?? null);
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Pedido registrado correctamente',
-                'pedido_id' => $pedido->id
-            ], 201);
-
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'error' => 'Error al registrar el pedido: ' . $e->getMessage()
-            ], 500);
         }
+
+        // Agregar delivery fijo
+        $monto_total += $delivery;
+        $pedido->monto_total = $monto_total;
+        $pedido->save();
+
+        // APLICAR CONFIGURACIÓN DE FLUJO DESPUÉS DE CREAR EL PEDIDO
+        $this->aplicarFlujoPedido($pedido->id, $data['user_id'] ?? null);
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Pedido registrado correctamente',
+            'pedido_id' => $pedido->id
+        ], 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'error' => 'Error al registrar el pedido: ' . $e->getMessage()
+        ], 500);
     }
+}
 
 
     /**
