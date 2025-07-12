@@ -90,32 +90,40 @@ class Inicio extends Controller
         $comprobantesPago = ComprobantePago::where('estado', 1)->get();
         $distrito = Distrito::all();
 
-        // Obtenemos solo los nombres de los menús
-        $menusDisponibles = Menu::select('nombre')->orderBy('id', 'asc')->get();
+        $menus = Menu::with(['categorias.productos' => function($query) use ($hoy) {
+        $query->select(
+            'productos.id',
+            'productos.id_categoria',
+            'productos.nombre',
+            'productos.descripcion',
+            'productos.imagen',
+            'planeacion_menu.precio',
+            DB::raw('planeacion_menu.stock_diario - COALESCE((
+                SELECT SUM(pedido_detalles.cantidad)
+                FROM pedido_detalles
+                JOIN pedidos ON pedidos.id = pedido_detalles.id_pedido
+                WHERE pedido_detalles.id_producto = productos.id
+                AND DATE(pedidos.created_at) = "' . $hoy . '"
+                AND pedidos.estado != 9
+            ), 0) as stock_restante')
+        )
+        ->join('planeacion_menu', 'productos.id', '=', 'planeacion_menu.id_producto')
+        ->where('productos.estado', 1)
+        ->whereDate('planeacion_menu.fecha_plan', $hoy)
+        ->having('stock_restante', '>', 0);
+    }])->orderBy('id', 'asc')->get();
 
-        // Mantenemos la lógica anterior para productos con categorías específicas
-        $entradas15 = $this->obtenerProductosPorCategoria(1, $hoy);
-        $entradas20 = $this->obtenerProductosPorCategoria(2, $hoy);
-        $fondos15   = $this->obtenerProductosPorCategoria(3, $hoy);
-        $fondos20   = $this->obtenerProductosPorCategoria(4, $hoy);
-        $platosCarta = $this->obtenerProductosPorCategoria(5, $hoy);
-        $combos      = $this->obtenerProductosPorCategoria(6, $hoy);
-        $extras      = $this->obtenerProductosPorCategoria(7, $hoy);
+    // Mantener extras por separado
+    $extras = $this->obtenerProductosPorCategoria(7, $hoy);
 
-        return view('inicio', compact(
-            'entradas15', 
-            'fondos15', 
-            'entradas20', 
-            'fondos20', 
-            'extras',
-            'platosCarta',
-            'combos',
-            'menusDisponibles',
-            'horasLlegada', 
-            'tiposPago', 
-            'comprobantesPago',
-            'distrito'
-        ));
+    return view('inicio', compact(
+        'menus',
+        'extras',
+        'horasLlegada', 
+        'tiposPago', 
+        'comprobantesPago',
+        'distrito'
+    ));
     }
 
 
