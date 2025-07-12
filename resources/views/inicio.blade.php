@@ -878,8 +878,22 @@
 
     // Función auxiliar para generar las tarjetas de productos en el carrusel
     function renderProductos(productos, menuCategoria, comensalIndex) {
+    const menuId = menuCategoria.split('_').pop();
+    const menuActual = menus.find(m => m.id == menuId);
+    const precioMenu = menuActual ? parseFloat(menuActual.precio) : 0;
+    
     let html = '';
     productos.forEach(prod => {
+        // Imagen por defecto si no tiene imagen o es null/vacía
+        const imagenProducto = (prod.imagen && prod.imagen !== 'null' && prod.imagen.trim() !== '') 
+            ? prod.imagen 
+            : '/access/images/logo-full.png';
+        
+        // Precio del producto o precio del menú si no tiene precio
+        const precioProducto = (prod.precio && prod.precio > 0) 
+            ? parseFloat(prod.precio) 
+            : precioMenu;
+        
         html += `
             <div class="swiper-slide">
                 <div class="card dishe-bx">
@@ -887,8 +901,9 @@
                         <!-- Badge opcional -->
                     </div>
                     <div class="card-body p-0 text-center" style="cursor:pointer;" 
-                         onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
-                        <img style="width: 100%;" src="${prod.imagen}" alt="${prod.nombre}">
+                         onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
+                        <img style="width: 100%; height: 150px; object-fit: cover;" src="${imagenProducto}" alt="${prod.nombre}" 
+                             onerror="this.src='/access/images/logo-full.png'">
                     </div>
                     <div class="border-0 pt-2">
                         <div class="common d-flex justify-content-between">
@@ -903,11 +918,11 @@
                                    name="menu_producto[${comensalIndex}][${menuCategoria}][]" 
                                    value="${prod.id}"
                                    data-menu-categoria="${menuCategoria}"
-                                   data-precio="${prod.precio}">
-                            <div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${prod.imagen}')">
-                                <img style="display:none;" src="${prod.imagen}" alt="${prod.nombre}">
+                                   data-precio="${precioProducto}">
+                            <div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
+                                <img style="display:none;" src="${imagenProducto}" alt="${prod.nombre}">
                                 <h6>${prod.nombre}</h6>
-                                <h4 class="font-w700 mb-0 text-primary">S/${prod.precio}</h4>
+                                <h4 class="font-w700 mb-0 text-primary">S/${precioProducto.toFixed(2)}</h4>
                             </div>
                         </div>
                     </div>
@@ -1323,45 +1338,54 @@
 
 
     function openProductModal(id, nombre, descripcion, imagen) {
-        const modalTitle = document.getElementById('modalTitle');
-        const modalDesc = document.getElementById('modalDescription');
-        const modalImg = document.getElementById('modalImage');
-        const btnToggle = document.getElementById('modalToggleSelect');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDescription');
+    const modalImg = document.getElementById('modalImage');
+    const btnToggle = document.getElementById('modalToggleSelect');
 
-        modalTitle.textContent = nombre;
-        modalDesc.textContent = (descripcion && descripcion !== 'null') ? descripcion : '';
-        modalImg.src = imagen || 'ruta-de-fallback.png';
+    modalTitle.textContent = nombre;
+    modalDesc.textContent = (descripcion && descripcion !== 'null') ? descripcion : '';
+    
+    // Asegurar que la imagen del modal también tenga fallback
+    const imagenModal = (imagen && imagen !== 'null' && imagen.trim() !== '') 
+        ? imagen 
+        : '/access/images/logo-full.png';
+    
+    modalImg.src = imagenModal;
+    modalImg.onerror = function() {
+        this.src = '/access/images/logo-full.png';
+    };
 
-        // Guardar referencia del input asociado
-        const input = document.querySelector(`input[value="${id}"]`);
-        if (!input) return;
+    // Guardar referencia del input asociado
+    const input = document.querySelector(`input[value="${id}"]`);
+    if (!input) return;
 
-        const isChecked = input.checked;
-        updateModalButton(btnToggle, isChecked);
+    const isChecked = input.checked;
+    updateModalButton(btnToggle, isChecked);
 
-        btnToggle.onclick = () => {
-            const isRadio = input.type === 'radio';
-            if (isRadio) {
-                // Desmarcar todos los radios del mismo grupo
-                const groupName = input.name;
-                document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
-                    el.checked = false;
-                    const pl = el.previousElementSibling;
-                    if (pl?.classList.contains('plus')) pl.classList.remove('active');
-                });
-            }
+    btnToggle.onclick = () => {
+        const isRadio = input.type === 'radio';
+        if (isRadio) {
+            // Desmarcar todos los radios del mismo grupo
+            const groupName = input.name;
+            document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
+                el.checked = false;
+                const pl = el.previousElementSibling;
+                if (pl?.classList.contains('plus')) pl.classList.remove('active');
+            });
+        }
 
-            input.checked = !input.checked;
+        input.checked = !input.checked;
 
-            const plus = input.previousElementSibling;
-            if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
+        const plus = input.previousElementSibling;
+        if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
 
-            updateModalButton(btnToggle, input.checked);
-            updateOrdenResumen();
-        };
+        updateModalButton(btnToggle, input.checked);
+        updateOrdenResumen();
+    };
 
-        new bootstrap.Modal(document.getElementById('productModal')).show();
-    }
+    new bootstrap.Modal(document.getElementById('productModal')).show();
+}
 
     function updateModalButton(button, selected) {
         button.textContent = selected ? 'Deseleccionar producto' : 'Seleccionar producto';
