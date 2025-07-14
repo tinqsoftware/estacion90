@@ -44,244 +44,375 @@
     <link href="access/css/style.css" rel="stylesheet">
 
     <style>
-    body {
-        font-family: Arial, sans-serif;
-    }
+body {
+    font-family: Arial, sans-serif;
+}
 
+.sidebar {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.calendar-container {
+    height: 35%;
+    background-color: #f8f9fa;
+    margin-top: 90px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
     .sidebar {
-        /* Remove min-height: calc(100vh - 70px); */
-        position: sticky;
-        top: 20px;
-        /* Adjust based on your header height */
-        max-height: calc(100vh - 120px);
-        overflow-y: auto;
+        position: static;
+        max-height: none;
+        margin-top: 20px;
     }
-
+    
     .calendar-container {
-        height: 35%;
-        background-color: #f8f9fa;
-        margin-top: 90px;
+        height: auto;
+        margin-top: 20px;
+        padding: 10px;
     }
-
-    .calendar-weekdays {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-    }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-    }
-
-    .calendar-day {
-        aspect-ratio: 1/1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 0.9rem;
-        border-radius: 4px;
-        background-color: #fff;
-        transition: background-color 0.2s;
-        border: 1px solid #ddd;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-    }
-
-    .calendar-day:hover {
-        background-color: #e9ecef;
-        border-color: #ced4da;
-
-    }
-
-    .calendar-day.empty {
-        background-color: transparent;
-        cursor: default;
-    }
-
-    .calendar-day.today {
-        background-color: #f8d7da;
-        font-weight: bold;
-    }
-
-    .content-body {
-        display: flex;
+    
+    .row {
         flex-direction: column;
     }
-
-    .row {
-        display: flex;
-        flex-wrap: nowrap;
+    
+    .col-md-2, .col-md-10 {
+        width: 100%;
+        max-width: 100%;
     }
-
-    .calendar-day.active {
-        background-color: #d1e7dd;
-        font-weight: bold;
-        border: 2px solid #198754;
-        position: relative;
-        z-index: 1;
+    
+    .calendar-grid {
+        gap: 2px;
     }
-
-    /* Animation for active day to improve visibility */
-    @keyframes active-day-pulse {
-        0% {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.1);
-        }
-
-        100% {
-            transform: scale(1);
-        }
+    
+    .calendar-day {
+        font-size: 0.8rem;
+        min-height: 30px;
     }
-
-    .calendar-day.just-activated {
-        animation: active-day-pulse 0.5s ease-in-out;
-    }
-
-    /* Month navigation */
-    .prev-month,
-    .next-month {
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-    }
-
+    
     #current-month {
-        font-size: 1.25rem;
-        margin: 0;
+        font-size: 1rem;
     }
-
-    .loading {
-        color: #6c757d;
+    
+    .prev-month, .next-month {
+        width: 25px;
+        height: 25px;
     }
+}
 
-    .selected-menu {
-        position: relative;
-        border-left: 5px solid #17a2b8;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        background-color: #f8fdff;
-        padding-left: 15px;
-        animation: highlight-pulse 1.5s ease-in-out;
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-day {
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: background-color 0.2s;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-day:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+.calendar-day.empty {
+    background-color: transparent;
+    cursor: default;
+}
+
+.calendar-day.today {
+    background-color: #f8d7da;
+    font-weight: bold;
+}
+
+.content-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.calendar-day.active {
+    background-color: #d1e7dd;
+    font-weight: bold;
+    border: 2px solid #198754;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes active-day-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.calendar-day.just-activated {
+    animation: active-day-pulse 0.5s ease-in-out;
+}
+
+.prev-month, .next-month {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+#current-month {
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.loading {
+    color: #6c757d;
+}
+
+.selected-menu {
+    position: relative;
+    border-left: 5px solid #17a2b8;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    background-color: #f8fdff;
+    padding-left: 15px;
+    animation: highlight-pulse 1.5s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+    0% { background-color: #f8fdff; }
+    50% { background-color: #d1ecf1; }
+    100% { background-color: #f8fdff; }
+}
+
+.selected-menu::before {
+    content: "▶";
+    position: absolute;
+    left: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #17a2b8;
+    font-size: 20px;
+    animation: arrow-pulse 1s infinite;
+}
+
+@keyframes arrow-pulse {
+    0% { opacity: 0.5; left: -25px; }
+    50% { opacity: 1; left: -20px; }
+    100% { opacity: 0.5; left: -25px; }
+}
+
+/* Modal styles */
+.modal-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.modal-calendar-grid .calendar-day {
+    cursor: pointer;
+    text-align: center;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-calendar-grid .calendar-day.empty {
+    background-color: transparent;
+    border: none;
+}
+
+.modal-calendar-grid .calendar-day.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+}
+
+.modal-calendar-grid .calendar-day.has-menu {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    font-weight: bold;
+}
+
+.modal-calendar-grid .calendar-day.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+#modalClonarMenu .table-sm td {
+    padding: 0.3rem;
+    font-size: 0.875rem;
+}
+
+.btn-clonar-menu {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    color: white;
+}
+
+.btn-clonar-menu:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+    color: white;
+}
+
+/* Table responsive improvements */
+.equal-width-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.equal-width-table th,
+.equal-width-table td {
+    width: 11.11%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px 4px;
+}
+
+/* Mobile specific table improvements */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.75rem;
     }
-
-    @keyframes highlight-pulse {
-        0% {
-            background-color: #f8fdff;
-        }
-
-        50% {
-            background-color: #d1ecf1;
-        }
-
-        100% {
-            background-color: #f8fdff;
-        }
+    
+    .equal-width-table th,
+    .equal-width-table td {
+        padding: 4px 2px;
+        font-size: 0.7rem;
+        line-height: 1.2;
     }
-
-    /* Indicator arrow for selected menu */
-    .selected-menu::before {
-        content: "▶";
-        position: absolute;
-        left: -25px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #17a2b8;
-        font-size: 20px;
-        animation: arrow-pulse 1s infinite;
-    }
-
-    @keyframes arrow-pulse {
-        0% {
-            opacity: 0.5;
-            left: -25px;
-        }
-
-        50% {
-            opacity: 1;
-            left: -20px;
-        }
-
-        100% {
-            opacity: 0.5;
-            left: -25px;
-        }
-    }
-
-
-    /* Estilos para el modal de clonar menú */
-    .modal-calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-    }
-
-    .modal-calendar-grid .calendar-day {
-        cursor: pointer;
-        text-align: center;
-        padding: 6px;
-        border-radius: 4px;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        aspect-ratio: 1/1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-calendar-grid .calendar-day.empty {
-        background-color: transparent;
-        border: none;
-    }
-
-    .modal-calendar-grid .calendar-day.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background-color: #f5f5f5;
-    }
-
-    .modal-calendar-grid .calendar-day.has-menu {
-        background-color: #d4edda;
-        border-color: #c3e6cb;
+    
+    .equal-width-table th {
+        font-size: 0.65rem;
         font-weight: bold;
     }
-
-    .modal-calendar-grid .calendar-day.active {
-        background-color: #007bff;
-        color: white;
-        border-color: #0056b3;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
-        transform: scale(1.1);
-        z-index: 2;
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
     }
-
-    #modalClonarMenu .table-sm td {
-        padding: 0.3rem;
-        font-size: 0.875rem;
+    
+    .day-menu h2 {
+        font-size: 1.25rem;
     }
-
-    /* Botón Clonar Menú */
-    .btn-clonar-menu {
-        background-color: #17a2b8;
-        border-color: #17a2b8;
-        color: white;
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 10px;
     }
-
-    .btn-clonar-menu:hover {
-        background-color: #138496;
-        border-color: #117a8b;
-        color: white;
+    
+    .d-flex.justify-content-between .btn {
+        width: 100%;
+        margin-bottom: 5px;
     }
-    </style>
+    
+    /* Modal adjustments for mobile */
+    .modal-dialog.modal-xl {
+        max-width: 95%;
+        margin: 10px auto;
+    }
+    
+    .modal-body .row {
+        flex-direction: column;
+    }
+    
+    .modal-body .col-md-4,
+    .modal-body .col-md-8 {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .modal-calendar-grid .calendar-day {
+        padding: 4px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 576px) {
+    .calendar-container {
+        padding: 5px;
+    }
+    
+    .calendar-day {
+        font-size: 0.7rem;
+        min-height: 25px;
+    }
+    
+    .equal-width-table th,
+    .equal-width-table td {
+        font-size: 0.6rem;
+        padding: 2px 1px;
+    }
+    
+    .btn-primary.btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .day-menu h2 {
+        font-size: 1rem;
+    }
+    
+    .selected-menu::before {
+        left: -15px;
+        font-size: 14px;
+    }
+    
+    .selected-menu {
+        padding-left: 10px;
+    }
+}
+
+/* Horizontal scroll for very small screens */
+@media (max-width: 480px) {
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .equal-width-table {
+        min-width: 600px;
+    }
+    
+    .modal-dialog.modal-xl {
+        max-width: 98%;
+        margin: 5px auto;
+    }
+}
+</style>
 
 </head>
 
@@ -296,53 +427,52 @@
         ***********************************-->
 
         <div class="content-body">
-            <div class="container-fluid">
-                <header class="py-3 border-bottom">
-                    <h1 class="fw-bold">MENÚ SEMANAL</h1>
-                </header>
+    <div class="container-fluid">
+        <header class="py-3 border-bottom">
+            <h1 class="fw-bold">MENÚ SEMANAL</h1>
+        </header>
 
-                <div class="row">
-                    <!-- Sidebar con calendario -->
-                    <div class="col-md-2 sidebar p-0">
-                        <div class="calendar-container p-3 border">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <button class="btn btn-sm btn-outline-secondary prev-month"><i
-                                        class="bi bi-chevron-left"></i></button>
-                                <h2 class="text-center mb-0" id="current-month">MAYO</h2>
-                                <button class="btn btn-sm btn-outline-secondary next-month"><i
-                                        class="bi bi-chevron-right"></i></button>
-                            </div>
-                            <div class="calendar-weekdays mb-1">
-                                <div>D</div>
-                                <div>L</div>
-                                <div>M</div>
-                                <div>M</div>
-                                <div>J</div>
-                                <div>V</div>
-                                <div>S</div>
-                            </div>
-                            <div class="calendar-grid">
-                                <!-- Days will be loaded here via AJAX -->
-                                <div class="loading text-center py-3 w-100">Cargando...</div>
-                            </div>
-                        </div>
-                        <br>
-
+        <div class="row">
+            <!-- Sidebar con calendario -->
+            <div class="col-12 col-md-2 sidebar p-0">
+                <div class="calendar-container p-3 border">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-sm btn-outline-secondary prev-month">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <h2 class="text-center mb-0" id="current-month">MAYO</h2>
+                        <button class="btn btn-sm btn-outline-secondary next-month">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
                     </div>
-
-                    <!-- Contenido principal -->
-                    <div class="col-md-10">
-                        <div class="text-start">
-                            <a href="javascript:void(0);" id="add-menu-btn" class="btn btn-primary btn-lg">
-                                <i class="fas fa-plus-circle me-2"></i>AGREGAR MENU
-                            </a>
-                        </div>
-
+                    <div class="calendar-weekdays mb-1">
+                        <div>D</div>
+                        <div>L</div>
+                        <div>M</div>
+                        <div>M</div>
+                        <div>J</div>
+                        <div>V</div>
+                        <div>S</div>
+                    </div>
+                    <div class="calendar-grid">
+                        <!-- Days will be loaded here via AJAX -->
+                        <div class="loading text-center py-3 w-100">Cargando...</div>
                     </div>
                 </div>
+                <br>
             </div>
 
+            <!-- Contenido principal -->
+            <div class="col-12 col-md-10">
+                <div class="text-start mb-3">
+                    <a href="javascript:void(0);" id="add-menu-btn" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>AGREGAR MENU
+                    </a>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
         <br>
         <!--**********************************
             Footer start
@@ -356,76 +486,71 @@
             Footer end
         ***********************************-->
 
-        <div class="modal fade" id="modalClonarMenu" tabindex="-1" aria-labelledby="modalClonarMenuLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalClonarMenuLabel">Clonar Menú</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <!-- Calendario en el lado izquierdo -->
-                            <div class="col-md-4">
-                                <div class="card">
-                                    <div class="card-header bg-light">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <button class="btn btn-sm btn-outline-secondary modal-prev-month">
-                                                <i class="bi bi-chevron-left"></i>
-                                            </button>
-                                            <h5 class="mb-0" id="modal-current-month">MAYO</h5>
-                                            <button class="btn btn-sm btn-outline-secondary modal-next-month">
-                                                <i class="bi bi-chevron-right"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="calendar-weekdays mb-1">
-                                            <div>D</div>
-                                            <div>L</div>
-                                            <div>M</div>
-                                            <div>M</div>
-                                            <div>J</div>
-                                            <div>V</div>
-                                            <div>S</div>
-                                        </div>
-                                        <div class="modal-calendar-grid">
-                                            <!-- Días generados dinámicamente -->
-                                            <div class="text-center">Cargando calendario...</div>
-                                        </div>
-                                    </div>
+        <div class="modal fade" id="modalClonarMenu" tabindex="-1" aria-labelledby="modalClonarMenuLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalClonarMenuLabel">Clonar Menú</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Calendario en el lado izquierdo -->
+                    <div class="col-12 col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button class="btn btn-sm btn-outline-secondary modal-prev-month">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </button>
+                                    <h5 class="mb-0" id="modal-current-month">MAYO</h5>
+                                    <button class="btn btn-sm btn-outline-secondary modal-next-month">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </button>
                                 </div>
                             </div>
-
-                            <!-- Tabla del menú en el lado derecho -->
-                            <div class="col-md-8">
-                                <div class="card">
-                                    <div class="card-header bg-light">
-                                        <h5 class="mb-0">Menú seleccionado: <span id="modal-selected-date">Seleccione
-                                                una
-                                                fecha</span></h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="modal-menu-content">
-                                            <p class="text-center text-muted">Seleccione una fecha con menú para
-                                                visualizar
-                                            </p>
-                                        </div>
-                                    </div>
+                            <div class="card-body">
+                                <div class="calendar-weekdays mb-1">
+                                    <div>D</div>
+                                    <div>L</div>
+                                    <div>M</div>
+                                    <div>M</div>
+                                    <div>J</div>
+                                    <div>V</div>
+                                    <div>S</div>
+                                </div>
+                                <div class="modal-calendar-grid">
+                                    <!-- Días generados dinámicamente -->
+                                    <div class="text-center">Cargando calendario...</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-primary" id="btn-copiar-menu" disabled>
-                            <i class="fas fa-copy me-1"></i>Copiar este menú
-                        </button>
+
+                    <!-- Tabla del menú en el lado derecho -->
+                    <div class="col-12 col-md-8">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Menú seleccionado: <span id="modal-selected-date">Seleccione una fecha</span></h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="modal-menu-content">
+                                    <p class="text-center text-muted">Seleccione una fecha con menú para visualizar</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btn-copiar-menu" disabled>
+                    <i class="fas fa-copy me-1"></i>Copiar este menú
+                </button>
+            </div>
         </div>
+    </div>
+</div>
 
     </div>
 
