@@ -969,22 +969,26 @@
 
 					<!-- Carrusel de platos S/15 -->
 					<div class="marquee-container">
-						<div class="marquee">
-							@foreach($entradas15 as $p)
-								<div class="plato text-center me-5">
-									<div class="fw-bold small nombre-plato">{{ $p->nombre }}</div>
-									<img src="{{ asset($p->imagen) }}" class="rounded mb-1">
-								</div>
-							@endforeach
+    <div class="marquee">
+        @foreach($entradas15 as $p)
+            <div class="plato text-center me-5">
+                <div class="fw-bold small nombre-plato">{{ $p->nombre }}</div>
+                <img src="{{ $p->imagen ? asset($p->imagen) : asset('access/images/sin-imagen.png') }}" 
+                     class="rounded mb-1"
+                     onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
+            </div>
+        @endforeach
 
-							@foreach($fondos15 as $p)
-								<div class="plato text-center me-5">
-									<div class="fw-bold small nombre-plato">{{ $p->nombre }}</div>
-									<img src="{{ asset($p->imagen) }}" class="rounded mb-1">
-								</div>
-							@endforeach
-						</div>
-					</div>
+        @foreach($fondos15 as $p)
+            <div class="plato text-center me-5">
+                <div class="fw-bold small nombre-plato">{{ $p->nombre }}</div>
+                <img src="{{ $p->imagen ? asset($p->imagen) : asset('access/images/sin-imagen.png') }}" 
+                     class="rounded mb-1"
+                     onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
+            </div>
+        @endforeach
+    </div>
+</div>
 				</div>
 
 				<!-- Título central -->
@@ -1009,21 +1013,25 @@
 
 					<!-- Carrusel de platos S/20 -->
 					<div class="marquee-container">
-						<div class="marquee">
-							@foreach($entradas20 as $p)
-								<div class="plato text-center me-5">
-									<div class="fw-bold small nombre-plato">{{ $p->nombre }}</div>
-									<img src="{{ asset($p->imagen) }}" class="rounded mb-1">
-								</div>
-							@endforeach
-							@foreach($fondos20 as $p)
-								<div class="plato text-center me-5">
-									<div class="fw-bold small nombre-plato">{{ $p->nombre }}</div>
-									<img src="{{ asset($p->imagen) }}" class="rounded mb-1">
-								</div>
-							@endforeach
-						</div>
-					</div>
+    <div class="marquee">
+        @foreach($entradas20 as $p)
+            <div class="plato text-center me-5">
+                <div class="fw-bold small nombre-plato">{{ $p->nombre }}</div>
+                <img src="{{ $p->imagen ? asset($p->imagen) : asset('access/images/sin-imagen.png') }}" 
+                     class="rounded mb-1"
+                     onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
+            </div>
+        @endforeach
+        @foreach($fondos20 as $p)
+            <div class="plato text-center me-5">
+                <div class="fw-bold small nombre-plato">{{ $p->nombre }}</div>
+                <img src="{{ $p->imagen ? asset($p->imagen) : asset('access/images/sin-imagen.png') }}" 
+                     class="rounded mb-1"
+                     onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
+            </div>
+        @endforeach
+    </div>
+</div>
 				</div>
 			</div>
 		</div>
