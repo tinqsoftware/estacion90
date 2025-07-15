@@ -18,17 +18,25 @@ class ClienteController extends Controller
         $clientes = User::with(['direccion', 'pedidos'])
             ->where('id_rol', 2) // Solo clientes
             ->withCount('pedidos')
-            ->withSum('pedidos', 'monto_total') // Cambié 'total' por 'monto_total'
+            ->withSum('pedidos', 'monto_total')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         // Agregar el total pagado a cada cliente
         $clientes->getCollection()->transform(function ($cliente) {
-            $cliente->total_pagado = $cliente->pedidos_sum_monto_total ?? 0; // Cambié el nombre del campo
+            $cliente->total_pagado = $cliente->pedidos_sum_monto_total ?? 0;
             return $cliente;
         });
 
-        return view('users.users_ventas', compact('clientes'));
+        // Estadísticas para las tarjetas
+        $clientesActivos = User::where('id_rol', 2)->where('estado', 1)->count();
+        $totalVentas = User::where('id_rol', 2)->withSum('pedidos', 'monto_total')->get()->sum('pedidos_sum_monto_total');
+        $mejorCliente = User::where('id_rol', 2)
+            ->withSum('pedidos', 'monto_total')
+            ->orderBy('pedidos_sum_monto_total', 'desc')
+            ->first();
+
+        return view('users.users_ventas', compact('clientes', 'clientesActivos', 'totalVentas', 'mejorCliente'));
     }
 
     /**
