@@ -229,13 +229,21 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Nombre *</label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
+                                    <input type="text" class="form-control" id="name" name="name" required
+                                           pattern="[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+"
+                                           title="Solo se permiten letras y espacios"
+                                           minlength="2" maxlength="255">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="apellido" class="form-label">Apellido *</label>
-                                    <input type="text" class="form-control" id="apellido" name="apellido" required>
+                                    <input type="text" class="form-control" id="apellido" name="apellido" required
+                                           pattern="[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+"
+                                           title="Solo se permiten letras y espacios"
+                                           minlength="2" maxlength="255">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
@@ -243,23 +251,35 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email *</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
+                                    <input type="email" class="form-control" id="email" name="email" required 
+                                           >
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="telefono" class="form-label">Teléfono</label>
-                                    <input type="text" class="form-control" id="telefono" name="telefono">
+                                    <input type="text" class="form-control" id="telefono" name="telefono" 
+                                           
+                                           pattern="[0-9+\-\s]+" 
+                                           title="Solo se permiten números"
+                                           minlength="9" maxlength="15">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Contraseña *</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" required 
+                                   
+                                   minlength="8">
+                            <div class="invalid-feedback"></div>
                         </div>
                         <div class="mb-3">
                             <label for="password_confirmation" class="form-label">Confirmar Contraseña *</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required 
+                                   >
+                            <div class="invalid-feedback"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -288,13 +308,21 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="edit_name" class="form-label">Nombre *</label>
-                                    <input type="text" class="form-control" id="edit_name" name="name" required>
+                                    <input type="text" class="form-control" id="edit_name" name="name" required 
+                                           pattern="[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+" 
+                                           title="Solo se permiten letras y espacios"
+                                           minlength="2" maxlength="255">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="edit_apellido" class="form-label">Apellido *</label>
-                                    <input type="text" class="form-control" id="edit_apellido" name="apellido" required>
+                                    <input type="text" class="form-control" id="edit_apellido" name="apellido" required 
+                                           pattern="[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+" 
+                                           title="Solo se permiten letras y espacios"
+                                           minlength="2" maxlength="255">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
@@ -303,12 +331,17 @@
                                 <div class="mb-3">
                                     <label for="edit_email" class="form-label">Email *</label>
                                     <input type="email" class="form-control" id="edit_email" name="email" required>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="edit_telefono" class="form-label">Teléfono</label>
-                                    <input type="text" class="form-control" id="edit_telefono" name="telefono">
+                                    <input type="text" class="form-control" id="edit_telefono" name="telefono" 
+                                           pattern="[0-9+\-\s]+" 
+                                           title="Solo se permiten números"
+                                           minlength="9" maxlength="15">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
@@ -358,9 +391,60 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 
     <script>
+
+        // Validación en tiempo real
+        function validateForm(form) {
+            const inputs = form.querySelectorAll('input[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                const feedback = input.nextElementSibling;
+                input.classList.remove('is-invalid');
+                
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    feedback.textContent = 'Este campo es obligatorio';
+                    isValid = false;
+                } else if (input.name === 'name' || input.name === 'apellido') {
+                    const nameRegex = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+$/;
+                    if (!nameRegex.test(input.value) || input.value.length < 2) {
+                        input.classList.add('is-invalid');
+                        feedback.textContent = 'Solo se permiten letras y espacios (mínimo 2 caracteres)';
+                        isValid = false;
+                    }
+                } else if (input.name === 'telefono' && input.value) {
+                    const phoneRegex = /^[0-9+\-\s]+$/;
+                    if (!phoneRegex.test(input.value) || input.value.length < 9) {
+                        input.classList.add('is-invalid');
+                        feedback.textContent = 'Solo números (mínimo 9 dígitos)';
+                        isValid = false;
+                    }
+                } else if (input.name === 'password') {
+                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+                    if (!passwordRegex.test(input.value)) {
+                        input.classList.add('is-invalid');
+                        feedback.textContent = 'Mínimo 8 caracteres con mayúscula, minúscula y número';
+                        isValid = false;
+                    }
+                } else if (input.name === 'password_confirmation') {
+                    const password = form.querySelector('input[name="password"]').value;
+                    if (input.value !== password) {
+                        input.classList.add('is-invalid');
+                        feedback.textContent = 'Las contraseñas no coinciden';
+                        isValid = false;
+                    }
+                }
+            });
+            
+            return isValid;
+        }
         // Crear cliente
         document.getElementById('createClienteForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            if (!validateForm(this)) {
+                return;
+            }
             
             const formData = new FormData(this);
             
@@ -382,10 +466,14 @@
                         location.reload();
                     });
                 } else {
+                    let errorMessage = data.message || 'Error al crear cliente';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).flat().join('\n');
+                    }
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: data.message || 'Error al crear cliente'
+                        text: errorMessage
                     });
                 }
             })
@@ -426,6 +514,10 @@
         document.getElementById('editClienteForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            if (!validateForm(this)) {
+                return;
+            }
+            
             const id = document.getElementById('edit_cliente_id').value;
             const formData = new FormData(this);
             
@@ -447,10 +539,14 @@
                         location.reload();
                     });
                 } else {
+                    let errorMessage = data.message || 'Error al actualizar cliente';
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).flat().join('\n');
+                    }
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: data.message || 'Error al actualizar cliente'
+                        text: errorMessage
                     });
                 }
             })
