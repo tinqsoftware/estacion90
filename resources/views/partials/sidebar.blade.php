@@ -38,6 +38,7 @@
                                 <li><a href="restro-setting.html">Configuraciones</a></li>
                                 @endif
                                 <li><a href="/productos">Productos</a></li>
+                                <li><a href="/clientes">Clientes</a></li>
                                 <li><a href="/menuSemanal">Menu Semanal</a></li>
                                 <li><a href="/usuarios">Usuarios</a></li>
                                 <li><a href="/popups">PopUps</a></li>
@@ -46,6 +47,7 @@
                                 <li><a href="/despacho">Despacho</a></li>
                                 <li><a href="/banners">Banners</a></li>
                                 <li><a href="/menu">Menu</a></li>
+                                
 
                             </ul>
                         </li>
