@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdministradorController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\ControllerPopup;
 use App\Http\Controllers\ControllerPopupDia;
@@ -217,4 +218,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/menu/{id}/edit', [MenuController::class, 'edit'])->name('menu.edit');
     Route::put('/menu/{id}', [MenuController::class, 'update'])->name('menu.update');
     Route::delete('/menu/{id}', [MenuController::class, 'destroy'])->name('menu.destroy');
+
+// CLIENTES
+
+    Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
+Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create');
+Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store'); // Cambié /clientes/store por /clientes
+Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('clientes.show'); // Agregué esta ruta
+Route::get('/clientes/{id}/edit', [ClienteController::class, 'edit'])->name('clientes.edit');
+Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
+Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+
 });
