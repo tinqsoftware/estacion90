@@ -450,17 +450,15 @@
                     </div>
 
 
-                    <div class="modal fade" id="exampleModalCenter">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div>
-                                    <img src="access/images/oferta.png" style="width: 100%;" alt="" />
-                                </div>
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
-                                    style="border-radius: 0px;">Cerrar</button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <!-- Aquí se cargará el contenido del popup -->
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -614,6 +612,8 @@
                 300); // Para asegurar que se renderice después de que el modal se muestre
         });
 
+        loadAndShowPopups();
+
 
     });
 
@@ -690,6 +690,58 @@
             $(this).parent().find('[data-value]').val(value);
         }
     }
+    
+    function loadAndShowPopups() {
+    $.ajax({
+        url: '{{ route("popups.for-user") }}',
+        type: 'GET',
+        success: function(response) {
+            if (response.success && response.popups && response.popups.length > 0) {
+                // Tomar el primer popup disponible
+                const popup = response.popups[0];
+
+                // Configurar contenido del modal
+                if (popup.url_imagen) {
+                    $('#exampleModalCenter .modal-content div').html(
+                        `<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
+                    );
+                }
+
+                // Si hay link, hacer que el popup sea clickeable
+                if (popup.link) {
+                    $('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click',
+                        function() {
+                            window.open(popup.link, '_blank');
+                        });
+                }
+
+                // Mostrar el modal
+                $('#exampleModalCenter').modal('show');
+
+                // Registrar la vista
+                $.ajax({
+                    url: '{{ route("popups.view") }}',
+                    type: 'POST',
+                    data: {
+                        popup_id: popup.id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(data) {
+                        console.log('Vista registrada correctamente');
+                    },
+                    error: function(xhr) {
+                        console.error('Error al registrar vista:', xhr.responseText);
+                    }
+                });
+            } else {
+                console.log('No hay popups disponibles para mostrar');
+            }
+        },
+        error: function(xhr) {
+            console.error('Error al cargar popups:', xhr.responseText);
+        }
+    });
+}
 
     function increase() {
         var value = $(this).parent().find('[data-value]').val();

@@ -118,10 +118,10 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th width="11.11%">Entrada S/15.00</th>
-                                    <th width="11.11%">Entrada S/20.00</th>
-                                    <th width="11.11%">Fondo S/15.00</th>
-                                    <th width="11.11%">Fondo S/20.00</th>
+                                    <th width="11.11%">Entrada 90</th>
+                                    <th width="11.11%">Entrada Ejecutivo</th>
+                                    <th width="11.11%">Fondo 90</th>
+                                    <th width="11.11%">Fondo Ejecutivo</th>
                                     <th width="11.11%">Carta</th>
                                     <th width="11.11%">Combos</th>
                                     <th width="11.11%">Extras</th>
