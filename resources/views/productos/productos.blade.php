@@ -107,9 +107,13 @@
                 <div class="row">
                     <div class="col-xl-12">
                         <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title">Productos por Categoría</h4>
-                            </div>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0">Productos por Categoría</h4>
+    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal"
+        data-bs-target="#agregarProductoModal">
+        <i class="fas fa-plus-circle me-2"></i>AGREGAR PRODUCTO
+    </button>
+</div>
                             <div class="card-body">
                                 <!-- Tab panel dinámico -->
                                 <div class="default-tab">
@@ -337,12 +341,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer text-start">
-                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal"
-                                    data-bs-target="#agregarProductoModal">
-                                    <i class="fas fa-plus-circle me-2"></i>AGREGAR PRODUCTO
-                                </button>
-                            </div>
+                            
 
                         </div>
                     </div>
@@ -433,8 +432,7 @@
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Descripción</label>
-                                <textarea class="form-control" name="descripcion" id="descripcion" rows="3"
-                                    required></textarea>
+                                <textarea class="form-control" name="descripcion" id="descripcion" rows="3"></textarea>
                             </div>
                             <div class="col-md-6 mb-3" id="precio-container">
                                 <label class="form-label">Precio</label>
@@ -586,28 +584,7 @@
                 });
             });
 
-            // Define fixed-price categories
-            const fixedPriceCategories = {
-                '1': 15.00, // Entrada S/15.00
-                '2': 20.00, // Entrada S/20.00
-                '3': 15.00, // Fondo S/15.00
-                '4': 20.00 // Fondo S/20.00
-            };
-
-            // Function to handle category change
-            function handleCategoryChange() {
-                const selectedCategoryId = $('#categoria_id').val();
-
-                // Check if selected category is a fixed-price category
-                if (selectedCategoryId in fixedPriceCategories) {
-                    // Hide price input and set fixed price
-                    $('#precio-container').hide();
-                    $('#precio').val(fixedPriceCategories[selectedCategoryId]);
-                } else {
-                    // Show price input for custom price categories
-                    $('#precio-container').show();
-                }
-            }
+           
 
             // Run on page load and when opening modal
             $('#agregarProductoModal').on('shown.bs.modal', function() {

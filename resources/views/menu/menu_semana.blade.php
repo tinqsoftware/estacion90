@@ -299,6 +299,8 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 8px 4px;
+    white-space: nowrap; /* Prevent text wrapping */
+    font-size: 0.9rem; /* Slightly smaller font */
 }
 
 /* Mobile specific table improvements */
@@ -1110,15 +1112,15 @@ body {
             <table class="table table-bordered table-sm">
                 <thead>
                     <tr>
-                        <th>Entrada S/15.00</th>
-                        <th>Entrada S/20.00</th>
-                        <th>Fondo S/15.00</th>
-                        <th>Fondo S/20.00</th>
-                        <th>Carta</th>
-                        <th>Combos</th>
-                        <th>Extras</th>
-                        <th>Caldos</th>
-                        <th>Desayunos</th>
+                        <th style="font-size: 0.7rem;">Menu 90</th>
+                        <th style="font-size: 0.7rem;">Menu Ejecutivo</th>
+                        <th style="font-size: 0.7rem;">Fondo 90</th>
+                        <th style="font-size: 0.7rem;">Fondo Ejecutivo</th>
+                        <th style="font-size: 0.7rem;">Carta</th>
+                        <th style="font-size: 0.7rem;">Combos</th>
+                        <th style="font-size: 0.7rem;">Extras</th>
+                        <th style="font-size: 0.7rem;">Caldos</th>
+                        <th style="font-size: 0.7rem;">Desayunos</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -1422,10 +1424,10 @@ body {
         <table class="table table-bordered equal-width-table">
             <thead>
                 <tr>
-                    <th>Entrada S/15.00</th>
-                    <th>Entrada S/20.00</th>
-                    <th>Fondo S/15.00</th>
-                    <th>Fondo S/20.00</th>
+                    <th>Entrada Menu 90</th>
+                    <th>Entrada Ejecutivo</th>
+                    <th>Fondo Menu 90</th>
+                    <th>Fondo Ejecutivo</th>
                     <th>Carta</th>
                     <th>Combos</th>
                     <th>Extras</th>
@@ -1544,19 +1546,6 @@ body {
 
 
 
-    <style>
-    .equal-width-table {
-        table-layout: fixed;
-        width: 100%;
-    }
-
-    .equal-width-table th,
-    .equal-width-table td {
-    width: 11.11%; /* Updated from 14.28% to 11.11% for 9 columns */
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-    </style>
 
 
 
