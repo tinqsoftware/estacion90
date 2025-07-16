@@ -119,6 +119,18 @@
                                 </ul>
                             </li>
                         @endif
+
+                        @if(auth()->user()->id_rol == 5) {{-- 5 = ROL ESPECIAL --}}
+                            <li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
+                                <i class="bi bi-megaphone"></i>
+                                    <span class="nav-text">Gestión</span>
+                                </a>
+                                <ul aria-expanded="false">
+                                    <li><a href="/popups">PopUps</a></li>
+                                    <li><a href="/banners">Banners</a></li>
+                                </ul>
+                            </li>
+                        @endif
                     @endif
                 @else
                     <!-- Show minimal options for guests -->
