@@ -198,8 +198,8 @@ public function cambiarFlujoPedidos(Request $request)
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    // Verificar contraseña
-    if (!ConfiguracionSistema::verificarPasswordFlujo($request->password)) {
+    // Verificar contraseña del usuario autenticado
+    if (!\Illuminate\Support\Facades\Hash::check($request->password, Auth::user()->password)) {
         return response()->json(['message' => 'Contraseña incorrecta'], 403);
     }
 
