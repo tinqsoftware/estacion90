@@ -263,6 +263,7 @@
                                     <option value="1">Administrador</option>
                                     <option value="3">Repartidor</option>
                                     <option value="4">Chef</option>
+                                    <option value="5">Marketing</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -325,6 +326,7 @@
                                 <option value="1">Administrador</option>
                                 <option value="3">Repartidor</option>
                                 <option value="4">Chef</option>
+                                <option value="5">Marketing</option>
                             </select>
                             <span class="text-danger" id="id_rol-error"></span>
                         </div>
@@ -393,31 +395,44 @@
 
         // Fix for the reset password button - correct ID retrieval
         $(document).on('click', '#btn-reset-password', function(e) {
-            e.preventDefault();
+    e.preventDefault();
 
-            // Find the ID value in the modal content directly
-            var userId = $('#detalle-id').text();
+    // Get the user ID from the modal that triggered this button
+    var userId = $('#usuario-id').val(); // This should get the ID from the edit modal
+    
+    // If we're in the details modal, get it from the detalle-id element
+    if (!userId) {
+        userId = $('#detalle-id').text().trim();
+    }
 
-            if (confirm(
-                    '¿Está seguro que desea restablecer la contraseña de este usuario a "12345678"? Esta acción no se puede deshacer.'
-                )) {
-                $.ajax({
-                    url: '/usuarios/' + userId + '/reset-password',
-                    type: 'POST',
-                    data: {
-                        "_token": "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        alert('Contraseña restablecida exitosamente a "12345678"');
-                        $('#detalleUsuarioModal').modal('hide');
-                    },
-                    error: function(xhr) {
-                        alert('Error al restablecer la contraseña');
-                        console.log(xhr.responseText);
-                    }
-                });
+    console.log('User ID:', userId); // Debug log
+
+    if (!userId) {
+        alert('No se pudo obtener el ID del usuario');
+        return;
+    }
+
+    if (confirm(
+            '¿Está seguro que desea restablecer la contraseña de este usuario a "12345678"? Esta acción no se puede deshacer.'
+        )) {
+        $.ajax({
+            url: '/usuarios/' + userId + '/reset-password',
+            type: 'POST',
+            data: {
+                "_token": "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                alert('Contraseña restablecida exitosamente a "12345678"');
+                $('#detalleUsuarioModal').modal('hide');
+                $('#editarUsuarioModal').modal('hide');
+            },
+            error: function(xhr) {
+                alert('Error al restablecer la contraseña');
+                console.log(xhr.responseText);
             }
         });
+    }
+});
 
         // Fix the edit user form
         $('#editarUsuarioModal').on('show.bs.modal', function(e) {
