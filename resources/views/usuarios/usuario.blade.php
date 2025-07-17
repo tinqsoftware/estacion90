@@ -103,6 +103,9 @@
                                             @case(4)
                                             Chef
                                             @break
+                                            @case(5)
+                                            Marketing
+                                            @break
                                             @default
                                             {{ $usuario->id_rol }}
                                             @endswitch
