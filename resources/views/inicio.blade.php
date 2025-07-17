@@ -871,7 +871,7 @@
     const maxComensales = 10;
     const tabContainer = document.getElementById("comensalTabs");
     const tabContent = document.getElementById("comensalTabContent");
-
+    const seleccionesState = {};
     // Función para crear la pestaña de un comensal
     function createComensalTab(index) {
         const widthPercent = (95 / (comensalCount)).toFixed(2);
@@ -1319,39 +1319,147 @@
         updateOrdenResumen();
     });
 
+
+
     // Usamos delegación de eventos para atender a los clicks en cualquier elemento con la clase .plus
     $(document).on('click', '.plus', function(e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        const $input = $(this).siblings('input');
+    const $input = $(this).siblings('input');
+    if ($input.length === 0) return;
 
-        if ($input.length === 0) return;
-
-        const isCheckbox = $input.attr('type') === 'checkbox';
-        const isRadio = $input.attr('type') === 'radio';
-
-        if (isCheckbox) {
-            const wasChecked = $input.prop('checked');
-            $input.prop('checked', !wasChecked);
-            $(this).toggleClass('active', !wasChecked);
-        } else if (isRadio) {
-            const groupName = $input.attr('name');
-            const isAlreadySelected = $input.prop('checked');
-
-            if (isAlreadySelected) {
-                // Deseleccionar radio manualmente
-                $input.prop('checked', false);
-                $(this).removeClass('active');
-            } else {
-                // Seleccionar radio y quitar clase 'active' de los demás en el grupo
-                $(`input[name="${groupName}"]`).prop('checked', false).siblings('.plus').removeClass('active');
-                $input.prop('checked', true);
-                $(this).addClass('active');
-            }
+    const menuCategoria = $input.data('menu-categoria');
+    if (!menuCategoria) return;
+    
+    const categoriaParts = menuCategoria.split('_');
+    const categoriaBase = categoriaParts[0]; // "entrada", "fondo", etc.
+    const menuId = parseInt(categoriaParts[1]); // ID del menú como número
+    
+    const comensalMatch = $input.attr('name').match(/menu_producto\[(\d+)\]/);
+    if (!comensalMatch) return;
+    const comensalIndex = comensalMatch[1];
+    
+    // Inicializar estado para este comensal si no existe
+    if (!seleccionesState[comensalIndex]) {
+        seleccionesState[comensalIndex] = {
+            entrada: null,       // ID del input seleccionado como entrada
+            fondo: null,         // ID del input seleccionado como fondo
+            otros: new Set(),    // Set de IDs de inputs para otros productos
+            menuActivo: null     // Menú actualmente seleccionado (1 o 2 para menú regular)
+        };
+    }
+    
+    // Referencia más corta al estado de este comensal
+    const estado = seleccionesState[comensalIndex];
+    const inputId = $input.attr('id') || `input_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Si no tiene ID, asignarle uno para poder referenciarlo
+    if (!$input.attr('id')) {
+        $input.attr('id', inputId);
+    }
+    
+    // Si ya está seleccionado, simplemente deseleccionarlo y actualizar estado
+    if ($input.prop('checked')) {
+        $input.prop('checked', false);
+        $(this).removeClass('active');
+        
+        // Actualizar estado
+        if (categoriaBase === 'entrada') estado.entrada = null;
+        else if (categoriaBase === 'fondo') estado.fondo = null;
+        else if (estado.otros.has(inputId)) estado.otros.delete(inputId);
+        
+        // Si era parte de un menú y ya no hay ni entrada ni fondo, desactivar menú
+        if ((menuId === 1 || menuId === 2) && !estado.entrada && !estado.fondo) {
+            estado.menuActivo = null;
         }
-
-        updateOrdenResumen();
-    });
+    } else {
+        // CASO 1: Productos de menú (entradas y fondos de los menús 1 y 2)
+        if ((menuId === 1 || menuId === 2) && (categoriaBase === 'entrada' || categoriaBase === 'fondo')) {
+            // Si ya hay un menú activo diferente, mantener la coherencia
+            if (estado.menuActivo !== null && estado.menuActivo !== menuId) {
+                // Desmarcar todo lo del menú anterior
+                if (estado.entrada) {
+                    $(`#${estado.entrada}`).prop('checked', false)
+                                         .siblings('.plus')
+                                         .removeClass('active');
+                    estado.entrada = null;
+                }
+                if (estado.fondo) {
+                    $(`#${estado.fondo}`).prop('checked', false)
+                                        .siblings('.plus')
+                                        .removeClass('active');
+                    estado.fondo = null;
+                }
+            }
+            
+            // Establecer este menú como el activo
+            estado.menuActivo = menuId;
+            
+            // Deseleccionar producto anterior de la misma categoría
+            if (categoriaBase === 'entrada' && estado.entrada) {
+                $(`#${estado.entrada}`).prop('checked', false)
+                                     .siblings('.plus')
+                                     .removeClass('active');
+            } else if (categoriaBase === 'fondo' && estado.fondo) {
+                $(`#${estado.fondo}`).prop('checked', false)
+                                    .siblings('.plus')
+                                    .removeClass('active');
+            }
+            
+            // Deseleccionar productos no-menú
+            estado.otros.forEach(otroId => {
+                $(`#${otroId}`).prop('checked', false)
+                              .siblings('.plus')
+                              .removeClass('active');
+            });
+            estado.otros.clear();
+            
+            // Actualizar estado con la nueva selección
+            if (categoriaBase === 'entrada') estado.entrada = inputId;
+            else if (categoriaBase === 'fondo') estado.fondo = inputId;
+        } 
+        // CASO 2: Otros productos (caldos, carta, combos, etc.)
+        else if (menuId > 2) {
+            // Deseleccionar entradas y fondos de cualquier menú
+            if (estado.entrada) {
+                $(`#${estado.entrada}`).prop('checked', false)
+                                     .siblings('.plus')
+                                     .removeClass('active');
+                estado.entrada = null;
+            }
+            if (estado.fondo) {
+                $(`#${estado.fondo}`).prop('checked', false)
+                                    .siblings('.plus')
+                                    .removeClass('active');
+                estado.fondo = null;
+            }
+            
+            // Desactivar cualquier menú activo
+            estado.menuActivo = null;
+            
+            // Para productos del mismo tipo, deseleccionar otros
+            estado.otros.forEach(otroId => {
+                const $otro = $(`#${otroId}`);
+                const otraCat = $otro.data('menu-categoria')?.split('_')[0];
+                if (otraCat === categoriaBase) {
+                    $otro.prop('checked', false)
+                        .siblings('.plus')
+                        .removeClass('active');
+                    estado.otros.delete(otroId);
+                }
+            });
+            
+            // Añadir este producto al estado
+            estado.otros.add(inputId);
+        }
+        
+        // Seleccionar el producto actual
+        $input.prop('checked', true);
+        $(this).addClass('active');
+    }
+    
+    updateOrdenResumen();
+});
 
 
 
@@ -1522,7 +1630,7 @@
         $('#btnConfirmarPedido').prop('disabled', true);
 
         const datosBlade = @json(Auth::user());
-        const direccionBlade = @json(Auth::user()?-> direccion);
+        const direccionBlade = @json(Auth::user()?->direccion);
         const datosUser = window.datosUsuario || datosBlade || null;
         const direccionUser = window.direccionUsuario || direccionBlade || null;
 
