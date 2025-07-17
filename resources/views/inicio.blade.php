@@ -44,6 +44,38 @@
     <link href="access/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
+    <style>
+        .nav-pills,
+.nav-wizard,
+.nav-tabs {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    overflow-x: auto !important;
+}
+
+/* Hide scrollbar for cleaner look */
+.nav-pills::-webkit-scrollbar,
+.nav-wizard::-webkit-scrollbar,
+.nav-tabs::-webkit-scrollbar {
+    height: 0;
+    display: none;
+}
+
+/* Make tab items maintain their width */
+.nav-pills .nav-item,
+.nav-wizard .nav-item,
+.nav-tabs .nav-item {
+    flex-shrink: 0;
+}
+
+/* Ensure text doesn't wrap inside tabs */
+.nav-link, .step-label {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+    </style>
+
 
 </head>
 
@@ -578,7 +610,7 @@
     <!-- Required vendors -->
     <script src="access/vendor/global/global.min.js"></script>
     <script src="access/vendor/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
-    <script src="access/vendor/chart.js/chart.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="access/vendor/swiper/js/swiper-bundle.min.js"></script>
     <script src="access/vendor/jquery-nice-select/js/jquery.nice-select.min.js"></script>
     <script src="access/js/dlabnav-init.js"></script>
@@ -876,7 +908,7 @@
         
         // Solo mostrar precio si el menú tiene 2 o más categorías
         const mostrarPrecio = menu.categorias && menu.categorias.length >= 2;
-        const precioTexto = mostrarPrecio ? ` <span style="color: #007bff; font-weight: 500;">(S/${menu.precio})</span>` : '';
+        const precioTexto = mostrarPrecio ? ` <span style="color: #007bff; font-weight: 500;">S/${menu.precio}</span>` : '';
         
         menuTabs += `
             <li class="nav-item" style="width: ${widthPercent}%; text-align: center;">
@@ -912,7 +944,6 @@
                         <h3>${menu.nombre}</h3>
                         <h4 class="text-primary"></h4>
                     </div>
-                    <p class="text-muted">Selecciona los productos que incluye este menú</p>
                 </div>
                 ${categoriasContent}
             </div>
