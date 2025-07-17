@@ -85,7 +85,7 @@ public function changePassword(Request $request)
         'name' => 'required|string|max:255',
         'apellido' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users,email',
-        'id_rol' => 'required|int:1,3,4', // Only allow roles 1, 3 and 4
+        'id_rol' => 'required|int:1,3,4,5', // Updated to include role 5
         'telefono' => 'nullable|string|max:20',
     ]);
 
@@ -101,9 +101,10 @@ public function changePassword(Request $request)
         $usuario->password = Hash::make('12345678'); // Default password
         $usuario->id_rol = $request->id_rol;
         $usuario->telefono = $request->telefono;
-        $usuario->id_direccion = $request->direccion ?? null; // Default direction ID
-        $usuario->estado = 1; // Default active status
-        $usuario->id_user_create = auth()->id() ?? null; 
+        $usuario->id_direccion = $request->direccion ?? null;
+        $usuario->estado = 1;
+        $usuario->id_user_create = auth()->id() ?? null;
+        $usuario->imagen = null; // Add default value for imagen field
         
         $usuario->save();
         
