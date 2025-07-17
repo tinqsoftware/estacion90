@@ -1091,15 +1091,24 @@
 
     // Inicialización de los sliders (Swiper)
     function initSwipers() {
+    // Small delay to ensure DOM is fully rendered
+    setTimeout(() => {
         document.querySelectorAll('.mySwiper-3').forEach(el => {
             if (el.swiper) {
                 el.swiper.destroy(true, true);
             }
+            
+            // Force layout recalculation before initializing Swiper
+            el.offsetHeight;
+            
             new Swiper(el, {
                 slidesPerView: 3,
                 spaceBetween: 30,
+                observer: true,           // Add this to detect DOM changes
+                observeParents: true,     // Add this to detect parent element changes
                 autoplay: {
                     delay: 5000,
+                    disableOnInteraction: false,
                 },
                 pagination: {
                     el: ".swiper-pagination",
@@ -1133,7 +1142,8 @@
                 }
             });
         });
-    }
+    }, 100); // Small delay helps ensure DOM is ready
+}
 
     // ===============================
     // FUNCIONES PARA ACTUALIZAR EL RESUMEN DE PEDIDO (PASO 2)
@@ -1459,6 +1469,50 @@
     }
     
     updateOrdenResumen();
+});
+
+    $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
+    // Get the newly activated tab
+    const newTab = $(e.target).attr("href");
+    
+    // Find any swipers inside this tab and reinitialize them
+    $(newTab).find('.mySwiper-3').each(function() {
+        const swiper = this.swiper;
+        if (swiper) {
+            swiper.update();
+        } else {
+            // If swiper instance doesn't exist, create a new one
+            new Swiper(this, {
+                slidesPerView: 3,
+                spaceBetween: 30,
+                observer: true,
+                observeParents: true,
+                pagination: {
+                    el: ".swiper-pagination",
+                    clickable: true
+                },
+                breakpoints: {
+                    250: { slidesPerView: 2, spaceBetween: 10 },
+                    360: { slidesPerView: 3, spaceBetween: 10 },
+                    600: { slidesPerView: 3, spaceBetween: 10 },
+                    768: { slidesPerView: 4, spaceBetween: 20 },
+                    1200: { slidesPerView: 4, spaceBetween: 20 },
+                    1400: { slidesPerView: 5, spaceBetween: 20 },
+                }
+            });
+        }
+    });
+});
+
+console.log("Menus data:", menus);
+menus.forEach(menu => {
+    if (menu.nombre.toLowerCase().includes('carta') || menu.nombre.toLowerCase().includes('combo')) {
+        console.log(`${menu.nombre} details:`, menu);
+        console.log(`${menu.nombre} has ${menu.categorias?.length || 0} categories`);
+        menu.categorias?.forEach(cat => {
+            console.log(`Category ${cat.nombre} has ${cat.productos?.length || 0} products`);
+        });
+    }
 });
 
 
