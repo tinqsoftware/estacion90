@@ -877,7 +877,7 @@
         const widthPercent = (95 / (comensalCount)).toFixed(2);
         const name = comensalNombres[index] || `COMENSAL ${index + 1}`;
         const closeBtn = index > 0 ?
-            `<span class="btn-remove-comensal" data-index="${index}" style="position: absolute; right: 2px; cursor: pointer; color: white; background-color: #d01010; width: 12px; height: 16px; border-radius: 5px; font-size: 12px; top:3px;">×</span>` :
+            `<span class="btn-remove-comensal" data-index="${index}" style="position: absolute; right: 2px; cursor: pointer; color: white; background-color: #d01010; width: 20px; height: 24px; border-radius: 6px; font-size: 18px; top:3px; text-align: center; line-height: 22px;">×</span>` :
             '';
 
         return `

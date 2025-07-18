@@ -708,15 +708,15 @@
 
             // Create the item HTML with data-producto-id attribute
             let itemHtml = `
-        <div>${item.producto_nombre}</span>
-        <div class="menu-item" data-id="${item.id}" data-producto-id="${item.producto_id}">
-            <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar" 
-               data-id="${item.id}" title="Eliminar">
-                <i class="fa fa-trash"></i>
-            </a>
-            <span><b> ${item.stock_diario}</b> - (S/ ${item.precio} ) </span>
-        </div>
-    `;
+<div>${item.producto_nombre}</span>
+<div class="menu-item" data-id="${item.id}" data-producto-id="${item.producto_id}" data-producto-nombre="${item.producto_nombre}">
+    <a href="#" class="btn btn-danger shadow btn-xs sharp btn-eliminar" 
+       data-id="${item.id}" title="Eliminar">
+        <i class="fa fa-trash"></i>
+    </a>
+    <span><b> ${item.stock_diario}</b> - (S/ ${item.precio} ) </span>
+</div>
+`;
 
             // Find the first empty cell in this column or create a new row if needed
             let emptyCell = false;
@@ -747,24 +747,30 @@
         $(document).on('click', '.btn-eliminar', function(e) {
             e.preventDefault();
 
-            // Obtener el ID del elemento a eliminar
-            const itemId = $(this).data('id');
-            const menuItem = $(this).closest('.menu-item');
+    // Obtener el ID del elemento a eliminar
+    const itemId = $(this).data('id');
+    const menuItem = $(this).closest('.menu-item');
 
-            // Obtener el ID del producto directamente del atributo data
-            const productoId = menuItem.data('producto-id');
+    // Obtener el ID del producto directamente del atributo data
+    const productoId = menuItem.data('producto-id');
 
-            // Extraer el nombre del producto de manera segura
-            let productoNombre = "producto";
-            const spanText = menuItem.find('span').text().trim();
+    // Extraer SOLO el nombre del producto, sin el stock ni precio
+    // El producto está en el primer div, pero necesitamos solo el nombre
+    let productoNombre = menuItem.closest('td').find('div:first').contents().filter(function() {
+        return this.nodeType === 3; // Text nodes only
+    }).text().trim();
+    
+    // Si no se encuentra texto directo o está vacío, intentar con el atributo data
+    if (!productoNombre || productoNombre === '') {
+        productoNombre = menuItem.data('producto-nombre') || "producto";
+    }
 
+    // Determinar la categoría basada en la posición de la celda
+    const categoriaId = menuItem.closest('td').index() + 1;
 
-            // Determinar la categoría basada en la posición de la celda
-            const categoriaId = menuItem.closest('td').index() + 1;
-
-            // Mostrar un indicador visual de que se está procesando
-            menuItem.addClass('deleting');
-            menuItem.find('.btn-eliminar').prop('disabled', true);
+    // Mostrar un indicador visual de que se está procesando
+    menuItem.addClass('deleting');
+    menuItem.find('.btn-eliminar').prop('disabled', true);
 
             // Enviar solicitud AJAX para eliminar
             $.ajax({
