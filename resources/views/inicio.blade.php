@@ -1341,131 +1341,86 @@
     const menuCategoria = $input.data('menu-categoria');
     if (!menuCategoria) return;
     
+    // Parse category and menu information
     const categoriaParts = menuCategoria.split('_');
     const categoriaBase = categoriaParts[0]; // "entrada", "fondo", etc.
-    const menuId = parseInt(categoriaParts[1]); // ID del menú como número
+    const menuId = parseInt(categoriaParts[1]); 
     
+    // Get comensal index from input name
     const comensalMatch = $input.attr('name').match(/menu_producto\[(\d+)\]/);
     if (!comensalMatch) return;
     const comensalIndex = comensalMatch[1];
     
-    // Inicializar estado para este comensal si no existe
+    // Initialize selection state tracker if needed
     if (!seleccionesState[comensalIndex]) {
         seleccionesState[comensalIndex] = {
-            entrada: null,       // ID del input seleccionado como entrada
-            fondo: null,         // ID del input seleccionado como fondo
-            otros: new Set(),    // Set de IDs de inputs para otros productos
-            menuActivo: null     // Menú actualmente seleccionado (1 o 2 para menú regular)
+            menus: {}, // Track selections by menu and category
+            activeMenu: null
         };
     }
     
-    // Referencia más corta al estado de este comensal
     const estado = seleccionesState[comensalIndex];
-    const inputId = $input.attr('id') || `input_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Si no tiene ID, asignarle uno para poder referenciarlo
+    // Ensure menu structure exists
+    if (!estado.menus[menuId]) {
+        estado.menus[menuId] = {};
+    }
+    
+    // Get input ID for reference
+    const inputId = $input.attr('id') || `input_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     if (!$input.attr('id')) {
         $input.attr('id', inputId);
     }
     
-    // Si ya está seleccionado, simplemente deseleccionarlo y actualizar estado
+    // If already checked, just uncheck it
     if ($input.prop('checked')) {
         $input.prop('checked', false);
         $(this).removeClass('active');
         
-        // Actualizar estado
-        if (categoriaBase === 'entrada') estado.entrada = null;
-        else if (categoriaBase === 'fondo') estado.fondo = null;
-        else if (estado.otros.has(inputId)) estado.otros.delete(inputId);
+        // Update tracking state
+        if (estado.menus[menuId][categoriaBase] === inputId) {
+            estado.menus[menuId][categoriaBase] = null;
+        }
         
-        // Si era parte de un menú y ya no hay ni entrada ni fondo, desactivar menú
-        if ((menuId === 1 || menuId === 2) && !estado.entrada && !estado.fondo) {
-            estado.menuActivo = null;
+        // Check if we should deactivate this menu
+        const menuStillActive = Object.values(estado.menus[menuId]).some(val => val !== null);
+        if (!menuStillActive && estado.activeMenu === menuId) {
+            estado.activeMenu = null;
         }
     } else {
-        // CASO 1: Productos de menú (entradas y fondos de los menús 1 y 2)
-        if ((menuId === 1 || menuId === 2) && (categoriaBase === 'entrada' || categoriaBase === 'fondo')) {
-            // Si ya hay un menú activo diferente, mantener la coherencia
-            if (estado.menuActivo !== null && estado.menuActivo !== menuId) {
-                // Desmarcar todo lo del menú anterior
-                if (estado.entrada) {
-                    $(`#${estado.entrada}`).prop('checked', false)
-                                         .siblings('.plus')
-                                         .removeClass('active');
-                    estado.entrada = null;
-                }
-                if (estado.fondo) {
-                    $(`#${estado.fondo}`).prop('checked', false)
-                                        .siblings('.plus')
-                                        .removeClass('active');
-                    estado.fondo = null;
-                }
+        // If selecting a new product
+        
+        // If selecting from a different menu than active, clear current selections
+        if (estado.activeMenu !== null && estado.activeMenu !== menuId) {
+            // Clear all selections from previous menu
+            const prevMenu = estado.menus[estado.activeMenu];
+            if (prevMenu) {
+                Object.keys(prevMenu).forEach(cat => {
+                    if (prevMenu[cat]) {
+                        $(`#${prevMenu[cat]}`).prop('checked', false)
+                            .siblings('.plus')
+                            .removeClass('active');
+                        prevMenu[cat] = null;
+                    }
+                });
             }
-            
-            // Establecer este menú como el activo
-            estado.menuActivo = menuId;
-            
-            // Deseleccionar producto anterior de la misma categoría
-            if (categoriaBase === 'entrada' && estado.entrada) {
-                $(`#${estado.entrada}`).prop('checked', false)
-                                     .siblings('.plus')
-                                     .removeClass('active');
-            } else if (categoriaBase === 'fondo' && estado.fondo) {
-                $(`#${estado.fondo}`).prop('checked', false)
-                                    .siblings('.plus')
-                                    .removeClass('active');
-            }
-            
-            // Deseleccionar productos no-menú
-            estado.otros.forEach(otroId => {
-                $(`#${otroId}`).prop('checked', false)
-                              .siblings('.plus')
-                              .removeClass('active');
-            });
-            estado.otros.clear();
-            
-            // Actualizar estado con la nueva selección
-            if (categoriaBase === 'entrada') estado.entrada = inputId;
-            else if (categoriaBase === 'fondo') estado.fondo = inputId;
-        } 
-        // CASO 2: Otros productos (caldos, carta, combos, etc.)
-        else if (menuId > 2) {
-            // Deseleccionar entradas y fondos de cualquier menú
-            if (estado.entrada) {
-                $(`#${estado.entrada}`).prop('checked', false)
-                                     .siblings('.plus')
-                                     .removeClass('active');
-                estado.entrada = null;
-            }
-            if (estado.fondo) {
-                $(`#${estado.fondo}`).prop('checked', false)
-                                    .siblings('.plus')
-                                    .removeClass('active');
-                estado.fondo = null;
-            }
-            
-            // Desactivar cualquier menú activo
-            estado.menuActivo = null;
-            
-            // Para productos del mismo tipo, deseleccionar otros
-            estado.otros.forEach(otroId => {
-                const $otro = $(`#${otroId}`);
-                const otraCat = $otro.data('menu-categoria')?.split('_')[0];
-                if (otraCat === categoriaBase) {
-                    $otro.prop('checked', false)
-                        .siblings('.plus')
-                        .removeClass('active');
-                    estado.otros.delete(otroId);
-                }
-            });
-            
-            // Añadir este producto al estado
-            estado.otros.add(inputId);
         }
         
-        // Seleccionar el producto actual
+        // Set this menu as active
+        estado.activeMenu = menuId;
+        
+        // If there's already a selection in this category for this menu, clear it
+        if (estado.menus[menuId][categoriaBase]) {
+            const prevSelection = estado.menus[menuId][categoriaBase];
+            $(`#${prevSelection}`).prop('checked', false)
+                .siblings('.plus')
+                .removeClass('active');
+        }
+        
+        // Select current item and update state
         $input.prop('checked', true);
         $(this).addClass('active');
+        estado.menus[menuId][categoriaBase] = inputId;
     }
     
     updateOrdenResumen();
