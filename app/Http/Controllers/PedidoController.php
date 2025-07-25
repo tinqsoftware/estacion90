@@ -57,6 +57,11 @@ class PedidoController extends Controller
             $nombreProd = $productoInfo->nombre ?? 'Desconocido';
             $categoria = $productoInfo?->categoria?->nombre ?? 'Sin categoría';
 
+            // Skip stock check for extras
+            if (!$planeacion && isset($producto['es_extra']) && $producto['es_extra']) {
+                continue;
+            }
+
             if (!$planeacion) {
                 return response()->json([
                     'error' => "No hay planificación para: {$nombreProd} ({$categoria})"
@@ -113,15 +118,25 @@ class PedidoController extends Controller
             $nuevoComensal->id_user_cliente = $comensal['user_id'] ?? null;
             $nuevoComensal->save();
 
+            // Get customer's subtotal from the precio_final field that now includes extras
             $subtotalComensal = $comensal['precio_final'] ?? 0;
             $monto_total += $subtotalComensal;
 
             foreach ($comensal['productos'] as $producto) {
-                $planeacion = PlaneacionMenu::where('id_producto', $producto['id'])
-                    ->where('fecha_plan', $fechaHoy)
-                    ->first();
-
-                $precioUnitario = $planeacion?->precio ?? 0;
+                // Check if it's an extra product
+                $esExtra = isset($producto['es_extra']) && $producto['es_extra'];
+                
+                // For extras, get price directly from the product
+                if ($esExtra) {
+                    $extraProducto = Producto::find($producto['id']);
+                    $precioUnitario = $extraProducto ? $extraProducto->precio : $producto['precio'] ?? 0;
+                } else {
+                    // Normal product - get price from planeacion
+                    $planeacion = PlaneacionMenu::where('id_producto', $producto['id'])
+                        ->where('fecha_plan', $fechaHoy)
+                        ->first();
+                    $precioUnitario = $planeacion?->precio ?? 0;
+                }
 
                 $detalle = new PedidoDetalle();
                 $detalle->id_pedido = $pedido->id;
@@ -134,7 +149,7 @@ class PedidoController extends Controller
             }
         }
 
-        // Agregar delivery fijo
+        // Add delivery
         $monto_total += $delivery;
         $pedido->monto_total = $monto_total;
         $pedido->save();
