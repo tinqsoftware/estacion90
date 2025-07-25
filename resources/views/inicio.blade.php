@@ -2286,6 +2286,16 @@ menus.forEach(menu => {
 
     function obtenerComensales() {
     const comensales = [];
+    
+    // Calculate extras total first
+    let extrasTotal = 0;
+    $('.extra-item').each(function() {
+        const cantidad = parseInt($(this).find('.extra-qty').val());
+        if (cantidad > 0) {
+            const precio = parseFloat($(this).data('price')) || 0;
+            extrasTotal += cantidad * precio;
+        }
+    });
 
     for (let i = 0; i < comensalCount; i++) {
         const nombre = comensalNombres[i] || `Comensal ${i + 1}`;
@@ -2296,8 +2306,8 @@ menus.forEach(menu => {
         let todosLosProductos = [];
         let menuMasCaro = null;
         let precioMasCaro = 0;
-
-        // Agrupar productos por menú (MISMA LÓGICA QUE updateOrdenResumen)
+        
+        // Same logic as before for menu products
         const menuProductos = {};
         
         document.querySelectorAll(`input[name^="menu_producto[${i}]"]:checked`).forEach(input => {
@@ -2321,19 +2331,16 @@ menus.forEach(menu => {
             menuProductos[menuId].productos.push(productoInfo);
             todosLosProductos.push(productoInfo);
             
-            // Agregar producto individual para el backend
             productos.push({
                 id: parseInt(input.value),
                 cantidad: 1
             });
         });
 
-        // Calcular precio final del comensal (MISMA LÓGICA QUE updateOrdenResumen)
+        // Calculate price for customer
         if (todosLosProductos.length === 1) {
-            // Solo 1 producto: usar precio del producto
             comensalTotal = todosLosProductos[0].precio;
         } else if (todosLosProductos.length > 1) {
-            // Múltiples productos: encontrar menú más caro
             Object.keys(menuProductos).forEach(menuId => {
                 const menuInfo = menuProductos[menuId];
                 const menu = menuInfo.menu;
@@ -2348,30 +2355,39 @@ menus.forEach(menu => {
             });
             comensalTotal = precioMasCaro;
         }
+        
+        // Add extras to the first customer only
+        const extras = [];
+        if (i === 0) {
+            $('.extra-item').each(function() {
+                const cantidad = parseInt($(this).find('.extra-qty').val());
+                if (cantidad > 0) {
+                    extras.push({
+                        id: $(this).data('extra-id'),
+                        cantidad,
+                        es_extra: true, // Mark as extra
+                        precio: $(this).data('price') // Include price data
+                    });
+                }
+            });
+            
+            if (extras.length > 0) {
+                productos.push(...extras);
+                // Add extras total to first customer's final price ONLY for the calculation
+                if (i === 0) {
+                    comensalTotal += extrasTotal;
+                }
+            }
+        }
 
         comensales.push({
             id: i,
             nombre,
             user_id,
             productos,
-            // ✅ AGREGAR: Enviar el precio calculado final
-            precio_final: comensalTotal
+            precio_final: comensalTotal,
+            extras_total: i === 0 ? extrasTotal : 0 // Include extras total for clarity
         });
-    }
-
-    // Obtener extras del paso 2 y asignarlos al primer comensal
-    const extras = [];
-    $('.extra-item').each(function() {
-        const cantidad = parseInt($(this).find('.extra-qty').val());
-        if (cantidad > 0) {
-            extras.push({
-                id: $(this).data('extra-id'),
-                cantidad
-            });
-        }
-    });
-    if (extras.length > 0 && comensales.length > 0) {
-        comensales[0].productos.push(...extras);
     }
 
     return comensales;

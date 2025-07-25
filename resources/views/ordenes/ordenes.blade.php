@@ -1,49 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- All Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="keywords" content="" />
+    <meta name="author" content="Tinq Sofware" />
+    <meta name="robots" content="" />
+    <meta name="description" content="estacion90"/>
+    <meta property="og:title" content="estacion90" />
+    <meta property="og:description" content="estacion90" />
+    <meta property="og:image" content="access/images/logo_white.png" />
+    <meta name="format-detection" content="telephone=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
-	<!-- All Meta -->
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="keywords" content="" />
-	<meta name="author" content="Tinq Sofware" />
-	<meta name="robots" content="" />
-	<meta name="description" content="estacion90"/>
-	<meta property="og:title" content="estacion90" />
-	<meta property="og:description" content="estacion90" />
-	<meta property="og:image" content="access/images/logo_white.png" />
-	<meta name="format-detection" content="telephone=no">
-	<meta name="csrf-token" content="{{ csrf_token() }}">
-	
-	<!-- Mobile Specific 
-	<meta name="viewport" content="width=device-width, initial-scale=1">-->
-	<!-- para que no hagan zoom -->
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!-- para que no hagan zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    
+    <!-- PAGE TITLE HERE -->
+    <title>estacion90</title>
+    
+    <!-- FAVICONS ICON -->
+    <link rel="shortcut icon" type="image/png" href="access/images/logo_white.png" />
+    
+    <!-- Stylesheet -->
+    <link href="access/vendor/jquery-nice-select/css/nice-select.css" rel="stylesheet">
+    <link href="access/vendor/swiper/css/swiper-bundle.min.css" rel="stylesheet">
+    <link href="access/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="access/vendor/bootstrap-select/dist/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="access/vendor/jquery-smartwizard/dist/css/smart_wizard.min.css" rel="stylesheet">
+    <link href="access/vendor/swiper/css/swiper-bundle.min.css" rel="stylesheet">
+    <link href="access/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-	
-	
-	<!-- PAGE TITLE HERE -->
-	<title>estacion90</title>
-	
-	<!-- FAVICONS ICON -->
-	<link rel="shortcut icon" type="image/png" href="access/images/logo_white.png" />
-	
-	<!-- Stylesheet -->
-	<link href="access/vendor/jquery-nice-select/css/nice-select.css" rel="stylesheet">
-	<link href="access/vendor/swiper/css/swiper-bundle.min.css" rel="stylesheet">
-	<link href="access/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
-	<link href="access/vendor/bootstrap-select/dist/css/bootstrap-select.min.css" rel="stylesheet">
-	<!-- Form step -->
-	<link href="access/vendor/jquery-smartwizard/dist/css/smart_wizard.min.css" rel="stylesheet">
-	
-	<!-- Style css -->
-	<link href="access/vendor/swiper/css/swiper-bundle.min.css" rel="stylesheet">
-	
-	<!-- Global Stylesheet -->
-	<link href="access/css/style.css" rel="stylesheet">
-	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-	
+    <!-- Estilos personalizados para el tracking -->
+    <style>
+        .tracking-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .tracking-header {
+            padding: 15px;
+            border-radius: 6px 6px 0 0;
+            background-color: #ff7a01;
+            color: white;
+        }
+        
+        .tracking-progress {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .tracking-line {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #e5e5e5;
+            z-index: 1;
+        }
+        
+        .tracking-line-progress {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            height: 2px;
+            background-color: #ff7a01;
+            z-index: 2;
+            transition: width 0.5s ease;
+        }
+        
+        .tracking-step {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            width: 14.28%; /* 100% / 7 steps */
+        }
+        
+        .tracking-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #e5e5e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        
+        .tracking-icon.active {
+            background-color: #ff7a01;
+        }
+        
+        .tracking-icon.home {
+            background-color: #fff;
+            border: 2px solid #e5e5e5;
+            color: #ff7a01;
+        }
+        
+        .tracking-icon.home.active {
+            border-color: #ff7a01;
+        }
+        
+        .tracking-label {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .tracking-time {
+            font-size: 12px;
+            color: #777;
+        }
+        
+        .tracking-description {
+            font-size: 12px;
+            color: #555;
+            margin-top: 4px;
+        }
+        
+        .pedido-card {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .pedido-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .pedido-header {
+            padding: 12px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .pedido-body {
+            padding: 15px;
+        }
+        
+        .badge-entregado {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-no-entregado {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .pedido-footer {
+            padding: 12px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+        
+        .btn-pedir {
+            background-color: #ff7a01;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-pedir:hover {
+            background-color: #e56b00;
+        }
+        
+        @media (max-width: 767px) {
+            .tracking-step {
+                width: 14.28%;
+            }
+            
+            .tracking-label {
+                font-size: 10px;
+            }
+            
+            .tracking-icon {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .tracking-time {
+                font-size: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -51,12 +210,12 @@
         Preloader start
     ********************-->
     <div id="preloader">
-		<div class="lds-ripple">
-			<div></div>
-			<div></div>
-		</div>
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
     </div>
-	
+    
     <!--*******************
         Preloader end
     ********************-->
@@ -66,122 +225,209 @@
     ***********************************-->
     <div id="main-wrapper" class="dlab-overflow">
        
-	@include('partials.header')
-	@include('partials.sidebar')
+    @include('partials.header')
+    @include('partials.sidebar')
 
+    @php use Carbon\Carbon; @endphp
+    <!--**********************************
+        Content body start
+    ***********************************-->
+    <div class="content-body">
+        <!-- row -->
+        <div class="container mt-3">
+            <div class="row">
+                <div class="col-12">
+                    @if(count($pedidos->whereNotIn('estado', [6, 10, 11])) > 0)
+    @php 
+        $pedidoActual = $pedidos->whereNotIn('estado', [6, 10, 11])->first();
+        $horaCreacion = Carbon::parse($pedidoActual->created_at)->format('H:i');
+        $tiempoEstimado = 45; // Minutos de tiempo estimado
+        $idPedido = $pedidoActual->id;
+        $estado = $pedidoActual->estado;
+        $total = number_format($pedidoActual->monto_total, 2);
+    @endphp
 
-		@php use Carbon\Carbon; @endphp
-		<!--**********************************
-            Content body start
-        ***********************************-->
-        <div class="content-body">
-            <!-- row -->
-			<div class="container mt-3" style=" ">
-				<div class="row">
-
-                    <div class="col-xl-12 col-xxl-12 p-10">
-						<div class=" row">
-							
-                            @foreach($pedidos as $pedido)
-                                @php
-                                    $fechaPedido = Carbon::parse($pedido->created_at)->locale('es')->isoFormat('dddd D MMMM YYYY');
-                                    $horaPedido = Carbon::parse($pedido->created_at)->format('H:i');
-                                    $horaLlegada = Carbon::parse($pedido->hora_programada);
-                                    $ahora = Carbon::now();
-                                    $diferenciaSegundos = $horaLlegada->diffInSeconds($ahora, false); // negativo si aún no ha llegado
-                                @endphp
-
-                                <div class="card mb-4 col-xl-3 col-xxl-3 col-12">
-                                    <div class="card-body">
-                                        <h4 class="mb-2">Pedido #{{ $pedido->id }} - <span>{{ $fechaPedido }}</span></h4>
-
-                                        <p><b>Estado:</b>
-                                            @switch($pedido->estado)
-                                                @case(0) <span class="badge bg-warning text-dark">Pendiente</span> @break
-                                                @case(1) <span class="badge bg-info text-dark">En preparación</span> @break
-                                                @case(2) <span class="badge bg-primary">Preparado</span> @break
-                                                @case(3) <span class="badge bg-primary">Listo para reparto</span> @break
-                                                @case(4) <span class="badge bg-warning">Asignado a motorizado</span> @break
-                                                @case(5) <span class="badge bg-warning">En camino</span> @break
-                                                @case(6) <span class="badge bg-success">Entregado</span> @break
-                                                @case(8) <span class="badge bg-primary">Preparado *</span> @break
-                                                @case(9) <span class="badge bg-danger">Rechazado</span> @break
-                                            @endswitch
-                                        </p>
-
-                                        <p><b>Dirección:</b> {{ $pedido->direccion_contacto }} - {{ $pedido->direccionDistrito->nombre ?? '' }}</p>
-                                        <p><b>Hora de pedido:</b> {{ $horaPedido }}<br>
-                                        <b>Hora estimada de llegada:</b> {{ $horaLlegada->format('H:i') }}
-                                        </p>
-
-                                        @if($diferenciaSegundos > 0)
-                                            <p class="text-success">Pedido entregado</p>
+                        <div id="pedido-tracking-{{ $idPedido }}" class="tracking-container">
+                            <div class="tracking-header">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h3 class="mb-0">Pedido #{{ $idPedido }}</h3>
+                                        <p class="mb-0">Realizado: {{ $horaCreacion }} - Tiempo estimado: {{ $tiempoEstimado }} min</p>
+                                        <h4 class="mb-0">Total: S/ {{ $total }}</h4>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        @if($estado == 6)
+                                            <span class="badge bg-white text-success fs-5 px-4 py-2 rounded-pill">Entregado</span>
+                                        @elseif($estado == 10)
+                                            <span class="badge bg-white text-danger fs-5 px-4 py-2 rounded-pill">No encontrado</span>
+                                        @elseif($estado == 11)
+                                            <span class="badge bg-white text-warning fs-5 px-4 py-2 rounded-pill">Finalizado</span>
                                         @else
-                                            <div id="countdown-{{ $pedido->id }}" class="text-danger mb-2" style="font-weight:bold;"></div>
-                                            <script>
-                                                const countdown{{ $pedido->id }} = () => {
-                                                    const now = new Date().getTime();
-                                                    const target = new Date("{{ $horaLlegada->format('Y-m-d H:i:s') }}").getTime();
-                                                    const distance = target - now;
-
-                                                    if (distance <= 0) {
-                                                        document.getElementById("countdown-{{ $pedido->id }}").innerHTML = "¡En cualquier momento llega!";
-                                                        clearInterval(timer{{ $pedido->id }});
-                                                        return;
-                                                    }
-
-                                                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                                                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                                                    document.getElementById("countdown-{{ $pedido->id }}").innerHTML = `Llega estimada en ${minutes}m ${seconds}s`;
-                                                };
-
-                                                const timer{{ $pedido->id }} = setInterval(countdown{{ $pedido->id }}, 1000);
-                                                countdown{{ $pedido->id }}(); // ejecutar inmediatamente
-                                            </script>
+                                            <span class="badge bg-white text-primary fs-5 px-4 py-2 rounded-pill">En proceso</span>
                                         @endif
-
-                                        @foreach($pedido->comensales as $comensal)
-                                            <hr>
-                                            <h5>{{ $comensal->nombre_comensal }}</h5>
-                                            <ul>
-                                                @foreach($comensal->detalles as $detalle)
-                                                    <li class="d-flex align-items-center mb-3 border-bottom pb-2">
-                                                        <div class="me-3">
-                                                            <img src="{{ asset($detalle->producto->imagen ?? 'images/sin-imagen.png') }}"
-                                                                alt="{{ $detalle->producto->nombre ?? 'Sin nombre' }}"
-                                                                class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
-                                                        </div>
-                                                        <div class="flex-grow-1">
-                                                            <h5 class="mb-1 font-w600">{{ $detalle->producto->nombre ?? 'Producto eliminado' }}</h5>
-                                                            <p class="mb-0 text-muted">Cantidad: {{ $detalle->cantidad }} x S/ {{ number_format($detalle->precio, 2) }}</p>
-                                                        </div>
-                                                        <div>
-                                                            <span class="text-primary font-w600">S/ {{ number_format($detalle->precio * $detalle->cantidad, 2) }}</span>
-                                                        </div>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @endforeach
-
-                                        <p class="mt-3"><b>Total:</b> <h4 class="mb-0 text-primary">S/ {{ number_format($pedido->monto_total, 2) }}</h4></p>
                                     </div>
                                 </div>
-                            @endforeach
+                            </div>
+                            
+                            <div class="tracking-body p-4">
+                                <h5 class="mb-3">Estado de tu pedido</h5>
+                                
+                                <div class="tracking-progress">
+                                    <div class="tracking-line"></div>
+                                    <div id="progress-line-{{ $idPedido }}" class="tracking-line-progress" style="width: {{ min($estado * 16.67, 100) }}%"></div>
+                                    
+                                    <!-- Estado 0: Pedido Registrado -->
+                                    <div class="tracking-step">
+                                        <div id="step-0-{{ $idPedido }}" class="tracking-icon {{ $estado >= 0 ? 'active' : '' }}">
+                                            <i class="fa fa-check"></i>
+                                        </div>
+                                        <div class="tracking-label">Pedido Registrado</div>
+                                        <div class="tracking-time">{{ $horaCreacion }}</div>
+                                        <div class="tracking-description">Tu pedido ha sido recibido</div>
+                                    </div>
+                                    
+                                    <!-- Estado 1: En Preparación -->
+                                    <div class="tracking-step">
+                                        <div id="step-1-{{ $idPedido }}" class="tracking-icon {{ $estado >= 1 ? 'active' : '' }}">
+                                            <i class="fa fa-utensils"></i>
+                                        </div>
+                                        <div class="tracking-label">En Preparación</div>
+                                        <div class="tracking-time" id="time-1-{{ $idPedido }}">
+                                            @if($estado >= 1)
+                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                                            @endif
+                                        </div>
+                                        <div class="tracking-description">El chef está preparando tu pedido</div>
+                                    </div>
+                                    
+                                    <!-- Estado 2: Preparado -->
+                                    <div class="tracking-step">
+                                        <div id="step-2-{{ $idPedido }}" class="tracking-icon {{ $estado >= 2 || $estado == 8 ? 'active' : '' }}">
+                                            <i class="fa fa-check-circle"></i>
+                                        </div>
+                                        <div class="tracking-label">Preparado</div>
+                                        <div class="tracking-time" id="time-2-{{ $idPedido }}">
+                                            @if($estado >= 2 || $estado == 8)
+                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                                            @endif
+                                        </div>
+                                        <div class="tracking-description">Tu pedido está listo</div>
+                                    </div>
+                                    
+                                    <!-- Estado 3: Listo para Reparto -->
+                                    <div class="tracking-step">
+                                        <div id="step-3-{{ $idPedido }}" class="tracking-icon {{ $estado >= 3 ? 'active' : '' }}">
+                                            <i class="fa fa-box"></i>
+                                        </div>
+                                        <div class="tracking-label">Listo para Reparto</div>
+                                        <div class="tracking-time" id="time-3-{{ $idPedido }}">
+                                            @if($estado >= 3)
+                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                                            @endif
+                                        </div>
+                                        <div class="tracking-description">Esperando asignación de motorizado</div>
+                                    </div>
+                                    
+                                    <!-- Estado 4: Asignado a Motorizado -->
+                                    <div class="tracking-step">
+                                        <div id="step-4-{{ $idPedido }}" class="tracking-icon {{ $estado >= 4 ? 'active' : '' }}">
+                                            <i class="fa fa-motorcycle"></i>
+                                        </div>
+                                        <div class="tracking-label">Asignado a Motorizado</div>
+                                        <div class="tracking-time" id="time-4-{{ $idPedido }}">
+                                            @if($estado >= 4)
+                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                                            @endif
+                                        </div>
+                                        <div id="motorizado-info-{{ $idPedido }}" class="tracking-description">
+                                            @if($estado >= 4 && isset($pedidoActual->motorizado))
+                                                {{ $pedidoActual->motorizado->nombre }} - Moto: {{ $pedidoActual->motorizado->placa }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Estado 5: En Camino -->
+                                    <div class="tracking-step">
+                                        <div id="step-5-{{ $idPedido }}" class="tracking-icon {{ $estado >= 5 ? 'active' : '' }}">
+                                            <i class="fa fa-shipping-fast"></i>
+                                        </div>
+                                        <div class="tracking-label">En Camino</div>
+                                        <div class="tracking-time" id="time-5-{{ $idPedido }}">
+                                            @if($estado >= 5)
+                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                                            @endif
+                                        </div>
+                                        <div class="tracking-description">Tu pedido está en camino</div>
+                                    </div>
+                                    
+                                    <!-- Estado 6: Entregado -->
+                                    <div class="tracking-step">
+                                        <div id="step-6-{{ $idPedido }}" class="tracking-icon home {{ $estado == 6 ? 'active' : '' }}">
+                                            <i class="fa fa-home"></i>
+                                        </div>
+                                        <div class="tracking-label">Entregado</div>
+                                        <div class="tracking-time" id="time-6-{{ $idPedido }}">
+                                            @if($estado == 6)
+                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                                            @endif
+                                        </div>
+                                        <div class="tracking-description">Pedido entregado exitosamente</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
-						</div>
-					</div>
+                    <!-- Sección de pedidos anteriores -->
+                    <div class="mb-4">
+                        <div class="bg-warning text-white p-3 rounded">
+                            <h4 class="mb-0">Pedidos Anteriores</h4>
+                        </div>
+                    </div>
 
-				</div>
+                    <div class="row" id="pedidos-anteriores">
+    @foreach($pedidos->whereIn('estado', [6, 10, 11])->take(5) as $pedidoAnterior)
+        @php
+            $fecha = Carbon::parse($pedidoAnterior->created_at)->format('d M Y');
+            $estadoLabel = $pedidoAnterior->estado == 6 ? 'Entregado' : ($pedidoAnterior->estado == 10 ? 'No Encontrado' : 'Finalizado');
+            $estadoClass = $pedidoAnterior->estado == 6 ? 'badge-entregado' : 'badge-no-entregado';
+            $detalles = [];
+            foreach($pedidoAnterior->comensales as $comensal) {
+                foreach($comensal->detalles as $detalle) {
+                    $detalles[] = $detalle->producto ? $detalle->producto->nombre : 'Producto eliminado';
+                }
+            }
+        @endphp
+                            <div class="col-md-4 mb-3">
+                                <div class="pedido-card">
+                                    <div class="pedido-header">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h5 class="mb-0">Pedido #{{ $pedidoAnterior->id }}</h5>
+                                                <small>{{ $fecha }}</small>
+                                            </div>
+                                            <span class="badge {{ $estadoClass }}">{{ $estadoLabel }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="pedido-body">
+                                        <h5 class="mb-2">S/ {{ number_format($pedidoAnterior->monto_total, 2) }}</h5>
+                                        <p class="mb-0 text-muted">{{ implode(', ', array_slice($detalles, 0, 3)) }}{{ count($detalles) > 3 ? '...' : '' }}</p>
+                                    </div>
+                                    <div class="pedido-footer">
+                                        <button class="btn-pedir" onclick="reordenarPedido({{ $pedidoAnterior->id }})">Pedir de Nuevo</button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
-
-		
-
-
-
-
-	</div>
+    </div>
+    <!--**********************************
+        Content body end
+    ***********************************-->
+    </div>
     <!--**********************************
         Main wrapper end
     ***********************************-->
@@ -191,35 +437,132 @@
     ***********************************-->
     <!-- Required vendors -->
     <script src="access/vendor/global/global.min.js"></script>
-	<script src="access/vendor/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
-	<script src="access/vendor/chart.js/chart.bundle.min.js"></script>
-	<script src="access/vendor/swiper/js/swiper-bundle.min.js"></script>
-	<script src="access/vendor/jquery-nice-select/js/jquery.nice-select.min.js"></script> 
-	<script src="access/js/dlabnav-init.js"></script>
+    <script src="access/vendor/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+    <script src="access/vendor/chart.js/chart.bundle.min.js"></script>
+    <script src="access/vendor/swiper/js/swiper-bundle.min.js"></script>
+    <script src="access/vendor/jquery-nice-select/js/jquery.nice-select.min.js"></script> 
+    <script src="access/js/dlabnav-init.js"></script>
     <script src="access/js/custom.js"></script>
-	
-    
-
     <script src="access/vendor/jquery-steps/build/jquery.steps.min.js"></script>
     <script src="access/vendor/jquery-validation/jquery.validate.min.js"></script>
-    <!-- Form validate init -->
     <script src="access/js/plugins-init/jquery.validate-init.js"></script>
+    <script src="access/vendor/jquery-smartwizard/dist/js/jquery.smartWizard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-
-	<!-- Form Steps -->
-	<script src="access/vendor/jquery-smartwizard/dist/js/jquery.smartWizard.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-
-
-
-	
-    
-	<script>
-		
-
+    <!-- Script para actualización en tiempo real -->
+    <script>
+        $(document).ready(function() {
+            // Establecer el token CSRF para todas las solicitudes AJAX
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            
+            // Función para actualizar el estado del pedido
+            function actualizarEstadoPedido() {
+                @if(count($pedidos->where('estado', '!=', 6)->where('estado', '!=', 10)->where('estado', '!=', 11)) > 0)
+                $.ajax({
+                    url: '/estado-pedido/{{ $idPedido }}',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if(response.success) {
+                            const pedido = response.pedido;
+                            const estado = pedido.estado;
+                            
+                            // Actualizar la barra de progreso
+                            const progressWidth = Math.min(estado * 16.67, 100);
+                            $('#progress-line-{{ $idPedido }}').css('width', progressWidth + '%');
+                            
+                            // Actualizar cada paso según el estado
+                            for(let i = 0; i <= 6; i++) {
+                                if (i <= estado || (i == 2 && estado == 8)) {
+                                    $('#step-' + i + '-{{ $idPedido }}').addClass('active');
+                                    
+                                    // Actualizar la hora para este paso si está disponible
+                                    if (pedido['tiempo_estado_' + i]) {
+                                        $('#time-' + i + '-{{ $idPedido }}').text(pedido['tiempo_estado_' + i]);
+                                    }
+                                } else {
+                                    $('#step-' + i + '-{{ $idPedido }}').removeClass('active');
+                                }
+                            }
+                            
+                            // Actualizar información del motorizado si está disponible
+                            if (estado >= 4 && pedido.motorizado) {
+                                $('#motorizado-info-{{ $idPedido }}').html(
+                                    pedido.motorizado.nombre + ' - Moto: ' + pedido.motorizado.placa
+                                );
+                            }
+                            
+                            // Si el pedido se completó (estado 6, 10 u 11), recargar la página para mostrar en pedidos anteriores
+                            if (estado == 6 || estado == 10 || estado == 11) {
+                                location.reload();
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error al actualizar el estado del pedido:', xhr.responseText);
+                    }
+                });
+                @endif
+            }
+            
+            // Actualizar estado cada 30 segundos
+            setInterval(actualizarEstadoPedido, 30000);
+            
+            // Actualizar estado al cargar la página
+            actualizarEstadoPedido();
+        });
+        
+        // Función para reordenar un pedido anterior
+        function reordenarPedido(idPedido) {
+            Swal.fire({
+                title: '¿Deseas pedir nuevamente?',
+                text: 'Se creará un nuevo pedido con los mismos productos',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ff7a01',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, pedir de nuevo',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/reordenar/' + idPedido,
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            if(response.success) {
+                                Swal.fire(
+                                    '¡Pedido realizado!',
+                                    'Tu pedido se ha realizado correctamente',
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    response.message || 'Ocurrió un error al procesar tu pedido',
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error('Error al reordenar el pedido:', xhr.responseText);
+                            Swal.fire(
+                                'Error',
+                                'Ocurrió un error al procesar tu pedido',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        }
     </script>
-
 </body>
 </html>
