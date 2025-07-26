@@ -829,7 +829,7 @@
         @endif
     @endforeach
 </div>
-<div class="d-flex justify-content-center mt-4">
+<div class="d-flex justify-content-center mt-4 pagination-container">
     {{ $pedidosAnteriores->links() }}
 </div>
                 </div>
@@ -991,6 +991,48 @@
 
         // Actualizar estado al cargar la página
         actualizarEstadoPedido();
+    });
+
+     $(document).on('click', '.pagination a', function(e) {
+        e.preventDefault();
+        
+        // Obtener la URL de la página solicitada
+        let url = $(this).attr('href');
+        
+        // Mostrar indicador de carga
+        $('#pedidos-anteriores').append('<div class="col-12 text-center" id="loading-indicator"><div class="spinner-border text-warning" role="status"><span class="visually-hidden">Cargando...</span></div></div>');
+        
+        // Realizar la solicitud AJAX
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                // Extraer el contenido de la respuesta HTML
+                let newContent = $(response).find('#pedidos-anteriores').html();
+                let newPagination = $(response).find('.pagination-container').html();
+                
+                // Actualizar el contenido de la sección de pedidos
+                $('#pedidos-anteriores').html(newContent);
+                $('.pagination-container').html(newPagination);
+                
+                // Actualizar la URL del navegador sin recargar la página
+                window.history.pushState({}, '', url);
+                
+                // Desplazar suavemente hacia arriba hasta la sección de pedidos
+                $('html, body').animate({
+                    scrollTop: $("#pedidos-anteriores").offset().top - 20
+                }, 300);
+            },
+            error: function(xhr) {
+                console.error('Error al cargar los pedidos:', xhr.responseText);
+                $('#loading-indicator').remove();
+                
+                // Mostrar mensaje de error
+                $('#pedidos-anteriores').append(
+                    '<div class="col-12 alert alert-danger">Ocurrió un error al cargar los pedidos. Por favor, intenta nuevamente.</div>'
+                );
+            }
+        });
     });
 
         // Función para reordenar un pedido anterior
