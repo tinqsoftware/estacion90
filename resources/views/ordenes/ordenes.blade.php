@@ -393,15 +393,26 @@
             $hora = Carbon::parse($pedidoAnterior->created_at)->format('H:i');
             $estadoLabel = $pedidoAnterior->estado == 6 ? 'Entregado' : ($pedidoAnterior->estado == 10 ? 'No Encontrado' : 'Finalizado');
             $estadoClass = $pedidoAnterior->estado == 6 ? 'bg-success' : 'bg-danger';
+            
+            // Reiniciar el array de detalles para cada pedido
             $detalles = [];
+            
+            // Cargar los detalles del pedido actual
             foreach($pedidoAnterior->comensales as $comensal) {
                 foreach($comensal->detalles as $detalle) {
                     if ($detalle->producto) {
+                        // Verificar si la imagen existe
+                        $imagenProducto = $detalle->producto->imagen;
+                        
                         $detalles[] = [
                             'nombre' => $detalle->producto->nombre,
                             'cantidad' => $detalle->cantidad,
-                            'precio' => $detalle->precio
+                            'precio' => $detalle->precio,
+                            'imagen' => $imagenProducto
                         ];
+                        
+                        // Debug - para ver si el producto tiene imagen
+                        \Illuminate\Support\Facades\Log::info('Producto: ' . $detalle->producto->nombre . ', Imagen: ' . $imagenProducto);
                     }
                 }
             }
@@ -443,23 +454,31 @@
                     
                     <div class="products-list">
                         @foreach($detalles as $index => $detalle)
-                            @if($index < 3)
-                                <div class="product-item d-flex align-items-center py-2 {{ $index > 0 ? 'border-top' : '' }}">
-                                    <div class="product-image me-3">
-                                        <div style="width: 50px; height: 50px; background-color: #f5f5f5; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="fa fa-utensils text-secondary"></i>
-                                        </div>
-                                    </div>
-                                    <div class="product-details flex-grow-1">
-                                        <div class="product-name">{{ $detalle['nombre'] }}</div>
-                                        <div class="text-muted small">Cantidad: {{ $detalle['cantidad'] }} x S/ {{ number_format($detalle['precio'], 2) }}</div>
-                                    </div>
-                                    <div class="product-price text-end">
-                                        <span class="text-warning">S/ {{ number_format($detalle['cantidad'] * $detalle['precio'], 2) }}</span>
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
+    @if($index < 3)
+        <div class="product-item d-flex align-items-center py-2 {{ $index > 0 ? 'border-top' : '' }}">
+            <div class="product-image me-3">
+        @if(isset($detalle['imagen']) && !empty($detalle['imagen']))
+    <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden;">
+        <img src="{{ asset($detalle['imagen']) }}" 
+             alt="{{ $detalle['nombre'] }}" 
+             style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+@else
+    <div style="width: 50px; height: 50px; background-color: #f5f5f5; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <i class="fa fa-utensils text-secondary"></i>
+    </div>
+@endif
+    </div>
+            <div class="product-details flex-grow-1">
+                <div class="product-name">{{ $detalle['nombre'] }}</div>
+                <div class="text-muted small">Cantidad: {{ $detalle['cantidad'] }} x S/ {{ number_format($detalle['precio'], 2) }}</div>
+            </div>
+            <div class="product-price text-end">
+                <span class="text-warning">S/ {{ number_format($detalle['cantidad'] * $detalle['precio'], 2) }}</span>
+            </div>
+        </div>
+    @endif
+@endforeach
                         
                         @if(count($detalles) > 3)
                             <div class="py-2 text-center border-top">
