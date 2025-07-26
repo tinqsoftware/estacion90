@@ -294,50 +294,207 @@
     }
     
     .order-complete-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.order-complete-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.success-animation-container {
+    text-align: center;
+    padding: 40px;
+    border-radius: 20px;
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    max-width: 90%;
+    width: 400px;
+}
+
+.success-checkmark {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+}
+
+.check-icon {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    border-radius: 50%;
+    box-sizing: content-box;
+    border: 4px solid #4BB543;
+    margin: 0 auto;
+}
+
+.check-icon::before {
+    top: 3px;
+    left: -2px;
+    width: 30px;
+    transform-origin: 100% 50%;
+    border-radius: 100px 0 0 100px;
+}
+
+.check-icon::after {
+    top: 0;
+    left: 30px;
+    width: 60px;
+    transform-origin: 0 50%;
+    border-radius: 0 100px 100px 0;
+    animation: rotate-circle 4.25s ease-in;
+}
+
+.check-icon::before, .check-icon::after {
+    content: '';
+    height: 100px;
+    position: absolute;
+    background: white;
+    transform: rotate(-45deg);
+}
+
+.check-icon .icon-line {
+    height: 5px;
+    background-color: #4BB543;
+    display: block;
+    border-radius: 2px;
+    position: absolute;
+    z-index: 10;
+}
+
+.check-icon .icon-line.line-tip {
+    top: 46px;
+    left: 14px;
+    width: 25px;
+    transform: rotate(45deg);
+    animation: icon-line-tip 0.75s;
+}
+
+.check-icon .icon-line.line-long {
+    top: 38px;
+    right: 8px;
+    width: 47px;
+    transform: rotate(-45deg);
+    animation: icon-line-long 0.75s;
+}
+
+.check-icon .icon-circle {
+    top: -4px;
+    left: -4px;
+    z-index: 10;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    position: absolute;
+    box-sizing: content-box;
+    border: 4px solid rgba(75, 181, 67, 0.5);
+}
+
+.check-icon .icon-fix {
+    top: 8px;
+    width: 5px;
+    left: 26px;
+    z-index: 1;
+    height: 85px;
+    position: absolute;
+    transform: rotate(-45deg);
+    background-color: white;
+}
+
+@keyframes rotate-circle {
+    0% {
+        transform: rotate(-45deg);
     }
-    
-    .order-complete-overlay.active {
-        opacity: 1;
-        visibility: visible;
+    5% {
+        transform: rotate(-45deg);
     }
-    
-    .checkmark-circle {
-        stroke-dasharray: 100;
-        stroke-dashoffset: 100;
-        stroke-width: 2;
-        stroke-miterlimit: 10;
-        stroke: #4BB543;
-        fill: none;
-        animation: checkmarkDraw 1s ease-in-out forwards;
+    12% {
+        transform: rotate(-405deg);
     }
-    
-    .checkmark {
-        stroke-width: 3;
-        stroke: #4BB543;
-        fill: none;
-        stroke-miterlimit: 10;
-        stroke-dasharray: 30;
-        stroke-dashoffset: 30;
-        animation: checkmarkDraw 0.5s ease-in-out 0.5s forwards;
+    100% {
+        transform: rotate(-405deg);
     }
-    
-    .order-status-text {
-        margin-top: 20px;
-        text-align: center;
+}
+
+@keyframes icon-line-tip {
+    0% {
+        width: 0;
+        left: 1px;
+        top: 19px;
     }
+    54% {
+        width: 0;
+        left: 1px;
+        top: 19px;
+    }
+    70% {
+        width: 50px;
+        left: -8px;
+        top: 37px;
+    }
+    84% {
+        width: 17px;
+        left: 21px;
+        top: 48px;
+    }
+    100% {
+        width: 25px;
+        left: 14px;
+        top: 46px;
+    }
+}
+
+@keyframes icon-line-long {
+    0% {
+        width: 0;
+        right: 46px;
+        top: 54px;
+    }
+    65% {
+        width: 0;
+        right: 46px;
+        top: 54px;
+    }
+    84% {
+        width: 55px;
+        right: 0px;
+        top: 35px;
+    }
+    100% {
+        width: 47px;
+        right: 8px;
+        top: 38px;
+    }
+}
+
+.order-status-text {
+    margin-top: 30px;
+}
+
+.order-status-text h4 {
+    color: #333;
+    font-weight: 700;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.order-status-text p {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 0;
+}
     </style>
 </head>
 
@@ -372,14 +529,18 @@
         <div class="content-body">
             <!-- row -->
              <div id="orderCompleteOverlay" class="order-complete-overlay">
-    <div>
-        <svg class="checkmark-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="100" height="100">
-            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-            <path class="checkmark" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-        </svg>
+    <div class="success-animation-container">
+        <div class="success-checkmark">
+            <div class="check-icon">
+                <span class="icon-line line-tip"></span>
+                <span class="icon-line line-long"></span>
+                <div class="icon-circle"></div>
+                <div class="icon-fix"></div>
+            </div>
+        </div>
         <div class="order-status-text">
-            <h4 id="orderStatusTitle">¡Pedido Completado!</h4>
-            <p id="orderStatusMessage">Tu pedido ha sido entregado con éxito.</p>
+            <h4 id="orderStatusTitle">¡Pedido Entregado!</h4>
+            <p id="orderStatusMessage">Tu pedido ha sido entregado exitosamente.</p>
         </div>
     </div>
 </div>
