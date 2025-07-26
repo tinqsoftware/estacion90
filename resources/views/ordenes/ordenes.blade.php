@@ -36,174 +36,233 @@
 
     <!-- Estilos personalizados para el tracking -->
     <style>
-        .tracking-container {
-            margin-bottom: 30px;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        
-        .tracking-header {
-            padding: 15px;
-            border-radius: 6px 6px 0 0;
-            background-color: #ff7a01;
-            color: white;
-        }
-        
-        .tracking-progress {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .tracking-line {
-            position: absolute;
-            top: 25px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: #e5e5e5;
-            z-index: 1;
-        }
-        
-        .tracking-line-progress {
-            position: absolute;
-            top: 25px;
-            left: 0;
-            height: 2px;
-            background-color: #ff7a01;
-            z-index: 2;
-            transition: width 0.5s ease;
-        }
-        
-        .tracking-step {
-            position: relative;
-            z-index: 3;
-            text-align: center;
-            width: 14.28%; /* 100% / 7 steps */
-        }
-        
+    .tracking-container {
+        margin-bottom: 30px;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .tracking-header {
+        padding: 15px;
+        border-radius: 6px 6px 0 0;
+        background-color: #ff7a01;
+        color: white;
+    }
+    
+    /* Estilos base para todos los dispositivos */
+    .tracking-progress {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .tracking-line {
+        position: absolute;
+        top: 25px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #e5e5e5;
+        z-index: 1;
+    }
+    
+    .tracking-line-progress {
+        position: absolute;
+        top: 25px;
+        left: 0;
+        height: 2px;
+        background-color: #ff7a01;
+        z-index: 2;
+        transition: width 0.5s ease;
+    }
+    
+    .tracking-step {
+        position: relative;
+        z-index: 3;
+        text-align: center;
+        width: 14.28%; /* 100% / 7 steps */
+    }
+    
+    .tracking-icon {
+        width: 50px;
+        height: 50px;
+        background-color: #e5e5e5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+    
+    .tracking-icon.active {
+        background-color: #ff7a01;
+    }
+    
+    .tracking-icon.home {
+        background-color: #fff;
+        border: 2px solid #e5e5e5;
+        color: #ff7a01;
+    }
+    
+    .tracking-icon.home.active {
+        border-color: #ff7a01;
+    }
+    
+    .tracking-label {
+        margin-top: 10px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .tracking-time {
+        font-size: 12px;
+        color: #777;
+    }
+    
+    .tracking-description {
+        font-size: 12px;
+        color: #555;
+        margin-top: 4px;
+    }
+    
+    /* Media query para tablets */
+    @media (max-width: 991px) {
         .tracking-icon {
-            width: 50px;
-            height: 50px;
-            background-color: #e5e5e5;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            color: white;
-            transition: background-color 0.3s ease;
-        }
-        
-        .tracking-icon.active {
-            background-color: #ff7a01;
-        }
-        
-        .tracking-icon.home {
-            background-color: #fff;
-            border: 2px solid #e5e5e5;
-            color: #ff7a01;
-        }
-        
-        .tracking-icon.home.active {
-            border-color: #ff7a01;
+            width: 40px;
+            height: 40px;
+            font-size: 0.9rem;
         }
         
         .tracking-label {
-            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .tracking-time, .tracking-description {
+            font-size: 10px;
+        }
+        
+        .tracking-line, .tracking-line-progress {
+            top: 20px;
+        }
+    }
+    
+    /* Media query para dispositivos móviles */
+    @media (max-width: 767px) {
+        /* Cambiamos a un diseño vertical */
+        .tracking-progress {
+            flex-direction: column;
+            margin-left: 20px;
+            margin-top: 20px;
+        }
+        
+        .tracking-step {
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .tracking-line {
+            width: 2px;
+            height: calc(100% - 60px);
+            top: 25px;
+            left: 20px;
+        }
+        
+        .tracking-line-progress {
+            width: 2px;
+            top: 25px;
+            left: 20px;
+            height: 0%; /* Se controla por JS */
+        }
+        
+        .tracking-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .tracking-step-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tracking-label {
+            margin-top: 0;
             font-size: 14px;
-            font-weight: 600;
+            margin-bottom: 2px;
         }
         
         .tracking-time {
-            font-size: 12px;
-            color: #777;
+            margin-bottom: 2px;
         }
-        
-        .tracking-description {
-            font-size: 12px;
-            color: #555;
-            margin-top: 4px;
-        }
-        
-        .pedido-card {
-            margin-bottom: 15px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .pedido-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .pedido-header {
-            padding: 12px;
-            background-color: #f8f8f8;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .pedido-body {
-            padding: 15px;
-        }
-        
-        .badge-entregado {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .badge-no-entregado {
-            background-color: #dc3545;
-            color: white;
-        }
-        
-        .pedido-footer {
-            padding: 12px;
-            text-align: center;
-            border-top: 1px solid #eee;
-            background-color: #f9f9f9;
-        }
-        
-        .btn-pedir {
-            background-color: #ff7a01;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 15px;
-            font-size: 14px;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s ease;
-        }
-        
-        .btn-pedir:hover {
-            background-color: #e56b00;
-        }
-        
-        @media (max-width: 767px) {
-            .tracking-step {
-                width: 14.28%;
-            }
-            
-            .tracking-label {
-                font-size: 10px;
-            }
-            
-            .tracking-icon {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .tracking-time {
-                font-size: 10px;
-            }
-        }
-    </style>
+    }
+    
+    /* Otras clases que mantenemos igual... */
+    .pedido-card {
+        margin-bottom: 15px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .pedido-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .pedido-header {
+        padding: 12px;
+        background-color: #f8f8f8;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .pedido-body {
+        padding: 15px;
+    }
+    
+    .badge-entregado {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .badge-no-entregado {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .pedido-footer {
+        padding: 12px;
+        text-align: center;
+        border-top: 1px solid #eee;
+        background-color: #f9f9f9;
+    }
+    
+    .btn-pedir {
+        background-color: #ff7a01;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.3s ease;
+    }
+    
+    .btn-pedir:hover {
+        background-color: #e56b00;
+    }
+</style>
 </head>
 <body>
 
@@ -274,107 +333,121 @@
                                 <h5 class="mb-3">Estado de tu pedido</h5>
                                 
                                 <div class="tracking-progress">
-                                    <div class="tracking-line"></div>
-                                    <div id="progress-line-{{ $idPedido }}" class="tracking-line-progress" style="width: {{ min($estado * 16.67, 100) }}%"></div>
-                                    
-                                    <!-- Estado 0: Pedido Registrado -->
-                                    <div class="tracking-step">
-                                        <div id="step-0-{{ $idPedido }}" class="tracking-icon {{ $estado >= 0 ? 'active' : '' }}">
-                                            <i class="fa fa-check"></i>
-                                        </div>
-                                        <div class="tracking-label">Pedido Registrado</div>
-                                        <div class="tracking-time">{{ $horaCreacion }}</div>
-                                        <div class="tracking-description">Tu pedido ha sido recibido</div>
-                                    </div>
-                                    
-                                    <!-- Estado 1: En Preparación -->
-                                    <div class="tracking-step">
-                                        <div id="step-1-{{ $idPedido }}" class="tracking-icon {{ $estado >= 1 ? 'active' : '' }}">
-                                            <i class="fa fa-utensils"></i>
-                                        </div>
-                                        <div class="tracking-label">En Preparación</div>
-                                        <div class="tracking-time" id="time-1-{{ $idPedido }}">
-                                            @if($estado >= 1)
-                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
-                                            @endif
-                                        </div>
-                                        <div class="tracking-description">El chef está preparando tu pedido</div>
-                                    </div>
-                                    
-                                    <!-- Estado 2: Preparado -->
-                                    <div class="tracking-step">
-                                        <div id="step-2-{{ $idPedido }}" class="tracking-icon {{ $estado >= 2 || $estado == 8 ? 'active' : '' }}">
-                                            <i class="fa fa-check-circle"></i>
-                                        </div>
-                                        <div class="tracking-label">Preparado</div>
-                                        <div class="tracking-time" id="time-2-{{ $idPedido }}">
-                                            @if($estado >= 2 || $estado == 8)
-                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
-                                            @endif
-                                        </div>
-                                        <div class="tracking-description">Tu pedido está listo</div>
-                                    </div>
-                                    
-                                    <!-- Estado 3: Listo para Reparto -->
-                                    <div class="tracking-step">
-                                        <div id="step-3-{{ $idPedido }}" class="tracking-icon {{ $estado >= 3 ? 'active' : '' }}">
-                                            <i class="fa fa-box"></i>
-                                        </div>
-                                        <div class="tracking-label">Listo para Reparto</div>
-                                        <div class="tracking-time" id="time-3-{{ $idPedido }}">
-                                            @if($estado >= 3)
-                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
-                                            @endif
-                                        </div>
-                                        <div class="tracking-description">Esperando asignación de motorizado</div>
-                                    </div>
-                                    
-                                    <!-- Estado 4: Asignado a Motorizado -->
-                                    <div class="tracking-step">
-                                        <div id="step-4-{{ $idPedido }}" class="tracking-icon {{ $estado >= 4 ? 'active' : '' }}">
-                                            <i class="fa fa-motorcycle"></i>
-                                        </div>
-                                        <div class="tracking-label">Asignado a Motorizado</div>
-                                        <div class="tracking-time" id="time-4-{{ $idPedido }}">
-                                            @if($estado >= 4)
-                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
-                                            @endif
-                                        </div>
-                                        <div id="motorizado-info-{{ $idPedido }}" class="tracking-description">
-                                            @if($estado >= 4 && isset($pedidoActual->motorizado))
-                                                {{ $pedidoActual->motorizado->nombre }}
-                                            @endif
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Estado 5: En Camino -->
-                                    <div class="tracking-step">
-                                        <div id="step-5-{{ $idPedido }}" class="tracking-icon {{ $estado >= 5 ? 'active' : '' }}">
-                                            <i class="fa fa-shipping-fast"></i>
-                                        </div>
-                                        <div class="tracking-label">En Camino</div>
-                                        <div class="tracking-time" id="time-5-{{ $idPedido }}">
-                                            @if($estado >= 5)
-                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
-                                            @endif
-                                        </div>
-                                        <div class="tracking-description">Tu pedido está en camino</div>
-                                    </div>
-                                    
-                                    <!-- Estado 6: Entregado -->
-                                    <div class="tracking-step">
-                                        <div id="step-6-{{ $idPedido }}" class="tracking-icon home {{ $estado == 6 ? 'active' : '' }}">
-                                            <i class="fa fa-home"></i>
-                                        </div>
-                                        <div class="tracking-label">Entregado</div>
-                                        <div class="tracking-time" id="time-6-{{ $idPedido }}">
-                                            @if($estado == 6)
-                                                {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
-                                            @endif
-                                        </div>
-                                        <div class="tracking-description">Pedido entregado exitosamente</div>
-                                    </div>
-                                </div>
+    <div class="tracking-line"></div>
+    <div id="progress-line-{{ $idPedido }}" class="tracking-line-progress" style="width: {{ min($estado * 16.67, 100) }}%"></div>
+    
+    <!-- Estado 0: Pedido Registrado -->
+    <div class="tracking-step">
+        <div id="step-0-{{ $idPedido }}" class="tracking-icon {{ $estado >= 0 ? 'active' : '' }}">
+            <i class="fa fa-check"></i>
+        </div>
+        <div class="tracking-step-content">
+            <div class="tracking-label">Pedido Registrado</div>
+            <div class="tracking-time">{{ $horaCreacion }}</div>
+            <div class="tracking-description">Tu pedido ha sido recibido</div>
+        </div>
+    </div>
+    
+    <!-- Estado 1: En Preparación -->
+    <div class="tracking-step">
+        <div id="step-1-{{ $idPedido }}" class="tracking-icon {{ $estado >= 1 ? 'active' : '' }}">
+            <i class="fa fa-utensils"></i>
+        </div>
+        <div class="tracking-step-content">
+            <div class="tracking-label">En Preparación</div>
+            <div class="tracking-time" id="time-1-{{ $idPedido }}">
+                @if($estado >= 1)
+                    {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                @endif
+            </div>
+            <div class="tracking-description">El chef está preparando tu pedido</div>
+        </div>
+    </div>
+    
+    <!-- Estado 2: Preparado -->
+    <div class="tracking-step">
+        <div id="step-2-{{ $idPedido }}" class="tracking-icon {{ $estado >= 2 || $estado == 8 ? 'active' : '' }}">
+            <i class="fa fa-check-circle"></i>
+        </div>
+        <div class="tracking-step-content">
+            <div class="tracking-label">Preparado</div>
+            <div class="tracking-time" id="time-2-{{ $idPedido }}">
+                @if($estado >= 2 || $estado == 8)
+                    {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                @endif
+            </div>
+            <div class="tracking-description">Tu pedido está listo</div>
+        </div>
+    </div>
+    
+    <!-- Estado 3: Listo para Reparto -->
+    <div class="tracking-step">
+        <div id="step-3-{{ $idPedido }}" class="tracking-icon {{ $estado >= 3 ? 'active' : '' }}">
+            <i class="fa fa-box"></i>
+        </div>
+        <div class="tracking-step-content">
+            <div class="tracking-label">Listo para Reparto</div>
+            <div class="tracking-time" id="time-3-{{ $idPedido }}">
+                @if($estado >= 3)
+                    {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                @endif
+            </div>
+            <div class="tracking-description">Esperando asignación de motorizado</div>
+        </div>
+    </div>
+    
+    <!-- Estado 4: Asignado a Motorizado -->
+    <div class="tracking-step">
+        <div id="step-4-{{ $idPedido }}" class="tracking-icon {{ $estado >= 4 ? 'active' : '' }}">
+            <i class="fa fa-motorcycle"></i>
+        </div>
+        <div class="tracking-step-content">
+            <div class="tracking-label">Asignado a Motorizado</div>
+            <div class="tracking-time" id="time-4-{{ $idPedido }}">
+                @if($estado >= 4)
+                    {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                @endif
+            </div>
+            <div id="motorizado-info-{{ $idPedido }}" class="tracking-description">
+                @if($estado >= 4 && isset($pedidoActual->motorizado))
+                    {{ $pedidoActual->motorizado->nombre }}
+                @endif
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estado 5: En Camino -->
+    <div class="tracking-step">
+        <div id="step-5-{{ $idPedido }}" class="tracking-icon {{ $estado >= 5 ? 'active' : '' }}">
+            <i class="fa fa-shipping-fast"></i>
+        </div>
+        <div class="tracking-step-content">
+            <div class="tracking-label">En Camino</div>
+            <div class="tracking-time" id="time-5-{{ $idPedido }}">
+                @if($estado >= 5)
+                    {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                @endif
+            </div>
+            <div class="tracking-description">Tu pedido está en camino</div>
+        </div>
+    </div>
+    
+    <!-- Estado 6: Entregado -->
+    <div class="tracking-step">
+        <div id="step-6-{{ $idPedido }}" class="tracking-icon home {{ $estado == 6 ? 'active' : '' }}">
+            <i class="fa fa-home"></i>
+        </div>
+        <div class="tracking-step-content">
+            <div class="tracking-label">Entregado</div>
+            <div class="tracking-time" id="time-6-{{ $idPedido }}">
+                @if($estado == 6)
+                    {{ Carbon::parse($pedidoActual->updated_at)->format('H:i') }}
+                @endif
+            </div>
+            <div class="tracking-description">Pedido entregado exitosamente</div>
+        </div>
+    </div>
+</div>
                             </div>
                         </div>
                     @endif
@@ -530,71 +603,90 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+            function actualizarProgresoResponsivo(estado) {
+            const progressWidth = Math.min(estado * 16.67, 100);
+            
+            // Para móviles (vista vertical)
+            if (window.innerWidth <= 767) {
+                const progressHeight = Math.min(estado * 16.67, 100);
+                $('#progress-line-{{ $idPedido }}').css('width', '2px');
+                $('#progress-line-{{ $idPedido }}').css('height', progressHeight + '%');
+            } 
+            // Para tablets y desktop (vista horizontal)
+            else {
+                $('#progress-line-{{ $idPedido }}').css('height', '2px');
+                $('#progress-line-{{ $idPedido }}').css('width', progressWidth + '%');
+            }
+        }
+
+            actualizarProgresoResponsivo({ $estado });
+        
+        // Actualizar cuando cambia el tamaño de la ventana
+        $(window).resize(function() {
+            actualizarProgresoResponsivo({ $estado});
+        });
             
             // Función para actualizar el estado del pedido
             function actualizarEstadoPedido() {
-    @if(count($pedidos->whereNotIn('estado', [6, 10, 11])) > 0)
-    $.ajax({
-        url: '/estado-pedido/{{ $idPedido }}',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            console.log('Respuesta AJAX:', response); // Para debugging
-            
-            if(response.success) {
-                const pedido = response.pedido;
-                const estado = parseInt(pedido.estado); // Convertir a número
-                
-                console.log('Estado actual:', estado);
-                
-                // Actualizar la barra de progreso
-                const progressWidth = Math.min(estado * 16.67, 100);
-                $('#progress-line-{{ $idPedido }}').css('width', progressWidth + '%');
-                
-                // Actualizar cada paso según el estado
-                for(let i = 0; i <= 6; i++) {
-                    if (i <= estado || (i == 2 && estado == 8)) {
-                        $('#step-' + i + '-{{ $idPedido }}').addClass('active');
+            @if(count($pedidos->whereNotIn('estado', [6, 10, 11])) > 0)
+            $.ajax({
+                url: '/estado-pedido/{{ $idPedido }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Respuesta AJAX:', response);
+                    
+                    if(response.success) {
+                        const pedido = response.pedido;
+                        const estado = parseInt(pedido.estado);
                         
-                        // Actualizar la hora para este paso si está disponible
-                        if (pedido['tiempo_estado_' + i]) {
-                            $('#time-' + i + '-{{ $idPedido }}').text(pedido['tiempo_estado_' + i]);
+                        console.log('Estado actual:', estado);
+                        
+                        // Actualizar la barra de progreso responsiva
+                        actualizarProgresoResponsivo(estado);
+                        
+                        // El resto del código sigue igual...
+                        for(let i = 0; i <= 6; i++) {
+                            if (i <= estado || (i == 2 && estado == 8)) {
+                                $('#step-' + i + '-{{ $idPedido }}').addClass('active');
+                                
+                                if (pedido['tiempo_estado_' + i]) {
+                                    $('#time-' + i + '-{{ $idPedido }}').text(pedido['tiempo_estado_' + i]);
+                                }
+                            } else {
+                                $('#step-' + i + '-{{ $idPedido }}').removeClass('active');
+                            }
                         }
-                    } else {
-                        $('#step-' + i + '-{{ $idPedido }}').removeClass('active');
+                        
+                        if (estado >= 4 && pedido.motorizado) {
+                            try {
+                                $('#motorizado-info-{{ $idPedido }}').html(
+                                    pedido.motorizado.nombre + ' - Moto: ' + pedido.motorizado.placa
+                                );
+                            } catch(e) {
+                                console.error('Error al actualizar info del motorizado:', e);
+                            }
+                        }
+                        
+                        if (estado == 6 || estado == 10 || estado == 11) {
+                            location.reload();
+                        }
                     }
+                },
+                error: function(xhr) {
+                    console.error('Error al actualizar el estado del pedido:', xhr.responseText);
                 }
-                
-                // Actualizar información del motorizado si está disponible
-                if (estado >= 4 && pedido.motorizado) {
-                    try {
-                        $('#motorizado-info-{{ $idPedido }}').html(
-                            pedido.motorizado.nombre + ' - Moto: ' + pedido.motorizado.placa
-                        );
-                    } catch(e) {
-                        console.error('Error al actualizar info del motorizado:', e);
-                    }
-                }
-                
-                // Si el pedido se completó, recargar la página para mostrar en pedidos anteriores
-                if (estado == 6 || estado == 10 || estado == 11) {
-                    location.reload();
-                }
-            }
-        },
-        error: function(xhr) {
-            console.error('Error al actualizar el estado del pedido:', xhr.responseText);
+            });
+            @endif
         }
+
+        // Actualizar estado cada 15 segundos
+        setInterval(actualizarEstadoPedido, 15000);
+
+        // Actualizar estado al cargar la página
+        actualizarEstadoPedido();
     });
-    @endif
-}
-
-// Actualizar estado cada 15 segundos
-setInterval(actualizarEstadoPedido, 15000);
-
-// Actualizar estado al cargar la página
-actualizarEstadoPedido();
-        });
         
         // Función para reordenar un pedido anterior
         function reordenarPedido(idPedido) {
