@@ -498,7 +498,7 @@
                         ];
                         
                         $detallesComensal[] = $detalleItem;
-                        $detallesSimples[] = $detalleItem; // Agregar a la lista simple para un solo comensal
+                        $detallesSimples[] = $detalleItem;
                     }
                 }
                 
@@ -510,142 +510,123 @@
             }
         @endphp
         
-        <div class="col-md-6 mb-4">
+        <!-- Cambiado a 3-4 tarjetas por fila: col-12 col-sm-6 col-md-4 col-xl-3 -->
+        <div class="col-12 col-sm-6 col-md-4 col-xl-3 mb-4">
             <div class="card h-100 border-0" style="border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <!-- Encabezado del pedido -->
-                <div class="card-header bg-white pt-3 pb-2 border-0">
+                <!-- Encabezado del pedido más compacto -->
+                <div class="card-header bg-white pt-2 pb-2 border-0">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold">Pedido #{{ $pedidoAnterior->id }}</h5>
-                        <span class="badge rounded-pill text-white px-3 py-2 {{ $estadoClass }}">{{ $estadoLabel }}</span>
+                        <h5 class="mb-0 fs-6 fw-bold">Pedido #{{ $pedidoAnterior->id }}</h5>
+                        <span class="badge rounded-pill text-white px-2 py-1 {{ $estadoClass }}">{{ $estadoLabel }}</span>
                     </div>
-                    <p class="text-muted mb-0">{{ $fecha }}</p>
+                    <p class="text-muted mb-0 small">{{ $fecha }}</p>
                 </div>
                 
-                <!-- Cuerpo de la tarjeta -->
-                <div class="card-body pt-2 pb-3">
-                    <!-- Información del pedido -->
-                    <div class="mb-3">
+                <!-- Cuerpo de la tarjeta optimizado -->
+                <div class="card-body p-2">
+                    <!-- Información del pedido más compacta -->
+                    <div class="mb-2">
                         @if($pedidoAnterior->direccion_contacto)
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fa fa-map-marker-alt text-muted me-2"></i>
-                                <span>{{ $pedidoAnterior->direccion_contacto }}</span>
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fa fa-map-marker-alt text-muted me-2 small"></i>
+                                <span class="small text-truncate">{{ $pedidoAnterior->direccion_contacto }}</span>
                             </div>
                         @endif
                         
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="far fa-clock text-muted me-2"></i>
-                            <span>Hora de pedido: {{ $hora }}</span>
-                        </div>
-                        
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-clock text-muted me-2"></i>
-                            <span>Hora estimada: {{ $horaEstimada }}</span>
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="far fa-clock text-muted me-2 small"></i>
+                            <span class="small">{{ $hora }} - Est: {{ $horaEstimada }}</span>
                         </div>
                         
                         @if($totalComensales > 1)
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fa fa-users text-muted me-2"></i>
-                                <span>{{ $totalComensales }} comensales</span>
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fa fa-users text-muted me-2 small"></i>
+                                <span class="small">{{ $totalComensales }} comensales</span>
                             </div>
                         @elseif(count($pedidoAnterior->comensales) > 0 && isset($pedidoAnterior->comensales[0]->nombre_comensal))
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fa fa-user text-muted me-2"></i>
-                                <span>{{ $pedidoAnterior->comensales[0]->nombre_comensal }}</span>
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fa fa-user text-muted me-2 small"></i>
+                                <span class="small">{{ $pedidoAnterior->comensales[0]->nombre_comensal }}</span>
                             </div>
                         @elseif($pedidoAnterior->nombre_contacto)
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fa fa-user text-muted me-2"></i>
-                                <span>{{ $pedidoAnterior->nombre_contacto }}</span>
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fa fa-user text-muted me-2 small"></i>
+                                <span class="small">{{ $pedidoAnterior->nombre_contacto }}</span>
                             </div>
                         @endif
                     </div>
                     
-                    <hr class="my-3">
+                    <hr class="my-2">
                     
-                    <!-- Lista de productos -->
+                    <!-- Lista de productos optimizada -->
                     @if($totalComensales <= 1)
-                        <!-- Mostrar detalles directamente en la tarjeta cuando hay un solo comensal -->
+                        <!-- Mostrar detalles directamente cuando hay un solo comensal -->
                         @foreach($detallesSimples as $index => $detalle)
-                            @if($index < 3)
-                                <div class="d-flex align-items-center py-2 {{ $index > 0 ? 'border-top' : '' }}">
-                                    <div class="me-3">
+                            @if($index < 2)
+                                <div class="d-flex align-items-center py-1 {{ $index > 0 ? 'border-top' : '' }}">
+                                    <div class="me-2">
                                         @if(isset($detalle['imagen']) && !empty($detalle['imagen']))
-                                            <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden;">
+                                            <div style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden;">
                                                 <img src="{{ asset($detalle['imagen']) }}" alt="{{ $detalle['nombre'] }}" style="width: 100%; height: 100%; object-fit: cover;">
                                             </div>
                                         @else
-                                            <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden;">
+                                            <div style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden;">
                                                 <img src="{{ asset('access/images/logo-full.png') }}" alt="Estación 90" style="width: 100%; height: 100%; object-fit: contain; background-color: #f8f8f8;">
                                             </div>
                                         @endif
                                     </div>
                                     <div class="flex-grow-1">
-                                        <div class="fw-medium">{{ $detalle['nombre'] }}</div>
-                                        <div class="text-muted small">Cantidad: {{ $detalle['cantidad'] }} x S/ {{ number_format($detalle['precio'], 2) }}</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <span class="text-warning fw-medium">S/ {{ number_format($detalle['subtotal'], 2) }}</span>
+                                        <div class="small fw-medium text-truncate" style="max-width: 150px;">{{ $detalle['nombre'] }}</div>
+                                        <div class="text-muted small">{{ $detalle['cantidad'] }} x S/ {{ number_format($detalle['precio'], 2) }}</div>
                                     </div>
                                 </div>
                             @endif
                         @endforeach
                         
-                        @if(count($detallesSimples) > 3)
-                            <div class="py-2 text-center border-top">
-                                <span class="text-muted small">Y {{ count($detallesSimples) - 3 }} producto(s) más...</span>
+                        @if(count($detallesSimples) > 2)
+                            <div class="py-1 text-center">
+                                <span class="text-muted small">+ {{ count($detallesSimples) - 2 }} item(s)</span>
                             </div>
                         @endif
                     @else
-                        <!-- Mostrar resumen cuando hay múltiples comensales -->
-                        @foreach($detallesPorComensal as $indexComensal => $comensal)
-                            @if($indexComensal == 0)
-                                @foreach($comensal['detalles'] as $indexDetalle => $detalle)
-                                    @if($indexDetalle < 2)
-                                        <div class="d-flex align-items-center py-2 {{ $indexDetalle > 0 ? 'border-top' : '' }}">
-                                            <div class="me-3">
-                                                @if(isset($detalle['imagen']) && !empty($detalle['imagen']))
-                                                    <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden;">
-                                                        <img src="{{ asset($detalle['imagen']) }}" alt="{{ $detalle['nombre'] }}" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    </div>
-                                                @else
-                                                    <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden;">
-                                                        <img src="{{ asset('access/images/logo-full.png') }}" alt="Estación 90" style="width: 100%; height: 100%; object-fit: contain; background-color: #f8f8f8;">
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div class="fw-medium">{{ $detalle['nombre'] }}</div>
-                                                <div class="text-muted small">Cantidad: {{ $detalle['cantidad'] }} x S/ {{ number_format($detalle['precio'], 2) }}</div>
-                                            </div>
-                                            <div class="text-end">
-                                                <span class="text-warning fw-medium">S/ {{ number_format($detalle['subtotal'], 2) }}</span>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            @endif
-                        @endforeach
+                        <!-- Resumen para múltiples comensales -->
+                        <div class="d-flex align-items-center py-1">
+                            <div class="me-2">
+                                @if(isset($detallesPorComensal[0]['detalles'][0]['imagen']) && !empty($detallesPorComensal[0]['detalles'][0]['imagen']))
+                                    <div style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden;">
+                                        <img src="{{ asset($detallesPorComensal[0]['detalles'][0]['imagen']) }}" alt="Producto" style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                @else
+                                    <div style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden;">
+                                        <img src="{{ asset('access/images/logo-full.png') }}" alt="Estación 90" style="width: 100%; height: 100%; object-fit: contain; background-color: #f8f8f8;">
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="small fw-medium text-truncate" style="max-width: 150px;">{{ $detallesPorComensal[0]['nombre'] }}</div>
+                                <div class="text-muted small">{{ count($detallesPorComensal[0]['detalles']) }} productos</div>
+                            </div>
+                        </div>
                         
-                        <div class="py-2 text-center border-top">
-                            <span class="text-muted small">+ {{ $totalComensales - 1 }} comensal(es) más</span>
+                        <div class="py-1 text-center">
+                            <span class="text-muted small">+ {{ $totalComensales - 1 }} comensal(es)</span>
                         </div>
                     @endif
                 </div>
                 
-                <!-- Pie de la tarjeta -->
-                <div class="card-footer bg-white p-3 border-0 rounded-bottom-3">
+                <!-- Pie de la tarjeta más compacto -->
+                <div class="card-footer bg-white p-2 border-0 rounded-bottom-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="fw-bold mb-0">Total:</h6>
-                        <h5 class="text-warning fw-bold mb-0">S/ {{ number_format($pedidoAnterior->monto_total, 2) }}</h5>
+                        <span class="fw-medium small">Total:</span>
+                        <span class="text-warning fw-bold">S/ {{ number_format($pedidoAnterior->monto_total, 2) }}</span>
                     </div>
                     
-                    <div class="d-flex gap-2 mt-2">
+                    <div class="d-flex gap-1">
                         @if($totalComensales > 1)
-                            <button type="button" class="btn btn-outline-secondary flex-grow-1" data-bs-toggle="modal" data-bs-target="#modalPedido{{ $pedidoAnterior->id }}">
-                                Ver Detalles
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-1" data-bs-toggle="modal" data-bs-target="#modalPedido{{ $pedidoAnterior->id }}">
+                                Detalles
                             </button>
                         @endif
-                        
                     </div>
                 </div>
             </div>
@@ -799,20 +780,13 @@
                 }
             }
 
-            actualizarProgresoResponsivo({
-                {
-                    $estado
-                }
-            });
+            actualizarProgresoResponsivo({{$estado}});
 
             // Actualizar cuando cambia el tamaño de la ventana
             $(window).resize(function() {
-                actualizarProgresoResponsivo({
-                    {
-                        $estado
-                    }
-                });
+                actualizarProgresoResponsivo({{$estado}});
             });
+
 
             // Función para actualizar el estado del pedido
             function actualizarEstadoPedido() {
