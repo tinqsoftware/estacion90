@@ -25,7 +25,7 @@ class OrdenController extends Controller
 
     public function ordenes()
     {
-        $usuarioId = auth()->id();
+        $usuarioId = Auth::id();
 
         $pedidos = Pedido::with([
             'comensales.detalles.producto.categoria',
@@ -38,7 +38,12 @@ class OrdenController extends Controller
         ->orderByDesc('created_at')
         ->get();
 
-        return view('ordenes.ordenes', compact('pedidos'));
+        $pedidosAnteriores = Pedido::where('id_usuario', $usuarioId)
+    ->whereIn('estado', [6, 10, 11])
+    ->orderByDesc('created_at')
+    ->paginate(10);
+
+        return view('ordenes.ordenes', compact('pedidos', 'pedidosAnteriores'));
     }
 
 

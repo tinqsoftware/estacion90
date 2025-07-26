@@ -268,6 +268,76 @@
         .btn-pedir:hover {
             background-color: #e56b00;
         }
+
+        @keyframes fadeOutUp {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+    }
+    
+    @keyframes checkmarkDraw {
+        0% {
+            stroke-dashoffset: 100;
+        }
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+    
+    .fade-out-up {
+        animation: fadeOutUp 0.5s ease forwards;
+    }
+    
+    .order-complete-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .order-complete-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .checkmark-circle {
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #4BB543;
+        fill: none;
+        animation: checkmarkDraw 1s ease-in-out forwards;
+    }
+    
+    .checkmark {
+        stroke-width: 3;
+        stroke: #4BB543;
+        fill: none;
+        stroke-miterlimit: 10;
+        stroke-dasharray: 30;
+        stroke-dashoffset: 30;
+        animation: checkmarkDraw 0.5s ease-in-out 0.5s forwards;
+    }
+    
+    .order-status-text {
+        margin-top: 20px;
+        text-align: center;
+    }
     </style>
 </head>
 
@@ -301,9 +371,22 @@
     ***********************************-->
         <div class="content-body">
             <!-- row -->
+             <div id="orderCompleteOverlay" class="order-complete-overlay">
+    <div>
+        <svg class="checkmark-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="100" height="100">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="checkmark" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+        <div class="order-status-text">
+            <h4 id="orderStatusTitle">¡Pedido Completado!</h4>
+            <p id="orderStatusMessage">Tu pedido ha sido entregado con éxito.</p>
+        </div>
+    </div>
+</div>
             <div class="container mt-3">
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-12 mb-4">
+                        <div id="tracking-section"> 
                         @if(count($pedidos->whereNotIn('estado', [6, 10, 11])) > 0)
                         @php
                         $pedidoActual = $pedidos->whereNotIn('estado', [6, 10, 11])->first();
@@ -457,7 +540,29 @@
                                 </div>
                             </div>
                         </div>
+                        @else
+                         <div id="no-pedidos-container" class="text-center py-5 bg-white rounded shadow-sm">
+                <div class="mb-4">
+                    <img src="{{ asset('access/images/logo-full.png') }}" alt="Estación 90" class="img-fluid" style="max-width: 120px;">
+                </div>
+                <div class="my-4">
+                    <div style="width: 120px; height: 120px; background-color: #FFF3E6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                        <i class="fas fa-shopping-bag fa-3x text-warning"></i>
+                    </div>
+                </div>
+                <h3 class="mb-3">No tienes pedidos activos</h3>
+                <p class="text-muted mb-4">Parece que no tienes ningún pedido en proceso en este momento. ¡Es hora de ordenar algo delicioso!</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="/inicio" class="btn btn-warning px-4">
+                        <i class="fas fa-plus me-2"></i> Hacer un Pedido
+                    </a>
+                    
+                </div>
+            </div>
+
                         @endif
+                    </div>
+                </div>
 
                         <!-- Sección de pedidos anteriores -->
                         <div class="mb-4">
@@ -467,7 +572,7 @@
                         </div>
 
                     <div class="row" id="pedidos-anteriores">
-    @foreach($pedidos->whereIn('estado', [6, 10, 11])->take(5) as $pedidoAnterior)
+    @foreach($pedidosAnteriores as $pedidoAnterior)
         @php
             $fecha = Carbon::parse($pedidoAnterior->created_at)->format('d M Y');
             $hora = Carbon::parse($pedidoAnterior->created_at)->format('H:i');
@@ -724,6 +829,9 @@
         @endif
     @endforeach
 </div>
+<div class="d-flex justify-content-center mt-4">
+    {{ $pedidosAnteriores->links() }}
+</div>
                 </div>
             </div>
         </div>
@@ -770,84 +878,120 @@
                 // Para móviles (vista vertical)
                 if (window.innerWidth <= 767) {
                     const progressHeight = Math.min(estado * 16.67, 100);
-                    $('#progress-line-{{ $idPedido }}').css('width', '2px');
-                    $('#progress-line-{{ $idPedido }}').css('height', progressHeight + '%');
+                    $('#progress-line-{{ $idPedido ?? 0 }}').css('width', '2px');
+                    $('#progress-line-{{ $idPedido ?? 0 }}').css('height', progressHeight + '%');
                 }
                 // Para tablets y desktop (vista horizontal)
                 else {
-                    $('#progress-line-{{ $idPedido }}').css('height', '2px');
-                    $('#progress-line-{{ $idPedido }}').css('width', progressWidth + '%');
+                    $('#progress-line-{{ $idPedido ?? 0 }}').css('height', '2px');
+                    $('#progress-line-{{ $idPedido ?? 0 }}').css('width', progressWidth + '%');
                 }
             }
 
-            actualizarProgresoResponsivo({{$estado}});
+            actualizarProgresoResponsivo({{$estado ?? 0}});
 
             // Actualizar cuando cambia el tamaño de la ventana
             $(window).resize(function() {
-                actualizarProgresoResponsivo({{$estado}});
-            });
+            actualizarProgresoResponsivo({{$estado ?? 0}});
+        });
+
+            function mostrarAnimacionPedidoCompletado(estado, mensaje) {
+            // Configurar mensaje según el estado
+            let titulo, textoMensaje;
+            
+            if (estado == 6) {
+                titulo = "¡Pedido Entregado!";
+                textoMensaje = mensaje || "Tu pedido ha sido entregado exitosamente.";
+            } else if (estado == 10) {
+                titulo = "Pedido No Encontrado";
+                textoMensaje = mensaje || "No se pudo encontrar la dirección del pedido.";
+            } else {
+                titulo = "Pedido Finalizado";
+                textoMensaje = mensaje || "Tu pedido ha sido finalizado.";
+            }
+            
+            // Actualizar textos
+            $("#orderStatusTitle").text(titulo);
+            $("#orderStatusMessage").text(textoMensaje);
+            
+            // Añadir animación al container de tracking
+            $("#pedido-tracking-{{ $idPedido ?? 0 }}").addClass("fade-out-up");
+            
+            // Mostrar overlay con animación
+            setTimeout(function() {
+                $("#orderCompleteOverlay").addClass("active");
+                
+                // Recargar después de mostrar la animación
+                setTimeout(function() {
+                    location.reload();
+                }, 2500);
+            }, 500);
+        }
 
 
             // Función para actualizar el estado del pedido
             function actualizarEstadoPedido() {
-                @if(count($pedidos->whereNotIn('estado', [6, 10, 11])) > 0)
-                $.ajax({
-                    url: '/estado-pedido/{{ $idPedido }}',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(response) {
-                        console.log('Respuesta AJAX:', response);
+            @if(count($pedidos->whereNotIn('estado', [6, 10, 11])) > 0)
+            $.ajax({
+                url: '/estado-pedido/{{ $idPedido ?? 0 }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Respuesta AJAX:', response);
 
-                        if (response.success) {
-                            const pedido = response.pedido;
-                            const estado = parseInt(pedido.estado);
+                    if (response.success) {
+                        const pedido = response.pedido;
+                        const estado = parseInt(pedido.estado);
+                        const estadoAnterior = parseInt({{ $estado ?? 0 }});
 
-                            console.log('Estado actual:', estado);
+                        console.log('Estado actual:', estado);
 
-                            // Actualizar la barra de progreso responsiva
-                            actualizarProgresoResponsivo(estado);
+                        // Actualizar la barra de progreso responsiva
+                        actualizarProgresoResponsivo(estado);
 
-                            // El resto del código sigue igual...
-                            for (let i = 0; i <= 6; i++) {
-                                if (i <= estado || (i == 2 && estado == 8)) {
-                                    $('#step-' + i + '-{{ $idPedido }}').addClass('active');
+                        // Actualizar pasos del tracking
+                        for (let i = 0; i <= 6; i++) {
+                            if (i <= estado || (i == 2 && estado == 8)) {
+                                $('#step-' + i + '-{{ $idPedido ?? 0 }}').addClass('active');
 
-                                    if (pedido['tiempo_estado_' + i]) {
-                                        $('#time-' + i + '-{{ $idPedido }}').text(pedido['tiempo_estado_' + i]);
-                                    }
-                                } else {
-                                    $('#step-' + i + '-{{ $idPedido }}').removeClass('active');
+                                if (pedido['tiempo_estado_' + i]) {
+                                    $('#time-' + i + '-{{ $idPedido ?? 0 }}').text(pedido['tiempo_estado_' + i]);
                                 }
-                            }
-
-                            if (estado >= 4 && pedido.motorizado) {
-                                try {
-                                    $('#motorizado-info-{{ $idPedido }}').html(
-                                        pedido.motorizado.nombre + ' - Moto: ' + pedido.motorizado.placa
-                                    );
-                                } catch (e) {
-                                    console.error('Error al actualizar info del motorizado:', e);
-                                }
-                            }
-
-                            if (estado == 6 || estado == 10 || estado == 11) {
-                                location.reload();
+                            } else {
+                                $('#step-' + i + '-{{ $idPedido ?? 0 }}').removeClass('active');
                             }
                         }
-                    },
-                    error: function(xhr) {
-                        console.error('Error al actualizar el estado del pedido:', xhr.responseText);
+
+                        if (estado >= 4 && pedido.motorizado) {
+                            try {
+                                $('#motorizado-info-{{ $idPedido ?? 0 }}').html(
+                                    pedido.motorizado.nombre + (pedido.motorizado.placa ? ' - Moto: ' + pedido.motorizado.placa : '')
+                                );
+                            } catch (e) {
+                                console.error('Error al actualizar info del motorizado:', e);
+                            }
+                        }
+
+                        // Si el pedido se completa o cancela y el estado ha cambiado
+                        if ((estado == 6 || estado == 10 || estado == 11) && estadoAnterior != estado) {
+                            // Mostrar animación en lugar de recargar inmediatamente
+                            mostrarAnimacionPedidoCompletado(estado);
+                        }
                     }
-                });
-                @endif
-            }
+                },
+                error: function(xhr) {
+                    console.error('Error al actualizar el estado del pedido:', xhr.responseText);
+                }
+            });
+            @endif
+        }
 
-            // Actualizar estado cada 15 segundos
-            setInterval(actualizarEstadoPedido, 15000);
+        // Actualizar estado cada 15 segundos
+        setInterval(actualizarEstadoPedido, 15000);
 
-            // Actualizar estado al cargar la página
-            actualizarEstadoPedido();
-        });
+        // Actualizar estado al cargar la página
+        actualizarEstadoPedido();
+    });
 
         // Función para reordenar un pedido anterior
         function reordenarPedido(idPedido) {
