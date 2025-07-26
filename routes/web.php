@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdministradorController;
+use App\Http\Controllers\ApisController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CocinaController;
@@ -228,5 +229,10 @@ Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('clientes
 Route::get('/clientes/{id}/edit', [ClienteController::class, 'edit'])->name('clientes.edit');
 Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
 Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+
+// Apis rutas_ordenes
+
+    Route::get('/estado-pedido/{id}', [ApisController::class, 'obtenerEstadoPedido'])->name('api.pedido.estado')->middleware('auth');
+    Route::post('/reordenar/{id}', [ApisController::class, 'reordenarPedido'])->name('api.pedido.reordenar')->middleware('auth');
 
 });

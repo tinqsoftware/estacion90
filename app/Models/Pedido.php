@@ -91,4 +91,11 @@ class Pedido extends Model
         return $this->hasMany(HistorialPedidos::class, 'id_pedido', 'id')->orderBy('created_at', 'desc');
     }
 
+    // Relación: un pedido puede estar asignado a un motorizado
+    public function motorizado()
+    {
+        return $this->belongsTo(User::class, 'id_user_moto', 'id')
+            ->select(['id', 'name as nombre']); // Solo selecciona nombre
+    }
+
 }

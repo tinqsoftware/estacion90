@@ -32,6 +32,7 @@
     <link href="access/vendor/swiper/css/swiper-bundle.min.css" rel="stylesheet">
     <link href="access/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <!-- Estilos personalizados para el tracking -->
     <style>
@@ -341,7 +342,7 @@
                                         </div>
                                         <div id="motorizado-info-{{ $idPedido }}" class="tracking-description">
                                             @if($estado >= 4 && isset($pedidoActual->motorizado))
-                                                {{ $pedidoActual->motorizado->nombre }} - Moto: {{ $pedidoActual->motorizado->placa }}
+                                                {{ $pedidoActual->motorizado->nombre }}
                                             @endif
                                         </div>
                                     </div>
@@ -389,37 +390,88 @@
     @foreach($pedidos->whereIn('estado', [6, 10, 11])->take(5) as $pedidoAnterior)
         @php
             $fecha = Carbon::parse($pedidoAnterior->created_at)->format('d M Y');
+            $hora = Carbon::parse($pedidoAnterior->created_at)->format('H:i');
             $estadoLabel = $pedidoAnterior->estado == 6 ? 'Entregado' : ($pedidoAnterior->estado == 10 ? 'No Encontrado' : 'Finalizado');
-            $estadoClass = $pedidoAnterior->estado == 6 ? 'badge-entregado' : 'badge-no-entregado';
+            $estadoClass = $pedidoAnterior->estado == 6 ? 'bg-success' : 'bg-danger';
             $detalles = [];
             foreach($pedidoAnterior->comensales as $comensal) {
                 foreach($comensal->detalles as $detalle) {
-                    $detalles[] = $detalle->producto ? $detalle->producto->nombre : 'Producto eliminado';
+                    if ($detalle->producto) {
+                        $detalles[] = [
+                            'nombre' => $detalle->producto->nombre,
+                            'cantidad' => $detalle->cantidad,
+                            'precio' => $detalle->precio
+                        ];
+                    }
                 }
             }
         @endphp
-                            <div class="col-md-4 mb-3">
-                                <div class="pedido-card">
-                                    <div class="pedido-header">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h5 class="mb-0">Pedido #{{ $pedidoAnterior->id }}</h5>
-                                                <small>{{ $fecha }}</small>
-                                            </div>
-                                            <span class="badge {{ $estadoClass }}">{{ $estadoLabel }}</span>
+        <div class="col-md-6 mb-4">
+            <div class="card h-100" style="border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <div class="card-header bg-white pt-3 pb-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="mb-0">Pedido #{{ $pedidoAnterior->id }} - {{ $fecha }}</h5>
+                            <div class="text-muted small">Estado: <span class="badge {{ $estadoClass }} text-white px-2 py-1">{{ $estadoLabel }}</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body pb-0">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small text-muted mb-2">
+                            <span>Hora de pedido: {{ $hora }}</span>
+                            <span>Total: <strong>S/ {{ number_format($pedidoAnterior->monto_total, 2) }}</strong></span>
+                        </div>
+                        
+                        @if($pedidoAnterior->direccion_contacto)
+                            <div class="text-muted small mb-2">
+                                <strong>Dirección:</strong> {{ $pedidoAnterior->direccion_contacto }}
+                            </div>
+                        @endif
+
+                        @if(count($pedidoAnterior->comensales) > 0 && isset($pedidoAnterior->comensales[0]->nombre_comensal))
+                            <div class="text-muted small mb-3">
+                                <strong>Cliente:</strong> {{ $pedidoAnterior->comensales[0]->nombre_comensal }}
+                            </div>
+                        @elseif($pedidoAnterior->nombre_contacto)
+                            <div class="text-muted small mb-3">
+                                <strong>Cliente:</strong> {{ $pedidoAnterior->nombre_contacto }}
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <div class="products-list">
+                        @foreach($detalles as $index => $detalle)
+                            @if($index < 3)
+                                <div class="product-item d-flex align-items-center py-2 {{ $index > 0 ? 'border-top' : '' }}">
+                                    <div class="product-image me-3">
+                                        <div style="width: 50px; height: 50px; background-color: #f5f5f5; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fa fa-utensils text-secondary"></i>
                                         </div>
                                     </div>
-                                    <div class="pedido-body">
-                                        <h5 class="mb-2">S/ {{ number_format($pedidoAnterior->monto_total, 2) }}</h5>
-                                        <p class="mb-0 text-muted">{{ implode(', ', array_slice($detalles, 0, 3)) }}{{ count($detalles) > 3 ? '...' : '' }}</p>
+                                    <div class="product-details flex-grow-1">
+                                        <div class="product-name">{{ $detalle['nombre'] }}</div>
+                                        <div class="text-muted small">Cantidad: {{ $detalle['cantidad'] }} x S/ {{ number_format($detalle['precio'], 2) }}</div>
                                     </div>
-                                    <div class="pedido-footer">
-                                        <button class="btn-pedir" onclick="reordenarPedido({{ $pedidoAnterior->id }})">Pedir de Nuevo</button>
+                                    <div class="product-price text-end">
+                                        <span class="text-warning">S/ {{ number_format($detalle['cantidad'] * $detalle['precio'], 2) }}</span>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
                         @endforeach
+                        
+                        @if(count($detalles) > 3)
+                            <div class="py-2 text-center border-top">
+                                <span class="text-muted small">Y {{ count($detalles) - 3 }} producto(s) más...</span>
+                            </div>
+                        @endif
                     </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</div>
                 </div>
             </div>
         </div>
@@ -462,59 +514,67 @@
             
             // Función para actualizar el estado del pedido
             function actualizarEstadoPedido() {
-                @if(count($pedidos->where('estado', '!=', 6)->where('estado', '!=', 10)->where('estado', '!=', 11)) > 0)
-                $.ajax({
-                    url: '/estado-pedido/{{ $idPedido }}',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(response) {
-                        if(response.success) {
-                            const pedido = response.pedido;
-                            const estado = pedido.estado;
-                            
-                            // Actualizar la barra de progreso
-                            const progressWidth = Math.min(estado * 16.67, 100);
-                            $('#progress-line-{{ $idPedido }}').css('width', progressWidth + '%');
-                            
-                            // Actualizar cada paso según el estado
-                            for(let i = 0; i <= 6; i++) {
-                                if (i <= estado || (i == 2 && estado == 8)) {
-                                    $('#step-' + i + '-{{ $idPedido }}').addClass('active');
-                                    
-                                    // Actualizar la hora para este paso si está disponible
-                                    if (pedido['tiempo_estado_' + i]) {
-                                        $('#time-' + i + '-{{ $idPedido }}').text(pedido['tiempo_estado_' + i]);
-                                    }
-                                } else {
-                                    $('#step-' + i + '-{{ $idPedido }}').removeClass('active');
-                                }
-                            }
-                            
-                            // Actualizar información del motorizado si está disponible
-                            if (estado >= 4 && pedido.motorizado) {
-                                $('#motorizado-info-{{ $idPedido }}').html(
-                                    pedido.motorizado.nombre + ' - Moto: ' + pedido.motorizado.placa
-                                );
-                            }
-                            
-                            // Si el pedido se completó (estado 6, 10 u 11), recargar la página para mostrar en pedidos anteriores
-                            if (estado == 6 || estado == 10 || estado == 11) {
-                                location.reload();
-                            }
+    @if(count($pedidos->whereNotIn('estado', [6, 10, 11])) > 0)
+    $.ajax({
+        url: '/estado-pedido/{{ $idPedido }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Respuesta AJAX:', response); // Para debugging
+            
+            if(response.success) {
+                const pedido = response.pedido;
+                const estado = parseInt(pedido.estado); // Convertir a número
+                
+                console.log('Estado actual:', estado);
+                
+                // Actualizar la barra de progreso
+                const progressWidth = Math.min(estado * 16.67, 100);
+                $('#progress-line-{{ $idPedido }}').css('width', progressWidth + '%');
+                
+                // Actualizar cada paso según el estado
+                for(let i = 0; i <= 6; i++) {
+                    if (i <= estado || (i == 2 && estado == 8)) {
+                        $('#step-' + i + '-{{ $idPedido }}').addClass('active');
+                        
+                        // Actualizar la hora para este paso si está disponible
+                        if (pedido['tiempo_estado_' + i]) {
+                            $('#time-' + i + '-{{ $idPedido }}').text(pedido['tiempo_estado_' + i]);
                         }
-                    },
-                    error: function(xhr) {
-                        console.error('Error al actualizar el estado del pedido:', xhr.responseText);
+                    } else {
+                        $('#step-' + i + '-{{ $idPedido }}').removeClass('active');
                     }
-                });
-                @endif
+                }
+                
+                // Actualizar información del motorizado si está disponible
+                if (estado >= 4 && pedido.motorizado) {
+                    try {
+                        $('#motorizado-info-{{ $idPedido }}').html(
+                            pedido.motorizado.nombre + ' - Moto: ' + pedido.motorizado.placa
+                        );
+                    } catch(e) {
+                        console.error('Error al actualizar info del motorizado:', e);
+                    }
+                }
+                
+                // Si el pedido se completó, recargar la página para mostrar en pedidos anteriores
+                if (estado == 6 || estado == 10 || estado == 11) {
+                    location.reload();
+                }
             }
-            
-            // Actualizar estado cada 30 segundos
-            setInterval(actualizarEstadoPedido, 30000);
-            
-            // Actualizar estado al cargar la página
-            actualizarEstadoPedido();
+        },
+        error: function(xhr) {
+            console.error('Error al actualizar el estado del pedido:', xhr.responseText);
+        }
+    });
+    @endif
+}
+
+// Actualizar estado cada 15 segundos
+setInterval(actualizarEstadoPedido, 15000);
+
+// Actualizar estado al cargar la página
+actualizarEstadoPedido();
         });
         
         // Función para reordenar un pedido anterior
