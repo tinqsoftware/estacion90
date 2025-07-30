@@ -312,18 +312,18 @@
                                     <div>
                                         @foreach($pedido['comensales'] as $comensal)
                                         <div class="person-order">
-                                            <div class="person-name">{{ $comensal['nombre'] }}: (s/
+                                            <div class="person-name">{{ $comensal['nombre'] }}: (S/
                                                 {{ number_format($comensal['total'], 2) }})</div>
                                             @foreach($comensal['items'] as $item)
-                                            <div class="order-item">- {{ $item['nombre'] }} (s/
+                                            <div class="order-item">- {{ $item['nombre'] }} (S/
                                                 {{ number_format($item['precio'], 2) }})</div>
                                             @endforeach
                                         </div>
                                         @endforeach
                                     </div>
                                     <div class="order-totals">
-                                        <div>Delivery: s/1.00</div>
-                                        <div class="order-total">TOTAL: s/{{ number_format($pedido['monto_total'], 2) }}</div>
+                                        <div>Delivery: S/ 1.00</div>
+                                        <div class="order-total">TOTAL: S/ {{ number_format($pedido['monto_total'], 2) }}</div>
                                     </div>
                                     <div class="action-buttons">
                                         <a href="https://waze.com/ul?ll={{ $pedido['lat'] }},{{ $pedido['lon'] }}&navigate=yes"

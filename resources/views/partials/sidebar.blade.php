@@ -32,7 +32,6 @@
                             <ul aria-expanded="false">
                                 @if(str_ends_with(request()->getHost(), '.test'))
                                 <li><a href="dashboard.html">Dashboard</a></li>
-                                <li><a href="menu.html">Menu</a></li>
                                 <li><a href="orders.html">Ordenes</a></li>
                                 <li><a href="customer-reviews.html">Comentarios</a></li>
                                 <li><a href="restro-setting.html">Configuraciones</a></li>
@@ -114,7 +113,6 @@
                                     <li><a href="deliver-order.html">Ordenes</a></li>
                                     <li><a href="/motorizado/moto">Envios</a></li>
                                     @endif
-                                    <li><a href="/motorizado/moto">Envios</a></li>
                                     
                                 </ul>
                             </li>

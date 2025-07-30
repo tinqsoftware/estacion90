@@ -646,11 +646,11 @@
             comensalesHtml +=
                 `
             <div class="order-person">
-                <div class="order-person-name">${comensal.nombre}: (s/ ${parseFloat(comensal.total).toFixed(2)})</div>`;
+                <div class="order-person-name">${comensal.nombre}: (S/ ${parseFloat(comensal.total).toFixed(2)})</div>`;
 
             comensal.items.forEach(function(item) {
                 comensalesHtml +=
-                    `<div class="order-item">- ${item.nombre} (s/ ${parseFloat(item.precio).toFixed(2)})</div>`;
+                    `<div class="order-item">- ${item.nombre} (S/ ${parseFloat(item.precio).toFixed(2)})</div>`;
             });
 
             comensalesHtml += `</div>`;
@@ -682,8 +682,8 @@
 
                     <!-- Total section -->
                     <div class="order-totals">
-                        <div class="order-delivery">Delivery: s/1.00</div>
-                        <div class="order-total">TOTAL: s/${parseFloat(pedido.monto_total).toFixed(2)}</div>
+                        <div class="order-delivery">Delivery: S/ 1.00</div>
+                        <div class="order-total">TOTAL: S/ ${parseFloat(pedido.monto_total).toFixed(2)}</div>
                     </div>
                 </div>
 
@@ -762,7 +762,7 @@
                 <div style="text-align: right; margin-bottom: 20px;">
                     ${pedido.comensales.map(comensal => `
                         <div style="font-size: 16px; margin-bottom: 10px;">
-                            <strong>${comensal.nombre}:</strong> s/ ${parseFloat(comensal.total).toFixed(2)}
+                            <strong>${comensal.nombre}:</strong> S/ ${parseFloat(comensal.total).toFixed(2)}
                         </div>
                     `).join('')}
                 </div>
@@ -770,11 +770,11 @@
                 <div style="border: 1px solid #dee2e6; padding: 10px; text-align: center; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                         <div>Delivery:</div>
-                        <div>s/1.00</div>
+                        <div>S/ 1.00</div>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
                         <div>TOTAL:</div>
-                        <div>s/${parseFloat(pedido.monto_total).toFixed(2)}</div>
+                        <div>S/ ${parseFloat(pedido.monto_total).toFixed(2)}</div>
                     </div>
                 </div>
 

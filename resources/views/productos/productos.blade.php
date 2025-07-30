@@ -209,7 +209,7 @@
                                                                 <td>
                                                                     @if(in_array($producto->id_categoria, [5, 6, 7, 8,
                                                                     9]))
-                                                                    S/.{{ number_format($producto->precio, 2) }}
+                                                                    S/ {{ number_format($producto->precio, 2) }}
                                                                     @else
                                                                     -
                                                                     @endif
@@ -293,7 +293,7 @@
                                                                 </td>
                                                                 <!-- Mostrar precio solo para categorías específicas -->
                                                                 @if(in_array($categoria->id, [1, 2, 3, 4, 5, 6, 7, 8, 9]))
-                                                                <td>S/.{{ number_format($producto->precio, 2) }}</td>
+                                                                <td>S/ {{ number_format($producto->precio, 2) }}</td>
                                                                 @endif
                                                                 <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}
                                                                 <td>
@@ -387,7 +387,7 @@
                             <p id="modal-producto-descripcion" class="mb-3"></p>
                             <!-- El precio solo se mostrará para categorías específicas -->
                             <div id="precio-container" style="display: none;">
-                                <h5 class="text-primary">S/. <span id="modal-producto-precio"></span></h5>
+                                <h5 class="text-primary">S/ <span id="modal-producto-precio"></span></h5>
                             </div>
                            
                         </div>

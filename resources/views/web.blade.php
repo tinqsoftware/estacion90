@@ -1064,7 +1064,7 @@
 								<div class="card-carta">
 									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
-									<div class="text-white plato-precio fw-bold">S/{{ number_format($plato->precio, 2) }}</div>
+									<div class="text-white plato-precio fw-bold">S/ {{ number_format($plato->precio, 2) }}</div>
 									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 								</div>
 							</div>
@@ -1093,7 +1093,7 @@
 								<div class="card-carta">
 									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
-									<div class="text-white plato-precio fw-bold">S/{{ number_format($plato->precio, 2) }}</div>
+									<div class="text-white plato-precio fw-bold">S/ {{ number_format($plato->precio, 2) }}</div>
 									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 								</div>
 							</div>
@@ -1122,7 +1122,7 @@
 								<div class="card-carta">
 									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
-									<div class="text-white plato-precio fw-bold">S/{{ number_format($plato->precio, 2) }}</div>
+									<div class="text-white plato-precio fw-bold">S/ {{ number_format($plato->precio, 2) }}</div>
 									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 								</div>
 							</div>
@@ -1154,7 +1154,7 @@
 							<img src="{{ asset($plato->imagen) }}" class="img-carta img-carta-pop" alt="{{ $plato->nombre }}">
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
-								<div class="plato-precio texto-popup">S/{{ number_format($plato->precio, 2) }}</div>
+								<div class="plato-precio texto-popup">S/ {{ number_format($plato->precio, 2) }}</div>
 								<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 							</div>
 						</div>
@@ -1177,7 +1177,7 @@
 							<img src="{{ asset($plato->imagen) }}" class="img-carta img-carta-pop" alt="{{ $plato->nombre }}">
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
-								<div class="plato-precio texto-popup">S/{{ number_format($plato->precio, 2) }}</div>
+								<div class="plato-precio texto-popup">S/ {{ number_format($plato->precio, 2) }}</div>
 								<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 							</div>
 						</div>
@@ -1200,7 +1200,7 @@
 							<img src="{{ asset($plato->imagen) }}" class="img-carta img-carta-pop" alt="{{ $plato->nombre }}">
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
-								<div class="plato-precio texto-popup">S/{{ number_format($plato->precio, 2) }}</div>
+								<div class="plato-precio texto-popup">S/ {{ number_format($plato->precio, 2) }}</div>
 								<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
 							</div>
 						</div>

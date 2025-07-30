@@ -115,7 +115,7 @@
                         <div class="stats-card warning">
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1">
-                                    <div class="stats-number">S/. {{ number_format($totalVentas, 2) }}</div>
+                                    <div class="stats-number">S/ {{ number_format($totalVentas, 2) }}</div>
                                     <div class="stats-label">Total Ventas</div>
                                 </div>
                                 <div class="stats-icon">
@@ -179,7 +179,7 @@
                                                 <td>{{ $cliente->telefono }}</td>
                                                 <td>{{ $cliente->direccion ? $cliente->direccion->direccion : 'Sin dirección' }}</td>
                                                 <td>{{ $cliente->pedidos_count }}</td>
-                                                <td>S/. {{ number_format($cliente->total_pagado, 2) }}</td>
+                                                <td>S/ {{ number_format($cliente->total_pagado, 2) }}</td>
                                                 <td>
                                                     @if($cliente->estado == 1)
                                                         <span class="badge bg-success">Activo</span>
@@ -578,7 +578,7 @@
                                 <p><strong>Estado:</strong> ${data.estado == 1 ? 'Activo' : 'Desactivado'}</p>
                                 <p><strong>Fecha de registro:</strong> ${new Date(data.created_at).toLocaleDateString()}</p>
                                 <p><strong>Cantidad de pedidos:</strong> ${data.pedidos_count || 0}</p>
-                                <p><strong>Total pagado:</strong> S/. ${data.total_pagado || 0}</p>
+                                <p><strong>Total pagado:</strong> S/ ${data.total_pagado || 0}</p>
                             </div>
                         </div>
                     `;
