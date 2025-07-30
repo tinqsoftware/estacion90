@@ -268,7 +268,7 @@
                                                                 </th>
                                                                 <th><strong>Descripción</strong></th>
                                                                 <!-- Mostrar precio solo para categorías específicas -->
-                                                                @if(in_array($categoria->id, [5, 6, 7, 8, 9]))
+                                                                @if(in_array($categoria->id, [1, 2, 3, 4, 5, 6, 7, 8, 9]))
                                                                 <th><strong>Precio</strong></th>
                                                                 @endif
                                                                 <th><strong>Usuario</strong></th>
@@ -292,7 +292,7 @@
                                                                 <td>{{ \Illuminate\Support\Str::limit($producto->descripcion, 50) }}
                                                                 </td>
                                                                 <!-- Mostrar precio solo para categorías específicas -->
-                                                                @if(in_array($categoria->id, [5, 6, 7, 8, 9]))
+                                                                @if(in_array($categoria->id, [1, 2, 3, 4, 5, 6, 7, 8, 9]))
                                                                 <td>S/.{{ number_format($producto->precio, 2) }}</td>
                                                                 @endif
                                                                 <td>{{ $producto->creador ? $producto->creador->name : 'SIN REGISTRO' }}

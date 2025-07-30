@@ -435,8 +435,34 @@
 
             $.get(`/banners/${bannerId}/edit`, function(response) {
                 $('#edit_banner_id').val(response.id);
-                $('#edit_fecha_inicio').val(response.fecha_inicio);
-                $('#edit_fecha_fin').val(response.fecha_fin);
+                
+                // Formatear fechas para inputs type="date" (solo YYYY-MM-DD)
+                let fechaInicio = response.fecha_inicio;
+                let fechaFin = response.fecha_fin;
+                
+                // Convertir fechas ISO a formato YYYY-MM-DD
+                if (fechaInicio) {
+                    // Si es formato ISO (contiene T o Z), convertir a Date y extraer fecha
+                    if (fechaInicio.includes('T') || fechaInicio.includes('Z')) {
+                        fechaInicio = new Date(fechaInicio).toISOString().split('T')[0];
+                    } else if (fechaInicio.length > 10) {
+                        // Si es formato datetime normal, extraer solo la fecha
+                        fechaInicio = fechaInicio.split(' ')[0];
+                    }
+                }
+                
+                if (fechaFin) {
+                    // Si es formato ISO (contiene T o Z), convertir a Date y extraer fecha
+                    if (fechaFin.includes('T') || fechaFin.includes('Z')) {
+                        fechaFin = new Date(fechaFin).toISOString().split('T')[0];
+                    } else if (fechaFin.length > 10) {
+                        // Si es formato datetime normal, extraer solo la fecha
+                        fechaFin = fechaFin.split(' ')[0];
+                    }
+                }
+                
+                $('#edit_fecha_inicio').val(fechaInicio);
+                $('#edit_fecha_fin').val(fechaFin);
 
                 if (response.url_imagen) {
                     $('#edit-img-preview').attr('src',
