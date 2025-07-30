@@ -224,7 +224,7 @@
                         <h4 class="dlab-title">
                             <a href="javascript:void(0);">{{ $extra->nombre }}</a>
                         </h4>
-                        <span>S/{{ ($extra->precio && $extra->precio > 0) ? $extra->precio : '1.00' }}</span>
+                        <span>S/ {{ ($extra->precio && $extra->precio > 0) ? $extra->precio : '1.00' }}</span>
                     </div>
                 </div>
                 <div class="extra-item" data-extra-id="{{ $extra->id }}"
@@ -253,12 +253,12 @@
                                                 <div class="card-footer  pt-0 border-0" id="orderTotals">
                                                     <div class="d-flex align-items-center justify-content-between">
                                                         <p>Delivey</p>
-                                                        <h4 class="font-w500">+ S/1.00</h4>
+                                                        <h4 class="font-w500">+ S/ 1.00</h4>
                                                     </div>
                                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                                         <h1 class="font-w500">Total</h1>
                                                         <h1 class="font-w500 text-primary"><span
-                                                                id="orderTotal">S/0.00</span></h1>
+                                                                id="orderTotal">S/ 0.00</span></h1>
                                                     </div>
                                                 </div>
                                             </div>
@@ -446,7 +446,7 @@
                                                                 <div
                                                                     class="d-flex align-items-center justify-content-between mb-3">
                                                                     <h1 class="font-w500 text-primary"><span
-                                                                            id="confirmTotal">S/0.00</span></h1>
+                                                                            id="confirmTotal">S/ 0.00</span></h1>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -908,7 +908,7 @@
         
         // Solo mostrar precio si el menú tiene 2 o más categorías
         const mostrarPrecio = menu.categorias && menu.categorias.length >= 2;
-        const precioTexto = mostrarPrecio ? ` <span style="color: #007bff; font-weight: 500;">S/${menu.precio}</span>` : '';
+        const precioTexto = mostrarPrecio ? ` <span style="color: #007bff; font-weight: 500;">S/ ${menu.precio}</span>` : '';
         
         menuTabs += `
             <li class="nav-item" style="width: ${widthPercent}%; text-align: center;">
@@ -1010,7 +1010,7 @@
                             <div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
                                 <img style="display:none;" src="${imagenProducto}" alt="${prod.nombre}">
                                 <h6>${prod.nombre}</h6>
-                                <h4 class="font-w700 mb-0 text-primary">S/${precioProducto.toFixed(2)}</h4>
+                                <h4 class="font-w700 mb-0 text-primary">S/ ${precioProducto.toFixed(2)}</h4>
                             </div>
                         </div>
                     </div>
@@ -1150,7 +1150,7 @@
     // ===============================
 
     function getPrecioFromInput(input) {
-        const precio = parseFloat(input.parentElement.querySelector('h4')?.innerText?.replace('s/.', '')) || 0;
+        const precio = parseFloat(input.parentElement.querySelector('h4')?.innerText?.replace('S/ ', '')) || 0;
         return precio;
     }
 
@@ -1248,7 +1248,7 @@
                         <div class="timeline-panel" style="border: none;">
                             <div class="media-body" style="padding-left: 12px;">
                                 <span style="font-weight: bold; position: absolute; right: 10%;">
-                                    Precio individual: S/${todosLosProductos[0].precio.toFixed(2)}
+                                    Precio individual: S/ ${todosLosProductos[0].precio.toFixed(2)}
                                 </span>
                             </div>
                         </div>
@@ -1260,7 +1260,7 @@
                         <div class="timeline-panel" style="border: none;">
                             <div class="media-body" style="padding-left: 12px;">
                                 <span style="font-weight: bold; position: absolute; right: 10%;">
-                                    Precio: ${menuMasCaro.nombre} - S/${precioMasCaro.toFixed(2)}
+                                    Precio: ${menuMasCaro.nombre} - S/ ${precioMasCaro.toFixed(2)}
                                 </span>
                             </div>
                         </div>

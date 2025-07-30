@@ -92,7 +92,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $menu->nombre }}</td>
-                                <td class="text-center">S/. {{ number_format($menu->precio, 2) }}</td>
+                                <td class="text-center">S/ {{ number_format($menu->precio, 2) }}</td>
                                 <td>{{ $menu->categorias_nombres }}</td>
                                 <td class="text-center">{{ $menu->created_at->format('d M Y') }}</td>
                                 <td class="text-center">
