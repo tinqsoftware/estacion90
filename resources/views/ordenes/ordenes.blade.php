@@ -495,6 +495,55 @@
     font-size: 16px;
     margin-bottom: 0;
 }
+
+/* Estilos adicionales para múltiples pedidos */
+.tracking-container {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.tracking-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-warning {
+    background-color: #ff7a01;
+    border-color: #ff7a01;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    background-color: #e56b00;
+    border-color: #e56b00;
+    transform: translateY(-1px);
+}
+
+.btn-outline-warning {
+    color: #ff7a01;
+    border-color: #ff7a01;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-warning:hover {
+    background-color: #ff7a01;
+    border-color: #ff7a01;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Mejorar espaciado entre múltiples pedidos */
+.tracking-container + .tracking-container {
+    margin-top: 25px;
+}
+
+/* Responsive para el botón de pedir otra vez */
+@media (max-width: 576px) {
+    .btn {
+        font-size: 14px;
+        padding: 8px 20px;
+    }
+}
     </style>
 </head>
 
@@ -549,8 +598,9 @@
                     <div class="col-12 mb-4">
                         <div id="tracking-section"> 
                         @if(count($pedidos->whereNotIn('estado', [6, 10, 11])) > 0)
+                        
+                        @foreach($pedidos->whereNotIn('estado', [6, 10, 11]) as $pedidoActual)
                         @php
-                        $pedidoActual = $pedidos->whereNotIn('estado', [6, 10, 11])->first();
                         $horaCreacion = Carbon::parse($pedidoActual->created_at)->format('H:i');
                         $tiempoEstimado = 45; // Minutos de tiempo estimado
                         $idPedido = $pedidoActual->id;
@@ -558,7 +608,7 @@
                         $total = number_format($pedidoActual->monto_total, 2);
                         @endphp
 
-                        <div id="pedido-tracking-{{ $idPedido }}" class="tracking-container">
+                        <div id="pedido-tracking-{{ $idPedido }}" class="tracking-container mb-4">
                             <div class="tracking-header">
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
@@ -699,8 +749,16 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <!-- Botón Pedir Otra Vez -->
+                                <div class="text-center mt-4">
+                                    <a href="/inicio" class="btn btn-warning px-4 py-2">
+                                        <i class="fas fa-redo me-2"></i> PEDIR OTRA VEZ
+                                    </a>
+                                </div>
                             </div>
                         </div>
+                        @endforeach
                         @else
                          <div id="no-pedidos-container" class="text-center py-5 bg-white rounded shadow-sm">
                 <div class="mb-4">
@@ -717,7 +775,9 @@
                     <a href="/inicio" class="btn btn-warning px-4">
                         <i class="fas fa-plus me-2"></i> Hacer un Pedido
                     </a>
-                    
+                    <a href="/inicio" class="btn btn-outline-warning px-4">
+                        <i class="fas fa-redo me-2"></i> PEDIR OTRA VEZ
+                    </a>
                 </div>
             </div>
 
