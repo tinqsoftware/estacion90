@@ -202,7 +202,7 @@
         
         <div class="totals">
             <div class="delivery">Delivery: S/ 1.00</div>
-            <div class="total">TOTAL: S/ {{ number_format($pedido['total'] + 1, 2) }}</div>
+            <div class="total">TOTAL: S/ {{ number_format($pedido['total'], 2) }}</div>
         </div>
         
         @if($pedido['comentarios'])
