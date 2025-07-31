@@ -43,421 +43,633 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+    /* Dashboard Header */
     .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 0;
-        border-bottom: 1px solid #ddd;
-        margin-bottom: 20px;
+        background-color: #f59e0b;
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     .dashboard-title {
-        font-weight: bold;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
     }
 
     .dashboard-date {
-        font-size: 1.2rem;
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    /* Summary Stats */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
         font-weight: 500;
     }
 
-    .order-card {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 15px;
-        margin-bottom: 20px;
-        background-color: #fff;
-        position: relative;
-    }
+    .stat-por-preparar { border-left: 4px solid #ef4444; }
+    .stat-preparados { border-left: 4px solid #f59e0b; }
+    .stat-en-reparto { border-left: 4px solid #10b981; }
+    .stat-total { border-left: 4px solid #6366f1; }
 
-    .order-header {
-        background-color: #f8f8f8;
-        margin: -15px -15px 10px;
-        padding: 10px 15px;
-        border-bottom: 1px solid #ddd;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
+    /* Filters */
+
+
+    .filters-row {
         display: flex;
-        justify-content: space-between;
-    }
-
-    .order-ready-check {
-        position: absolute;
-        right: 15px;
-        top: 15px;
-    }
-
-    .order-info {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-
-    .order-details {
-        margin-bottom: 10px;
-    }
-
-    .order-total {
-        font-weight: bold;
-        border-top: 1px solid #ddd;
-        margin-top: 10px;
-        padding-top: 10px;
-    }
-
-    .section-title {
-        background-color: #f0f0f0;
-        padding: 8px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        display: inline-block;
-    }
-
-    .print-btn {
-        background-color: #6b6b6b;
-        color: white;
-        border: none;
-        padding: 5px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .moto-header {
-        background-color: #b7562a;
-        color: white;
-        padding: 8px 15px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-    }
-
-    .status-indicator {
-        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
         align-items: center;
-        margin-top: 10px;
     }
 
-    .status-circle {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background-color: #b7562a;
-        color: white;
+    .filter-group {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 10px;
+        flex-direction: column;
+        gap: 4px;
     }
 
-    .status-text {
-        color: #b7562a;
-        font-weight: bold;
+    .filter-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #374151;
     }
 
-    #orders-pending,
-    #orders-assigned {
-        min-height: 500px;
-    }
-
-    .draggable {
-        cursor: move;
-    }
-
-    .drag-container {
-        border: 2px dashed #ddd;
-        padding: 10px;
-        min-height: 100px;
-    }
-
-
-    /* Calendar Styles */
-    .calendar-container {
-        width: 100%;
-        max-width: 300px;
-        margin: 0 auto 20px;
-        background-color: #f9f9f9;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .month-selector {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 15px;
-        font-size: 1.2rem;
-        font-weight: bold;
-    }
-
-    .month-nav {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        padding: 0 15px;
-        color: #3366ff;
-    }
-
-    #currentMonth {
+    .filter-select {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.9rem;
         min-width: 150px;
+    }
+
+    /* Kanban Board */
+    .kanban-board {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .kanban-column {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px;
+        min-height: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .column-content {
+        max-height: calc(80vh - 100px);
+        overflow-y: auto;
+    }
+
+    .column-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .column-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #1f2937;
+    }
+
+    .column-count {
+        background: #6366f1;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .por-preparar .column-count { background: #ef4444; }
+    .preparados .column-count { background: #f59e0b; }
+    .en-reparto .column-count { background: #10b981; }
+
+    /* Order Cards */
+    .order-card {
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.2s;
+        border-left: 4px solid transparent;
+    }
+
+    .order-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .order-card.por-preparar { border-left-color: #ef4444; }
+    .order-card.preparados { border-left-color: #f59e0b; }
+    .order-card.en-reparto { border-left-color: #10b981; }
+    .order-card.en-camino { 
+        border-left-color: #3b82f6; 
+        border-left-width: 6px; /* Borde más grueso para "En Camino" */
+    }
+
+    .card-header-compact {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .order-number {
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 0.95rem;
+    }
+
+    .order-time {
+        font-size: 0.8rem;
+        color: #6b7280;
+        background: #f3f4f6;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .card-body-compact {
+        margin-bottom: 8px;
+    }
+
+    .card-body-compact > * + * {
+        margin-top: 8px;
+    }
+
+    .customer-info-compact {
+        margin-bottom: 8px;
+    }
+
+    .customer-name-compact {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+
+    .customer-phone {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .order-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 8px;
+        background: #f9fafb;
+        border-radius: 6px;
+    }
+
+    .order-total-compact {
+        font-weight: 700;
+        color: #059669;
+        font-size: 1rem;
+    }
+
+    .payment-method {
+        font-size: 0.8rem;
+        color: #6b7280;
+        background: #e5e7eb;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .btn-expand {
+        flex: 1;
+        background: #f3f4f6;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        color: #374151;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-expand:hover {
+        background: #e5e7eb;
+    }
+
+    .btn-print {
+        background: #374151;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-print:hover {
+        background: #1f2937;
+    }
+
+    .btn-ready {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-ready:hover {
+        background: #059669;
+    }
+
+    /* Status Indicators */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-por-preparar {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .status-preparados {
+        background: #fffbeb;
+        color: #d97706;
+    }
+
+    .status-en-reparto {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .status-en-camino {
+        background: #eff6ff;
+        color: #2563eb;
+    }o {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .status-entregado {
+        background: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .status-no-encontrado {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .status-finalizado {
+        background: #f9fafb;
+        color: #6b7280;
+    }
+
+    /* Motorizado Assignment */
+    .moto-assignment {
+        margin-top: 8px;
+        padding: 8px;
+        background: #f0f9ff;
+        border-radius: 6px;
+        border: 1px solid #e0f2fe;
+    }
+
+    .moto-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #0369a1;
+    }
+
+    .delivery-order {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    /* Expandable Details */
+    .order-details-expanded {
+        margin-top: 12px;
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        display: none;
+    }
+
+    .detail-section {
+        margin-bottom: 12px;
+    }
+
+    .detail-title {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+    }
+
+    .detail-content {
+        font-size: 0.8rem;
+        color: #6b7280;
+        line-height: 1.4;
+    }
+
+    .order-items-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .order-item-compact {
+        padding: 2px 0;
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    /* Drag and Drop */
+    .sortable-ghost {
+        opacity: 0.5;
+    }
+
+    .sortable-chosen {
+        transform: rotate(5deg);
+    }
+
+    .pedido-card.asignado {
+        border-left: 4px solid #17a2b8;
+    }
+
+    .pedido-card.en-camino {
+        border-left: 4px solid #fd7e14;
+    }
+
+    .pedido-card.entregado {
+        border-left: 4px solid #28a745;
+    }
+
+    .pedido-card.no-encontrado {
+        border-left: 4px solid #dc3545;
+    }
+
+    .pedido-card.finalizado {
+        border-left: 4px solid #6c757d;
+    }
+
+    .orden-numero {
+        display: inline-block;
+        background: #007bff;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .kanban-board {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filters-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-group {
+            width: 100%;
+        }
+        
+        .filter-select {
+            min-width: auto;
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .card-actions {
+            flex-direction: column;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+        }
+    }
+
+    /* Loading and Empty States */
+    .empty-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        color: #9ca3af;
         text-align: center;
     }
 
-    .days-column {
-        display: flex;
-        justify-content: space-between;
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Drag and Drop Effects */
+    .sortable-ghost {
+        opacity: 0.5;
+        background: #e3f2fd;
+        transform: rotate(2deg);
+        border: 2px dashed #3498db;
+    }
+
+    .sortable-chosen {
+        cursor: grabbing !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        transform: scale(1.02);
+        z-index: 1000;
+    }
+
+    .sortable-drag {
+        opacity: 0.8;
+        transform: rotate(-2deg);
+    }
+
+    /* Hover Effects */
+    .kanban-column:hover {
+        background: #f1f5f9;
+    }
+
+    .order-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Repartidores Styles */
+    .repartidor-container {
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        border: 1px solid #e5e7eb;
         overflow: hidden;
     }
 
-    .day-item {
+    .repartidor-header {
+        background: #f8fafc;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .repartidor-info {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        padding: 10px 0;
-        width: 14.28%;
+        gap: 12px;
     }
 
-    .day-name {
-        font-weight: bold;
-        color: #666;
-        font-size: 0.9rem;
-        margin-bottom: 8px;
-    }
-
-    .day {
-        height: 40px;
+    .repartidor-icon {
+        font-size: 1.5rem;
         width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
+        background: #10b981;
         border-radius: 50%;
-        cursor: pointer;
-    }
-
-    .day.current {
-        background-color: rgb(255, 111, 0);
-    }
-
-    .day.selected {
-        background-color: #3366ff;
         color: white;
     }
 
-    .day.other-month {
-        color: #ccc;
-    }
-
-    .day-slider-controls {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 15px;
-    }
-
-    .day-nav {
-        background-color: #3366ff;
-        color: white;
-        border: none;
-        padding: 5px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    .orders-container {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .card-container {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #fff;
-        margin-bottom: 15px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        position: relative;
-        width: 100%;
-    }
-
-    .card-header {
-        padding: 10px 15px;
-        background-color: #f5f5f5;
-        border-bottom: 1px solid #dee2e6;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .card-title {
-        font-weight: bold;
-        font-size: 16px;
-        margin-bottom: 5px;
-    }
-
-    .card-times {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        font-size: 14px;
-    }
-
-    .card-time-label {
-        font-weight: bold;
-        display: block;
-    }
-
-    .card-time-value {
-        display: block;
-    }
-
-    .card-time-delivery {
-        color: #ff6f00;
-    }
-
-    .card-body {
-        display: flex;
-        flex-wrap: wrap;
-    }
-
-    .card-column {
-        padding: 15px;
+    .repartidor-details {
         flex: 1;
-        min-width: 300px;
     }
 
-    .card-column-left {
-        border-right: 1px solid #dee2e6;
+    .repartidor-name {
+        font-weight: 600;
+        color: #111827;
+        font-size: 0.875rem;
     }
 
-    .customer-info {
-        border: 1px solid #dee2e6;
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-
-    .customer-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-
-    .customer-name {
-        font-weight: bold;
-    }
-
-    .customer-address {
-        margin-bottom: 5px;
-    }
-
-    .payment-info {
-        border: 1px solid #dee2e6;
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-
-    .payment-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-    }
-
-    .payment-label {
-        font-weight: normal;
-    }
-
-    .payment-value {
-        font-weight: bold;
-    }
-
-    .order-items {
-        margin-bottom: 15px;
-    }
-
-    .order-person {
-        margin-bottom: 10px;
-    }
-
-    .order-person-name {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .order-item {
-        padding-left: 15px;
-        margin-bottom: 3px;
-    }
-
-    .order-totals {
-        text-align: right;
-        border-top: 1px solid #dee2e6;
-        padding-top: 10px;
-        margin-top: 10px;
-    }
-
-    .order-delivery {
-        margin-bottom: 5px;
-    }
-
-    .order-total {
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-    .print-button {
-        background-color: #343a40;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        font-weight: bold;
-        cursor: pointer;
-        width: 120px;
-        margin-top: 10px;
-    }
-
-    .status-indicator {
-        position: absolute;
-        bottom: 15px;
-        left: 15px;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background-color: #ff8c00;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
-
-    /* Section Headers */
-    .section-header {
-        background-color: #f0f0f0;
-        padding: 8px 12px;
-        border-radius: 5px;
-        margin-bottom: 15px;
+    .repartidor-status {
+        font-size: 0.75rem;
+        color: #10b981;
+        background: #dcfce7;
+        padding: 2px 8px;
+        border-radius: 12px;
         display: inline-block;
-        font-weight: bold;
+        margin-top: 2px;
     }
 
-    .moto-section {
-        background-color: #b7562a;
-        color: white;
-        padding: 8px 15px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        font-weight: bold;
-    }
-
-    /* Drag containers */
-    .drag-area {
-        border: 2px dashed #ddd;
-        padding: 15px;
+    .repartidor-pedidos {
+        padding: 12px;
         min-height: 100px;
-        margin-bottom: 20px;
-        border-radius: 5px;
+        background: #fafafa;
+    }
+
+    .empty-repartidor {
         display: flex;
         flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        color: #9ca3af;
+        text-align: center;
+        font-size: 0.875rem;
+    }
+
+    .empty-repartidor .empty-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        opacity: 0.5;
+    }
+
+    /* Pedidos en repartidor */
+    .repartidor-pedidos .order-card {
+        margin-bottom: 8px;
+        font-size: 0.875rem;
+    }
+
+    .repartidor-pedidos .order-card:last-child {
+        margin-bottom: 0;
     }
     </style>
 
@@ -476,49 +688,99 @@
         <div class="content-body">
             <div class="container-fluid">
 
-
                 <!-- Dashboard Header -->
                 <div class="dashboard-header">
-                    <div class="dashboard-title">DASHBOARD ORGANIZAR REPARTO</div>
-                    <div class="dashboard-date">
-                        {{ strtoupper(Carbon\Carbon::now()->locale('es')->isoFormat('dddd D MMMM')) }}</div>
+                    <div>
+                        <div class="dashboard-title">DASHBOARD ORGANIZAR REPARTO</div>
+                        <div class="dashboard-date">
+                            {{ strtoupper(Carbon\Carbon::now()->locale('es')->isoFormat('dddd D MMMM')) }}
+                        </div>
+                    </div>
                 </div>
 
+                <!-- Stats Summary -->
+                <div class="stats-container">
+                    <div class="stat-card stat-por-preparar">
+                        <div class="stat-number" id="stat-por-preparar">0</div>
+                        <div class="stat-label">Preparados</div>
+                    </div>
+                    <div class="stat-card stat-preparados">
+                        <div class="stat-number" id="stat-preparados">0</div>
+                        <div class="stat-label">Sin asignar</div>
+                    </div>
+                    <div class="stat-card stat-en-reparto">
+                        <div class="stat-number" id="stat-en-reparto">0</div>
+                        <div class="stat-label">En Reparto</div>
+                    </div>
+                    <div class="stat-card stat-total">
+                        <div class="stat-number" id="stat-total">0</div>
+                        <div class="stat-label">Total Pedidos</div>
+                    </div>
+                </div>
 
-
-                <div class="row">
-                    <!-- Left Side - Pedidos Preparados -->
-                    <div class="col-lg-6">
-                        <div class="section-header">
-                            <span id="pedidos-count"></span> PEDIDOS PREPARADOS
+                <!-- Kanban Board -->
+                <div class="kanban-board">
+                    <!-- Por Preparar Column -->
+                    <div class="kanban-column por-preparar">
+                        <div class="column-header">
+                            <span class="column-title">Preparados</span>
+                            <span class="column-count" id="count-por-preparar">0</span>
                         </div>
-
-                        <!-- Añadir el contenedor para los pedidos -->
-                        <div id="orders-pending" class="drag-area mb-4">
-                            <!-- Aquí se cargarán dinámicamente las tarjetas de pedido -->
+                        <div id="column-por-preparar" class="column-content">
+                            <div class="empty-column" id="empty-por-preparar">
+                                <div class="empty-icon">🍳</div>
+                                <div>No hay pedidos por preparar</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right Side - Asignaciones -->
-                    <div class="col-lg-6">
-                        <div class="section-header"><span id="pedidos-pendingcount"></span> POR ASIGNAR</div>
-
-                        <div id="orders-assigned">
-                            <div id="unassigned-orders" class="drag-area mb-4">
-                                <!-- Draggable order card -->
-
+                    <!-- Preparados Column -->
+                    <div class="kanban-column preparados">
+                        <div class="column-header">
+                            <span class="column-title">Sin Asignar</span>
+                            <span class="column-count" id="count-preparados">0</span>
+                        </div>
+                        <div id="column-preparados" class="column-content">
+                            <div class="empty-column" id="empty-preparados">
+                                <div class="empty-icon">✅</div>
+                                <div>No hay pedidos preparados</div>
                             </div>
+                        </div>
+                    </div>
 
+                    <!-- En Reparto Column -->
+                    <div class="kanban-column en-reparto">
+                        <div class="column-header">
+                            <span class="column-title">En Reparto</span>
+                            <span class="column-count" id="count-en-reparto">0</span>
+                        </div>
+                        <div id="column-en-reparto" class="column-content">
+                            <!-- Aquí irán los repartidores activos -->
                             @foreach($motorizados as $motorizado)
-                            <div class="moto-section">MOTO: {{ $motorizado->name }} {{ $motorizado->apellido }}</div>
-                            <div id="moto{{ $motorizado->id }}-container" class="drag-area mb-4"
-                                data-moto-id="{{ $motorizado->id }}">
-                                <!-- Aquí se cargarán los pedidos asignados a este motorizado -->
-                            </div>
+                                @if($motorizado->estado == 1)
+                                <div class="repartidor-container" data-moto-id="{{ $motorizado->id }}">
+                                    <div class="repartidor-header">
+                                        <div class="repartidor-info">
+                                            <div class="repartidor-icon">🚴</div>
+                                            <div class="repartidor-details">
+                                                <div class="repartidor-name">{{ $motorizado->name }} {{ $motorizado->apellido }}</div>
+                                                <div class="repartidor-status">Activo</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="repartidor-pedidos" id="moto-pedidos-{{ $motorizado->id }}">
+                                        <div class="empty-repartidor">
+                                            <div class="empty-icon">📦</div>
+                                            <div>Sin pedidos asignados</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                             @endforeach
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -551,34 +813,390 @@
 
     <script>
     let displayedOrderIds = [];
+    let allPedidos = [];
+    let filteredPedidos = [];
+    let userInteracting = false; // Flag para evitar actualizaciones durante interacción
 
+    // Función para crear tarjeta compacta de pedido
+    function crearTarjetaCompacta(pedido, ordenEntrega = null) {
+        const estado = parseInt(pedido.estado || 2);
+        let estadoClass = 'por-preparar';
+        let estadoText = 'Por Preparar';
+        
+        // Por preparar: estados 2 y 8
+        if (estado === 2 || estado === 8) {
+            estadoClass = 'Preparado';
+            estadoText = estado === 8 ? 'Reingresado' : 'Preparado';
+        } 
+        // Preparados: estado 3
+        else if (estado === 3) {
+            estadoClass = 'Sin asignar';
+            estadoText = 'Sin asignar';
+        } 
+        // En reparto: estados 4 y 5
+        else if (estado === 4) {
+            estadoClass = 'en-reparto';
+            // Para pedidos asignados, mostrar "X° ASIGNADO"
+            estadoText = `${ordenEntrega || 1}° ASIGNADO`;
+        } 
+        else if (estado === 5) {
+            estadoClass = 'en-camino';
+            estadoText = 'EN CAMINO';
+        }
+        // Estados finales: 6, 10, 11 (estos no se mostrarán en el dashboard pero manejamos por si acaso)
+        else if (estado === 6) {
+            estadoClass = 'entregado';
+            estadoText = 'Entregado';
+        } else if (estado === 10) {
+            estadoClass = 'no-encontrado';
+            estadoText = 'No se encontró al cliente';
+        } else if (estado === 11) {
+            estadoClass = 'finalizado';
+            estadoText = 'Cliente finalizó el pedido';
+        }
+
+        const motoInfo = pedido.motorizado ? 
+            `<div class="moto-assignment">
+                <div class="moto-name">${pedido.motorizado.name} ${pedido.motorizado.apellido}</div>
+                <div class="delivery-order">Orden de entrega: ${ordenEntrega || 1}</div>
+            </div>` : '';
+
+        return `
+        <div class="order-card ${estadoClass}" data-pedido-id="${pedido.id}" data-estado="${estado}">
+            <div class="card-header-compact">
+                <div class="order-number">PEDIDO #${pedido.id}</div>
+                <div class="order-time">${pedido.hora_entrega}</div>
+            </div>
+            
+            <div class="card-body-compact">
+                <div class="customer-info-compact">
+                    <div class="customer-name-compact">${pedido.nombre_contacto}</div>
+                    <div class="customer-phone">Tel: ${pedido.telefono_contacto}</div>
+                </div>
+
+                <div class="order-summary">
+                    <div class="order-total-compact">S/ ${parseFloat(pedido.monto_total).toFixed(2)}</div>
+                    <div class="payment-method">${pedido.metodo_pago}</div>
+                </div>
+
+                <div class="status-badge status-${estadoClass}">
+                    <span>●</span> ${estadoText}
+                </div>
+
+                ${motoInfo}
+
+                <div class="card-actions">
+                    <button class="btn-expand" onclick="toggleDetalles(${pedido.id})">
+                        <span id="toggle-icon-${pedido.id}">▼</span> Detalles
+                    </button>
+                    <button class="btn-print" onclick="imprimirPedido(${pedido.id})">Imprimir</button>
+                    ${estado === 2 ? `<button class="btn-ready" onclick="marcarPreparado(${pedido.id})">Listo</button>` : ''}
+                </div>
+
+                <div class="order-details-expanded" id="details-${pedido.id}">
+                    <div class="detail-section">
+                        <div class="detail-title">Dirección</div>
+                        <div class="detail-content">
+                            ${pedido.direccion}<br>
+                            ${pedido.referencia || ''}<br>
+                            ${pedido.distrito || ''}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-title">Pedido</div>
+                        <div class="detail-content">
+                            <ul class="order-items-list">
+                                ${pedido.comensales.map(comensal => 
+                                    `<li><strong>${comensal.nombre}:</strong> S/ ${parseFloat(comensal.total).toFixed(2)}
+                                        <ul>${comensal.items.map(item => 
+                                            `<li class="order-item-compact">- ${item.nombre} (S/ ${parseFloat(item.precio).toFixed(2)})</li>`
+                                        ).join('')}</ul>
+                                    </li>`
+                                ).join('')}
+                            </ul>
+                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
+                                <strong>Delivery: S/ 1.00</strong><br>
+                                <strong>TOTAL: S/ ${parseFloat(pedido.monto_total).toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-title">Información de Pago</div>
+                        <div class="detail-content">
+                            Método: ${pedido.metodo_pago}<br>
+                            ${pedido.vuelto ? `Vuelto de: ${pedido.vuelto} soles<br>` : ''}
+                            Comprobante: ${pedido.comprobante || 'Sin especificar'}<br>
+                            ${pedido.comentarios ? `Comentarios: ${pedido.comentarios}` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // Función para mostrar/ocultar detalles
+    function toggleDetalles(pedidoId) {
+        const details = document.getElementById(`details-${pedidoId}`);
+        const icon = document.getElementById(`toggle-icon-${pedidoId}`);
+        
+        if (details.style.display === 'none' || details.style.display === '') {
+            details.style.display = 'block';
+            icon.textContent = '▲';
+        } else {
+            details.style.display = 'none';
+            icon.textContent = '▼';
+        }
+    }
+
+    // Función para marcar pedido como preparado
+    function marcarPreparado(pedidoId) {
+        $.ajax({
+            url: "{{ route('despacho.actualizar-estado') }}",
+            type: "POST",
+            data: {
+                pedido_id: pedidoId,
+                estado: 3,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Mover el pedido de "Por Preparar" a "Preparados"
+                    const pedidoCard = document.querySelector(`[data-pedido-id="${pedidoId}"]`);
+                    if (pedidoCard) {
+                        pedidoCard.remove();
+                        
+                        // Actualizar el estado en los datos locales
+                        const pedido = allPedidos.find(p => p.id === pedidoId);
+                        if (pedido) {
+                            pedido.estado = 3;
+                            
+                            // Limpiar mensaje vacío de la columna preparados si existe
+                            const preparadosColumn = document.getElementById('column-preparados');
+                            const emptyMessage = preparadosColumn.querySelector('.empty-column');
+                            if (emptyMessage) {
+                                emptyMessage.remove();
+                            }
+                            
+                            // Recrear la tarjeta y agregarla a la columna de preparados
+                            const nuevaTarjeta = crearTarjetaCompacta(pedido);
+                            preparadosColumn.insertAdjacentHTML('beforeend', nuevaTarjeta);
+                        }
+                        
+                        actualizarContadores();
+                        
+                        Swal.fire({
+                            title: 'Pedido actualizado',
+                            text: 'El pedido ha sido marcado como preparado',
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudo actualizar el estado del pedido',
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        });
+    }
+
+    // Función para distribuir pedidos en columnas
+    function distribuirPedidos(pedidos) {
+        // Limpiar columnas
+        document.getElementById('column-por-preparar').innerHTML = '';
+        document.getElementById('column-preparados').innerHTML = '';
+        
+        // Limpiar solo los pedidos de los repartidores, no el contenedor
+        const repartidorContainers = document.querySelectorAll('.repartidor-pedidos');
+        repartidorContainers.forEach(container => {
+            container.innerHTML = `
+                <div class="empty-repartidor">
+                    <div class="empty-icon">📦</div>
+                    <div>Sin pedidos asignados</div>
+                </div>
+            `;
+        });
+
+        let porPreparar = 0, preparados = 0, enReparto = 0;
+
+        // Agrupar pedidos por motorizado para calcular orden de entrega
+        const pedidosPorMotorizado = {};
+
+        pedidos.forEach(pedido => {
+            const estado = parseInt(pedido.estado || 2);
+            
+            // Por preparar: estados 2 y 8
+            if (estado === 2 || estado === 8) {
+                const tarjeta = crearTarjetaCompacta(pedido);
+                document.getElementById('column-por-preparar').insertAdjacentHTML('beforeend', tarjeta);
+                porPreparar++;
+            } 
+            // Preparados: estado 3
+            else if (estado === 3) {
+                const tarjeta = crearTarjetaCompacta(pedido);
+                document.getElementById('column-preparados').insertAdjacentHTML('beforeend', tarjeta);
+                preparados++;
+            } 
+            // En reparto: estados 4 y 5 - agrupar por motorizado
+            else if (estado === 4 || estado === 5) {
+                if (pedido.motorizado && pedido.motorizado.id) {
+                    if (!pedidosPorMotorizado[pedido.motorizado.id]) {
+                        pedidosPorMotorizado[pedido.motorizado.id] = [];
+                    }
+                    pedidosPorMotorizado[pedido.motorizado.id].push(pedido);
+                }
+            }
+            // Los estados 6, 10, 11 no se muestran en el dashboard (pedidos finalizados)
+            // Estos pedidos se filtran automáticamente y no aparecen en la vista
+        });
+
+        // Distribuir pedidos de motorizados con orden calculado
+        Object.keys(pedidosPorMotorizado).forEach(motoId => {
+            const pedidosMotorizado = pedidosPorMotorizado[motoId];
+            const motoPedidosContainer = document.getElementById(`moto-pedidos-${motoId}`);
+            
+            if (motoPedidosContainer) {
+                // Remover mensaje vacío si existe
+                const emptyMessage = motoPedidosContainer.querySelector('.empty-repartidor');
+                if (emptyMessage) {
+                    emptyMessage.remove();
+                }
+
+                // Ordenar pedidos: primero estado 4 (asignados), luego estado 5 (en camino)
+                pedidosMotorizado.sort((a, b) => {
+                    if (a.estado !== b.estado) {
+                        return a.estado - b.estado; // 4 antes que 5
+                    }
+                    return a.id - b.id; // Por ID si tienen mismo estado
+                });
+
+                // Asignar orden de entrega dinámicamente
+                pedidosMotorizado.forEach((pedido, index) => {
+                    const ordenEntrega = index + 1;
+                    const tarjeta = crearTarjetaCompacta(pedido, ordenEntrega);
+                    motoPedidosContainer.insertAdjacentHTML('beforeend', tarjeta);
+                    enReparto++;
+                });
+            }
+        });
+
+        // Mostrar mensajes de columnas vacías si es necesario
+        mostrarEstadosVacios(porPreparar, preparados, enReparto);
+        actualizarContadores();
+    }
+
+    // Función para mostrar estados vacíos
+    function mostrarEstadosVacios(porPreparar, preparados, enReparto) {
+        // Agregar mensaje de columna vacía para "Por Preparar"
+        if (porPreparar === 0) {
+            document.getElementById('column-por-preparar').innerHTML = `
+                <div class="empty-column">
+                    <div class="empty-icon">🍳</div>
+                    <div>No hay pedidos prepararados</div>
+                </div>
+            `;
+        }
+
+        // Agregar mensaje de columna vacía para "Preparados"
+        if (preparados === 0) {
+            document.getElementById('column-preparados').innerHTML = `
+                <div class="empty-column">
+                    <div class="empty-icon">✅</div>
+                    <div>No hay pedidos por asignar</div>
+                </div>
+            `;
+        }
+
+        // Para repartidores, el mensaje ya se maneja individualmente en distribuirPedidos
+    }
+
+    // Función para actualizar contadores
+    function actualizarContadores() {
+        const porPreparar = document.querySelectorAll('#column-por-preparar .order-card').length;
+        const preparados = document.querySelectorAll('#column-preparados .order-card').length;
+        
+        // Contar pedidos en todos los repartidores
+        let enReparto = 0;
+        const repartidorContainers = document.querySelectorAll('.repartidor-pedidos');
+        repartidorContainers.forEach(container => {
+            enReparto += container.querySelectorAll('.order-card').length;
+        });
+        
+        const total = porPreparar + preparados + enReparto;
+
+        document.getElementById('count-por-preparar').textContent = porPreparar;
+        document.getElementById('count-preparados').textContent = preparados;
+        document.getElementById('count-en-reparto').textContent = enReparto;
+
+        document.getElementById('stat-por-preparar').textContent = porPreparar;
+        document.getElementById('stat-preparados').textContent = preparados;
+        document.getElementById('stat-en-reparto').textContent = enReparto;
+        document.getElementById('stat-total').textContent = total;
+    }
+
+    // Función para aplicar filtros (deshabilitada - no hay filtros en UI)
+    function aplicarFiltros() {
+        // Los filtros han sido eliminados, mantener todos los pedidos
+        filteredPedidos = [...allPedidos];
+        distribuirPedidos(filteredPedidos);
+    }
+
+    // Función para actualizar pedidos desde el servidor
     function actualizarPedidos() {
+        // No actualizar si el usuario está interactuando
+        if (userInteracting) {
+            console.log('Saltando actualización - usuario interactuando');
+            return;
+        }
+
         $.ajax({
             url: "{{ route('despacho.pedidos-nuevos') }}",
             type: "GET",
             dataType: "json",
             success: function(data) {
-                // Verificar si hay nuevos pedidos
-                $('#pedidos-count').text(data.length);
+                console.log('Pedidos actualizados desde servidor:', data.length);
+                
+                // NO sobrescribir completamente allPedidos, solo actualizar nuevos
                 let nuevosEncontrados = false;
-
-                data.forEach(function(pedido) {
-                    if (!displayedOrderIds.includes(pedido.id)) {
-                        // Este es un pedido nuevo
+                
+                data.forEach(function(pedidoServidor) {
+                    const pedidoExistente = allPedidos.find(p => p.id === pedidoServidor.id);
+                    
+                    if (!pedidoExistente) {
+                        // Nuevo pedido, agregarlo
+                        allPedidos.push(pedidoServidor);
+                        displayedOrderIds.push(pedidoServidor.id);
                         nuevosEncontrados = true;
-                        displayedOrderIds.push(pedido.id);
-
-                        // Crear la tarjeta del pedido y agregarla al contenedor
-                        const cardHtml = crearTarjetaPedido(pedido);
-                        $('#orders-pending').append(cardHtml);
+                    } else {
+                        // Pedido existente, solo actualizar campos específicos sin tocar motorizado
+                        pedidoExistente.estado = pedidoServidor.estado;
+                        pedidoExistente.monto_total = pedidoServidor.monto_total;
+                        // NO actualizar motorizado para mantener asignaciones locales
                     }
-                }); // End of $(document).ready()
+                });
 
-                // Si hay nuevos pedidos, mostrar una notificación
+                // Actualizar filteredPedidos
+                filteredPedidos = [...allPedidos];
+                
+                // Solo redistribuir si hay nuevos pedidos
                 if (nuevosEncontrados) {
+                    distribuirPedidos(filteredPedidos);
+                    
                     Swal.fire({
                         title: '¡Nuevos pedidos!',
-                        text: 'Se han agregado nuevos pedidos para despacho',
+                        text: 'Se han agregado nuevos pedidos',
                         icon: 'info',
                         toast: true,
                         position: 'top-end',
@@ -593,6 +1211,7 @@
         });
     }
 
+    // Función para asignar pedido a moto 
     function asignarPedidoAMoto(pedidoId, motoId) {
         $.ajax({
             url: "{{ route('despacho.asignar-moto') }}",
@@ -604,27 +1223,51 @@
             },
             success: function(response) {
                 if (response.success) {
-                    let mensaje = '';
-                    if (motoId === 0) {
-                        mensaje = 'El pedido ha vuelto a la sección "Por asignar"';
-                    } else {
-                        mensaje = `El pedido ha sido asignado a la moto ${motoId}`;
+                    console.log('Pedido asignado exitosamente');
+                    
+                    // Actualizar el pedido en los datos locales
+                    const pedido = allPedidos.find(p => p.id == pedidoId);
+                    if (pedido) {
+                        if (motoId == 0) {
+                            pedido.motorizado = null;
+                            pedido.estado = 3;
+                        } else {
+                            // Buscar información del motorizado
+                            const motorizados = @json($motorizados);
+                            const motorizado = motorizados.find(m => m.id == motoId);
+                            if (motorizado) {
+                                pedido.motorizado = {
+                                    id: motorizado.id,
+                                    name: motorizado.name,
+                                    apellido: motorizado.apellido
+                                };
+                            }
+                            pedido.estado = 4;
+                        }
+                        
+                        // Actualizar datos filtrados
+                        const filteredIndex = filteredPedidos.findIndex(p => p.id == pedidoId);
+                        if (filteredIndex !== -1) {
+                            filteredPedidos[filteredIndex] = pedido;
+                        }
+                        
+                        // Redistribuir pedidos
+                        distribuirPedidos(filteredPedidos);
+                        
+                        Swal.fire({
+                            title: 'Pedido actualizado',
+                            text: motoId == 0 ? 'Pedido sin asignar' : `Pedido asignado correctamente`,
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
                     }
-
-                    // Notificar al usuario
-                    Swal.fire({
-                        title: 'Pedido actualizado',
-                        text: mensaje,
-                        icon: 'success',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
                 }
             },
             error: function(xhr, status, error) {
-                console.error("Error al asignar pedido a moto:", error);
+                console.error('Error al asignar pedido:', error);
                 Swal.fire({
                     title: 'Error',
                     text: 'No se pudo completar la acción',
@@ -634,552 +1277,251 @@
                     showConfirmButton: false,
                     timer: 3000
                 });
+                
+                // Recargar para revertir cambios visuales
+                distribuirPedidos(filteredPedidos);
             }
         });
     }
 
-    // Función para crear HTML de la tarjeta de pedido
-    function crearTarjetaPedido(pedido) {
-        // Construir la sección de comensales y sus ítems
-        let comensalesHtml = '';
-        pedido.comensales.forEach(function(comensal) {
-            comensalesHtml +=
-                `
-            <div class="order-person">
-                <div class="order-person-name">${comensal.nombre}: (S/ ${parseFloat(comensal.total).toFixed(2)})</div>`;
-
-            comensal.items.forEach(function(item) {
-                comensalesHtml +=
-                    `<div class="order-item">- ${item.nombre} (S/ ${parseFloat(item.precio).toFixed(2)})</div>`;
+    function imprimirPedido(pedidoId) {
+        const imprimirWindow = window.open("{{ url('despacho/pedido/imprimir') }}/" + pedidoId, '_blank');
+        
+        if (imprimirWindow) {
+            imprimirWindow.focus();
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: 'Por favor, permita ventanas emergentes para imprimir el pedido',
+                icon: 'error',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
             });
-
-            comensalesHtml += `</div>`;
-        });
-
-        // HTML completo de la tarjeta
-        return `
-    <div class="card-container">
-        <div class="card-header">
-            <div class="card-title">PEDIDO #${pedido.id} - ${pedido.fecha}</div>
-            <div class="card-times">
-                <div>
-                    <span class="card-time-label">Hora pedido:</span>
-                    <span class="card-time-value">${pedido.hora_pedido}</span>
-                </div>
-                <div>
-                    <span class="card-time-label">Hora entrega aprox:</span>
-                    <span class="card-time-value card-time-delivery">${pedido.hora_entrega}</span>
-                </div>
-            </div>
-            <div>PEDIDO LISTO <input type="checkbox" class="pedido-listo-check" data-id="${pedido.id}" style="width: 20px; height: 20px;"></div>
-        </div>
-
-        <div class="card-body">
-            <!-- Left column - Order items -->
-            <div class="card-column card-column-left">
-                <div class="order-items">
-                    ${comensalesHtml}
-
-                    <!-- Total section -->
-                    <div class="order-totals">
-                        <div class="order-delivery">Delivery: S/ 1.00</div>
-                        <div class="order-total">TOTAL: S/ ${parseFloat(pedido.monto_total).toFixed(2)}</div>
-                    </div>
-                </div>
-
-                <button class="print-button" onclick="imprimirPedido(${pedido.id})">Imprimir</button>
-            </div>
-
-            <!-- Right column - Customer info -->
-            <div class="card-column">
-                <!-- Customer contact info section -->
-                <div class="customer-info">
-                    <div class="customer-header">
-                        <div class="customer-name">${pedido.nombre_contacto}</div>
-                        <div>TEL:${pedido.telefono_contacto}</div>
-                    </div>
-                    <div class="customer-address">${pedido.direccion}</div>
-                    <div class="customer-address">${pedido.referencia || ''}</div>
-                    <div class="customer-address">${pedido.distrito || ''}</div>
-                </div>
-
-                <!-- Payment details section -->
-                <div class="payment-info">
-                    <div class="payment-row">
-                        <div class="payment-label">Método pago:</div>
-                        <div class="payment-value">${pedido.metodo_pago}</div>
-                    </div>
-                    ${pedido.vuelto ? `
-                    <div class="payment-row">
-                        <div class="payment-label">Vuelto de:</div>
-                        <div class="payment-value">${pedido.vuelto} soles</div>
-                    </div>
-                    ` : ''}
-                    <div class="payment-row">
-                        <div class="payment-label">Comprobante pago:</div>
-                        <div class="payment-value">${pedido.comprobante}</div>
-                    </div>
-                    ${pedido.tipo_comprobante ? `
-                    <div class="payment-row">
-                        <div class="payment-label">Tipo:</div>
-                        <div class="payment-value">${pedido.tipo_comprobante}</div>
-                    </div>
-                    ` : ''}
-                    ${pedido.documento ? `
-                    <div class="payment-row">
-                        <div class="payment-label">Nº documento:</div>
-                        <div class="payment-value">${pedido.documento}</div>
-                    </div>
-                    ` : ''}
-                </div>
-
-                <!-- Customer comment section -->
-                <div class="customer-info">
-                    <div style="margin-bottom: 5px;">Comentario cliente</div>
-                    <div style="height: 50px;">${pedido.comentarios || ''}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    `;
-    }
-
-    function crearTarjetaPorAsignar(pedido, orden = null) {
-    // Base structure without status indicators
-    const cardHtml = `
-    <div class="card-container draggable mb-3" data-pedido-id="${pedido.id}" data-estado="${pedido.estado || 3}">
-        <div style="padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: bold; font-size: 16px;">PEDIDO #${pedido.id} - ${pedido.fecha}</div>
-            <div>
-                <span style="margin-right: 15px;">Hora pedido: <strong>${pedido.hora_pedido}</strong></span>
-                <span style="color: #ff6f00;"><strong>${pedido.hora_entrega}</strong></span>
-            </div>
-        </div>
-
-        <div style="display: flex;">
-            <!-- Left column - Order summary -->
-            <div style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6;">
-                <div style="text-align: right; margin-bottom: 20px;">
-                    ${pedido.comensales.map(comensal => `
-                        <div style="font-size: 16px; margin-bottom: 10px;">
-                            <strong>${comensal.nombre}:</strong> S/ ${parseFloat(comensal.total).toFixed(2)}
-                        </div>
-                    `).join('')}
-                </div>
-
-                <div style="border: 1px solid #dee2e6; padding: 10px; text-align: center; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <div>Delivery:</div>
-                        <div>S/ 1.00</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
-                        <div>TOTAL:</div>
-                        <div>S/ ${parseFloat(pedido.monto_total).toFixed(2)}</div>
-                    </div>
-                </div>
-
-                <div id="status-container-${pedido.id}" class="status-indicator-container"></div>
-
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <button class="btn btn-dark" onclick="imprimirPedido(${pedido.id})"
-                        style="width: 180px; font-weight: bold; padding: 8px 0; font-size: 16px;">Imprimir</button>
-                </div>
-            </div>
-
-            <!-- Right column -->
-            <div style="width: 50%; padding: 15px;">
-                <!-- Customer contact info section -->
-                <div style="border: 1px solid #dee2e6; padding: 15px; margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <div style="font-weight: bold; font-size: 16px;">${pedido.nombre_contacto}</div>
-                        <div>TEL:${pedido.telefono_contacto}</div>
-                    </div>
-                    <div style="margin-bottom: 5px;">${pedido.direccion}</div>
-                    <div style="margin-bottom: 5px;">${pedido.referencia || ''}</div>
-                    <div>${pedido.distrito || ''}</div>
-                </div>
-
-                <!-- Payment details section - simplified -->
-                <div style="border: 1px solid #dee2e6; padding: 15px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <div>Método pago:</div>
-                        <div style="font-weight: bold;">${pedido.metodo_pago}</div>
-                    </div>
-                    ${pedido.vuelto ? `
-                    <div style="display: flex; justify-content: space-between;">
-                        <div>Vuelto de:</div>
-                        <div style="font-weight: bold;">${pedido.vuelto} soles</div>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-        </div>
-    </div>
-    `;
-    
-    // Create a DOM element
-    const cardElement = document.createElement('div');
-    cardElement.innerHTML = cardHtml;
-    const card = cardElement.firstElementChild;
-    
-    // Find the status container
-    const statusContainer = card.querySelector(`#status-container-${pedido.id}`);
-    if (statusContainer) {
-        // Add status indicator based on estado
-        const estado = parseInt(pedido.estado || 3);
-        if (estado === 5) {
-            statusContainer.innerHTML = `
-                <div style="display: flex; align-items: center; background-color: #FFF3E0; padding: 8px; border-radius: 4px; margin-bottom: 15px;">
-                    <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                        ${orden !== null ? orden : ''}
-                    </div>
-                    <div style="color: #FF5722; font-weight: bold;">EN CAMINO</div>
-                </div>
-            `;
-        } else if (estado === 4) {
-            statusContainer.innerHTML = `
-                <div style="display: flex; align-items: center; background-color: #FFF3E0; padding: 8px; border-radius: 4px; margin-bottom: 15px;">
-                    <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                        ${orden !== null ? orden : ''}
-                    </div>
-                    <div style="color: #FF5722; font-weight: bold;">ASIGNADO</div>
-                </div>
-            `;
         }
     }
-    
-    return card.outerHTML;
-}
 
-// Add this helper function to update an existing card's status
-function actualizarEstadoTarjeta(pedidoId, estado, orden = null) {
-    const statusContainer = document.querySelector(`#status-container-${pedidoId}`);
-    if (!statusContainer) return;
-    
-    if (estado === 5) {
-        statusContainer.innerHTML = `
-            <div style="display: flex; align-items: center; background-color: #FFF3E0; padding: 8px; border-radius: 4px; margin-bottom: 15px;">
-                <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                    ${orden !== null ? orden : ''}
-                </div>
-                <div style="color: #FF5722; font-weight: bold;">EN CAMINO</div>
-            </div>
-        `;
-    } else if (estado === 4) {
-        statusContainer.innerHTML = `
-            <div style="display: flex; align-items: center; background-color: #FFF3E0; padding: 8px; border-radius: 4px; margin-bottom: 15px;">
-                <div style="background-color: #FF5722; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
-                    ${orden !== null ? orden : ''}
-                </div>
-                <div style="color: #FF5722; font-weight: bold;">ASIGNADO</div>
-            </div>
-        `;
-    } else {
-        statusContainer.innerHTML = '';
-    }
-}
-
-
+    // Inicialización del documento
     $(document).ready(function() {
-        // Definir pedidosIniciales correctamente antes de usarlo
+        // Cargar datos iniciales
         @php
         $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
         $pedidosPorAsignarJs = isset($pedidosPorAsignar) ? json_encode($pedidosPorAsignar) : '[]';
         $pedidosMotorizadosJs = isset($pedidosMotorizados) ? json_encode($pedidosMotorizados) : '{}';
         @endphp
-        const pedidosIniciales = {!!$pedidosJs!!};
-        const pedidosPorAsignar = {!!$pedidosPorAsignarJs!!};
-        const pedidosMotorizados = {!!$pedidosMotorizadosJs!!};
-
         
+        const pedidosIniciales = {!!$pedidosJs!!}; // Estados 2 y 8
+        const pedidosPorAsignar = {!!$pedidosPorAsignarJs!!}; // Estado 3
+        const pedidosMotorizados = {!!$pedidosMotorizadosJs!!}; // Estados 4 y 5
 
-        // Cargar los IDs iniciales para evitar duplicados
+        // Combinar todos los pedidos en un solo array
+        allPedidos = [];
+        
+        // Agregar pedidos por preparar (estados 2 y 8)
         if (pedidosIniciales && pedidosIniciales.length > 0) {
-            pedidosIniciales.forEach(function(pedido) {
-                displayedOrderIds.push(pedido.id);
+            pedidosIniciales.forEach(pedido => {
+                pedido.estado = pedido.estado || 2;
+                allPedidos.push(pedido);
             });
         }
-
-        @foreach($motorizados as $motorizado)
-    if (pedidosMotorizados[{{ $motorizado->id }}] && pedidosMotorizados[{{ $motorizado->id }}].length > 0) {
-            pedidosMotorizados[{{ $motorizado->id }}].forEach(function(pedido, index) {
-                $('#moto{{ $motorizado->id }}-container').append(
-                    crearTarjetaPorAsignar(pedido, index + 1)
-                    );
-                });
-            }
-    @endforeach
-
-        // Cargar los pedidos iniciales
-        actualizarPedidos();
-        actualizarEstadoPedidos();
-        setInterval(actualizarEstadoPedidos, 10000);
-
-        // Vaciar el contenedor de pedidos si ya existen tarjetas estáticas
-        $('#orders-pending').empty();
-
-        // Cargar los pedidos iniciales después de vaciar
-        if (pedidosIniciales && pedidosIniciales.length > 0) {
-            pedidosIniciales.forEach(function(pedido) {
-                $('#orders-pending').append(crearTarjetaPedido(pedido));
-            });
-        }
-
-        // Cargar los pedidos por asignar en su contenedor
+        
+        // Agregar pedidos preparados (estado 3)
         if (pedidosPorAsignar && pedidosPorAsignar.length > 0) {
-            pedidosPorAsignar.forEach(function(pedido) {
-                $('#unassigned-orders').append(crearTarjetaPorAsignar(pedido));
+            pedidosPorAsignar.forEach(pedido => {
+                pedido.estado = 3;
+                allPedidos.push(pedido);
             });
-
-            // Actualizar el contador de pedidos pendientes
-            $('#pedidos-pendingcount').text(pedidosPorAsignar.length);
         }
 
-        $(document).on('change', '.pedido-listo-check', function() {
-            if (this.checked) {
-                const pedidoId = $(this).data('id');
-                const $tarjeta = $(this).closest('.card-container');
-
-                // Actualizar el estado del pedido via AJAX
-                $.ajax({
-                    url: "{{ route('despacho.actualizar-estado') }}",
-                    type: "POST",
-                    data: {
-                        pedido_id: pedidoId,
-                        estado: 3,
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-
-                        if (response.success) {
-                            // Buscar el pedido en los datos originales
-                            let pedidoData = null;
-                            for (let i = 0; i < pedidosIniciales.length; i++) {
-                                if (pedidosIniciales[i].id === pedidoId) {
-                                    pedidoData = pedidosIniciales[i];
-                                    break;
-                                }
-                            }
-
-                            if (pedidoData) {
-                                // Crear la nueva tarjeta en formato "Por asignar"
-                                const nuevaTarjeta = crearTarjetaPorAsignar(pedidoData);
-
-                                // Eliminar la tarjeta original
-                                $tarjeta.fadeOut(300, function() {
-                                    $(this).remove();
-
-                                    // Añadir la nueva tarjeta al contenedor "unassigned-orders"
-                                    $('#unassigned-orders').append(nuevaTarjeta);
-                                    const contadorActual = $(
-                                        '#pedidos-pendingcount').text() || "0";
-                                    $('#pedidos-pendingcount').text(parseInt(
-                                        contadorActual) + 1);
-
-                                    // Notificar al usuario
-                                    Swal.fire({
-                                        title: 'Pedido actualizado',
-                                        text: 'El pedido ha sido marcado como listo y movido a la sección Por Asignar',
-                                        icon: 'success',
-                                        toast: true,
-                                        position: 'top-end',
-                                        showConfirmButton: false,
-                                        timer: 3000
-                                    });
-                                });
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error al actualizar el estado del pedido:", error);
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'No se pudo actualizar el estado del pedido',
-                            icon: 'error',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-                    }
+        // Agregar pedidos de motorizados (estados 4 y 5)
+        @foreach($motorizados as $motorizado)
+            @if($motorizado->estado == 1)
+            if (pedidosMotorizados[{{ $motorizado->id }}] && pedidosMotorizados[{{ $motorizado->id }}].length > 0) {
+                pedidosMotorizados[{{ $motorizado->id }}].forEach(function(pedido) {
+                    pedido.motorizado = {
+                        id: {{ $motorizado->id }},
+                        name: "{{ $motorizado->name }}",
+                        apellido: "{{ $motorizado->apellido }}"
+                    };
+                    // No asignar orden_entrega aquí, se calculará dinámicamente
+                    pedido.estado = pedido.estado || 4;
+                    allPedidos.push(pedido);
                 });
             }
+            @endif
+        @endforeach
+
+        // Marcar IDs como mostrados
+        allPedidos.forEach(pedido => {
+            displayedOrderIds.push(pedido.id);
         });
+
+        console.log('Pedidos cargados:', allPedidos.length);
+        console.log('Datos:', allPedidos);
+
+        // Distribución inicial
+        filteredPedidos = [...allPedidos];
+        distribuirPedidos(filteredPedidos);
+
+        // Configurar actualización automática (frecuencias reducidas)
+        setInterval(actualizarPedidos, 60000); // Cada 60 segundos en lugar de 30
+        setInterval(actualizarEstadoPedidos, 30000); // Cada 30 segundos en lugar de 10
+
+        // Configurar drag & drop
+        initializeKanbanDragDrop();
     });
 
-
-
-
-    // Inicializar Sortable para permitir arrastrar y soltar
-    document.addEventListener('DOMContentLoaded', function() {
-    // Array para almacenar todos los contenedores
-    var containers = [
-        document.getElementById('unassigned-orders')
-    ];
-    
-    // Agregar dinámicamente los contenedores de motorizados
-    @foreach($motorizados as $motorizado)
-        containers.push(document.getElementById('moto{{ $motorizado->id }}-container'));
-    @endforeach
-    
-    // Inicializar Sortable en cada contenedor
-    containers.forEach(function(container) {
-        if (container) { // Asegurarse que el contenedor existe
-            new Sortable(container, {
-                group: 'orders',
+    // Inicializar drag and drop para kanban
+    function initializeKanbanDragDrop() {
+        // Configurar sortable para la columna de preparados (origen)
+        const preparadosColumn = document.getElementById('column-preparados');
+        if (preparadosColumn) {
+            new Sortable(preparadosColumn, {
+                group: {
+                    name: 'pedidos',
+                    pull: 'clone',
+                    put: false
+                },
                 animation: 150,
-                ghostClass: 'order-card-ghost',
-                chosenClass: 'order-card-chosen',
-                dragClass: 'order-card-drag',
-                direction: 'vertical',
-                fallbackOnBody: true,
-                swapThreshold: 0.65,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                sort: false, // No permitir reordenar dentro de preparados
+                onStart: function(evt) {
+                    userInteracting = true;
+                    console.log('Usuario iniciando drag & drop');
+                },
                 onEnd: function(evt) {
-                    const pedidoId = evt.item.getAttribute('data-pedido-id');
-                    
-                    // Si no se pudo obtener el ID del pedido, no hacer nada
-                    if (!pedidoId) return;
-                    
-                    // Determinar a qué moto se asignó (o si se quitó la asignación)
-                    let motoId = null;
-                    
-                    if (evt.to.id === 'unassigned-orders') {
-                        motoId = 0; // 0 significa sin asignar
-                    } else {
-                        // Extraer el ID del motorizado del ID del contenedor (motoX-container)
-                        const match = evt.to.id.match(/moto(\d+)-container/);
-                        if (match && match[1]) {
-                            motoId = parseInt(match[1]);
-                        }
-                    }
-                    
-                    // Si se asignó a una moto o se quitó la asignación
-                    if (motoId !== null) {
-                        asignarPedidoAMoto(pedidoId, motoId);
-                    }
+                    setTimeout(() => {
+                        userInteracting = false;
+                        console.log('Usuario terminó interacción');
+                    }, 2000); // 2 segundos de pausa después del drag
                 }
             });
         }
-    });
 
-        initCalendar();
-    });
-
-    function initCalendar() {
-        const today = new Date();
-        let currentMonth = today.getMonth();
-        let currentYear = today.getFullYear();
-        let currentDayIndex = today.getDate() - 1; // Start at today
-    }
-
-    function calcularOrdenPedido(motoId, pedidoId) {
-    const containerId = `moto${motoId}-container`;
-    const $container = $(`#${containerId}`);
-    
-    if (!$container.length) {
-        return null;
-    }
-    
-    const pedidos = $container.find('.card-container').toArray();
-    
-    // Encontrar la posición del pedido en el contenedor
-    for (let i = 0; i < pedidos.length; i++) {
-        if ($(pedidos[i]).attr('data-pedido-id') === String(pedidoId)) {
-            return i + 1;
-        }
-    }
-    
-    return null;
-}
-
-
-    function actualizarEstadoPedidos() {
-    $.ajax({
-        url: "{{ route('despacho.estado-pedidos') }}",
-        type: "GET",
-        dataType: "json",
-        success: function(data) {
-            // Process each order from the response
-            data.forEach(function(pedido) {
-                let $pedidoElement = $(`.card-container[data-pedido-id="${pedido.id}"]`);
-                
-                if ($pedidoElement.length > 0) {
-                    const currentState = parseInt($pedidoElement.attr('data-estado'));
-                    const newState = parseInt(pedido.estado);
+        // Configurar sortable para cada repartidor (destino)
+        const repartidorContainers = document.querySelectorAll('.repartidor-pedidos');
+        repartidorContainers.forEach(container => {
+            const motoId = container.id.replace('moto-pedidos-', '');
+            
+            new Sortable(container, {
+                group: {
+                    name: 'pedidos',
+                    pull: false,
+                    put: true
+                },
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onAdd: function(evt) {
+                    const pedidoCard = evt.item;
+                    const pedidoId = pedidoCard.getAttribute('data-pedido-id');
                     
-                    // If state has changed
-                    if (currentState !== newState) {
-                        // Update the state attribute
-                        $pedidoElement.attr('data-estado', newState);
-                        
-                        // If the order is now delivered or has problems, schedule it for removal
-                        if (newState === 6 || newState === 10 || newState === 11) {
-                            // Mark for removal with fade effect after 10 seconds
-                            setTimeout(function() {
-                                $pedidoElement.fadeOut(500, function() {
-                                    $(this).remove();
-                                });
-                            }, 10000);
-                        } 
-                        // If the order is in progress (status 4 or 5), update its display
-                        else if (newState === 4 || newState === 5) {
-                            // Find which container it's in
-                            const containerId = $pedidoElement.parent().attr('id');
-                            const motoId = containerId.match(/moto(\d+)-container/);
-                            
-                            if (motoId && motoId[1]) {
-                                const orden = calcularOrdenPedido(motoId[1], pedido.id);
-                                // Update status indicator directly
-                                actualizarEstadoTarjeta(pedido.id, newState, orden);
-                            }
-                        }
-                    }
+                    console.log(`Asignando pedido ${pedidoId} a moto ${motoId}`);
+                    
+                    // Marcar que el usuario está interactuando
+                    userInteracting = true;
+                    
+                    // Asignar pedido al repartidor
+                    asignarPedidoAMoto(pedidoId, motoId);
+                    
+                    // Desmarcar después de un tiempo
+                    setTimeout(() => {
+                        userInteracting = false;
+                    }, 3000);
                 }
             });
-        },
-        error: function(xhr, status, error) {
-            console.error("Error al obtener el estado de los pedidos:", error);
-        }
-    });
-}
-
-    // Añadir esta función para calcular el orden del pedido
-    function calcularOrdenPedido(motoId, pedidoId) {
-        const containerId = `moto${motoId}-container`;
-        const $container = $(`#${containerId}`);
-        const pedidos = $container.find('.card-container').toArray();
-
-        // Encontrar la posición del pedido en el contenedor
-        for (let i = 0; i < pedidos.length; i++) {
-            if ($(pedidos[i]).attr('data-pedido-id') === String(pedidoId)) {
-                return i + 1;
-            }
-        }
-
-        return null;
-    }
-
-
-    function imprimirPedido(pedidoId) {
-    // Abrir en una nueva ventana la URL de impresión
-    const imprimirWindow = window.open("{{ url('despacho/pedido/imprimir') }}/" + pedidoId, '_blank');
-    
-    if (imprimirWindow) {
-        // Enfocar la ventana para asegurar que se abra correctamente
-        imprimirWindow.focus();
-    } else {
-        // Si el navegador bloqueó la ventana emergente
-        Swal.fire({
-            title: 'Error',
-            text: 'Por favor, permita ventanas emergentes para imprimir el pedido',
-            icon: 'error',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000
         });
     }
-}
+
+    // Función para actualizar estado de pedidos desde servidor
+    function actualizarEstadoPedidos() {
+        // No actualizar si el usuario está interactuando
+        if (userInteracting) {
+            console.log('Saltando verificación de estados - usuario interactuando');
+            return;
+        }
+        
+        console.log('Verificando estados de pedidos...');
+        
+        // Solo verificar cambios de estado críticos sin sobrescribir datos
+        $.ajax({
+            url: "{{ route('despacho.pedidos-nuevos') }}",
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                let cambiosDetectados = false;
+                let pedidosEliminados = false;
+                
+                data.forEach(function(pedidoServidor) {
+                    const pedidoLocal = allPedidos.find(p => p.id === pedidoServidor.id);
+                    
+                    if (pedidoLocal && pedidoLocal.estado !== pedidoServidor.estado) {
+                        console.log(`Estado actualizado para pedido ${pedidoLocal.id}: ${pedidoLocal.estado} -> ${pedidoServidor.estado}`);
+                        
+                        // Verificar si el pedido llega a un estado final (6, 10, 11)
+                        if ([6, 10, 11].includes(parseInt(pedidoServidor.estado))) {
+                            console.log(`Pedido ${pedidoLocal.id} completado con estado ${pedidoServidor.estado}, eliminando de vista`);
+                            
+                            // Eliminar del array de pedidos
+                            const index = allPedidos.indexOf(pedidoLocal);
+                            if (index > -1) {
+                                allPedidos.splice(index, 1);
+                            }
+                            
+                            // Eliminar del array filtrado
+                            const filteredIndex = filteredPedidos.indexOf(pedidoLocal);
+                            if (filteredIndex > -1) {
+                                filteredPedidos.splice(filteredIndex, 1);
+                            }
+                            
+                            pedidosEliminados = true;
+                            cambiosDetectados = true;
+                            
+                            // Mostrar notificación según el estado final
+                            let mensaje = '';
+                            if (pedidoServidor.estado == 6) {
+                                mensaje = `Pedido #${pedidoLocal.id} entregado exitosamente`;
+                            } else if (pedidoServidor.estado == 10) {
+                                mensaje = `Pedido #${pedidoLocal.id} - No se encontró al cliente`;
+                            } else if (pedidoServidor.estado == 11) {
+                                mensaje = `Pedido #${pedidoLocal.id} finalizado por el cliente`;
+                            }
+                            
+                            Swal.fire({
+                                title: 'Pedido Completado',
+                                text: mensaje,
+                                icon: pedidoServidor.estado == 6 ? 'success' : 'info',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 4000
+                            });
+                        } else {
+                            // Solo actualizar estado para estados activos, mantener toda la demás información
+                            pedidoLocal.estado = pedidoServidor.estado;
+                            cambiosDetectados = true;
+                        }
+                    }
+                });
+                
+                if (cambiosDetectados) {
+                    // Redistribuir si hubo cambios de estado o eliminaciones
+                    distribuirPedidos(filteredPedidos);
+                    
+                    if (pedidosEliminados) {
+                        console.log('Pedidos eliminados, vista actualizada');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error al verificar estados:", error);
+            }
+        });
+    }
     </script>
 </body>
 

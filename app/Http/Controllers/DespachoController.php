@@ -136,10 +136,12 @@ private function getMotorizadosActivos()
                 foreach ($pedido->detalles as $detalle) {
                     if ($detalle->id_comensal == $comensal->id) {
                         $nombreProducto = $detalle->producto ? $detalle->producto->nombre : 'Producto no disponible';
+                        $categoriaProducto = $detalle->producto && $detalle->producto->categoria ? $detalle->producto->categoria->nombre : '';
                         $precioUnitario = $detalle->precio;
                         
                         $items[] = [
                             'nombre' => $nombreProducto,
+                            'categoria' => $categoriaProducto,
                             'precio' => $precioUnitario,
                             'cantidad' => $detalle->cantidad
                         ];
@@ -300,9 +302,11 @@ public function marcarPedidoEnCamino(Request $request)
 
 public function obtenerEstadoPedidos()
 {
-    $pedidosDB = Pedido::whereIn('estado', [4, 5, 6, 10, 11])
+    // Solo retornar pedidos activos en el dashboard (estados 4 y 5)
+    // Los estados 6, 10, 11 se consideran finalizados y no se muestran
+    $pedidosDB = Pedido::whereIn('estado', [4, 5])
         ->whereDate('created_at', Carbon::today())
-        ->select('id', 'estado', 'id_user_moto')
+        ->select('id', 'estado', 'id_user_moto', 'orden_entrega')
         ->get();
     
     return response()->json($pedidosDB);
@@ -397,7 +401,7 @@ private function formatearPedidoParaImpresion($pedidoDB)
         'documento' => $pedidoDB->datos_comprobante ? json_decode($pedidoDB->datos_comprobante)->numero_documento ?? '' : '',
         'comentarios' => $pedidoDB->comentarios,
         'estado' => $pedidoDB->estado,
-        'total' => $totalPedido,
+        'total' => $pedidoDB->monto_total, // Usar el monto_total del pedido en lugar de calcular
         'comensales' => $comensalesDatos,
     ];
 }
