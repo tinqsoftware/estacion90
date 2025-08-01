@@ -259,10 +259,10 @@
 
                 pedidos.forEach(pedido => {
                     // Only process orders with status 0 or 1
-                    if (pedido.estado === '0' || pedido.estado === '1') {
+                    if (pedido.estado === 0 || pedido.estado === 1) {
                         const card = createOrderCard(pedido);
                         if (card) {
-                            if (pedido.estado === '1') {
+                            if (pedido.estado === 1) {
                                 procesoContainer.appendChild(card);
                                 procesoCount++;
                             } else { // Status 0 goes to pendientes
@@ -741,11 +741,23 @@
 
         // Calculate entry and exit time
         const createdDate = new Date(order.created_at);
+        console.log('Raw created_at:', order.created_at);
+        console.log('Parsed createdDate:', createdDate);
+        
+        // Validate that the date was parsed correctly
+        if (isNaN(createdDate.getTime())) {
+            console.error('Invalid date format for created_at:', order.created_at);
+            // Fallback to current time if parsing fails
+            createdDate = new Date();
+        }
+        
         const entryTime = createdDate.toLocaleTimeString('es-ES', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
         }).toUpperCase();
+        
+        console.log('Formatted entryTime:', entryTime);
 
         // Calculate estimated delivery time based on horallegada if available
         let exitTime = "";
@@ -780,18 +792,18 @@
                 itemsByProduct[productName] = {
                     count: 0,
                     producto: detalle.producto,
-                    estado: detalle.estado || '0' // Store the estado from database
+                    estado: detalle.estado || 0 // Store the estado from database
                 };
             } else {
                 // If we have multiple items with the same product name, keep the highest status
                 // This handles cases where the same product appears multiple times with different statuses
-                const currentStatus = itemsByProduct[productName].estado || '0';
-                const newStatus = detalle.estado || '0';
+                const currentStatus = itemsByProduct[productName].estado || 0;
+                const newStatus = detalle.estado || 0;
 
                 // Higher priority: 2 > 1 > 9 > 0
-                if (newStatus === '2' ||
-                    (newStatus === '1' && currentStatus !== '2') ||
-                    (newStatus === '9' && currentStatus !== '2' && currentStatus !== '1')) {
+                if (newStatus === 2 ||
+                    (newStatus === 1 && currentStatus !== 2) ||
+                    (newStatus === 9 && currentStatus !== 2 && currentStatus !== 1)) {
                     itemsByProduct[productName].estado = newStatus;
                 }
             }
@@ -829,22 +841,22 @@
 
             // Determine initial status based on data from pedido_detalles
             // Default is state 0 (gray/unpainted)
-            const itemStatus = item.estado || '0';
+            const itemStatus = item.estado || 0;
 
             // Set button classes based on status
             let leftButtonClass, rightButtonClass;
 
             // Left button (for states 0->1->2 cycle)
-            if (itemStatus === '1') {
+            if (itemStatus === 1) {
                 leftButtonClass = 'status-btn status-blue active';
-            } else if (itemStatus === '2') {
+            } else if (itemStatus === 2) {
                 leftButtonClass = 'status-btn status-green active';
             } else {
                 leftButtonClass = 'status-btn status-gray';
             }
 
             // Right button (for state 9 - rejected)
-            rightButtonClass = itemStatus === '9' ? 'status-btn status-red active' :
+            rightButtonClass = itemStatus === 9 ? 'status-btn status-red active' :
                 'status-btn status-red-unpainted';
 
             itemsHTML += `
@@ -862,7 +874,7 @@
         <div class="card-header">
             <span class="entry-time">${entryTime}</span>
             <span class="order-number">ORDEN #${order.id}</span>
-            <span class="exit-time">${exitTime}</span>
+            
         </div>
         <div class="order-items">
             ${itemsHTML}
@@ -937,11 +949,11 @@
         });
 
         card.className = 'card';
-        if (order.estado === '1') {
+        if (order.estado === 1) {
             card.classList.add('card-in-process');
-        } else if (order.estado === '2') {
+        } else if (order.estado === 2) {
             card.classList.add('card-completed');
-        } else if (order.estado === '8' || order.estado === '9') {
+        } else if (order.estado === 8 || order.estado === 9) {
             card.classList.add('card-combined');
         }
 
@@ -967,13 +979,13 @@
 
         pedidos.forEach(pedido => {
             // Only process orders with status 0 or 1
-            if (pedido.estado === '0' || pedido.estado === '1') {
+            if (pedido.estado === 0 || pedido.estado === 1) {
                 displayedOrderIds.add(pedido.id); // Track this order ID
 
                 const card = createOrderCard(pedido);
                 if (card) {
                     // Orders with status 1 go to proceso container
-                    if (pedido.estado === '1') {
+                    if (pedido.estado === 1) {
                         procesoContainer.appendChild(card);
                         procesoCount++;
                     } else { // Orders with status 0 go to pendientes container
