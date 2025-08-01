@@ -1075,7 +1075,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 							@foreach($platosCarta as $index => $plato)
 							<div class="swiper-slide slide-item {{ $index % 2 == 0 ? 'arriba' : 'abajo' }}">
 								<div class="card-carta">
-									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
+									<img src="{{ $plato->imagen ? asset($plato->imagen) : asset('access/images/logo-full.png') }}" 
+										 class="img-carta mb-2" 
+										 alt="{{ $plato->nombre }}"
+										 onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
 									<div class="text-white plato-precio fw-bold">S/ {{ number_format($plato->precio, 2) }}</div>
 									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
@@ -1104,7 +1107,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 							@foreach($caldos as $index => $plato)
 							<div class="swiper-slide slide-item {{ $index % 2 == 0 ? 'arriba' : 'abajo' }}">
 								<div class="card-carta">
-									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
+									<img src="{{ $plato->imagen ? asset($plato->imagen) : asset('access/images/logo-full.png') }}" 
+										 class="img-carta mb-2" 
+										 alt="{{ $plato->nombre }}"
+										 onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
 									<div class="text-white plato-precio fw-bold">S/ {{ number_format($plato->precio, 2) }}</div>
 									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
@@ -1133,7 +1139,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 							@foreach($desayunos as $index => $plato)
 							<div class="swiper-slide slide-item {{ $index % 2 == 0 ? 'arriba' : 'abajo' }}">
 								<div class="card-carta">
-									<img src="{{ asset($plato->imagen) }}" class="img-carta mb-2" alt="{{ $plato->nombre }}">
+									<img src="{{ $plato->imagen ? asset($plato->imagen) : asset('access/images/logo-full.png') }}" 
+										 class="img-carta mb-2" 
+										 alt="{{ $plato->nombre }}"
+										 onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
 									<div class="text-white nombre-plato">{{ $plato->nombre }}</div>
 									<div class="text-white plato-precio fw-bold">S/ {{ number_format($plato->precio, 2) }}</div>
 									<a href="/inicio" class="btn-comprar mt-2" style="display: block; text-decoration: none; color: inherit;">COMPRAR</a>
@@ -1164,7 +1173,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 				<div class="popup-carta-grid">
 					@foreach($platosCarta as $plato)
 						<div class="card-carta card-popup">
-							<img src="{{ asset($plato->imagen) }}" class="img-carta img-carta-pop" alt="{{ $plato->nombre }}">
+							<img src="{{ $plato->imagen ? asset($plato->imagen) : asset('access/images/logo-full.png') }}" 
+								 class="img-carta img-carta-pop" 
+								 alt="{{ $plato->nombre }}"
+								 onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
 								<div class="plato-precio texto-popup">S/ {{ number_format($plato->precio, 2) }}</div>
@@ -1187,7 +1199,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 				<div class="popup-carta-grid">
 					@foreach($caldos as $plato)
 						<div class="card-carta card-popup">
-							<img src="{{ asset($plato->imagen) }}" class="img-carta img-carta-pop" alt="{{ $plato->nombre }}">
+							<img src="{{ $plato->imagen ? asset($plato->imagen) : asset('access/images/logo-full.png') }}" 
+								 class="img-carta img-carta-pop" 
+								 alt="{{ $plato->nombre }}"
+								 onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
 								<div class="plato-precio texto-popup">S/ {{ number_format($plato->precio, 2) }}</div>
@@ -1210,7 +1225,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 				<div class="popup-carta-grid">
 					@foreach($desayunos as $plato)
 						<div class="card-carta card-popup">
-							<img src="{{ asset($plato->imagen) }}" class="img-carta img-carta-pop" alt="{{ $plato->nombre }}">
+							<img src="{{ $plato->imagen ? asset($plato->imagen) : asset('access/images/logo-full.png') }}" 
+								 class="img-carta img-carta-pop" 
+								 alt="{{ $plato->nombre }}"
+								 onerror="this.src='{{ asset('access/images/logo-full.png') }}'">
 							<div class="nombres-popup">
 								<div class="nombre-plato texto-popup fw-bold pb-2">{{ $plato->nombre }}</div>
 								<div class="plato-precio texto-popup">S/ {{ number_format($plato->precio, 2) }}</div>
