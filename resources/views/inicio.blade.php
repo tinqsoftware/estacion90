@@ -74,6 +74,45 @@
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+/* Estilos para mantener tarjetas de productos con altura uniforme */
+.dishe-bx {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.dishe-bx .card-body {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.dishe-bx .border-0 {
+    margin-top: auto !important;
+}
+
+.dishe-bx h6 {
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+    height: 2.4em !important;
+    overflow: hidden !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    text-overflow: ellipsis !important;
+    margin-bottom: 8px !important;
+}
+
+.swiper-slide {
+    height: auto !important;
+    display: flex !important;
+}
+
+.swiper-slide .card {
+    width: 100% !important;
+}
     </style>
 
 
@@ -906,14 +945,10 @@
         const isActive = menuIndex === 0 ? 'active' : '';
         const widthPercent = (100 / menus.length).toFixed(2);
         
-        // Solo mostrar precio si el menú tiene 2 o más categorías
-        const mostrarPrecio = menu.categorias && menu.categorias.length >= 2;
-        const precioTexto = mostrarPrecio ? ` <span style="color: #007bff; font-weight: 500;">S/ ${menu.precio}</span>` : '';
-        
         menuTabs += `
             <li class="nav-item" style="width: ${widthPercent}%; text-align: center;">
                 <a href="#menu${menu.id}-${index}" class="nav-link ${isActive}" data-bs-toggle="tab">
-                    ${menu.nombre}${precioTexto}
+                    ${menu.nombre}
                 </a>
             </li>
         `;
@@ -937,12 +972,16 @@
             }
         });
         
+        // Solo mostrar precio si el menú tiene 2 o más categorías
+        const mostrarPrecio = menu.categorias && menu.categorias.length >= 2;
+        const precioTexto = mostrarPrecio ? `<h4 class="text-primary">S/ ${menu.precio}</h4>` : '';
+        
         menuContent += `
             <div id="menu${menu.id}-${index}" class="tab-pane ${isActive}">
                 <div class="menu-info mb-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3>${menu.nombre}</h3>
-                        <h4 class="text-primary"></h4>
+                        ${precioTexto}
                     </div>
                 </div>
                 ${categoriasContent}
