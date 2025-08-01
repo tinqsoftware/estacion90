@@ -37,6 +37,9 @@ class ApisController extends Controller
             ->where('id', $id)
             ->first();
         
+        // Asegurar que el estado sea entero
+        $pedido->estado = (int) $pedido->estado;
+        
         // Obtener tiempos de cada estado desde el historial
         $tiempos = [];
         foreach ($pedido->historialEstados as $historial) {

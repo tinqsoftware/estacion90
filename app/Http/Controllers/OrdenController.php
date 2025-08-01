@@ -38,10 +38,20 @@ class OrdenController extends Controller
         ->orderByDesc('created_at')
         ->get();
 
+        // Asegurar que todos los estados sean enteros
+        $pedidos->each(function ($pedido) {
+            $pedido->estado = (int) $pedido->estado;
+        });
+
         $pedidosAnteriores = Pedido::where('id_usuario', $usuarioId)
-    ->whereIn('estado', [6, 10, 11])
-    ->orderByDesc('created_at')
-    ->paginate(10);
+        ->whereIn('estado', [6, 10, 11])
+        ->orderByDesc('created_at')
+        ->paginate(10);
+
+        // Asegurar que todos los estados sean enteros en pedidos anteriores también
+        $pedidosAnteriores->each(function ($pedido) {
+            $pedido->estado = (int) $pedido->estado;
+        });
 
         return view('ordenes.ordenes', compact('pedidos', 'pedidosAnteriores'));
     }
