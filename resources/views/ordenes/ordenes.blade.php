@@ -604,7 +604,7 @@
                         $horaCreacion = Carbon::parse($pedidoActual->created_at)->format('H:i');
                         $tiempoEstimado = 45; // Minutos de tiempo estimado
                         $idPedido = $pedidoActual->id;
-                        $estado = $pedidoActual->estado;
+                        $estado = (int) $pedidoActual->estado; // Convertir a entero
                         $total = number_format($pedidoActual->monto_total, 2);
                         @endphp
 
@@ -635,7 +635,7 @@
 
                                 <div class="tracking-progress">
                                     <div class="tracking-line"></div>
-                                    <div id="progress-line-{{ $idPedido }}" class="tracking-line-progress" style="width: {{ min($estado * 16.67, 100) }}%"></div>
+                                    <div id="progress-line-{{ $idPedido }}" class="tracking-line-progress" style="width: {{ min((int)$estado * 16.67, 100) }}%"></div>
 
                                     <!-- Estado 0: Pedido Registrado -->
                                     <div class="tracking-step">
@@ -1094,11 +1094,11 @@
             });
 
             function actualizarProgresoResponsivo(estado) {
-                const progressWidth = Math.min(estado * 16.67, 100);
+                const progressWidth = Math.min(parseInt(estado) * 16.67, 100);
 
                 // Para móviles (vista vertical)
                 if (window.innerWidth <= 767) {
-                    const progressHeight = Math.min(estado * 16.67, 100);
+                    const progressHeight = Math.min(parseInt(estado) * 16.67, 100);
                     $('#progress-line-{{ $idPedido ?? 0 }}').css('width', '2px');
                     $('#progress-line-{{ $idPedido ?? 0 }}').css('height', progressHeight + '%');
                 }
@@ -1109,11 +1109,11 @@
                 }
             }
 
-            actualizarProgresoResponsivo({{$estado ?? 0}});
+            actualizarProgresoResponsivo({{ (int)($estado ?? 0) }});
 
             // Actualizar cuando cambia el tamaño de la ventana
             $(window).resize(function() {
-            actualizarProgresoResponsivo({{$estado ?? 0}});
+            actualizarProgresoResponsivo({{ (int)($estado ?? 0) }});
         });
 
             function mostrarAnimacionPedidoCompletado(estado, mensaje) {

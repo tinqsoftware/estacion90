@@ -36,6 +36,30 @@ class Pedido extends Model
         'updated_at'
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'estado' => 'integer',
+        'monto_total' => 'decimal:2',
+        'id_usuario' => 'integer',
+        'id_tipopago' => 'integer',
+        'id_comprobantepago' => 'integer',
+        'id_horallegada' => 'integer',
+        'id_distrito_contacto' => 'integer',
+        'id_user_moto' => 'integer',
+        'vuelto' => 'decimal:2',
+        'desea_comprobante' => 'boolean',
+        'lat_contacto' => 'decimal:8,6',
+        'lon_contacto' => 'decimal:9,6',
+        'fecha_programada' => 'date',
+        'hora_programada' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     // Relación: un pedido pertenece a un usuario (puede ser null si es invitado)
     public function usuario()
     {
