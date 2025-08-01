@@ -19,6 +19,14 @@ class PedidoDetalle extends Model
         'updated_at'
     ];
 
+    protected $casts = [
+        'id_pedido' => 'integer',
+        'id_comensal' => 'integer', 
+        'id_producto' => 'integer',
+        'cantidad' => 'integer',
+        'estado' => 'integer',
+    ];
+
     // Relación: el detalle pertenece a un pedido
     public function pedido()
     {

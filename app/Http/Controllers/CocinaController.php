@@ -6,6 +6,7 @@ use App\Models\Pedido;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\HistorialEstadoService;
+use Illuminate\Support\Facades\Log;
 
 class CocinaController extends Controller
 {
@@ -16,15 +17,36 @@ class CocinaController extends Controller
      */
    public function index()
 {
-    $today = Carbon::today()->format('Y-m-d');
-    
-    // Get orders scheduled for today with status 0, 1 or 2
-    $pedidos = Pedido::whereDate('fecha_programada', $today)
-        ->whereIn('estado', ['0', '1'])
-        ->with(['detalles.producto', 'comensales', 'horaLlegada'])
-        ->get();
+    try {
+        $today = Carbon::today()->format('Y-m-d');
         
-    return view('cocina.cocina', compact('pedidos'));
+        // Get orders scheduled for today with status 0, 1 or 2
+        $pedidos = Pedido::whereDate('fecha_programada', $today)
+            ->whereIn('estado', ['0', '1'])
+            ->with(['detalles.producto', 'comensales', 'horaLlegada'])
+            ->get();
+        
+        // Ensure proper data types for frontend
+        $pedidos->each(function ($pedido) {
+            // Manejo robusto de conversiones
+            $pedido->estado = is_numeric($pedido->estado) ? (int) $pedido->estado : 0;
+            $pedido->monto_total = is_numeric($pedido->monto_total) ? (float) $pedido->monto_total : 0.0;
+            
+            if ($pedido->detalles) {
+                $pedido->detalles->each(function ($detalle) {
+                    $detalle->estado = is_numeric($detalle->estado) ? (int) $detalle->estado : 0;
+                    $detalle->cantidad = is_numeric($detalle->cantidad) ? (int) $detalle->cantidad : 1;
+                    $detalle->precio = is_numeric($detalle->precio) ? (float) $detalle->precio : 0.0;
+                });
+            }
+        });
+            
+        return view('cocina.cocina', compact('pedidos'));
+    } catch (\Exception $e) {
+        Log::error('Error in CocinaController@index: ' . $e->getMessage());
+        Log::error('Stack trace: ' . $e->getTraceAsString());
+        throw $e; // Re-throw para ver el error completo
+    }
 }
     
     /**
@@ -40,6 +62,20 @@ public function getNewOrders(Request $request)
         ->whereIn('estado', ['0', '1'])
         ->with(['detalles.producto', 'comensales', 'horaLlegada'])
         ->get();
+    
+    // Ensure proper data types for frontend
+    $newPedidos->each(function ($pedido) {
+        $pedido->estado = is_numeric($pedido->estado) ? (int) $pedido->estado : 0;
+        $pedido->monto_total = is_numeric($pedido->monto_total) ? (float) $pedido->monto_total : 0.0;
+        
+        if ($pedido->detalles) {
+            $pedido->detalles->each(function ($detalle) {
+                $detalle->estado = is_numeric($detalle->estado) ? (int) $detalle->estado : 0;
+                $detalle->cantidad = is_numeric($detalle->cantidad) ? (int) $detalle->cantidad : 1;
+                $detalle->precio = is_numeric($detalle->precio) ? (float) $detalle->precio : 0.0;
+            });
+        }
+    });
         
     return response()->json($newPedidos);
 }
@@ -75,6 +111,20 @@ public function getOrdersByDate(Request $request)
         ->whereIn('estado', ['0', '1'])
         ->with(['detalles.producto', 'comensales', 'horaLlegada'])
         ->get();
+    
+    // Ensure proper data types for frontend
+    $pedidos->each(function ($pedido) {
+        $pedido->estado = is_numeric($pedido->estado) ? (int) $pedido->estado : 0;
+        $pedido->monto_total = is_numeric($pedido->monto_total) ? (float) $pedido->monto_total : 0.0;
+        
+        if ($pedido->detalles) {
+            $pedido->detalles->each(function ($detalle) {
+                $detalle->estado = is_numeric($detalle->estado) ? (int) $detalle->estado : 0;
+                $detalle->cantidad = is_numeric($detalle->cantidad) ? (int) $detalle->cantidad : 1;
+                $detalle->precio = is_numeric($detalle->precio) ? (float) $detalle->precio : 0.0;
+            });
+        }
+    });
         
     return response()->json($pedidos);
 }
