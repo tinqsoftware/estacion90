@@ -85,7 +85,7 @@ public function changePassword(Request $request)
         'name' => 'required|string|max:255',
         'apellido' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users,email',
-        'id_rol' => 'required|int:1,3,4,5', // Updated to include role 5
+        'id_rol' => 'required|int:1,3,4,5,6', // Updated to include role 5
         'telefono' => 'nullable|string|max:20',
     ]);
 

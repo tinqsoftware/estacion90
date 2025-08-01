@@ -106,6 +106,9 @@
                                             @case(5)
                                             Marketing
                                             @break
+                                            @case(6)
+                                            Impresion
+                                            @break
                                             @default
                                             {{ $usuario->id_rol }}
                                             @endswitch
@@ -267,6 +270,7 @@
                                     <option value="3">Repartidor</option>
                                     <option value="4">Chef</option>
                                     <option value="5">Marketing</option>
+                                    <option value="6">Impresion</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -330,6 +334,7 @@
                                 <option value="3">Repartidor</option>
                                 <option value="4">Chef</option>
                                 <option value="5">Marketing</option>
+                                <option value="6">Impresion</option>
                             </select>
                             <span class="text-danger" id="id_rol-error"></span>
                         </div>
