@@ -43,6 +43,8 @@
             border-radius: 10px;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         .tracking-header {
@@ -59,6 +61,7 @@
             justify-content: space-between;
             margin-top: 30px;
             margin-bottom: 30px;
+            z-index: 1;
         }
 
         .tracking-line {
@@ -83,7 +86,7 @@
 
         .tracking-step {
             position: relative;
-            z-index: 3;
+            z-index: 10;
             text-align: center;
             width: 14.28%;
             /* 100% / 7 steps */
@@ -594,6 +597,19 @@
     </div>
 </div>
             <div class="container mt-3">
+                <!-- Botón centralizado VOLVER A PEDIR -->
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <div class="p-4 bg-white rounded shadow-sm border" style="background: linear-gradient(135deg, #fff3e6 0%, #ffe6cc 100%);">
+                            <h5 class="mb-3 fw-bold text-dark">¿Te gustó tu pedido?</h5>
+                            <p class="text-muted mb-3">Realiza una nueva orden y disfruta nuevamente de nuestros deliciosos platos</p>
+                            <a href="/inicio" class="btn btn-warning btn-lg px-5 py-3 shadow-sm" style="border-radius: 25px; font-weight: 600; font-size: 16px;">
+                                <i class="fas fa-utensils me-2"></i> VOLVER A PEDIR
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-12 mb-4">
                         <div id="tracking-section"> 
@@ -749,13 +765,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <!-- Botón Pedir Otra Vez -->
-                                <div class="text-center mt-4">
-                                    <a href="/inicio" class="btn btn-warning px-4 py-2">
-                                        <i class="fas fa-redo me-2"></i> PEDIR OTRA VEZ
-                                    </a>
-                                </div>
                             </div>
                         </div>
                         @endforeach
@@ -774,9 +783,6 @@
                 <div class="d-flex justify-content-center gap-3">
                     <a href="/inicio" class="btn btn-warning px-4">
                         <i class="fas fa-plus me-2"></i> Hacer un Pedido
-                    </a>
-                    <a href="/inicio" class="btn btn-outline-warning px-4">
-                        <i class="fas fa-redo me-2"></i> PEDIR OTRA VEZ
                     </a>
                 </div>
             </div>
