@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test QZ Tray - Estación 90</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qz-tray/2.2.4/qz-tray.js"></script>
+</head>
+<body>
+    <h1>Test QZ Tray - Estación 90</h1>
+    
+    <div id="status">Estado: No conectado</div>
+    <br>
+    
+    <button onclick="testConnection()">1. Probar Conexión QZ</button>
+    <button onclick="testCertificate()">2. Probar Certificado</button>
+    <button onclick="testPrint()">3. Probar Impresión</button>
+    <button onclick="listPrinters()">4. Listar Impresoras</button>
+    
+    <div id="output" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; white-space: pre-wrap;"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+        
+        function log(message) {
+            output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            console.log(message);
+        }
+        
+        function updateStatus(msg) {
+            status.textContent = 'Estado: ' + msg;
+        }
+        
+        // Configurar certificados QZ
+        if (window.qz) {
+            qz.security.setCertificatePromise(function() {
+                return fetch('/qz/certificate', { credentials: 'same-origin' })
+                    .then(resp => {
+                        if (!resp.ok) throw new Error('Error cargando certificado: ' + resp.status);
+                        return resp.text();
+                    });
+            });
+            
+            qz.security.setSignaturePromise(function(toSign) {
+                return fetch('/qz/sign', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || 'NO-CSRF'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ request: toSign })
+                }).then(resp => {
+                    if (!resp.ok) throw new Error('Error firmando: ' + resp.status);
+                    return resp.text();
+                });
+            });
+        }
+        
+        async function testConnection() {
+            try {
+                updateStatus('Conectando...');
+                log('Iniciando conexión a QZ Tray...');
+                
+                if (!window.qz) {
+                    throw new Error('QZ Tray script no cargado');
+                }
+                
+                await qz.websocket.connect();
+                updateStatus('Conectado ✅');
+                log('✅ Conexión exitosa a QZ Tray v' + qz.version);
+                
+            } catch (error) {
+                updateStatus('Error ❌');
+                log('❌ Error: ' + error.message);
+            }
+        }
+        
+        async function testCertificate() {
+            try {
+                log('Probando certificado...');
+                const cert = await fetch('/qz/certificate').then(r => r.text());
+                log('✅ Certificado obtenido: ' + cert.substring(0, 50) + '...');
+                
+                // Probar firma
+                const signature = await fetch('/qz/sign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request: 'test-signature' })
+                }).then(r => r.text());
+                
+                log('✅ Firma obtenida: ' + signature.substring(0, 20) + '...');
+                
+            } catch (error) {
+                log('❌ Error certificado: ' + error.message);
+            }
+        }
+        
+        async function listPrinters() {
+            try {
+                if (!qz.websocket.isActive()) {
+                    await qz.websocket.connect();
+                }
+                
+                log('Obteniendo lista de impresoras...');
+                const printers = await qz.printers.find();
+                const defaultPrinter = await qz.printers.getDefault();
+                
+                log('✅ Impresoras encontradas:');
+                printers.forEach((printer, i) => {
+                    log(`  ${i + 1}. ${printer} ${printer === defaultPrinter ? '(por defecto)' : ''}`);
+                });
+                
+            } catch (error) {
+                log('❌ Error listando impresoras: ' + error.message);
+            }
+        }
+        
+        async function testPrint() {
+            try {
+                if (!qz.websocket.isActive()) {
+                    await qz.websocket.connect();
+                }
+                
+                const printer = await qz.printers.getDefault();
+                log('Imprimiendo página de prueba en: ' + printer);
+                
+                const config = qz.configs.create(printer);
+                const data = [{
+                    type: 'html',
+                    format: 'plain',
+                    data: '<h1>Test QZ Tray - Estación 90</h1><p>Fecha: ' + new Date() + '</p><p>Esta es una prueba de impresión.</p>'
+                }];
+                
+                await qz.print(config, data);
+                log('✅ Impresión enviada correctamente');
+                
+            } catch (error) {
+                log('❌ Error imprimiendo: ' + error.message);
+            }
+        }
+        
+        // Auto conectar al cargar
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 500);
+        });
+    </script>
+    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</body>
+</html>
