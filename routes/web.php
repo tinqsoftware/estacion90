@@ -22,6 +22,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DespachoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\OrdenController;
+use App\Http\Controllers\QzController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -201,6 +202,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/despacho/pedido/en-camino', [DespachoController::class, 'marcarPedidoEnCamino'])->name('despacho.en-camino');
     Route::get('/despacho/estado-pedidos', [DespachoController::class, 'obtenerEstadoPedidos'])->name('despacho.estado-pedidos');
     Route::get('/despacho/pedido/imprimir/{id}', [DespachoController::class, 'imprimirPedido'])->name('despacho.imprimir');
+
+    // QZ Tray security endpoints
+    Route::get('/qz/certificate', [QzController::class, 'certificate'])->name('qz.certificate');
+    Route::post('/qz/sign', [QzController::class, 'sign'])->name('qz.sign');
+    
+    // QZ Tray test page
+    Route::get('/qz-test', function () {
+        return view('qz-test');
+    })->name('qz.test');
 
 // Delivery
     Route::get('/motorizado/moto', [MotoController::class, 'showMoto'])->name('motorizado.moto');

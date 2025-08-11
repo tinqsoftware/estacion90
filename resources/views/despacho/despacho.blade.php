@@ -810,6 +810,8 @@
     <script src="{{ asset('access/js/dlabnav-init.js') }}"></script>
     <script src="{{ asset('access/js/custom.js') }}"></script>
     <script src="{{ asset('access/js/demo.js') }}"></script>
+    <!-- QZ Tray library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qz-tray/2.2.4/qz-tray.js" integrity="sha512-T5k2OQpRhsT1uWgkC8oLemP6hCysEJ6vD2Ju6sS75+0/90P8IV3N0t8Tt4N+Kk9I+8zIMa+z6BCEq1X0r1y6Ow==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
     let displayedOrderIds = [];
@@ -890,6 +892,7 @@
                         <span id="toggle-icon-${pedido.id}">▼</span> Detalles
                     </button>
                     <button class="btn-print" onclick="imprimirPedido(${pedido.id})">Imprimir</button>
+                    <button class="btn-print" onclick="imprimirPedidoQZ(${pedido.id})">Imprimir QZ Tray</button>
                     ${estado === 2 ? `<button class="btn-ready" onclick="marcarPreparado(${pedido.id})">Listo</button>` : ''}
                 </div>
 
@@ -1300,6 +1303,125 @@
                 timer: 3000
             });
         }
+    }
+
+    // =====================
+    // QZ Tray Integration
+    // =====================
+    let qzConnected = false;
+    let qzConnecting = false;
+
+    // Configure QZ security (certificate, signature) from backend endpoints
+    (function configureQzSecurity(){
+        if (!window.qz || !qz.security) return;
+        try {
+            qz.security.setCertificatePromise(function() {
+                return fetch("{{ route('qz.certificate') }}", { credentials: 'same-origin' })
+                    .then(function(resp){ if(!resp.ok) throw new Error('No se pudo obtener el certificado QZ'); return resp.text(); });
+            });
+            qz.security.setSignaturePromise(function(toSign) {
+                return fetch("{{ route('qz.sign') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ request: toSign })
+                }).then(function(resp){ if(!resp.ok) throw new Error('No se pudo firmar la solicitud QZ'); return resp.text(); });
+            });
+        } catch (e) {
+            console.warn('QZ security setup failed', e);
+        }
+    })();
+
+    function ensureQzConnected() {
+        if (!window.qz) return Promise.reject(new Error('QZ Tray no está cargado'));
+        if (qz.websocket && qz.websocket.isActive()) { qzConnected = true; return Promise.resolve(); }
+        if (qzConnecting) {
+            return new Promise((resolve, reject) => {
+                let tries = 0;
+                const id = setInterval(() => {
+                    tries++;
+                    if (qz.websocket.isActive()) { clearInterval(id); qzConnected = true; resolve(); }
+                    else if (tries > 30) { clearInterval(id); reject(new Error('Timeout conectando a QZ')); }
+                }, 200);
+            });
+        }
+        qzConnecting = true;
+        return qz.websocket.connect().then(function(){
+            qzConnected = true; qzConnecting = false;
+        }).catch(function(err){ qzConnecting = false; return Promise.reject(err); });
+    }
+
+    function getPrinterName() {
+        const saved = localStorage.getItem('qzPrinterName');
+        if (saved) return Promise.resolve(saved);
+        return qz.printers.getDefault();
+    }
+
+    // Intenta imprimir con QZ (HTML directo); si falla, usa la impresión del navegador
+    function imprimirPedidoQZ(pedidoId) {
+        ensureQzConnected()
+            .then(getPrinterName)
+            .then(function(printerName){
+                if (!printerName) throw new Error('No hay impresora seleccionada');
+                const cfg = qz.configs.create(printerName, {
+                    copies: 1
+                });
+                const url = "{{ url('despacho/pedido/imprimir') }}/" + pedidoId;
+                const data = [{ type: 'html', format: 'file', data: url }];
+                return qz.print(cfg, data);
+            })
+            .then(function(){
+                Swal.fire({ title: 'Impresión enviada', icon: 'success', toast: true, position: 'top-end', timer: 1800, showConfirmButton: false });
+            })
+            .catch(function(err){
+                console.warn('Fallo QZ con certificados, intentando modo inseguro...', err);
+                
+                // Intentar modo inseguro como fallback
+                tryInsecureQzPrint(pedidoId)
+                    .then(function() {
+                        Swal.fire({ title: 'Impresión enviada (modo inseguro)', icon: 'warning', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
+                    })
+                    .catch(function(err2) {
+                        console.warn('Fallo QZ completamente, usando navegador', err2);
+                        Swal.fire({ title: 'QZ no disponible', text: 'Usando impresión del navegador', icon: 'info', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
+                        imprimirPedido(pedidoId);
+                    });
+            });
+    }
+    
+    // Función auxiliar para intentar impresión en modo inseguro
+    function tryInsecureQzPrint(pedidoId) {
+        return new Promise((resolve, reject) => {
+            if (!window.qz) return reject(new Error('QZ no disponible'));
+            
+            // Limpiar configuración de seguridad
+            qz.security.setCertificatePromise(null);
+            qz.security.setSignaturePromise(null);
+            
+            // Reconectar e imprimir
+            const reconnectAndPrint = () => {
+                qz.websocket.connect()
+                    .then(() => qz.printers.getDefault())
+                    .then(printerName => {
+                        if (!printerName) throw new Error('No hay impresora');
+                        const cfg = qz.configs.create(printerName, { copies: 1 });
+                        const url = "{{ url('despacho/pedido/imprimir') }}/" + pedidoId;
+                        const data = [{ type: 'html', format: 'file', data: url }];
+                        return qz.print(cfg, data);
+                    })
+                    .then(() => resolve())
+                    .catch(err => reject(err));
+            };
+            
+            if (qz.websocket.isActive()) {
+                qz.websocket.disconnect().then(reconnectAndPrint).catch(reconnectAndPrint);
+            } else {
+                reconnectAndPrint();
+            }
+        });
     }
 
     // Inicialización del documento
