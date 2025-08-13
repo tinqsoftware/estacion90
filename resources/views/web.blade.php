@@ -910,7 +910,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	<!-- HEADER FIJO -->
 	<header id="main-header" class="fixed-top bg-white shadow-sm py-3 z-50">
 		<div class="d-flex justify-content-between align-items-center" style="padding:0px 30px" >
-			<a href="/inicio" class="btn-red btn-sm d-none d-md-block" style="cursor:pointer;">ORDENA AQUÍ</a>
+			
 			<div class="d-flex align-items-center justify-content-center flex-grow-1 d-md-block">
 				<img src="{{ asset('access/images/logo-full.png') }}" class="banner-logo me-3 d-md-none">
 				<img src="{{ asset('access/images/logo-full.png') }}" class="banner-logo d-none d-md-block">
