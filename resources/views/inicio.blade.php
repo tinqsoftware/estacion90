@@ -1504,18 +1504,27 @@
             $input.prop('checked', !wasChecked);
             $(this).toggleClass('active', !wasChecked);
         } else if (isRadio) {
-            // Para radio buttons: activar este y desactivar otros del mismo grupo
-            const groupName = $input.attr('name');
+            // Para radio buttons: permitir deseleccionar si ya está seleccionado
+            const wasChecked = $input.prop('checked');
             
-            // Desactivar todos los elementos del mismo grupo
-            $(`input[name="${groupName}"]`).each(function() {
-                $(this).prop('checked', false);
-                $(this).siblings('.plus').removeClass('active');
-            });
-            
-            // Activar el seleccionado
-            $input.prop('checked', true);
-            $(this).addClass('active');
+            if (wasChecked) {
+                // Si ya estaba seleccionado, deseleccionarlo
+                $input.prop('checked', false);
+                $(this).removeClass('active');
+            } else {
+                // Si no estaba seleccionado, desactivar otros del grupo y activar este
+                const groupName = $input.attr('name');
+                
+                // Desactivar todos los elementos del mismo grupo
+                $(`input[name="${groupName}"]`).each(function() {
+                    $(this).prop('checked', false);
+                    $(this).siblings('.plus').removeClass('active');
+                });
+                
+                // Activar el seleccionado
+                $input.prop('checked', true);
+                $(this).addClass('active');
+            }
         }
 
         updateOrdenResumen();
@@ -1665,20 +1674,34 @@ menus.forEach(menu => {
 
     btnToggle.onclick = () => {
         const isRadio = input.type === 'radio';
+        const wasChecked = input.checked;
+        
         if (isRadio) {
-            // Desmarcar todos los radios del mismo grupo
-            const groupName = input.name;
-            document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
-                el.checked = false;
-                const pl = el.previousElementSibling;
-                if (pl?.classList.contains('plus')) pl.classList.remove('active');
-            });
+            if (wasChecked) {
+                // Si ya estaba seleccionado, deseleccionarlo
+                input.checked = false;
+                const plus = input.previousElementSibling;
+                if (plus?.classList.contains('plus')) plus.classList.remove('active');
+            } else {
+                // Desmarcar todos los radios del mismo grupo
+                const groupName = input.name;
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
+                    el.checked = false;
+                    const pl = el.previousElementSibling;
+                    if (pl?.classList.contains('plus')) pl.classList.remove('active');
+                });
+                
+                // Activar el actual
+                input.checked = true;
+                const plus = input.previousElementSibling;
+                if (plus?.classList.contains('plus')) plus.classList.add('active');
+            }
+        } else {
+            // Para checkboxes, simplemente toggle
+            input.checked = !input.checked;
+            const plus = input.previousElementSibling;
+            if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
         }
-
-        input.checked = !input.checked;
-
-        const plus = input.previousElementSibling;
-        if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
 
         updateModalButton(btnToggle, input.checked);
         updateOrdenResumen();
