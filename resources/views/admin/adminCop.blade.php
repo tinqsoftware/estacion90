@@ -200,6 +200,51 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Configuración de Impresiones -->
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Configuración de Impresiones</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info mb-3">
+                                    <strong>Información:</strong> Configura el comportamiento de las impresiones en el módulo de despacho.
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Impresión Automática:</label>
+                                            <div class="form-check form-switch form-check-lg">
+                                                <input class="form-check-input" type="checkbox" id="switchImpresionAutomatica">
+                                                <label class="form-check-label" for="switchImpresionAutomatica" id="labelImpresionAutomatica">
+                                                    No
+                                                </label>
+                                            </div>
+                                            <small class="text-muted" id="descripcionImpresionAutomatica">
+                                                Las boletas no se imprimen automáticamente al hacer clic
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Mostrar PDF:</label>
+                                            <div class="form-check form-switch form-check-lg">
+                                                <input class="form-check-input" type="checkbox" id="switchMostrarPdf">
+                                                <label class="form-check-label" for="switchMostrarPdf" id="labelMostrarPdf">
+                                                    No
+                                                </label>
+                                            </div>
+                                            <small class="text-muted" id="descripcionMostrarPdf">
+                                                No se muestra el PDF en pantalla al imprimir
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -362,6 +407,7 @@
         cargarComprobantes();
         cargarHorasLlegada();
         cargarConfiguracionFlujo();
+        cargarConfiguracionImpresiones();
 
         // Formulario Tipo Pago
         $('#formTipoPago').on('submit', function(e) {
@@ -582,6 +628,40 @@
             });
         }
 
+        function cargarConfiguracionImpresiones() {
+            $.ajax({
+                url: '{{ route("admin.configuracion.obtenerImpresiones") }}',
+                method: 'GET',
+                success: function(response) {
+                    var impresionAutomatica = response.impresion_automatica === '1';
+                    var mostrarPdf = response.mostrar_pdf === '1';
+                    
+                    $('#switchImpresionAutomatica').prop('checked', impresionAutomatica);
+                    $('#switchMostrarPdf').prop('checked', mostrarPdf);
+                    
+                    // Actualizar labels
+                    $('#labelImpresionAutomatica').text(impresionAutomatica ? 'Sí' : 'No');
+                    $('#labelMostrarPdf').text(mostrarPdf ? 'Sí' : 'No');
+                    
+                    // Actualizar descripciones
+                    $('#descripcionImpresionAutomatica').text(
+                        impresionAutomatica 
+                            ? 'Las boletas se imprimen automáticamente al hacer clic'
+                            : 'Las boletas no se imprimen automáticamente al hacer clic'
+                    );
+                    
+                    $('#descripcionMostrarPdf').text(
+                        mostrarPdf 
+                            ? 'Se muestra el PDF en pantalla al imprimir'
+                            : 'No se muestra el PDF en pantalla al imprimir'
+                    );
+                },
+                error: function() {
+                    console.error('Error al cargar configuración de impresiones');
+                }
+            });
+        }
+
         // Acciones en tablas
         $(document).on('click', '.toggleEstadoTipoPago', function() {
             var id = $(this).data('id');
@@ -686,6 +766,80 @@
             $('#horaValor').removeClass('is-invalid');
             $('#horaId').val('');
             $('#modalHoraLlegada .modal-title').text('Agregar Hora de Llegada');
+        });
+
+        // Cambiar configuración de impresión automática
+        $('#switchImpresionAutomatica').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            
+            $.ajax({
+                url: '{{ route("admin.configuracion.cambiarImpresionAutomatica") }}',
+                method: 'POST',
+                data: { impresion_automatica: isChecked ? '1' : '0' },
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: response.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Actualizar label y descripción
+                    $('#labelImpresionAutomatica').text(isChecked ? 'Sí' : 'No');
+                    $('#descripcionImpresionAutomatica').text(
+                        isChecked 
+                            ? 'Las boletas se imprimen automáticamente al hacer clic'
+                            : 'Las boletas no se imprimen automáticamente al hacer clic'
+                    );
+                },
+                error: function() {
+                    // Revertir el switch si hay error
+                    $('#switchImpresionAutomatica').prop('checked', !isChecked);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo cambiar la configuración',
+                        icon: 'error'
+                    });
+                }
+            });
+        });
+
+        // Cambiar configuración de mostrar PDF
+        $('#switchMostrarPdf').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            
+            $.ajax({
+                url: '{{ route("admin.configuracion.cambiarMostrarPdf") }}',
+                method: 'POST',
+                data: { mostrar_pdf: isChecked ? '1' : '0' },
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: response.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Actualizar label y descripción
+                    $('#labelMostrarPdf').text(isChecked ? 'Sí' : 'No');
+                    $('#descripcionMostrarPdf').text(
+                        isChecked 
+                            ? 'Se muestra el PDF en pantalla al imprimir'
+                            : 'No se muestra el PDF en pantalla al imprimir'
+                    );
+                },
+                error: function() {
+                    // Revertir el switch si hay error
+                    $('#switchMostrarPdf').prop('checked', !isChecked);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo cambiar la configuración',
+                        icon: 'error'
+                    });
+                }
+            });
         });
 
          // Cambiar flujo de pedidos - solicitar contraseña

@@ -40,4 +40,37 @@ class ConfiguracionSistema extends Model
         $config = self::where('clave', 'password_flujo_pedidos')->first();
         return $config && $config->valor === $password;
     }
+
+    /**
+     * Obtener una configuración específica
+     *
+     * @param string $clave
+     * @param string $valorPorDefecto
+     * @return string
+     */
+    public static function obtenerConfiguracion($clave, $valorPorDefecto = '0')
+    {
+        $config = self::where('clave', $clave)->first();
+        return $config ? $config->valor : $valorPorDefecto;
+    }
+
+    /**
+     * Guardar o actualizar una configuración
+     *
+     * @param string $clave
+     * @param string $valor
+     * @param string $descripcion
+     * @return void
+     */
+    public static function guardarConfiguracion($clave, $valor, $descripcion = null)
+    {
+        self::updateOrCreate(
+            ['clave' => $clave],
+            [
+                'valor' => $valor,
+                'descripcion' => $descripcion ?? ucfirst(str_replace('_', ' ', $clave)),
+                'estado' => 1
+            ]
+        );
+    }
 }

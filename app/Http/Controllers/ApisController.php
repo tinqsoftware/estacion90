@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pedido;
+use App\Models\ConfiguracionSistema;
+use App\Models\Impresiones;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -107,14 +109,32 @@ class ApisController extends Controller
             $nuevoPedido->datos_comprobante = $pedidoOriginal->datos_comprobante;
             $nuevoPedido->id_horallegada = $pedidoOriginal->id_horallegada;
             $nuevoPedido->vuelto = $pedidoOriginal->vuelto;
-            $nuevoPedido->estado = '0'; // Estado inicial: Registrado
+            
+            // Determinar el estado inicial según la configuración del flujo
+            $flujoPedidos = ConfiguracionSistema::obtenerFlujoPedidos();
+            if ($flujoPedidos === 'despacho') {
+                $nuevoPedido->estado = '3'; // Ir directo a despacho (listo para reparto)
+            } else {
+                $nuevoPedido->estado = '0'; // Flujo normal: ir a cocina
+            }
+            
             $nuevoPedido->fecha_programada = now()->toDateString();
             $nuevoPedido->hora_programada = now()->addMinutes(45)->format('H:i:s'); // 45 minutos estimados
             $nuevoPedido->monto_total = $pedidoOriginal->monto_total;
             $nuevoPedido->save();
             
             // Registrar el estado inicial en el historial
-            HistorialEstadoService::registrarCambioEstado($nuevoPedido->id, '0', Auth::id());
+            HistorialEstadoService::registrarCambioEstado($nuevoPedido->id, $nuevoPedido->estado, Auth::id());
+            
+            // Si el pedido va directo a despacho, crear registro de impresión
+            if ($nuevoPedido->estado == '3') {
+                Impresiones::create([
+                    'id_pedido' => $nuevoPedido->id,
+                    'estado' => 'pendiente',
+                    'fecha_generacion' => Carbon::now(),
+                    'fecha_impresion' => null
+                ]);
+            }
             
             // Duplicar los comensales y detalles
             foreach ($pedidoOriginal->comensales as $comensalOriginal) {

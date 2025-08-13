@@ -165,6 +165,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/config', [AdministradorController::class, 'index'])->name('admin.config');
     Route::get('/admin/configuracion/flujo-pedidos', [AdministradorController::class, 'obtenerFlujoPedidos'])->name('admin.configuracion.obtenerFlujo');
     Route::post('/admin/configuracion/flujo-pedidos', [AdministradorController::class, 'cambiarFlujoPedidos'])->name('admin.configuracion.cambiarFlujo');
+    
+    // Configuración de impresiones
+    Route::get('/admin/configuracion/impresiones', [AdministradorController::class, 'obtenerConfiguracionImpresiones'])->name('admin.configuracion.obtenerImpresiones');
+    Route::post('/admin/configuracion/impresion-automatica', [AdministradorController::class, 'cambiarImpresionAutomatica'])->name('admin.configuracion.cambiarImpresionAutomatica');
+    Route::post('/admin/configuracion/mostrar-pdf', [AdministradorController::class, 'cambiarMostrarPdf'])->name('admin.configuracion.cambiarMostrarPdf');
 
     // Banners
     Route::get('/banners', [BannerController::class, 'index'])->name('banners.index');

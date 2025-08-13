@@ -216,4 +216,65 @@ public function cambiarFlujoPedidos(Request $request)
         return response()->json(['message' => 'Error al cambiar configuración'], 500);
     }
 }
+
+public function obtenerConfiguracionImpresiones()
+{
+    try {
+        $impresionAutomatica = ConfiguracionSistema::obtenerConfiguracion('impresion_automatica', '0');
+        $mostrarPdf = ConfiguracionSistema::obtenerConfiguracion('mostrar_pdf', '0');
+        
+        return response()->json([
+            'impresion_automatica' => $impresionAutomatica,
+            'mostrar_pdf' => $mostrarPdf
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al obtener configuración'], 500);
+    }
+}
+
+public function cambiarImpresionAutomatica(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'impresion_automatica' => 'required|in:0,1'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    try {
+        ConfiguracionSistema::guardarConfiguracion('impresion_automatica', $request->impresion_automatica);
+        
+        $mensaje = $request->impresion_automatica === '1'
+            ? 'Impresión automática activada'
+            : 'Impresión automática desactivada';
+        
+        return response()->json(['message' => $mensaje]);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al cambiar configuración'], 500);
+    }
+}
+
+public function cambiarMostrarPdf(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'mostrar_pdf' => 'required|in:0,1'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    try {
+        ConfiguracionSistema::guardarConfiguracion('mostrar_pdf', $request->mostrar_pdf);
+        
+        $mensaje = $request->mostrar_pdf === '1'
+            ? 'Mostrar PDF activado'
+            : 'Mostrar PDF desactivado';
+        
+        return response()->json(['message' => $mensaje]);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al cambiar configuración'], 500);
+    }
+}
 }
