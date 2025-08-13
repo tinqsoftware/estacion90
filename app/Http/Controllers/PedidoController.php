@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ConfiguracionSistema;
+use App\Models\Impresiones;
 use Illuminate\Http\Request;
 use App\Models\Producto;
 use Carbon\Carbon;
@@ -103,13 +104,31 @@ class PedidoController extends Controller
         $pedido->datos_comprobante = $data['documento_comprobante'] ?? null;
         $pedido->id_horallegada = $data['hora_llegada'];
         $pedido->vuelto = $data['vuelto'] ?? null;
-        $pedido->estado = '0';
+        
+        // Determinar el estado inicial según la configuración del flujo
+        $flujoPedidos = ConfiguracionSistema::obtenerFlujoPedidos();
+        if ($flujoPedidos === 'despacho') {
+            $pedido->estado = '3'; // Ir directo a despacho (listo para reparto)
+        } else {
+            $pedido->estado = '0'; // Flujo normal: ir a cocina
+        }
+        
         $pedido->fecha_programada = $fechaHoy;
         $pedido->hora_programada = $now->addMinutes((int)($data['minutos_llegada'] ?? 0))->format('H:i:s');
         $pedido->save();
 
         // Registrar el estado inicial en el historial
-        HistorialEstadoService::registrarCambioEstado($pedido->id, '0', $data['user_id'] ?? null);
+        HistorialEstadoService::registrarCambioEstado($pedido->id, $pedido->estado, $data['user_id'] ?? null);
+
+        // Si el pedido va directo a despacho, crear registro de impresión
+        if ($pedido->estado == '3') {
+            Impresiones::create([
+                'id_pedido' => $pedido->id,
+                'estado' => 'pendiente',
+                'fecha_generacion' => Carbon::now(),
+                'fecha_impresion' => null
+            ]);
+        }
 
         foreach ($data['comensales'] as $i => $comensal) {
             $nuevoComensal = new PedidoComensal();
