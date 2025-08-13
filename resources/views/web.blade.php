@@ -225,11 +225,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			width: 100%;
 			margin-top:-33px;
 			left:0px;
+			perspective: 1000px;
 		}
 
 		.marquee {
 			display: inline-flex;
-			animation: scroll-left 50s linear infinite;
+			animation: scroll-left 80s linear infinite;
+			will-change: transform;
+			backface-visibility: hidden;
+			transform: translateZ(0);
 		}
 
 		.cuadro-menu{
@@ -274,8 +278,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		}
 
 		@keyframes scroll-left {
-			0% { transform: translateX(0); }
-			100% { transform: translateX(-100%); }
+			0% { 
+				transform: translateX(0) translateZ(0); 
+			}
+			100% { 
+				transform: translateX(-100%) translateZ(0); 
+			}
 		}
 
 		.plato{
@@ -849,6 +857,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				text-align:center;
 			}
 
+			/* Configuración específica del marquee para móviles */
+			.marquee {
+				animation: scroll-left 70s linear infinite;
+			}
 
 			/* Alternar la altura */
 			.slide-item.arriba {
