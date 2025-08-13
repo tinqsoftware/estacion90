@@ -1280,21 +1280,32 @@
                 totalIndependientes += precio;
             });
             
-            // Lógica de precios inteligente para menús (igual que el sistema anterior)
+            // Lógica de precios inteligente para menús
             if (selEntrada && selFondo) {
-                // Tiene entrada y fondo: aplicar lógica de menú
+                // Tiene entrada y fondo: aplicar lógica de menú combinado
                 const entradaCategoria = selEntrada.getAttribute('data-menu-categoria');
                 const fondoCategoria = selFondo.getAttribute('data-menu-categoria');
                 
-                const esEntrada20 = entradaCategoria.includes('entrada') && entradaCategoria.includes('20');
-                const esFondo20 = fondoCategoria.includes('fondo') && fondoCategoria.includes('20');
+                // Obtener los precios de los menús de cada producto
+                const entradaMenuId = entradaCategoria.split('_').pop();
+                const fondoMenuId = fondoCategoria.split('_').pop();
                 
-                if (esEntrada20 || esFondo20) {
-                    // Si cualquier elemento es de S/20, el menú cuesta S/20
+                const entradaMenu = menus.find(m => m.id == entradaMenuId);
+                const fondoMenu = menus.find(m => m.id == fondoMenuId);
+                
+                const entradaPrecio = entradaMenu ? parseFloat(entradaMenu.precio) : 0;
+                const fondoPrecio = fondoMenu ? parseFloat(fondoMenu.precio) : 0;
+                
+                // Lógica: Si cualquier elemento es del menú caro, se cobra el precio caro
+                const precioMasCaro = Math.max(entradaPrecio, fondoPrecio);
+                
+                if (precioMasCaro >= 27.90) {
+                    menuType = "Menú S/27.90";
+                    comensalTotal = 27.90;
+                } else if (precioMasCaro >= 20.00) {
                     menuType = "Menú S/20.00";
                     comensalTotal = 20.00;
                 } else {
-                    // Ambos son de S/15, el menú cuesta S/15
                     menuType = "Menú S/15.00";
                     comensalTotal = 15.00;
                 }
@@ -1305,17 +1316,12 @@
                 fondoImg = selFondo.closest('.card').querySelector('img').src;
                 
             } else if (selEntrada || selFondo) {
-                // Solo tiene entrada O fondo: precio individual
+                // Solo tiene entrada O fondo: precio individual del producto
                 const seleccion = selEntrada || selFondo;
-                const categoria = seleccion.getAttribute('data-menu-categoria');
+                const precioIndividual = parseFloat(seleccion.getAttribute('data-precio'));
                 
-                if (categoria.includes('20')) {
-                    menuType = "Entrada o Fondo S/20.00";
-                    comensalTotal = 20.00;
-                } else {
-                    menuType = "Entrada o Fondo S/15.00";
-                    comensalTotal = 15.00;
-                }
+                menuType = `Producto individual`;
+                comensalTotal = precioIndividual;
                 
                 if (selEntrada) {
                     entradaName = selEntrada.closest('.card').querySelector('h6').innerText;
