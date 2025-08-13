@@ -940,7 +940,6 @@
     const maxComensales = 10;
     const tabContainer = document.getElementById("comensalTabs");
     const tabContent = document.getElementById("comensalTabContent");
-    const seleccionesState = {};
     // Función para crear la pestaña de un comensal
     function createComensalTab(index) {
         const widthPercent = (95 / (comensalCount)).toFixed(2);
@@ -1039,6 +1038,24 @@
     const menuActual = menus.find(m => m.id == menuId);
     const precioMenu = menuActual ? parseFloat(menuActual.precio) : 0;
     
+    // Determinar tipo de input y agrupación
+    let tipoInput = 'checkbox'; // Por defecto checkbox
+    let nombreGrupo = '';
+    const categoriaBase = menuCategoria.split('_')[0].toLowerCase();
+    
+    // Lógica para determinar tipo de input basada en la funcionalidad anterior
+    if (categoriaBase.includes('entrada')) {
+        tipoInput = 'radio';
+        nombreGrupo = `entrada[${comensalIndex}]`; // Todas las entradas del mismo comensal en un grupo
+    } else if (categoriaBase.includes('fondo')) {
+        tipoInput = 'radio';
+        nombreGrupo = `fondo[${comensalIndex}]`; // Todos los fondos del mismo comensal en un grupo
+    } else {
+        // Carta, combos, etc. usan checkbox con nombres únicos
+        tipoInput = 'checkbox';
+        nombreGrupo = `${categoriaBase}[${comensalIndex}][]`;
+    }
+    
     let html = '';
     productos.forEach(prod => {
         // Imagen por defecto si no tiene imagen o es null/vacía
@@ -1050,6 +1067,8 @@
         const precioProducto = (prod.precio && prod.precio > 0) 
             ? parseFloat(prod.precio) 
             : precioMenu;
+        
+        const inputId = `${categoriaBase}_${prod.id}_${comensalIndex}`;
         
         html += `
             <div class="swiper-slide">
@@ -1069,13 +1088,15 @@
                                     <a href="javascript:void(0);"></a>
                                 </div>
                             </div>
-                            <!-- Input para seleccionar producto -->
+                            <!-- Input para seleccionar producto con lógica de radio/checkbox -->
                             <input style="display:none;" 
-                                   type="checkbox" 
-                                   name="menu_producto[${comensalIndex}][${menuCategoria}][]" 
+                                   type="${tipoInput}" 
+                                   id="${inputId}"
+                                   name="${nombreGrupo}" 
                                    value="${prod.id}"
                                    data-menu-categoria="${menuCategoria}"
-                                   data-precio="${precioProducto}">
+                                   data-precio="${precioProducto}"
+                                   data-categoria-tipo="${categoriaBase}">
                             <div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
                                 <img style="display:none;" src="${imagenProducto}" alt="${prod.nombre}">
                                 <h6>${prod.nombre}</h6>
@@ -1097,9 +1118,17 @@
         const previousNames = {
             ...comensalNombres
         };
-        const previousInputs = {};
-        document.querySelectorAll('input[type="checkbox"]:checked').forEach(input => {
-            previousInputs[input.name + '-' + input.value] = true;
+        
+        // Guardar TODAS las selecciones actuales (radio buttons y checkboxes)
+        const previousSelections = {};
+        document.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked').forEach(input => {
+            const key = input.name + '-' + input.value;
+            previousSelections[key] = {
+                checked: true,
+                name: input.name,
+                value: input.value,
+                type: input.type
+            };
         });
 
         tabContainer.innerHTML = "";
@@ -1123,17 +1152,25 @@
             });
         }, 100);
 
+        // Restaurar TODAS las selecciones previas (radio buttons y checkboxes)
         setTimeout(() => {
-            document.querySelectorAll('input[type="checkbox"]').forEach(input => {
-                const key = input.name + '-' + input.value;
-                if (previousInputs[key]) {
+            console.log('Restaurando selecciones:', previousSelections);
+            let restored = 0;
+            Object.keys(previousSelections).forEach(key => {
+                const selection = previousSelections[key];
+                const input = document.querySelector(`input[name="${selection.name}"][value="${selection.value}"]`);
+                if (input) {
                     input.checked = true;
                     const plus = input.previousElementSibling;
-                    if (plus?.classList.contains('plus')) plus.classList.add('active');
+                    if (plus?.classList.contains('plus')) {
+                        plus.classList.add('active');
+                    }
+                    restored++;
                 }
             });
+            console.log(`Selecciones restauradas: ${restored}/${Object.keys(previousSelections).length}`);
             updateOrdenResumen();
-        }, 150);
+        }, 250); // Aumentamos el delay para asegurar que el DOM esté completamente listo
 
         initSwipers();
         updateOrdenResumen();
@@ -1224,76 +1261,134 @@
     }
 
     function updateOrdenResumen() {
-    let resumenHTML = '';
-    let totalGeneral = 0;
-    
-    // Recorremos cada comensal
-    for (let i = 0; i < comensalCount; i++) {
-        let comensalTotal = 0;
-        let todosLosProductos = []; // Array para almacenar todos los productos seleccionados
-        let menuMasCaro = null;
-        let precioMasCaro = 0;
+        let resumenHTML = '';
+        let totalGeneral = 0;
         
-        // Agrupar productos por menú
-        const menuProductos = {};
-        
-        // Obtener todos los productos seleccionados para este comensal
-        document.querySelectorAll(`input[name^="menu_producto[${i}]"]:checked`).forEach(input => {
-            const menuCategoria = input.getAttribute('data-menu-categoria');
-            const precio = parseFloat(input.getAttribute('data-precio'));
-            const nombreProducto = input.closest('.card').querySelector('h6').innerText;
-            const imagenProducto = input.closest('.card').querySelector('img').src;
+        // Recorremos cada comensal
+        for (let i = 0; i < comensalCount; i++) {
+            let comensalTotal = 0;
+            let menuType = '';
+            let entradaName = '';
+            let fondoName = '';
+            let entradaImg = '';
+            let fondoImg = '';
             
-            // Extraer el ID del menú desde menuCategoria
-            const menuId = menuCategoria.split('_').pop();
+            // Obtener las selecciones de entrada y fondo para este comensal
+            let selEntrada = document.querySelector(`input[name="entrada[${i}]"]:checked`);
+            let selFondo = document.querySelector(`input[name="fondo[${i}]"]:checked`);
             
-            if (!menuProductos[menuId]) {
-                menuProductos[menuId] = {
-                    menu: menus.find(m => m.id == menuId),
-                    productos: []
-                };
+            // Obtener productos independientes (carta, combos, etc.)
+            let productosIndependientes = [];
+            let totalIndependientes = 0;
+            
+            document.querySelectorAll(`input[name^="carta[${i}]"]:checked, input[name^="combo[${i}]"]:checked`).forEach(input => {
+                const precio = parseFloat(input.getAttribute('data-precio'));
+                const nombre = input.closest('.card').querySelector('h6').innerText;
+                const imagen = input.closest('.card').querySelector('img').src;
+                const categoria = input.getAttribute('data-categoria-tipo');
+                
+                productosIndependientes.push({
+                    nombre: nombre,
+                    precio: precio,
+                    imagen: imagen,
+                    categoria: categoria
+                });
+                totalIndependientes += precio;
+            });
+            
+            // Lógica de precios inteligente para menús
+            if (selEntrada && selFondo) {
+                // Tiene entrada y fondo: aplicar lógica de menú combinado
+                const entradaCategoria = selEntrada.getAttribute('data-menu-categoria');
+                const fondoCategoria = selFondo.getAttribute('data-menu-categoria');
+                
+                // Obtener los precios de los menús de cada producto
+                const entradaMenuId = entradaCategoria.split('_').pop();
+                const fondoMenuId = fondoCategoria.split('_').pop();
+                
+                const entradaMenu = menus.find(m => m.id == entradaMenuId);
+                const fondoMenu = menus.find(m => m.id == fondoMenuId);
+                
+                const entradaPrecio = entradaMenu ? parseFloat(entradaMenu.precio) : 0;
+                const fondoPrecio = fondoMenu ? parseFloat(fondoMenu.precio) : 0;
+                
+                // Lógica: Si cualquier elemento es del menú caro, se cobra el precio caro
+                const precioMasCaro = Math.max(entradaPrecio, fondoPrecio);
+                
+                if (precioMasCaro >= 27.90) {
+                    menuType = "Menú S/27.90";
+                    comensalTotal = 27.90;
+                } else if (precioMasCaro >= 20.00) {
+                    menuType = "Menú S/20.00";
+                    comensalTotal = 20.00;
+                } else {
+                    menuType = "Menú S/15.00";
+                    comensalTotal = 15.00;
+                }
+                
+                entradaName = selEntrada.closest('.card').querySelector('h6').innerText;
+                fondoName = selFondo.closest('.card').querySelector('h6').innerText;
+                entradaImg = selEntrada.closest('.card').querySelector('img').src;
+                fondoImg = selFondo.closest('.card').querySelector('img').src;
+                
+            } else if (selEntrada || selFondo) {
+                // Solo tiene entrada O fondo: precio individual del producto
+                const seleccion = selEntrada || selFondo;
+                const precioIndividual = parseFloat(seleccion.getAttribute('data-precio'));
+                
+                menuType = `Producto individual`;
+                comensalTotal = precioIndividual;
+                
+                if (selEntrada) {
+                    entradaName = selEntrada.closest('.card').querySelector('h6').innerText;
+                    entradaImg = selEntrada.closest('.card').querySelector('img').src;
+                } else {
+                    fondoName = selFondo.closest('.card').querySelector('h6').innerText;
+                    fondoImg = selFondo.closest('.card').querySelector('img').src;
+                }
             }
             
-            const productoInfo = {
-                nombre: nombreProducto,
-                precio: precio,
-                imagen: imagenProducto,
-                categoria: menuCategoria.split('_')[0],
-                menuId: menuId
-            };
+            // Sumar productos independientes
+            comensalTotal += totalIndependientes;
+            totalGeneral += comensalTotal;
             
-            menuProductos[menuId].productos.push(productoInfo);
-            todosLosProductos.push(productoInfo); // Agregar a la lista general
-        });
-        
-        // NUEVA LÓGICA: Si solo hay 1 producto, usar precio del producto. Si hay más, usar precio del menú más caro
-        if (todosLosProductos.length === 1) {
-            // Solo 1 producto seleccionado: usar precio del producto
-            comensalTotal = todosLosProductos[0].precio;
-        } else if (todosLosProductos.length > 1) {
-            // Múltiples productos: encontrar el menú más caro
-            Object.keys(menuProductos).forEach(menuId => {
-                const menuInfo = menuProductos[menuId];
-                const menu = menuInfo.menu;
-                
-                if (menuInfo.productos.length > 0) {
-                    const precioMenu = parseFloat(menu.precio);
-                    if (precioMenu > precioMasCaro) {
-                        precioMasCaro = precioMenu;
-                        menuMasCaro = menu;
-                    }
-                }
-            });
-            comensalTotal = precioMasCaro;
-        }
-        
-        totalGeneral += comensalTotal;
-        
-        // Generar HTML para el resumen con TODOS los productos
-        let productosHTML = '';
-        if (todosLosProductos.length > 0) {
-            // Mostrar todos los productos seleccionados
-            todosLosProductos.forEach(prod => {
+            // Generar HTML para mostrar productos seleccionados
+            let productosHTML = '';
+            
+            if (entradaName && entradaImg) {
+                productosHTML += `
+                    <li>
+                        <div class="timeline-panel">
+                            <div class="media me-2">
+                                <img alt="image" width="50" src="${entradaImg}">
+                            </div>
+                            <div class="media-body">
+                                <span>Entrada: </span>
+                                <h5 class="mb-1">${entradaName}</h5>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }
+
+            if (fondoName && fondoImg) {
+                productosHTML += `
+                    <li>
+                        <div class="timeline-panel">
+                            <div class="media me-2">
+                                <img alt="image" width="50" src="${fondoImg}">
+                            </div>
+                            <div class="media-body">
+                                <span>Fondo: </span>
+                                <h5 class="mb-1">${fondoName}</h5>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }
+            
+            // Mostrar productos independientes
+            productosIndependientes.forEach(prod => {
                 productosHTML += `
                     <li>
                         <div class="timeline-panel">
@@ -1303,67 +1398,56 @@
                             <div class="media-body">
                                 <span>${prod.categoria}: </span>
                                 <h5 class="mb-1">${prod.nombre}</h5>
-                                <small class="text-muted">Menu ${menus.find(m => m.id == prod.menuId)?.nombre}</small>
+                                <small class="text-muted">S/ ${prod.precio.toFixed(2)}</small>
                             </div>
                         </div>
                     </li>
                 `;
             });
             
-            // Mostrar información del precio
-            if (todosLosProductos.length === 1) {
+            // Mostrar precio del menú si corresponde
+            if (menuType) {
                 productosHTML += `
                     <li>
                         <div class="timeline-panel" style="border: none;">
                             <div class="media-body" style="padding-left: 12px;">
                                 <span style="font-weight: bold; position: absolute; right: 10%;">
-                                    Precio individual: S/ ${todosLosProductos[0].precio.toFixed(2)}
-                                </span>
-                            </div>
-                        </div>
-                    </li>
-                `;
-            } else {
-                productosHTML += `
-                    <li>
-                        <div class="timeline-panel" style="border: none;">
-                            <div class="media-body" style="padding-left: 12px;">
-                                <span style="font-weight: bold; position: absolute; right: 10%;">
-                                    Precio: ${menuMasCaro.nombre} - S/ ${precioMasCaro.toFixed(2)}
+                                    ${menuType}
                                 </span>
                             </div>
                         </div>
                     </li>
                 `;
             }
-        }
-        
-        let nombreComensal = comensalNombres[i] || `COMENSAL ${i+1}`;
-        
-        resumenHTML += `
-            <div class="accordion-item">
-                <div class="accordion-header collapsed rounded-lg" id="accord-${i+1}" 
-                     data-bs-toggle="collapse" data-bs-target="#collapse${i+1}" 
-                     aria-controls="collapse${i+1}" aria-expanded="true" role="button">
-                    <i class="la la-user me-2"></i>
-                    <span class="accordion-header-text" style="padding-left: 5px;">
-                        ${nombreComensal} - <b>S/ ${comensalTotal.toFixed(2)}</b>
-                    </span>
-                    <span class="accordion-header-indicator"></span>
-                </div>
-                <div id="collapse${i+1}" class="collapse accordion__body" 
-                     aria-labelledby="accord-${i+1}" data-bs-parent="#resumenComensales">
-                    <div class="accordion-body-text">
-                        <div id="DZ_W_Todo2" class="widget-media dlab-scroll">
-                            <ul class="timeline">
-                                ${productosHTML}
-                            </ul>
+            
+            let nombreComensal = comensalNombres[i] || `COMENSAL ${i+1}`;
+            
+            if (comensalTotal > 0) {
+                resumenHTML += `
+                    <div class="accordion-item">
+                        <div class="accordion-header collapsed rounded-lg" id="accord-${i+1}" 
+                             data-bs-toggle="collapse" data-bs-target="#collapse${i+1}" 
+                             aria-controls="collapse${i+1}" aria-expanded="true" role="button">
+                            <i class="la la-user me-2"></i>
+                            <span class="accordion-header-text" style="padding-left: 5px;">
+                                ${nombreComensal} - <b>S/ ${comensalTotal.toFixed(2)}</b>
+                            </span>
+                            <span class="accordion-header-indicator"></span>
+                        </div>
+                        <div id="collapse${i+1}" class="collapse accordion__body" 
+                             aria-labelledby="accord-${i+1}" data-bs-parent="#resumenComensales">
+                            <div class="accordion-body-text">
+                                <div id="DZ_W_Todo2" class="widget-media dlab-scroll">
+                                    <ul class="timeline">
+                                        ${productosHTML}
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        `;
-    }
+                `;
+            }
+        }
     
     document.getElementById("resumenComensales").innerHTML = resumenHTML;
     
@@ -1400,100 +1484,51 @@
 
 
 
+    $(document).on('click', 'input[type="checkbox"], input[type="radio"]', function(e) {
+        updateOrdenResumen();
+    });
+
     // Usamos delegación de eventos para atender a los clicks en cualquier elemento con la clase .plus
     $(document).on('click', '.plus', function(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const $input = $(this).siblings('input');
-    if ($input.length === 0) return;
+        const $input = $(this).siblings('input');
+        if ($input.length === 0) return;
 
-    const menuCategoria = $input.data('menu-categoria');
-    if (!menuCategoria) return;
-    
-    // Parse category and menu information
-    const categoriaParts = menuCategoria.split('_');
-    const categoriaBase = categoriaParts[0]; // "entrada", "fondo", etc.
-    const menuId = parseInt(categoriaParts[1]); 
-    
-    // Get comensal index from input name
-    const comensalMatch = $input.attr('name').match(/menu_producto\[(\d+)\]/);
-    if (!comensalMatch) return;
-    const comensalIndex = comensalMatch[1];
-    
-    // Initialize selection state tracker if needed
-    if (!seleccionesState[comensalIndex]) {
-        seleccionesState[comensalIndex] = {
-            menus: {}, // Track selections by menu and category
-            activeMenu: null
-        };
-    }
-    
-    const estado = seleccionesState[comensalIndex];
-    
-    // Ensure menu structure exists
-    if (!estado.menus[menuId]) {
-        estado.menus[menuId] = {};
-    }
-    
-    // Get input ID for reference
-    const inputId = $input.attr('id') || `input_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    if (!$input.attr('id')) {
-        $input.attr('id', inputId);
-    }
-    
-    // If already checked, just uncheck it
-    if ($input.prop('checked')) {
-        $input.prop('checked', false);
-        $(this).removeClass('active');
-        
-        // Update tracking state
-        if (estado.menus[menuId][categoriaBase] === inputId) {
-            estado.menus[menuId][categoriaBase] = null;
-        }
-        
-        // Check if we should deactivate this menu
-        const menuStillActive = Object.values(estado.menus[menuId]).some(val => val !== null);
-        if (!menuStillActive && estado.activeMenu === menuId) {
-            estado.activeMenu = null;
-        }
-    } else {
-        // If selecting a new product
-        
-        // If selecting from a different menu than active, clear current selections
-        if (estado.activeMenu !== null && estado.activeMenu !== menuId) {
-            // Clear all selections from previous menu
-            const prevMenu = estado.menus[estado.activeMenu];
-            if (prevMenu) {
-                Object.keys(prevMenu).forEach(cat => {
-                    if (prevMenu[cat]) {
-                        $(`#${prevMenu[cat]}`).prop('checked', false)
-                            .siblings('.plus')
-                            .removeClass('active');
-                        prevMenu[cat] = null;
-                    }
+        const isCheckbox = $input.attr('type') === 'checkbox';
+        const isRadio = $input.attr('type') === 'radio';
+
+        if (isCheckbox) {
+            // Toggle para checkboxes
+            const wasChecked = $input.prop('checked');
+            $input.prop('checked', !wasChecked);
+            $(this).toggleClass('active', !wasChecked);
+        } else if (isRadio) {
+            // Para radio buttons: permitir deseleccionar si ya está seleccionado
+            const wasChecked = $input.prop('checked');
+            
+            if (wasChecked) {
+                // Si ya estaba seleccionado, deseleccionarlo
+                $input.prop('checked', false);
+                $(this).removeClass('active');
+            } else {
+                // Si no estaba seleccionado, desactivar otros del grupo y activar este
+                const groupName = $input.attr('name');
+                
+                // Desactivar todos los elementos del mismo grupo
+                $(`input[name="${groupName}"]`).each(function() {
+                    $(this).prop('checked', false);
+                    $(this).siblings('.plus').removeClass('active');
                 });
+                
+                // Activar el seleccionado
+                $input.prop('checked', true);
+                $(this).addClass('active');
             }
         }
-        
-        // Set this menu as active
-        estado.activeMenu = menuId;
-        
-        // If there's already a selection in this category for this menu, clear it
-        if (estado.menus[menuId][categoriaBase]) {
-            const prevSelection = estado.menus[menuId][categoriaBase];
-            $(`#${prevSelection}`).prop('checked', false)
-                .siblings('.plus')
-                .removeClass('active');
-        }
-        
-        // Select current item and update state
-        $input.prop('checked', true);
-        $(this).addClass('active');
-        estado.menus[menuId][categoriaBase] = inputId;
-    }
-    
-    updateOrdenResumen();
-});
+
+        updateOrdenResumen();
+    });
 
     $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
     // Get the newly activated tab
@@ -1639,20 +1674,34 @@ menus.forEach(menu => {
 
     btnToggle.onclick = () => {
         const isRadio = input.type === 'radio';
+        const wasChecked = input.checked;
+        
         if (isRadio) {
-            // Desmarcar todos los radios del mismo grupo
-            const groupName = input.name;
-            document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
-                el.checked = false;
-                const pl = el.previousElementSibling;
-                if (pl?.classList.contains('plus')) pl.classList.remove('active');
-            });
+            if (wasChecked) {
+                // Si ya estaba seleccionado, deseleccionarlo
+                input.checked = false;
+                const plus = input.previousElementSibling;
+                if (plus?.classList.contains('plus')) plus.classList.remove('active');
+            } else {
+                // Desmarcar todos los radios del mismo grupo
+                const groupName = input.name;
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
+                    el.checked = false;
+                    const pl = el.previousElementSibling;
+                    if (pl?.classList.contains('plus')) pl.classList.remove('active');
+                });
+                
+                // Activar el actual
+                input.checked = true;
+                const plus = input.previousElementSibling;
+                if (plus?.classList.contains('plus')) plus.classList.add('active');
+            }
+        } else {
+            // Para checkboxes, simplemente toggle
+            input.checked = !input.checked;
+            const plus = input.previousElementSibling;
+            if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
         }
-
-        input.checked = !input.checked;
-
-        const plus = input.previousElementSibling;
-        if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
 
         updateModalButton(btnToggle, input.checked);
         updateOrdenResumen();
