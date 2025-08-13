@@ -113,6 +113,36 @@
 .swiper-slide .card {
     width: 100% !important;
 }
+
+/* Estilos específicos para imágenes de productos en móviles */
+.product-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .product-image {
+        height: 100px !important; /* Reducir altura en móviles */
+    }
+    
+    .dishe-bx img {
+        height: 100px !important; /* Reducir altura en móviles */
+        width: 100% !important;
+        object-fit: cover !important;
+    }
+    
+    .dishe-bx .card-body {
+        padding: 8px !important; /* Reducir padding para dar más espacio al texto */
+    }
+    
+    .dishe-bx h6 {
+        font-size: 12px !important; /* Reducir tamaño de fuente si es necesario */
+        height: auto !important; /* Permitir altura automática */
+        -webkit-line-clamp: 3 !important; /* Permitir hasta 3 líneas */
+        line-clamp: 3 !important;
+    }
+}
     </style>
 
 
@@ -1029,7 +1059,7 @@
                     </div>
                     <div class="card-body p-0 text-center" style="cursor:pointer;" 
                          onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
-                        <img style="width: 100%; height: 150px; object-fit: cover;" src="${imagenProducto}" alt="${prod.nombre}" 
+                        <img class="product-image" src="${imagenProducto}" alt="${prod.nombre}" 
                              onerror="this.src='/access/images/logo-full.png'">
                     </div>
                     <div class="border-0 pt-2">
