@@ -859,7 +859,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 			/* Configuración específica del marquee para móviles */
 			.marquee {
-				animation: scroll-left 70s linear infinite;
+				animation: scroll-left 80s linear infinite;
 			}
 
 			/* Alternar la altura */
