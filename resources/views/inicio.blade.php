@@ -1118,9 +1118,17 @@
         const previousNames = {
             ...comensalNombres
         };
-        const previousInputs = {};
-        document.querySelectorAll('input[type="checkbox"]:checked').forEach(input => {
-            previousInputs[input.name + '-' + input.value] = true;
+        
+        // Guardar TODAS las selecciones actuales (radio buttons y checkboxes)
+        const previousSelections = {};
+        document.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked').forEach(input => {
+            const key = input.name + '-' + input.value;
+            previousSelections[key] = {
+                checked: true,
+                name: input.name,
+                value: input.value,
+                type: input.type
+            };
         });
 
         tabContainer.innerHTML = "";
@@ -1144,17 +1152,25 @@
             });
         }, 100);
 
+        // Restaurar TODAS las selecciones previas (radio buttons y checkboxes)
         setTimeout(() => {
-            document.querySelectorAll('input[type="checkbox"]').forEach(input => {
-                const key = input.name + '-' + input.value;
-                if (previousInputs[key]) {
+            console.log('Restaurando selecciones:', previousSelections);
+            let restored = 0;
+            Object.keys(previousSelections).forEach(key => {
+                const selection = previousSelections[key];
+                const input = document.querySelector(`input[name="${selection.name}"][value="${selection.value}"]`);
+                if (input) {
                     input.checked = true;
                     const plus = input.previousElementSibling;
-                    if (plus?.classList.contains('plus')) plus.classList.add('active');
+                    if (plus?.classList.contains('plus')) {
+                        plus.classList.add('active');
+                    }
+                    restored++;
                 }
             });
+            console.log(`Selecciones restauradas: ${restored}/${Object.keys(previousSelections).length}`);
             updateOrdenResumen();
-        }, 150);
+        }, 250); // Aumentamos el delay para asegurar que el DOM esté completamente listo
 
         initSwipers();
         updateOrdenResumen();
