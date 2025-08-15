@@ -109,15 +109,16 @@
             // Certificado
             qz.security.setCertificatePromise(function() {
                 log('🔐 Obteniendo certificado personalizado desde servidor...');
-                return fetch('{{ route("qz.certificate") }}', { 
+                return fetch('/qz/certificate', { 
                     credentials: 'same-origin',
                     headers: { 'Accept': 'text/plain' }
                 })
-                .then(resp => {
-                    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
-                    return resp.text();
-                })
-                .then(cert => {
+                .then(async resp => {
+                    if (!resp.ok) {
+                        const body = await resp.text().catch(() => '');
+                        throw new Error(`HTTP ${resp.status}: ${resp.statusText} ${body ? '- ' + body : ''}`);
+                    }
+                    const cert = await resp.text();
                     log('✅ Certificado personalizado obtenido (estacion90-qz)', 'success');
                     return cert;
                 });
@@ -125,7 +126,7 @@
             // Firma
             qz.security.setSignaturePromise(function(toSign) {
                 log('✍️ Firmando request con clave privada...');
-                return fetch('{{ route("qz.sign") }}', {
+                return fetch('/qz/sign', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -135,8 +136,11 @@
                     credentials: 'same-origin',
                     body: JSON.stringify({ request: toSign })
                 })
-                .then(resp => {
-                    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+                .then(async resp => {
+                    if (!resp.ok) {
+                        const body = await resp.text().catch(() => '');
+                        throw new Error(`HTTP ${resp.status}: ${resp.statusText} ${body ? '- ' + body : ''}`);
+                    }
                     return resp.text();
                 });
             });
@@ -244,7 +248,12 @@
                 }
                 
                 // Obtener nuestro certificado
-                const cert = await fetch('{{ route("qz.certificate") }}').then(r => r.text());
+                const certResp = await fetch('/qz/certificate');
+                if (!certResp.ok) {
+                    const body = await certResp.text().catch(() => '');
+                    throw new Error(`Certificado: HTTP ${certResp.status} ${certResp.statusText} ${body ? '- ' + body : ''}`);
+                }
+                const cert = await certResp.text();
                 log('📜 Certificado obtenido del servidor', 'success');
                 
                 // Forzar que QZ use nuestro certificado
@@ -260,8 +269,8 @@
                 log('🔐 Security reconfigurado con certificado personalizado', 'success');
                 
                 // Test de conexión segura
-                const testResult = await qz.websocket.isSecure();
-                log(`🔒 Conexión segura: ${testResult}`, testResult ? 'success' : 'warning');
+                // Algunas versiones no exponen isSecure; omitimos esta comprobación
+                log('🔒 Certificado aplicado (saltando verificación isSecure por compatibilidad)', 'info');
                 
             } catch (error) {
                 log(`❌ Error configurando certificado: ${error.message}`, 'error');
@@ -274,13 +283,16 @@
                 log('Probando endpoints de certificado...');
                 
                 // Probar certificado
-                const certResp = await fetch('{{ route("qz.certificate") }}');
-                if (!certResp.ok) throw new Error(`Certificado: HTTP ${certResp.status}`);
+                const certResp = await fetch('/qz/certificate');
+                if (!certResp.ok) {
+                    const body = await certResp.text().catch(() => '');
+                    throw new Error(`Certificado: HTTP ${certResp.status} ${certResp.statusText} ${body ? '- ' + body : ''}`);
+                }
                 const cert = await certResp.text();
                 log(`Certificado obtenido (${cert.length} chars)`, 'success');
                 
                 // Probar firma
-                const signResp = await fetch('{{ route("qz.sign") }}', {
+                const signResp = await fetch('/qz/sign', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -288,8 +300,10 @@
                     },
                     body: JSON.stringify({ request: 'test-signature-' + Date.now() })
                 });
-                
-                if (!signResp.ok) throw new Error(`Firma: HTTP ${signResp.status}`);
+                if (!signResp.ok) {
+                    const body = await signResp.text().catch(() => '');
+                    throw new Error(`Firma: HTTP ${signResp.status} ${signResp.statusText} ${body ? '- ' + body : ''}`);
+                }
                 const signature = await signResp.text();
                 log(`Firma obtenida (${signature.length} chars)`, 'success');
                 log('✅ Certificados funcionando correctamente', 'success');
