@@ -3,13 +3,10 @@
 <head>
     <title>Test QZ Tray - Estación 90</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- QZ Tray script - Verificando carga -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qz-tray/2.2.4/qz-tray.js" 
-            integrity="sha512-T5k2OQpRhsT1uWgkC8oLemP6hCysEJ6vD2Ju6sS75+0/90P8IV3N0t8Tt4N+Kk9I+8zIMa+z6BCEq1X0r1y6Ow==" 
-            crossorigin="anonymous" 
-            referrerpolicy="no-referrer"
-            onload="console.log('QZ Script cargado exitosamente')"
-            onerror="console.error('Error cargando QZ script')"></script>
+    <!-- QZ Tray script (local primero). Si falla, la página hará fallback a CDN automáticamente. -->
+    <script src="/js/qz-tray.min.js"
+            onload="console.log('QZ Script local cargado')"
+            onerror="console.error('No se pudo cargar /js/qz-tray.min.js')"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .status { font-size: 18px; font-weight: bold; margin: 10px 0; }
@@ -106,6 +103,8 @@
                 log('❌ QZ no disponible para configurar seguridad', 'error');
                 return;
             }
+            // Asegurar algoritmo de firma consistente con el servidor
+            try { qz.security.setSignatureAlgorithm('SHA256'); } catch (e) { log('⚠️ No se pudo fijar algoritmo SHA256: ' + e.message, 'warning'); }
             // Certificado
             qz.security.setCertificatePromise(function() {
                 log('🔐 Obteniendo certificado personalizado desde servidor...');
@@ -129,12 +128,12 @@
                 return fetch('/qz/sign', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'text/plain'
                     },
                     credentials: 'same-origin',
-                    body: JSON.stringify({ request: toSign })
+                    body: (typeof toSign === 'string' ? toSign : JSON.stringify(toSign))
                 })
                 .then(async resp => {
                     if (!resp.ok) {
@@ -295,10 +294,10 @@
                 const signResp = await fetch('/qz/sign', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify({ request: 'test-signature-' + Date.now() })
+                    body: 'test-signature-' + Date.now()
                 });
                 if (!signResp.ok) {
                     const body = await signResp.text().catch(() => '');
