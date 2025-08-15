@@ -99,16 +99,19 @@
                 });
         }
         
-        // Configurar QZ Security
-        if (window.qz) {
-            // Configurar certificado personalizado
+        // Configurar QZ Security (reutilizable para carga normal o fallback)
+        let qzSecurityConfigured = false;
+        function configureQzSecurity() {
+            if (!window.qz || !qz.security) {
+                log('❌ QZ no disponible para configurar seguridad', 'error');
+                return;
+            }
+            // Certificado
             qz.security.setCertificatePromise(function() {
                 log('🔐 Obteniendo certificado personalizado desde servidor...');
                 return fetch('{{ route("qz.certificate") }}', { 
                     credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'text/plain'
-                    }
+                    headers: { 'Accept': 'text/plain' }
                 })
                 .then(resp => {
                     if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
@@ -117,13 +120,9 @@
                 .then(cert => {
                     log('✅ Certificado personalizado obtenido (estacion90-qz)', 'success');
                     return cert;
-                })
-                .catch(err => {
-                    log('❌ Error obteniendo certificado: ' + err.message, 'error');
-                    throw err;
                 });
             });
-            
+            // Firma
             qz.security.setSignaturePromise(function(toSign) {
                 log('✍️ Firmando request con clave privada...');
                 return fetch('{{ route("qz.sign") }}', {
@@ -139,18 +138,14 @@
                 .then(resp => {
                     if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
                     return resp.text();
-                })
-                .then(signature => {
-                    log('✅ Firma generada correctamente', 'success');
-                    return signature;
-                })
-                .catch(err => {
-                    log('❌ Error firmando: ' + err.message, 'error');
-                    throw err;
                 });
             });
-            
-            log('🔧 QZ Security configurado con certificado personalizado');
+            qzSecurityConfigured = true;
+            log('🔧 QZ Security configurado con certificado + firma');
+        }
+
+        if (window.qz) {
+            configureQzSecurity();
         } else {
             log('❌ QZ Tray script no cargado', 'error');
         }
@@ -179,18 +174,12 @@
                 log(`📊 QZ Tray versión: ${qz.version}`, 'success');
                 log(`🌐 WebSocket activo: ${qz.websocket.isActive()}`, 'success');
                 
-                // Verificar configuración de seguridad
+                // Verificar configuración de seguridad (sin usar getters inexistentes)
                 log('🔐 Verificando configuración de seguridad...');
-                if (qz.security.getCertificatePromise()) {
-                    log('✅ Certificado Promise configurado', 'success');
+                if (qzSecurityConfigured === true) {
+                    log('✅ Certificado y Firma configurados', 'success');
                 } else {
-                    log('⚠️ Certificado Promise no configurado', 'warning');
-                }
-                
-                if (qz.security.getSignaturePromise()) {
-                    log('✅ Signature Promise configurado', 'success');
-                } else {
-                    log('⚠️ Signature Promise no configurado', 'warning');
+                    log('⚠️ Seguridad no configurada aún (si el script cargó por fallback, se configurará automáticamente)', 'warning');
                 }
                 
             } catch (error) {
@@ -220,6 +209,7 @@
                     qz.security.setSignaturePromise(null);
                     log('🧹 Configuración de seguridad limpiada');
                 }
+                qzSecurityConfigured = false;
                 
                 // Conectar sin seguridad
                 if (qz.websocket.isActive()) {
@@ -383,7 +373,7 @@
             log('🚀 Página de prueba QZ Tray cargada');
             
             // Verificar carga del script QZ
-            if (window.qz) {
+                if (window.qz) {
                 log('✅ QZ Tray script cargado correctamente', 'success');
                 log('📊 QZ versión disponible: ' + (qz.version || 'desconocida'));
                 
@@ -423,11 +413,12 @@
                 
                 const script = document.createElement('script');
                 script.src = cdnUrl;
-                script.onload = function() {
+        script.onload = function() {
                     log(`✅ QZ Script cargado desde CDN ${currentCdn + 1}`, 'success');
                     if (window.qz) {
                         log('✅ QZ Tray ahora disponible', 'success');
-                        setTimeout(testConnection, 500);
+            try { configureQzSecurity(); } catch (e) { log('⚠️ No se pudo configurar seguridad: ' + e.message, 'warning'); }
+            setTimeout(testConnection, 500);
                     }
                 };
                 script.onerror = function() {
