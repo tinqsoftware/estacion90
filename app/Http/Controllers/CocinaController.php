@@ -6,6 +6,7 @@ use App\Models\Pedido;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\HistorialEstadoService;
+use App\Models\Impresiones;
 use Illuminate\Support\Facades\Log;
 
 class CocinaController extends Controller
@@ -91,6 +92,15 @@ public function getNewOrders(Request $request)
         
         $pedido->estado = $nuevoEstado;
         $pedido->save();
+
+        if ($request->status == '2') {
+            Impresiones::create([
+                'id_pedido' => $pedido->id,
+                'estado' => 'pendiente',
+                'fecha_generacion' => Carbon::now(),
+                'fecha_impresion' => null
+            ]);
+        }
         
         // Registrar cambio de estado en el historial solo si cambió
         if ($estadoAnterior !== $nuevoEstado) {

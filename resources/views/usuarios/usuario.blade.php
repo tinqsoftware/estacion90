@@ -394,7 +394,7 @@
                             $('#' + key + '-error').text(value[0]);
                         });
                     } else {
-                        alert('Error al crear el usuario');
+                        alert('Error al crear el usuario blade.');
                         console.log(xhr.responseText);
                     }
                 }

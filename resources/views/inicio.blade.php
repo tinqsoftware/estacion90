@@ -31,7 +31,6 @@
 
     <!-- Stylesheet -->
     <link href="access/vendor/jquery-nice-select/css/nice-select.css" rel="stylesheet">
-    <link href="access/vendor/swiper/css/swiper-bundle.min.css" rel="stylesheet">
     <link href="access/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
     <link href="access/vendor/bootstrap-select/dist/css/bootstrap-select.min.css" rel="stylesheet">
     <!-- Form step -->
@@ -46,103 +45,103 @@
 
     <style>
         .nav-pills,
-.nav-wizard,
-.nav-tabs {
-    flex-wrap: nowrap !important;
-    white-space: nowrap !important;
-    overflow-x: auto !important;
-}
+        .nav-wizard,
+        .nav-tabs {
+            flex-wrap: nowrap !important;
+            white-space: nowrap !important;
+            overflow-x: auto !important;
+        }
 
-/* Hide scrollbar for cleaner look */
-.nav-pills::-webkit-scrollbar,
-.nav-wizard::-webkit-scrollbar,
-.nav-tabs::-webkit-scrollbar {
-    height: 0;
-    display: none;
-}
+        /* Hide scrollbar for cleaner look */
+        .nav-pills::-webkit-scrollbar,
+        .nav-wizard::-webkit-scrollbar,
+        .nav-tabs::-webkit-scrollbar {
+            height: 0;
+            display: none;
+        }
 
-/* Make tab items maintain their width */
-.nav-pills .nav-item,
-.nav-wizard .nav-item,
-.nav-tabs .nav-item {
-    flex-shrink: 0;
-}
+        /* Make tab items maintain their width */
+        .nav-pills .nav-item,
+        .nav-wizard .nav-item,
+        .nav-tabs .nav-item {
+            flex-shrink: 0;
+        }
 
-/* Ensure text doesn't wrap inside tabs */
-.nav-link, .step-label {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
+        /* Ensure text doesn't wrap inside tabs */
+        .nav-link, .step-label {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
 
-/* Estilos para mantener tarjetas de productos con altura uniforme */
-.dishe-bx {
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
+        /* Estilos para mantener tarjetas de productos con altura uniforme */
+        .dishe-bx {
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
 
-.dishe-bx .card-body {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
+        .dishe-bx .card-body {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
 
-.dishe-bx .border-0 {
-    margin-top: auto !important;
-}
+        .dishe-bx .border-0 {
+            margin-top: auto !important;
+        }
 
-.dishe-bx h6 {
-    font-size: 14px !important;
-    line-height: 1.2 !important;
-    height: 2.4em !important;
-    overflow: hidden !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    text-overflow: ellipsis !important;
-    margin-bottom: 8px !important;
-}
+        .dishe-bx h6 {
+            font-size: 14px !important;
+            line-height: 1.2 !important;
+            height: 2.4em !important;
+            overflow: hidden !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            text-overflow: ellipsis !important;
+            margin-bottom: 8px !important;
+        }
 
-.swiper-slide {
-    height: auto !important;
-    display: flex !important;
-}
+        .swiper-slide {
+            height: auto !important;
+            display: flex !important;
+        }
 
-.swiper-slide .card {
-    width: 100% !important;
-}
+        .swiper-slide .card {
+            width: 100% !important;
+        }
 
-/* Estilos específicos para imágenes de productos en móviles */
-.product-image {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-}
+        /* Estilos específicos para imágenes de productos en móviles */
+        .product-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
 
-@media (max-width: 768px) {
-    .product-image {
-        height: 100px !important; /* Reducir altura en móviles */
-    }
-    
-    .dishe-bx img {
-        height: 100px !important; /* Reducir altura en móviles */
-        width: 100% !important;
-        object-fit: cover !important;
-    }
-    
-    .dishe-bx .card-body {
-        padding: 8px !important; /* Reducir padding para dar más espacio al texto */
-    }
-    
-    .dishe-bx h6 {
-        font-size: 12px !important; /* Reducir tamaño de fuente si es necesario */
-        height: auto !important; /* Permitir altura automática */
-        -webkit-line-clamp: 3 !important; /* Permitir hasta 3 líneas */
-        line-clamp: 3 !important;
-    }
-}
+        @media (max-width: 768px) {
+            .product-image {
+                height: 100px !important; /* Reducir altura en móviles */
+            }
+            
+            .dishe-bx img {
+                height: 100px !important; /* Reducir altura en móviles */
+                width: 100% !important;
+                object-fit: cover !important;
+            }
+            
+            .dishe-bx .card-body {
+                padding: 8px !important; /* Reducir padding para dar más espacio al texto */
+            }
+            
+            .dishe-bx h6 {
+                font-size: 12px !important; /* Reducir tamaño de fuente si es necesario */
+                height: auto !important; /* Permitir altura automática */
+                -webkit-line-clamp: 3 !important; /* Permitir hasta 3 líneas */
+                line-clamp: 3 !important;
+            }
+        }
     </style>
 
 
@@ -276,52 +275,52 @@
                                                 <hr>
                                                 <!-- Extras: Productos de categoría Extras (id=6) -->
                                                 <div class="col-xl-12">
-    <div class="card dlab-bg dlab-position">
-        <div class="card-header border-0 pb-0">
-            <h4 class="cate-title">¿Te provoca algo más?</h4>
-        </div>
-        <div class="card-body p-0">
-            @foreach($extras as $extra)
-            <div class="order-check d-flex align-items-center ">
-                <div class="dlab-media">
-                    <img src="{{ ($extra->imagen && $extra->imagen !== 'null' && trim($extra->imagen) !== '') ? $extra->imagen : '/access/images/logo-full.png' }}" 
-                         alt="{{ $extra->nombre }}" 
-                         onerror="this.src='/access/images/logo-full.png'">
-                </div>
-                <div class="dlab-info">
-                    <div class=" align-items-center justify-content-between">
-                        <h4 class="dlab-title">
-                            <a href="javascript:void(0);">{{ $extra->nombre }}</a>
-                        </h4>
-                        <span>S/ {{ ($extra->precio && $extra->precio > 0) ? $extra->precio : '1.00' }}</span>
-                    </div>
-                </div>
-                <div class="extra-item" data-extra-id="{{ $extra->id }}"
-                     data-price="{{ ($extra->precio && $extra->precio > 0) ? $extra->precio : 1 }}"
-                     style="min-width: 90px;">
-                    <div class="quntity">
-                        <button class="extra-decrease p-0"
-                                data-extra-id="{{ $extra->id }}">-</button>
-                        <input type="text" min="0" value="0"
-                               class="extra-qty"
-                               data-extra-id="{{ $extra->id }}"
-                               name="extras[{{ $extra->id }}][qty]">
-                        <button class="extra-increase p-0"
-                                data-extra-id="{{ $extra->id }}">+</button>
-                    </div>
-                    <h4 class="extra-subtotal"
-                        style="text-align:right; color: orange;"
-                        data-extra-id="{{ $extra->id }}">+ S/ 0.00</h4>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</div>
+                                                    <div class="card dlab-bg dlab-position">
+                                                        <div class="card-header border-0 pb-0">
+                                                            <h4 class="cate-title">¿Te provoca algo más?</h4>
+                                                        </div>
+                                                        <div class="card-body p-0">
+                                                            @foreach($extras as $extra)
+                                                            <div class="order-check d-flex align-items-center ">
+                                                                <div class="dlab-media">
+                                                                    <img src="{{ ($extra->imagen && $extra->imagen !== 'null' && trim($extra->imagen) !== '') ? $extra->imagen : '/access/images/logo-full.png' }}" 
+                                                                        alt="{{ $extra->nombre }}" 
+                                                                        onerror="this.src='/access/images/logo-full.png'">
+                                                                </div>
+                                                                <div class="dlab-info">
+                                                                    <div class=" align-items-center justify-content-between">
+                                                                        <h4 class="dlab-title">
+                                                                            <a href="javascript:void(0);">{{ $extra->nombre }}</a>
+                                                                        </h4>
+                                                                        <span>S/ {{ ($extra->precio && $extra->precio > 0) ? $extra->precio : '1.00' }}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="extra-item" data-extra-id="{{ $extra->id }}"
+                                                                    data-price="{{ ($extra->precio && $extra->precio > 0) ? $extra->precio : 1 }}"
+                                                                    style="min-width: 90px;">
+                                                                    <div class="quntity">
+                                                                        <button class="extra-decrease p-0"
+                                                                                data-extra-id="{{ $extra->id }}">-</button>
+                                                                        <input type="text" min="0" value="0"
+                                                                            class="extra-qty"
+                                                                            data-extra-id="{{ $extra->id }}"
+                                                                            name="extras[{{ $extra->id }}][qty]">
+                                                                        <button class="extra-increase p-0"
+                                                                                data-extra-id="{{ $extra->id }}">+</button>
+                                                                    </div>
+                                                                    <h4 class="extra-subtotal"
+                                                                        style="text-align:right; color: orange;"
+                                                                        data-extra-id="{{ $extra->id }}">+ S/ 0.00</h4>
+                                                                </div>
+                                                            </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
 
                                                 <div class="card-footer  pt-0 border-0" id="orderTotals">
                                                     <div class="d-flex align-items-center justify-content-between">
-                                                        <p>Delivey</p>
+                                                        <p>Delivery</p>
                                                         <h4 class="font-w500">+ S/ 1.00</h4>
                                                     </div>
                                                     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -552,19 +551,14 @@
 
 
                     <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body p-0">
-                <!-- Aquí se cargará el contenido del popup -->
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-body p-0">
+                                    <!-- Aquí se cargará el contenido del popup -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -645,19 +639,11 @@
         <div id="popupDireccionesContainer"></div>
 
 
-
-
-
-
         <!-- Button trigger modal -->
 
         <!--**********************************
             Content body end
         ***********************************-->
-
-
-
-
 
         <!--**********************************
            Support ticket button start
@@ -704,1812 +690,1670 @@
 
 
     <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
 
-        $('#smartwizard').smartWizard();
+            $('#smartwizard').smartWizard();
 
-        $('#modalAgregarDireccion').on('shown.bs.modal', function() {
-            setTimeout(() => iniciarMapa(),
-                300); // Para asegurar que se renderice después de que el modal se muestre
+            $('#modalAgregarDireccion').on('shown.bs.modal', function() {
+                setTimeout(() => iniciarMapa(), 300); // Para asegurar que se renderice después de que el modal se muestre
+            });
+
+            loadAndShowPopups();
+
+
         });
 
-        loadAndShowPopups();
+        $('.my-select').selectpicker();
 
+        var swiper = new Swiper(".mySwiper-1", {
+            loop: true,
+            dots: true,
+            //nav:true,
+            //autoplay: {delay: 3000,},
 
-    });
-
-    $('.my-select').selectpicker();
-
-    var swiper = new Swiper(".mySwiper-1", {
-        loop: true,
-        dots: true,
-        //nav:true,
-        //autoplay: {delay: 3000,},
-
-        navigation: {
-            nextEl: ".swiper-button-next-1",
-            prevEl: ".swiper-button-prev-1",
-            //loop: true
-        },
-
-        pagination: {
-            el: ".swiper-pagination-banner",
-            clickable: true,
-        },
-        mousewheel: false,
-        keyboard: false,
-    });
-
-
-    var swiper = new Swiper(".mySwiper-2", {
-        slidesPerView: 5,
-        spaceBetween: 20,
-        loop: true,
-        //autoplay: {delay: 3000,},
-        pagination: {
-            el: ".swiper-pagination",
-            clickable: true,
-        },
-        breakpoints: {
-            360: {
-                slidesPerView: 2,
-                spaceBetween: 20,
-            },
-            600: {
-                slidesPerView: 3,
-                spaceBetween: 20,
-            },
-            768: {
-                slidesPerView: 4,
-                spaceBetween: 20,
-            },
-            1200: {
-                slidesPerView: 3,
-                spaceBetween: 20,
-            },
-            1920: {
-                slidesPerView: 5,
-                spaceBetween: 20,
+            navigation: {
+                nextEl: ".swiper-button-next-1",
+                prevEl: ".swiper-button-prev-1",
+                //loop: true
             },
 
-        },
+            pagination: {
+                el: ".swiper-pagination-banner",
+                clickable: true,
+            },
+            mousewheel: false,
+            keyboard: false,
+        });
 
-    });
+
+        var swiper = new Swiper(".mySwiper-2", {
+            slidesPerView: 5,
+            spaceBetween: 20,
+            loop: true,
+            //autoplay: {delay: 3000,},
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+            breakpoints: {
+                360: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                },
+                600: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                },
+                768: {
+                    slidesPerView: 4,
+                    spaceBetween: 20,
+                },
+                1200: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                },
+                1920: {
+                    slidesPerView: 5,
+                    spaceBetween: 20,
+                },
+
+            },
+
+        });
 
 
 
-    $(function() {
-        $('[data-decrease]').on('click', decrease);
-        $('[data-increase]').click(increase);
-        $('[data-value]').change(valueChange);
-    });
+        $(function() {
+            $('[data-decrease]').on('click', decrease);
+            $('[data-increase]').click(increase);
+            $('[data-value]').change(valueChange);
+        });
 
-    function decrease() {
-        var value = $(this).parent().find('[data-value]').val();
-        if (value > 0) {
-            value--;
-            $(this).parent().find('[data-value]').val(value);
-        }
-    }
-    
-    function loadAndShowPopups() {
-    $.ajax({
-        url: '{{ route("popups.for-user") }}',
-        type: 'GET',
-        success: function(response) {
-            if (response.success && response.popups && response.popups.length > 0) {
-                // Tomar el primer popup disponible
-                const popup = response.popups[0];
-
-                // Configurar contenido del modal
-                if (popup.url_imagen) {
-                    $('#exampleModalCenter .modal-content div').html(
-                        `<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
-                    );
-                }
-
-                // Si hay link, hacer que el popup sea clickeable
-                if (popup.link) {
-                    $('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click',
-                        function() {
-                            window.open(popup.link, '_blank');
-                        });
-                }
-
-                // Mostrar el modal
-                $('#exampleModalCenter').modal('show');
-
-                // Registrar la vista
-                $.ajax({
-                    url: '{{ route("popups.view") }}',
-                    type: 'POST',
-                    data: {
-                        popup_id: popup.id,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(data) {
-                        console.log('Vista registrada correctamente');
-                    },
-                    error: function(xhr) {
-                        console.error('Error al registrar vista:', xhr.responseText);
-                    }
-                });
-            } else {
-                console.log('No hay popups disponibles para mostrar');
+        function decrease() {
+            var value = $(this).parent().find('[data-value]').val();
+            if (value > 0) {
+                value--;
+                $(this).parent().find('[data-value]').val(value);
             }
-        },
-        error: function(xhr) {
-            console.error('Error al cargar popups:', xhr.responseText);
         }
-    });
-}
-
-    function increase() {
-        var value = $(this).parent().find('[data-value]').val();
-        if (value < 100) {
-            value++;
-            $(this).parent().find('[data-value]').val(value);
+        
+        function increase() {
+            var value = $(this).parent().find('[data-value]').val();
+            if (value < 100) {
+                value++;
+                $(this).parent().find('[data-value]').val(value);
+            }
         }
-    }
 
-    function valueChange() {
-        var value = $(this).val();
-        if (value == undefined || isNaN(value) == true || value <= 0) {
-            $(this).val(0);
-        } else if (value >= 101) {
-            $(this).val(100);
+        function valueChange() {
+            var value = $(this).val();
+            if (value == undefined || isNaN(value) == true || value <= 0) {
+                $(this).val(0);
+            } else if (value >= 101) {
+                $(this).val(100);
+            }
         }
-    }
 
-    function loadAndShowPopups() {
-        $.ajax({
-            url: '{{ route("popups.for-user") }}',
-            type: 'GET',
-            success: function(response) {
+        function loadAndShowPopups() {
+            $.ajax({
+                url: '{{ route("popups.for-user") }}',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success && response.popups && response.popups.length > 0) {
+                        // Tomar el primer popup disponible
+                        const popup = response.popups[0];
 
-
-                if (response.success && response.popups && response.popups.length > 0) {
-                    // Tomar el primer popup disponible
-                    const popup = response.popups[0];
-
-
-                    // Configurar contenido del modal
-                    if (popup.url_imagen) {
-                        $('#exampleModalCenter .modal-content div').html(
-                            `<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
-                        );
-                    }
-
-                    // Si hay link, hacer que el popup sea clickeable
-                    if (popup.link) {
-                        $('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click',
-                            function() {
-                                window.open(popup.link, '_blank');
-                            });
-                    }
-
-                    // Mostrar el modal
-                    $('#exampleModalCenter').modal('show');
-
-                    // Registrar la vista
-                    $.ajax({
-                        url: '{{ route("popups.view") }}',
-                        type: 'POST',
-                        data: {
-                            popup_id: popup.id,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(data) {
-
-                        },
-                        error: function(xhr) {
-
+                        // Configurar contenido del modal
+                        if (popup.url_imagen) {
+                            $('#exampleModalCenter .modal-content div').html(
+                                `<img src="${popup.url_imagen}" style="width: 100%;" alt="${popup.nombre}"/>`
+                            );
                         }
-                    });
-                } else {
 
+                        // Si hay link, hacer que el popup sea clickeable
+                        if (popup.link) {
+                            $('#exampleModalCenter .modal-content div').css('cursor', 'pointer').on('click',
+                                function() {
+                                    window.open(popup.link, '_blank');
+                                });
+                        }
+
+                        // Mostrar el modal
+                        $('#exampleModalCenter').modal('show');
+
+                        // Registrar la vista
+                        $.ajax({
+                            url: '{{ route("popups.view") }}',
+                            type: 'POST',
+                            data: {
+                                popup_id: popup.id,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(data) {
+                                console.log('Vista registrada correctamente');
+                            },
+                            error: function(xhr) {
+                                console.error('Error al registrar vista:', xhr.responseText);
+                            }
+                        });
+                    } else {
+                        console.log('No hay popups disponibles para mostrar');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error al cargar popups:', xhr.responseText);
                 }
-            },
-            error: function(xhr) {
+            });
+        }
 
-            }
+        $(document).ready(function() {
+            $(".plus").click(function() {
+                $(this).toggleClass("active");
+
+            });
         });
-    }
 
+        $(document).ready(function() {
+            $(".c-heart").click(function() {
+                $(this).toggleClass("active");
 
-    $(document).ready(function() {
-        $(".plus").click(function() {
-            $(this).toggleClass("active");
-
+            });
         });
-    });
 
-    $(document).ready(function() {
-        $(".c-heart").click(function() {
-            $(this).toggleClass("active");
+        // Los datos enviados desde el controlador (productos disponibles para hoy)
+        const menus = @json($menus);
+        const extras = @json($extras);
 
-        });
-    });
+        let comensalNombres = {};
+        let comensalCount = 1;
+        const maxComensales = 10;
+        const tabContainer = document.getElementById("comensalTabs");
+        const tabContent = document.getElementById("comensalTabContent");
+        // Función para crear la pestaña de un comensal
+        function createComensalTab(index) {
+            const widthPercent = (95 / (comensalCount)).toFixed(2);
+            const name = comensalNombres[index] || `COMENSAL ${index + 1}`;
+            const closeBtn = index > 0 ?
+                `<span class="btn-remove-comensal" data-index="${index}" style="position: absolute; right: 2px; cursor: pointer; color: white; background-color: #d01010; width: 20px; height: 24px; border-radius: 6px; font-size: 18px; top:3px; text-align: center; line-height: 22px;">×</span>` :
+                '';
 
-    // Los datos enviados desde el controlador (productos disponibles para hoy)
-    const menus = @json($menus);
-    const extras = @json($extras);
+            return `
+            <li class="nav-item position-relative" role="presentation" style="width: ${widthPercent}%; text-align:center;">
+            <button class="nav-link ${index === 0 ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#comensal${index}" type="button" role="tab" style="width:100%">
+                <input type="text" value="${name}" class="comensal-name-input" data-index="${index}" style="border:none;background:transparent;width:100%;margin-left:7px; font-size: 10px;">
+            </button>
+            ${closeBtn}
+            </li>`;
+        }
 
-    let comensalNombres = {};
-    let comensalCount = 1;
-    const maxComensales = 10;
-    const tabContainer = document.getElementById("comensalTabs");
-    const tabContent = document.getElementById("comensalTabContent");
-    // Función para crear la pestaña de un comensal
-    function createComensalTab(index) {
-        const widthPercent = (95 / (comensalCount)).toFixed(2);
-        const name = comensalNombres[index] || `COMENSAL ${index + 1}`;
-        const closeBtn = index > 0 ?
-            `<span class="btn-remove-comensal" data-index="${index}" style="position: absolute; right: 2px; cursor: pointer; color: white; background-color: #d01010; width: 20px; height: 24px; border-radius: 6px; font-size: 18px; top:3px; text-align: center; line-height: 22px;">×</span>` :
-            '';
+        function createAddComensalTab() {
+            return `
+            <li class="nav-item" role="presentation" style="width:4.5%; text-align:center;">
+            <button class="nav-link" id="btn-add-comensal" type="button">+</button>
+            </li>`;
+        }
 
-        return `
-        <li class="nav-item position-relative" role="presentation" style="width: ${widthPercent}%; text-align:center;">
-        <button class="nav-link ${index === 0 ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#comensal${index}" type="button" role="tab" style="width:100%">
-            <input type="text" value="${name}" class="comensal-name-input" data-index="${index}" style="border:none;background:transparent;width:100%;margin-left:7px; font-size: 10px;">
-        </button>
-        ${closeBtn}
-        </li>`;
-    }
-
-    function createAddComensalTab() {
-        return `
-        <li class="nav-item" role="presentation" style="width:4.5%; text-align:center;">
-        <button class="nav-link" id="btn-add-comensal" type="button">+</button>
-        </li>`;
-    }
-
-    // Función para crear el contenido (selección de menús) para cada comensal
-    function createComensalContent(index) {
-    let menuTabs = '';
-    let menuContent = '';
-    
-    // Crear tabs para cada menú
-    menus.forEach((menu, menuIndex) => {
-        const isActive = menuIndex === 0 ? 'active' : '';
-        const widthPercent = (100 / menus.length).toFixed(2);
-        
-        menuTabs += `
-            <li class="nav-item" style="width: ${widthPercent}%; text-align: center;">
-                <a href="#menu${menu.id}-${index}" class="nav-link ${isActive}" data-bs-toggle="tab">
-                    ${menu.nombre}
-                </a>
-            </li>
-        `;
-        
-        // Crear contenido para cada menú
-        let categoriasContent = '';
-        menu.categorias.forEach(categoria => {
-            if (categoria.productos && categoria.productos.length > 0) {
-                categoriasContent += `
-                    <div class="mb-4">
-                        <h4 class="cate-title">${categoria.productos.length} ${categoria.nombre}</h4>
-                        <a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
-                        <div class="swiper mySwiper-3">
-                            <div class="swiper-wrapper">
-                                ${renderProductos(categoria.productos, `${categoria.nombre.toLowerCase()}_${menu.id}`, index)}
-                            </div>
-                            <div class="swiper-pagination"></div>
-                        </div>
-                    </div>
+        // Función para crear el contenido (selección de menús) para cada comensal
+        function createComensalContent(index) {
+            let menuTabs = '';
+            let menuContent = '';
+            
+            // Crear tabs para cada menú
+            menus.forEach((menu, menuIndex) => {
+                const isActive = menuIndex === 0 ? 'active' : '';
+                const widthPercent = (100 / menus.length).toFixed(2);
+                
+                menuTabs += `
+                    <li class="nav-item" style="width: ${widthPercent}%; text-align: center;">
+                        <a href="#menu${menu.id}-${index}" class="nav-link ${isActive}" data-bs-toggle="tab">
+                            ${menu.nombre}
+                        </a>
+                    </li>
                 `;
-            }
-        });
-        
-        // Solo mostrar precio si el menú tiene 2 o más categorías
-        const mostrarPrecio = menu.categorias && menu.categorias.length >= 2;
-        const precioTexto = mostrarPrecio ? `<h4 class="text-primary">S/ ${menu.precio}</h4>` : '';
-        
-        menuContent += `
-            <div id="menu${menu.id}-${index}" class="tab-pane ${isActive}">
-                <div class="menu-info mb-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3>${menu.nombre}</h3>
-                        ${precioTexto}
-                    </div>
-                </div>
-                ${categoriasContent}
-            </div>
-        `;
-    });
-    
-    return `
-        <div class="tab-pane fade show ${index === 0 ? 'active' : ''}" id="comensal${index}" role="tabpanel">
-            <div class="pt-4">
-                <ul class="nav nav-pills mb-4 light" style="width: 100%;">
-                    ${menuTabs}
-                </ul>
-                <div class="tab-content">
-                    ${menuContent}
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-    // Función auxiliar para generar las tarjetas de productos en el carrusel
-    function renderProductos(productos, menuCategoria, comensalIndex) {
-    const menuId = menuCategoria.split('_').pop();
-    const menuActual = menus.find(m => m.id == menuId);
-    const precioMenu = menuActual ? parseFloat(menuActual.precio) : 0;
-    
-    // Determinar tipo de input y agrupación
-    let tipoInput = 'checkbox'; // Por defecto checkbox
-    let nombreGrupo = '';
-    const categoriaBase = menuCategoria.split('_')[0].toLowerCase();
-    
-    // Lógica para determinar tipo de input basada en la funcionalidad anterior
-    if (categoriaBase.includes('entrada')) {
-        tipoInput = 'radio';
-        nombreGrupo = `entrada[${comensalIndex}]`; // Todas las entradas del mismo comensal en un grupo
-    } else if (categoriaBase.includes('fondo')) {
-        tipoInput = 'radio';
-        nombreGrupo = `fondo[${comensalIndex}]`; // Todos los fondos del mismo comensal en un grupo
-    } else {
-        // Carta, combos, etc. usan checkbox con nombres únicos
-        tipoInput = 'checkbox';
-        nombreGrupo = `${categoriaBase}[${comensalIndex}][]`;
-    }
-    
-    let html = '';
-    productos.forEach(prod => {
-        // Imagen por defecto si no tiene imagen o es null/vacía
-        const imagenProducto = (prod.imagen && prod.imagen !== 'null' && prod.imagen.trim() !== '') 
-            ? prod.imagen 
-            : '/access/images/logo-full.png';
-        
-        // Precio del producto o precio del menú si no tiene precio
-        const precioProducto = (prod.precio && prod.precio > 0) 
-            ? parseFloat(prod.precio) 
-            : precioMenu;
-        
-        const inputId = `${categoriaBase}_${prod.id}_${comensalIndex}`;
-        
-        html += `
-            <div class="swiper-slide">
-                <div class="card dishe-bx">
-                    <div class="card-header border-0 pb-0 pt-0 pe-3">
-                        <!-- Badge opcional -->
-                    </div>
-                    <div class="card-body p-0 text-center" style="cursor:pointer;" 
-                         onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
-                        <img class="product-image" src="${imagenProducto}" alt="${prod.nombre}" 
-                             onerror="this.src='/access/images/logo-full.png'">
-                    </div>
-                    <div class="border-0 pt-2">
-                        <div class="common d-flex justify-content-between">
-                            <div class="plus c-pointer" style="margin:0 8px;">
-                                <div class="sub-bx">
-                                    <a href="javascript:void(0);"></a>
+                
+                // Crear contenido para cada menú
+                let categoriasContent = '';
+                menu.categorias.forEach(categoria => {
+                    if (categoria.productos && categoria.productos.length > 0) {
+                        categoriasContent += `
+                            <div class="mb-4">
+                                <h4 class="cate-title">${categoria.productos.length} ${categoria.nombre}</h4>
+                                <a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
+                                <div class="swiper mySwiper-3">
+                                    <div class="swiper-wrapper">
+                                        ${renderProductos(categoria.productos, `${categoria.nombre.toLowerCase()}_${menu.id}`, index)}
+                                    </div>
+                                    <div class="swiper-pagination"></div>
                                 </div>
                             </div>
-                            <!-- Input para seleccionar producto con lógica de radio/checkbox -->
-                            <input style="display:none;" 
-                                   type="${tipoInput}" 
-                                   id="${inputId}"
-                                   name="${nombreGrupo}" 
-                                   value="${prod.id}"
-                                   data-menu-categoria="${menuCategoria}"
-                                   data-precio="${precioProducto}"
-                                   data-categoria-tipo="${categoriaBase}">
-                            <div style="cursor:pointer;" onclick="openProductModal('${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
-                                <img style="display:none;" src="${imagenProducto}" alt="${prod.nombre}">
-                                <h6>${prod.nombre}</h6>
-                                <h4 class="font-w700 mb-0 text-primary">S/ ${precioProducto.toFixed(2)}</h4>
+                        `;
+                    }
+                });
+                
+                // Solo mostrar precio si el menú tiene 2 o más categorías
+                const mostrarPrecio = menu.categorias && menu.categorias.length >= 2;
+                const precioTexto = mostrarPrecio ? `<h4 class="text-primary">S/ ${menu.precio}</h4>` : '';
+                
+                menuContent += `
+                    <div id="menu${menu.id}-${index}" class="tab-pane ${isActive}">
+                        <div class="menu-info mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3>${menu.nombre}</h3>
+                                ${precioTexto}
                             </div>
+                        </div>
+                        ${categoriasContent}
+                    </div>
+                `;
+            });
+            
+            return `
+                <div class="tab-pane fade show ${index === 0 ? 'active' : ''}" id="comensal${index}" role="tabpanel">
+                    <div class="pt-4">
+                        <ul class="nav nav-pills mb-4 light" style="width: 100%;">
+                            ${menuTabs}
+                        </ul>
+                        <div class="tab-content">
+                            ${menuContent}
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
-    });
-    return html;
-}
+            `;
+        }
 
-    const userName = @json(Auth::user()->name ?? 'COMENSAL 1');
+        // Función auxiliar para generar las tarjetas de productos en el carrusel
+        function renderProductos(productos, menuCategoria, comensalIndex) {
+            const menuId = menuCategoria.split('_').pop();
+            const menuActual = menus.find(m => m.id == menuId);
+            const precioMenu = menuActual ? parseFloat(menuActual.precio) : 0;
+            
+            // Determinar tipo de input y agrupación
+            let tipoInput = 'checkbox'; // Por defecto checkbox
+            let nombreGrupo = '';
+            const categoriaBase = menuCategoria.split('_')[0].toLowerCase();
+            
+            // Lógica para determinar tipo de input basada en la funcionalidad anterior
+            if (categoriaBase.includes('entrada')) {
+                tipoInput = 'radio';
+                nombreGrupo = `entrada[${comensalIndex}]`; // Todas las entradas del mismo comensal en un grupo
+            } else if (categoriaBase.includes('fondo')) {
+                tipoInput = 'radio';
+                nombreGrupo = `fondo[${comensalIndex}]`; // Todos los fondos del mismo comensal en un grupo
+            } else {
+                // Carta, combos, etc. usan checkbox con nombres únicos
+                tipoInput = 'checkbox';
+                nombreGrupo = `${categoriaBase}[${comensalIndex}][]`;
+            }
+            
+            let html = '';
+            productos.forEach(prod => {
+                // Imagen por defecto si no tiene imagen o es null/vacía
+                const imagenProducto = (prod.imagen && prod.imagen !== 'null' && prod.imagen.trim() !== '') 
+                    ? prod.imagen 
+                    : '/access/images/logo-full.png';
+                
+                // Precio del producto o precio del menú si no tiene precio
+                const precioProducto = (prod.precio && prod.precio > 0) 
+                    ? parseFloat(prod.precio) 
+                    : precioMenu;
+                
+                const inputId = `${categoriaBase}_${prod.id}_${comensalIndex}`;
+                
+                html += `
+                    <div class="swiper-slide">
+                        <div class="card dishe-bx">
+                            <div  style="cursor:pointer;"
+                                onclick="openProductModal('${inputId}','${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
+                                <img class="product-image" src="${imagenProducto}" alt="${prod.nombre}" loading="lazy"
+                                onerror="this.src='/access/images/logo-full.png'">
+                            </div>
+                            <div class="border-0 pt-1">
+                                <div class="common d-flex justify-content-between">
+                                    <div class="plus c-pointer" style="margin:0 8px;">
+                                        <div class="sub-bx">
+                                            <a href="javascript:void(0);"></a>
+                                        </div>
+                                    </div>
+                                    <!-- Input para seleccionar producto con lógica de radio/checkbox -->
+                                    <input style="display:none;" 
+                                        type="${tipoInput}" 
+                                        id="${inputId}"
+                                        name="${nombreGrupo}" 
+                                        value="${prod.id}"
+                                        data-menu-categoria="${menuCategoria}"
+                                        data-precio="${precioProducto}"
+                                        data-img="${imagenProducto}"
+                                        data-categoria-tipo="${categoriaBase}">
+                                    <div style="cursor:pointer;" onclick="openProductModal('${inputId}','${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
+                                        <img style="display:none;" src="${imagenProducto}" alt="${prod.nombre}">
+                                        <h6>${prod.nombre}</h6>
+                                        <h4 class="font-w700 mb-0 text-primary">S/ ${precioProducto.toFixed(2)}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            return html;
+        }
 
-    // Función que renderiza las pestañas y contenido según el número de comensales
-    function renderComensales() {
-        const previousNames = {
-            ...comensalNombres
-        };
-        
-        // Guardar TODAS las selecciones actuales (radio buttons y checkboxes)
-        const previousSelections = {};
-        document.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked').forEach(input => {
-            const key = input.name + '-' + input.value;
-            previousSelections[key] = {
-                checked: true,
-                name: input.name,
-                value: input.value,
-                type: input.type
+        const userName = @json(Auth::user()->name ?? 'COMENSAL 1');
+
+        // Función que renderiza las pestañas y contenido según el número de comensales
+        function renderComensales() {
+            const previousNames = {
+                ...comensalNombres
             };
-        });
-
-        tabContainer.innerHTML = "";
-        tabContent.innerHTML = "";
-
-        for (let i = 0; i < comensalCount; i++) {
-            comensalNombres[i] = previousNames[i] || (i === 0 ? userName : `COMENSAL ${i + 1}`);
-            tabContainer.innerHTML += createComensalTab(i);
-            tabContent.innerHTML += createComensalContent(i);
-        }
-        tabContainer.innerHTML += createAddComensalTab();
-
-        // Asigna eventos a inputs
-        setTimeout(() => {
-            document.querySelectorAll('.comensal-name-input').forEach(input => {
-                input.addEventListener('input', function() {
-                    const index = this.dataset.index;
-                    comensalNombres[index] = this.value || `COMENSAL ${parseInt(index) + 1}`;
-                    updateOrdenResumen();
-                });
+            
+            // Guardar TODAS las selecciones actuales (radio buttons y checkboxes)
+            const previousSelections = {};
+            document.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked').forEach(input => {
+                const key = input.name + '-' + input.value;
+                previousSelections[key] = {
+                    checked: true,
+                    name: input.name,
+                    value: input.value,
+                    type: input.type
+                };
             });
-        }, 100);
 
-        // Restaurar TODAS las selecciones previas (radio buttons y checkboxes)
-        setTimeout(() => {
-            console.log('Restaurando selecciones:', previousSelections);
-            let restored = 0;
-            Object.keys(previousSelections).forEach(key => {
-                const selection = previousSelections[key];
-                const input = document.querySelector(`input[name="${selection.name}"][value="${selection.value}"]`);
-                if (input) {
-                    input.checked = true;
-                    const plus = input.previousElementSibling;
-                    if (plus?.classList.contains('plus')) {
-                        plus.classList.add('active');
+            tabContainer.innerHTML = "";
+            tabContent.innerHTML = "";
+
+            for (let i = 0; i < comensalCount; i++) {
+                comensalNombres[i] = previousNames[i] || (i === 0 ? userName : `COMENSAL ${i + 1}`);
+                tabContainer.innerHTML += createComensalTab(i);
+                tabContent.innerHTML += createComensalContent(i);
+            }
+            tabContainer.innerHTML += createAddComensalTab();
+
+            // Asigna eventos a inputs
+            setTimeout(() => {
+                document.querySelectorAll('.comensal-name-input').forEach(input => {
+                    input.addEventListener('input', function() {
+                        const index = this.dataset.index;
+                        comensalNombres[index] = this.value || `COMENSAL ${parseInt(index) + 1}`;
+                        updateOrdenResumen();
+                    });
+                });
+            }, 100);
+
+            // Restaurar TODAS las selecciones previas (radio buttons y checkboxes)
+            setTimeout(() => {
+                console.log('Restaurando selecciones:', previousSelections);
+                let restored = 0;
+                Object.keys(previousSelections).forEach(key => {
+                    const selection = previousSelections[key];
+                    const input = document.querySelector(`input[name="${selection.name}"][value="${selection.value}"]`);
+                    if (input) {
+                        input.checked = true;
+                        const plus = input.previousElementSibling;
+                        if (plus?.classList.contains('plus')) {
+                            plus.classList.add('active');
+                        }
+                        restored++;
                     }
-                    restored++;
-                }
-            });
-            console.log(`Selecciones restauradas: ${restored}/${Object.keys(previousSelections).length}`);
-            updateOrdenResumen();
-        }, 250); // Aumentamos el delay para asegurar que el DOM esté completamente listo
-
-        initSwipers();
-        updateOrdenResumen();
-    }
-
-    $(document).on('click', '#btn-add-comensal', function() {
-        if (comensalCount < 4) {
-            comensalCount++;
-            renderComensales();
-        }
-    });
-
-    $(document).on('click', '.btn-remove-comensal', function() {
-        const index = parseInt($(this).data('index'));
-        if (index > 0 && index < comensalCount) {
-            for (let i = index; i < comensalCount - 1; i++) {
-                comensalNombres[i] = comensalNombres[i + 1];
-            }
-            delete comensalNombres[comensalCount - 1];
-            comensalCount--;
-            renderComensales();
-        }
-    });
-
-    // Inicialización de los sliders (Swiper)
-    function initSwipers() {
-    // Small delay to ensure DOM is fully rendered
-    setTimeout(() => {
-        document.querySelectorAll('.mySwiper-3').forEach(el => {
-            if (el.swiper) {
-                el.swiper.destroy(true, true);
-            }
-            
-            // Force layout recalculation before initializing Swiper
-            el.offsetHeight;
-            
-            new Swiper(el, {
-                slidesPerView: 3,
-                spaceBetween: 30,
-                observer: true,           // Add this to detect DOM changes
-                observeParents: true,     // Add this to detect parent element changes
-                autoplay: {
-                    delay: 5000,
-                    disableOnInteraction: false,
-                },
-                pagination: {
-                    el: ".swiper-pagination",
-                    clickable: true
-                },
-                breakpoints: {
-                    250: {
-                        slidesPerView: 2,
-                        spaceBetween: 10
-                    },
-                    360: {
-                        slidesPerView: 3,
-                        spaceBetween: 10
-                    },
-                    600: {
-                        slidesPerView: 3,
-                        spaceBetween: 10
-                    },
-                    768: {
-                        slidesPerView: 4,
-                        spaceBetween: 20
-                    },
-                    1200: {
-                        slidesPerView: 4,
-                        spaceBetween: 20
-                    },
-                    1400: {
-                        slidesPerView: 5,
-                        spaceBetween: 20
-                    },
-                }
-            });
-        });
-    }, 100); // Small delay helps ensure DOM is ready
-}
-
-    // ===============================
-    // FUNCIONES PARA ACTUALIZAR EL RESUMEN DE PEDIDO (PASO 2)
-    // ===============================
-
-    function getPrecioFromInput(input) {
-        const precio = parseFloat(input.parentElement.querySelector('h4')?.innerText?.replace('S/ ', '')) || 0;
-        return precio;
-    }
-
-    function updateOrdenResumen() {
-        let resumenHTML = '';
-        let totalGeneral = 0;
-        
-        // Recorremos cada comensal
-        for (let i = 0; i < comensalCount; i++) {
-            let comensalTotal = 0;
-            let menuType = '';
-            let entradaName = '';
-            let fondoName = '';
-            let entradaImg = '';
-            let fondoImg = '';
-            
-            // Obtener las selecciones de entrada y fondo para este comensal
-            let selEntrada = document.querySelector(`input[name="entrada[${i}]"]:checked`);
-            let selFondo = document.querySelector(`input[name="fondo[${i}]"]:checked`);
-            
-            // Obtener productos independientes (carta, combos, etc.)
-            let productosIndependientes = [];
-            let totalIndependientes = 0;
-            
-            document.querySelectorAll(`input[name^="carta[${i}]"]:checked, input[name^="combo[${i}]"]:checked`).forEach(input => {
-                const precio = parseFloat(input.getAttribute('data-precio'));
-                const nombre = input.closest('.card').querySelector('h6').innerText;
-                const imagen = input.closest('.card').querySelector('img').src;
-                const categoria = input.getAttribute('data-categoria-tipo');
-                
-                productosIndependientes.push({
-                    nombre: nombre,
-                    precio: precio,
-                    imagen: imagen,
-                    categoria: categoria
                 });
-                totalIndependientes += precio;
-            });
-            
-            // Lógica de precios inteligente para menús
-            if (selEntrada && selFondo) {
-                // Tiene entrada y fondo: aplicar lógica de menú combinado
-                const entradaCategoria = selEntrada.getAttribute('data-menu-categoria');
-                const fondoCategoria = selFondo.getAttribute('data-menu-categoria');
-                
-                // Obtener los precios de los menús de cada producto
-                const entradaMenuId = entradaCategoria.split('_').pop();
-                const fondoMenuId = fondoCategoria.split('_').pop();
-                
-                const entradaMenu = menus.find(m => m.id == entradaMenuId);
-                const fondoMenu = menus.find(m => m.id == fondoMenuId);
-                
-                const entradaPrecio = entradaMenu ? parseFloat(entradaMenu.precio) : 0;
-                const fondoPrecio = fondoMenu ? parseFloat(fondoMenu.precio) : 0;
-                
-                // Lógica: Si cualquier elemento es del menú caro, se cobra el precio caro
-                const precioMasCaro = Math.max(entradaPrecio, fondoPrecio);
-                
-                if (precioMasCaro >= 27.90) {
-                    menuType = "Menú S/27.90";
-                    comensalTotal = 27.90;
-                } else if (precioMasCaro >= 20.00) {
-                    menuType = "Menú S/20.00";
-                    comensalTotal = 20.00;
-                } else {
-                    menuType = "Menú S/15.00";
-                    comensalTotal = 15.00;
-                }
-                
-                entradaName = selEntrada.closest('.card').querySelector('h6').innerText;
-                fondoName = selFondo.closest('.card').querySelector('h6').innerText;
-                entradaImg = selEntrada.closest('.card').querySelector('img').src;
-                fondoImg = selFondo.closest('.card').querySelector('img').src;
-                
-            } else if (selEntrada || selFondo) {
-                // Solo tiene entrada O fondo: precio individual del producto
-                const seleccion = selEntrada || selFondo;
-                const precioIndividual = parseFloat(seleccion.getAttribute('data-precio'));
-                
-                menuType = `Producto individual`;
-                comensalTotal = precioIndividual;
-                
-                if (selEntrada) {
-                    entradaName = selEntrada.closest('.card').querySelector('h6').innerText;
-                    entradaImg = selEntrada.closest('.card').querySelector('img').src;
-                } else {
-                    fondoName = selFondo.closest('.card').querySelector('h6').innerText;
-                    fondoImg = selFondo.closest('.card').querySelector('img').src;
-                }
-            }
-            
-            // Sumar productos independientes
-            comensalTotal += totalIndependientes;
-            totalGeneral += comensalTotal;
-            
-            // Generar HTML para mostrar productos seleccionados
-            let productosHTML = '';
-            
-            if (entradaName && entradaImg) {
-                productosHTML += `
-                    <li>
-                        <div class="timeline-panel">
-                            <div class="media me-2">
-                                <img alt="image" width="50" src="${entradaImg}">
-                            </div>
-                            <div class="media-body">
-                                <span>Entrada: </span>
-                                <h5 class="mb-1">${entradaName}</h5>
-                            </div>
-                        </div>
-                    </li>
-                `;
-            }
+                console.log(`Selecciones restauradas: ${restored}/${Object.keys(previousSelections).length}`);
+                updateOrdenResumen();
+            }, 250); // Aumentamos el delay para asegurar que el DOM esté completamente listo
 
-            if (fondoName && fondoImg) {
-                productosHTML += `
-                    <li>
-                        <div class="timeline-panel">
-                            <div class="media me-2">
-                                <img alt="image" width="50" src="${fondoImg}">
-                            </div>
-                            <div class="media-body">
-                                <span>Fondo: </span>
-                                <h5 class="mb-1">${fondoName}</h5>
-                            </div>
-                        </div>
-                    </li>
-                `;
+            initSwipers();
+            updateOrdenResumen();
+        }
+
+        $(document).on('click', '#btn-add-comensal', function() {
+            if (comensalCount < 4) {
+                comensalCount++;
+                renderComensales();
             }
-            
-            // Mostrar productos independientes
-            productosIndependientes.forEach(prod => {
-                productosHTML += `
-                    <li>
-                        <div class="timeline-panel">
-                            <div class="media me-2">
-                                <img alt="image" width="50" src="${prod.imagen}">
-                            </div>
-                            <div class="media-body">
-                                <span>${prod.categoria}: </span>
-                                <h5 class="mb-1">${prod.nombre}</h5>
-                                <small class="text-muted">S/ ${prod.precio.toFixed(2)}</small>
-                            </div>
-                        </div>
-                    </li>
-                `;
-            });
-            
-            // Mostrar precio del menú si corresponde
-            if (menuType) {
-                productosHTML += `
-                    <li>
-                        <div class="timeline-panel" style="border: none;">
-                            <div class="media-body" style="padding-left: 12px;">
-                                <span style="font-weight: bold; position: absolute; right: 10%;">
-                                    ${menuType}
-                                </span>
-                            </div>
-                        </div>
-                    </li>
-                `;
+        });
+
+        $(document).on('click', '.btn-remove-comensal', function() {
+            const index = parseInt($(this).data('index'));
+            if (index > 0 && index < comensalCount) {
+                for (let i = index; i < comensalCount - 1; i++) {
+                    comensalNombres[i] = comensalNombres[i + 1];
+                }
+                delete comensalNombres[comensalCount - 1];
+                comensalCount--;
+                renderComensales();
             }
-            
-            let nombreComensal = comensalNombres[i] || `COMENSAL ${i+1}`;
-            
-            if (comensalTotal > 0) {
+        });
+
+        // Inicialización de los sliders (Swiper)
+        function initSwipers() {
+            // Small delay to ensure DOM is fully rendered
+            setTimeout(() => {
+                document.querySelectorAll('.mySwiper-3').forEach(el => {
+                    if (el.swiper) {
+                        el.swiper.destroy(true, true);
+                    }
+                    
+                    // Force layout recalculation before initializing Swiper
+                    el.offsetHeight;
+                    
+                    new Swiper(el, {
+                        slidesPerView: 3,
+                        spaceBetween: 30,
+                        observer: true,           // Add this to detect DOM changes
+                        observeParents: true,     // Add this to detect parent element changes
+                        autoplay: {
+                            delay: 5000,
+                            disableOnInteraction: false,
+                        },
+                        pagination: {
+                            el: ".swiper-pagination",
+                            clickable: true
+                        },
+                        breakpoints: {
+                            250: {
+                                slidesPerView: 2,
+                                spaceBetween: 10
+                            },
+                            360: {
+                                slidesPerView: 3,
+                                spaceBetween: 10
+                            },
+                            600: {
+                                slidesPerView: 3,
+                                spaceBetween: 10
+                            },
+                            768: {
+                                slidesPerView: 4,
+                                spaceBetween: 20
+                            },
+                            1200: {
+                                slidesPerView: 4,
+                                spaceBetween: 20
+                            },
+                            1400: {
+                                slidesPerView: 5,
+                                spaceBetween: 20
+                            },
+                        }
+                    });
+                });
+            }, 100); // Small delay helps ensure DOM is ready
+        }
+
+        // ===============================
+        // FUNCIONES PARA ACTUALIZAR EL RESUMEN DE PEDIDO (PASO 2)
+        // ===============================
+
+        function getPrecioFromInput(input) {
+            const precio = parseFloat(input.parentElement.querySelector('h4')?.innerText?.replace('S/ ', '')) || 0;
+            return precio;
+        }
+
+        function updateOrdenResumen() {
+            let resumenHTML = '';
+            let totalGeneral = 0;
+
+            for (let i = 0; i < comensalCount; i++) {
+                let comensalTotal = 0;
+
+                const entradaSel = document.querySelector(`input[name="entrada[${i}]"]:checked`);
+                const fondoSel   = document.querySelector(`input[name="fondo[${i}]"]:checked`);
+
+                // ===== 1) Recoger otros productos =====
+                const otrosChecked = Array
+                .from(document.querySelectorAll(
+                    `input[type="checkbox"][name^="[a-zA-Z]+[${i}]"], input[type="checkbox"][name*="[${i}][]"]`
+                ))
+                .filter(inp => inp.checked);
+
+                const independientes = otrosChecked.map(input => {
+                const card = input.closest('.card');
+                const nombre = card?.querySelector('h6')?.innerText || 'Producto';
+                const precio = parseFloat(input.dataset.precio) || 0;
+                const categoria = (input.dataset.categoriaTipo || '').toLowerCase();
+                const imagen = input.dataset.img || '/access/images/logo-full.png';
+                return { nombre, precio, categoria, imagen };
+                });
+
+                let itemsHTML = '';
+
+                // ===== 2) MENÚ: Entrada y/o Fondo =====
+                let precioMenuFinal = 0;
+                let agregoEntrada = false;
+                let agregoFondo = false;
+
+                if (entradaSel) {
+                const nombre = entradaSel.closest('.card')?.querySelector('h6')?.innerText || 'Entrada';
+                const imagen = entradaSel.dataset.img || '/access/images/logo-full.png';
+                const precio = parseFloat(entradaSel.dataset.precio) || 0; // usado si es suelto
+                itemsHTML += itemLineaResumen('Entrada', nombre, imagen, (fondoSel ? null : precio));
+                agregoEntrada = true;
+                }
+
+                if (fondoSel) {
+                const nombre = fondoSel.closest('.card')?.querySelector('h6')?.innerText || 'Fondo';
+                const imagen = fondoSel.dataset.img || '/access/images/logo-full.png';
+                const precio = parseFloat(fondoSel.dataset.precio) || 0; // usado si es suelto
+                itemsHTML += itemLineaResumen('Fondo', nombre, imagen, (entradaSel ? null : precio));
+                agregoFondo = true;
+                }
+
+                if (entradaSel && fondoSel) {
+                // Calcular precio de menú (cruzado cobra el más caro)
+                const menuId1 = (entradaSel.dataset.menuCategoria || '').split('_').pop();
+                const menuId2 = (fondoSel.dataset.menuCategoria || '').split('_').pop();
+                const m1 = menus.find(m => String(m.id) === String(menuId1));
+                const m2 = menus.find(m => String(m.id) === String(menuId2));
+                const p1 = m1 ? parseFloat(m1.precio) : 0;
+                const p2 = m2 ? parseFloat(m2.precio) : 0;
+                precioMenuFinal = Math.max(p1, p2);
+                comensalTotal += precioMenuFinal;
+
+                // 👉 Inserta el total del menú INMEDIATAMENTE bajo las dos líneas de E/F
+                itemsHTML += itemTotalMenu(`Menú S/ ${precioMenuFinal.toFixed(2)}`);
+                } else if (entradaSel || fondoSel) {
+                // Solo uno: suma precio individual
+                const sel = entradaSel || fondoSel;
+                comensalTotal += (parseFloat(sel.dataset.precio) || 0);
+                }
+
+                // ===== 3) Independientes (sumatorias) =====
+                independientes.forEach(p => {
+                comensalTotal += p.precio;
+                itemsHTML += itemLineaResumen(p.categoria || 'Extra', p.nombre, p.imagen, p.precio);
+                });
+
+                totalGeneral += comensalTotal;
+
+                const nombreCom = comensalNombres[i] || `COMENSAL ${i+1}`;
+                if (comensalTotal > 0) {
                 resumenHTML += `
                     <div class="accordion-item">
-                        <div class="accordion-header collapsed rounded-lg" id="accord-${i+1}" 
-                             data-bs-toggle="collapse" data-bs-target="#collapse${i+1}" 
-                             aria-controls="collapse${i+1}" aria-expanded="true" role="button">
-                            <i class="la la-user me-2"></i>
-                            <span class="accordion-header-text" style="padding-left: 5px;">
-                                ${nombreComensal} - <b>S/ ${comensalTotal.toFixed(2)}</b>
-                            </span>
-                            <span class="accordion-header-indicator"></span>
+                    <div class="accordion-header collapsed rounded-lg" id="accord-${i+1}"
+                        data-bs-toggle="collapse" data-bs-target="#collapse${i+1}"
+                        aria-controls="collapse${i+1}" aria-expanded="true" role="button">
+                        <i class="la la-user me-2"></i>
+                        <span class="accordion-header-text" style="padding-left:5px;">
+                        ${nombreCom} - <b>S/ ${comensalTotal.toFixed(2)}</b>
+                        </span>
+                        <span class="accordion-header-indicator"></span>
+                    </div>
+                    <div id="collapse${i+1}" class="collapse accordion__body"
+                        aria-labelledby="accord-${i+1}" data-bs-parent="#resumenComensales">
+                        <div class="accordion-body-text">
+                        <div class="widget-media dlab-scroll">
+                            <ul class="timeline">${itemsHTML}</ul>
                         </div>
-                        <div id="collapse${i+1}" class="collapse accordion__body" 
-                             aria-labelledby="accord-${i+1}" data-bs-parent="#resumenComensales">
-                            <div class="accordion-body-text">
-                                <div id="DZ_W_Todo2" class="widget-media dlab-scroll">
-                                    <ul class="timeline">
-                                        ${productosHTML}
-                                    </ul>
-                                </div>
-                            </div>
                         </div>
                     </div>
-                `;
+                    </div>`;
+                }
             }
+
+            // ===== 4) Extras y totales =====
+            let extrasTotal = 0;
+            document.querySelectorAll('.extra-item').forEach(item => {
+                const qty = parseInt(item.querySelector('.extra-qty').value) || 0;
+                const price = parseFloat(item.getAttribute('data-price')) || 0;
+                const subtotal = qty * price;
+                extrasTotal += subtotal;
+                item.querySelector('.extra-subtotal').innerText = `+ S/ ${subtotal.toFixed(2)}`;
+            });
+
+            const deliveryCost = 1.00;
+            const totalOrder = totalGeneral + extrasTotal + deliveryCost;
+
+            document.getElementById("resumenComensales").innerHTML = resumenHTML;
+            document.getElementById("orderTotal").innerText   = `S/ ${totalOrder.toFixed(2)}`;
+            document.getElementById("confirmTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
+
+            document.getElementById("orderData").value = JSON.stringify({
+                totalMenus: totalGeneral,
+                extrasTotal: extrasTotal,
+                delivery: deliveryCost,
+                total: totalOrder
+            });
         }
-    
-    document.getElementById("resumenComensales").innerHTML = resumenHTML;
-    
-    // Calcular extras (se mantiene igual)
-    let extrasTotal = 0;
-    document.querySelectorAll('.extra-item').forEach(item => {
-        let qty = parseInt(item.querySelector('.extra-qty').value) || 0;
-        let price = parseFloat(item.getAttribute('data-price')) || 0;
-        let subtotal = qty * price;
-        extrasTotal += subtotal;
-        item.querySelector('.extra-subtotal').innerText = `+ S/ ${subtotal.toFixed(2)}`;
-    });
-    
-    // Delivery fijo
-    const deliveryCost = 1.00;
-    const totalOrder = totalGeneral + extrasTotal + deliveryCost;
-    document.getElementById("orderTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
-    document.getElementById("confirmTotal").innerText = `S/ ${totalOrder.toFixed(2)}`;
-    
-    // Guardar datos del pedido
-    document.getElementById("orderData").value = JSON.stringify({
-        totalMenus: totalGeneral,
-        extrasTotal: extrasTotal,
-        delivery: deliveryCost,
-        total: totalOrder
-    });
-}
 
-    $(document).on('click', 'input[type="checkbox"]', function(e) {
-        const wasChecked = $(this).prop('checked');
-        $(this).prop('checked', !wasChecked); // Toggle manual
-        updateOrdenResumen();
-    });
+        // Helpers para el layout del resumen
+        function itemLineaResumen(label, nombre, imagen, precioDerecha /* puede ser null */) {
+            const priceHTML = (typeof precioDerecha === 'number')
+                ? `<small class="text-muted" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);">S/ ${precioDerecha.toFixed(2)}</small>`
+                : '';
+            return `
+                <li>
+                <div class="timeline-panel" style="position:relative;">
+                    <div class="media me-2">
+                    <img alt="image" width="50" height="50" style="object-fit:cover" src="${imagen}">
+                    </div>
+                    <div class="media-body">
+                    <span>${capitalize(label)}:</span>
+                    <h5 class="mb-1">${nombre}</h5>
+                    </div>
+                    ${priceHTML}
+                </div>
+                </li>`;
+        }
+
+        function itemTotalMenu(texto) {
+            return `
+                <li>
+                <div class="timeline-panel" style="border:none; padding-top:0;">
+                    <div class="media-body" style="padding-left:12px;">
+                    <span style="font-weight:700; display:inline-block; margin-top:4px;">${texto}</span>
+                    </div>
+                </div>
+                </li>`;
+        }
+
+        function capitalize(s){ return (s||'').charAt(0).toUpperCase() + (s||'').slice(1); }
+
+        /* 
+        $(document).on('click', 'input[type="checkbox"]', function(e) {
+            const wasChecked = $(this).prop('checked');
+            $(this).prop('checked', !wasChecked); 
+            updateOrdenResumen();
+        });*/
 
 
 
-    $(document).on('click', 'input[type="checkbox"], input[type="radio"]', function(e) {
-        updateOrdenResumen();
-    });
+        $(document).on('click', 'input[type="checkbox"], input[type="radio"]', function(e) {
+            updateOrdenResumen();
+        });
 
-    // Usamos delegación de eventos para atender a los clicks en cualquier elemento con la clase .plus
-    $(document).on('click', '.plus', function(e) {
-        e.preventDefault();
+        // Usamos delegación de eventos para atender a los clicks en cualquier elemento con la clase .plus
+        $(document).on('click', '.plus', function(e) {
+            e.preventDefault();
 
-        const $input = $(this).siblings('input');
-        if ($input.length === 0) return;
+            const $input = $(this).siblings('input');
+            if ($input.length === 0) return;
 
-        const isCheckbox = $input.attr('type') === 'checkbox';
-        const isRadio = $input.attr('type') === 'radio';
+            const isCheckbox = $input.attr('type') === 'checkbox';
+            const isRadio = $input.attr('type') === 'radio';
 
-        if (isCheckbox) {
-            // Toggle para checkboxes
-            const wasChecked = $input.prop('checked');
-            $input.prop('checked', !wasChecked);
-            $(this).toggleClass('active', !wasChecked);
-        } else if (isRadio) {
-            // Para radio buttons: permitir deseleccionar si ya está seleccionado
-            const wasChecked = $input.prop('checked');
+            if (isCheckbox) {
+                // Toggle para checkboxes
+                const wasChecked = $input.prop('checked');
+                $input.prop('checked', !wasChecked);
+                $(this).toggleClass('active', !wasChecked);
+            } else if (isRadio) {
+                // Para radio buttons: permitir deseleccionar si ya está seleccionado
+                const wasChecked = $input.prop('checked');
+                
+                if (wasChecked) {
+                    // Si ya estaba seleccionado, deseleccionarlo
+                    $input.prop('checked', false);
+                    $(this).removeClass('active');
+                } else {
+                    // Si no estaba seleccionado, desactivar otros del grupo y activar este
+                    const groupName = $input.attr('name');
+                    
+                    // Desactivar todos los elementos del mismo grupo
+                    $(`input[name="${groupName}"]`).each(function() {
+                        $(this).prop('checked', false);
+                        $(this).siblings('.plus').removeClass('active');
+                    });
+                    
+                    // Activar el seleccionado
+                    $input.prop('checked', true);
+                    $(this).addClass('active');
+                }
+            }
+
+            updateOrdenResumen();
+        });
+
+        $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
+            // Get the newly activated tab
+            const newTab = $(e.target).attr("href");
             
-            if (wasChecked) {
-                // Si ya estaba seleccionado, deseleccionarlo
-                $input.prop('checked', false);
-                $(this).removeClass('active');
-            } else {
-                // Si no estaba seleccionado, desactivar otros del grupo y activar este
-                const groupName = $input.attr('name');
-                
-                // Desactivar todos los elementos del mismo grupo
-                $(`input[name="${groupName}"]`).each(function() {
-                    $(this).prop('checked', false);
-                    $(this).siblings('.plus').removeClass('active');
+            // Find any swipers inside this tab and reinitialize them
+            $(newTab).find('.mySwiper-3').each(function() {
+                const swiper = this.swiper;
+                if (swiper) {
+                    swiper.update();
+                } else {
+                    // If swiper instance doesn't exist, create a new one
+                    new Swiper(this, {
+                        slidesPerView: 3,
+                        spaceBetween: 30,
+                        observer: true,
+                        observeParents: true,
+                        pagination: {
+                            el: ".swiper-pagination",
+                            clickable: true
+                        },
+                        breakpoints: {
+                            250: { slidesPerView: 2, spaceBetween: 10 },
+                            360: { slidesPerView: 3, spaceBetween: 10 },
+                            600: { slidesPerView: 3, spaceBetween: 10 },
+                            768: { slidesPerView: 4, spaceBetween: 20 },
+                            1200: { slidesPerView: 4, spaceBetween: 20 },
+                            1400: { slidesPerView: 5, spaceBetween: 20 },
+                        }
+                    });
+                }
+            });
+        });
+
+        console.log("Menus data:", menus);
+        menus.forEach(menu => {
+            if (menu.nombre.toLowerCase().includes('carta') || menu.nombre.toLowerCase().includes('combo')) {
+                console.log(`${menu.nombre} details:`, menu);
+                console.log(`${menu.nombre} has ${menu.categorias?.length || 0} categories`);
+                menu.categorias?.forEach(cat => {
+                    console.log(`Category ${cat.nombre} has ${cat.productos?.length || 0} products`);
                 });
-                
-                // Activar el seleccionado
-                $input.prop('checked', true);
-                $(this).addClass('active');
             }
-        }
+        });
 
-        updateOrdenResumen();
-    });
 
-    $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
-    // Get the newly activated tab
-    const newTab = $(e.target).attr("href");
-    
-    // Find any swipers inside this tab and reinitialize them
-    $(newTab).find('.mySwiper-3').each(function() {
-        const swiper = this.swiper;
-        if (swiper) {
-            swiper.update();
-        } else {
-            // If swiper instance doesn't exist, create a new one
-            new Swiper(this, {
-                slidesPerView: 3,
-                spaceBetween: 30,
-                observer: true,
-                observeParents: true,
-                pagination: {
-                    el: ".swiper-pagination",
-                    clickable: true
-                },
-                breakpoints: {
-                    250: { slidesPerView: 2, spaceBetween: 10 },
-                    360: { slidesPerView: 3, spaceBetween: 10 },
-                    600: { slidesPerView: 3, spaceBetween: 10 },
-                    768: { slidesPerView: 4, spaceBetween: 20 },
-                    1200: { slidesPerView: 4, spaceBetween: 20 },
-                    1400: { slidesPerView: 5, spaceBetween: 20 },
+
+        // Para cambios en los inputs radio en caso de seleccionarse por medios distintos
+        $(document).on('change', 'input[type="radio"]', function() {
+            updateOrdenResumen();
+        });
+
+        // Para cambios en los controles de extras (botones y cambios en cantidad)
+        $(document).on('click', '.extra-decrease, .extra-increase', function() {
+            let extraId = $(this).data('extra-id');
+            let $input = $(`.extra-qty[data-extra-id="${extraId}"]`);
+            let current = parseInt($input.val()) || 0;
+            if ($(this).hasClass('extra-decrease') && current > 0) {
+                $input.val(current - 1);
+            } else if ($(this).hasClass('extra-increase')) {
+                $input.val(current + 1);
+            }
+            updateOrdenResumen();
+        });
+        $(document).on('change', '.extra-qty', function() {
+            updateOrdenResumen();
+        });
+
+        // Botones para sumar/restar comensales
+        const btnAddComensal = document.getElementById("addComensal");
+        const btnRemoveComensal = document.getElementById("removeComensal");
+
+        if (btnAddComensal) {
+            btnAddComensal.addEventListener("click", () => {
+                if (comensalCount < maxComensales) {
+                    comensalCount++;
+                    const counter = document.getElementById("comensalCount");
+                    if (counter) counter.innerText = comensalCount;
+                    renderComensales();
                 }
             });
         }
-    });
-});
 
-console.log("Menus data:", menus);
-menus.forEach(menu => {
-    if (menu.nombre.toLowerCase().includes('carta') || menu.nombre.toLowerCase().includes('combo')) {
-        console.log(`${menu.nombre} details:`, menu);
-        console.log(`${menu.nombre} has ${menu.categorias?.length || 0} categories`);
-        menu.categorias?.forEach(cat => {
-            console.log(`Category ${cat.nombre} has ${cat.productos?.length || 0} products`);
-        });
-    }
-});
-
-
-
-    // Para cambios en los inputs radio en caso de seleccionarse por medios distintos
-    $(document).on('change', 'input[type="radio"]', function() {
-        updateOrdenResumen();
-    });
-
-    // Para cambios en los controles de extras (botones y cambios en cantidad)
-    $(document).on('click', '.extra-decrease, .extra-increase', function() {
-        let extraId = $(this).data('extra-id');
-        let $input = $(`.extra-qty[data-extra-id="${extraId}"]`);
-        let current = parseInt($input.val()) || 0;
-        if ($(this).hasClass('extra-decrease') && current > 0) {
-            $input.val(current - 1);
-        } else if ($(this).hasClass('extra-increase')) {
-            $input.val(current + 1);
+        if (btnRemoveComensal) {
+            btnRemoveComensal.addEventListener("click", () => {
+                if (comensalCount > 1) {
+                    comensalCount--;
+                    const counter = document.getElementById("comensalCount");
+                    if (counter) counter.innerText = comensalCount;
+                    renderComensales();
+                }
+            });
         }
-        updateOrdenResumen();
-    });
-    $(document).on('change', '.extra-qty', function() {
-        updateOrdenResumen();
-    });
 
-    // Botones para sumar/restar comensales
-    const btnAddComensal = document.getElementById("addComensal");
-    const btnRemoveComensal = document.getElementById("removeComensal");
-
-    if (btnAddComensal) {
-        btnAddComensal.addEventListener("click", () => {
-            if (comensalCount < maxComensales) {
-                comensalCount++;
-                const counter = document.getElementById("comensalCount");
-                if (counter) counter.innerText = comensalCount;
-                renderComensales();
-            }
-        });
-    }
-
-    if (btnRemoveComensal) {
-        btnRemoveComensal.addEventListener("click", () => {
-            if (comensalCount > 1) {
-                comensalCount--;
-                const counter = document.getElementById("comensalCount");
-                if (counter) counter.innerText = comensalCount;
-                renderComensales();
-            }
-        });
-    }
-
-    // Re-renderiza en caso de que cambie el tamaño de la ventana
-    //window.addEventListener("resize", renderComensales);
-    window.addEventListener("DOMContentLoaded", renderComensales);
+        // Re-renderiza en caso de que cambie el tamaño de la ventana
+        //window.addEventListener("resize", renderComensales);
+        window.addEventListener("DOMContentLoaded", renderComensales);
 
 
-    (function() {
-        // Previene el pinch zoom en iOS Safari
-        document.addEventListener('gesturestart', function(e) {
-            e.preventDefault();
-        });
+        (function() {
+            // Previene el pinch zoom en iOS Safari
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
+            });
 
-        // Alternativamente, también se puede intentar bloquear el doble toque
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-    })();
+            // Alternativamente, también se puede intentar bloquear el doble toque
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+        })();
 
 
-    function openProductModal(id, nombre, descripcion, imagen) {
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDescription');
-    const modalImg = document.getElementById('modalImage');
-    const btnToggle = document.getElementById('modalToggleSelect');
+        function openProductModal(inputId, id, nombre, descripcion, imagen) {
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDesc = document.getElementById('modalDescription');
+            const modalImg = document.getElementById('modalImage');
+            const btnToggle = document.getElementById('modalToggleSelect');
 
-    modalTitle.textContent = nombre;
-    modalDesc.textContent = (descripcion && descripcion !== 'null') ? descripcion : '';
-    
-    // Asegurar que la imagen del modal también tenga fallback
-    const imagenModal = (imagen && imagen !== 'null' && imagen.trim() !== '') 
-        ? imagen 
-        : '/access/images/logo-full.png';
-    
-    modalImg.src = imagenModal;
-    modalImg.onerror = function() {
-        this.src = '/access/images/logo-full.png';
-    };
+            modalTitle.textContent = nombre;
+            modalDesc.textContent = (descripcion && descripcion !== 'null') ? descripcion : '';
+            
+            // Asegurar que la imagen del modal también tenga fallback
+            const imagenModal = (imagen && imagen !== 'null' && imagen.trim() !== '') 
+                ? imagen 
+                : '/access/images/logo-full.png';
+            
+            modalImg.src = imagenModal;
+            modalImg.onerror = function() {
+                this.src = '/access/images/logo-full.png';
+            };
 
-    // Guardar referencia del input asociado
-    const input = document.querySelector(`input[value="${id}"]`);
-    if (!input) return;
+            // Guardar referencia del input asociado
+            const input = document.getElementById(inputId);
+            if (!input) return;
 
-    const isChecked = input.checked;
-    updateModalButton(btnToggle, isChecked);
+            const isChecked = input.checked;
+            updateModalButton(btnToggle, isChecked);
 
-    btnToggle.onclick = () => {
-        const isRadio = input.type === 'radio';
-        const wasChecked = input.checked;
-        
-        if (isRadio) {
-            if (wasChecked) {
-                // Si ya estaba seleccionado, deseleccionarlo
-                input.checked = false;
-                const plus = input.previousElementSibling;
-                if (plus?.classList.contains('plus')) plus.classList.remove('active');
-            } else {
-                // Desmarcar todos los radios del mismo grupo
-                const groupName = input.name;
-                document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
-                    el.checked = false;
-                    const pl = el.previousElementSibling;
-                    if (pl?.classList.contains('plus')) pl.classList.remove('active');
-                });
+            btnToggle.onclick = () => {
+                const isRadio = input.type === 'radio';
+                const wasChecked = input.checked;
                 
-                // Activar el actual
-                input.checked = true;
-                const plus = input.previousElementSibling;
-                if (plus?.classList.contains('plus')) plus.classList.add('active');
+                if (isRadio) {
+                    if (wasChecked) {
+                        // Si ya estaba seleccionado, deseleccionarlo
+                        input.checked = false;
+                        const plus = input.previousElementSibling;
+                        if (plus?.classList.contains('plus')) plus.classList.remove('active');
+                    } else {
+                        // Desmarcar todos los radios del mismo grupo
+                        const groupName = input.name;
+                        document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
+                            el.checked = false;
+                            const pl = el.previousElementSibling;
+                            if (pl?.classList.contains('plus')) pl.classList.remove('active');
+                        });
+                        
+                        // Activar el actual
+                        input.checked = true;
+                        const plus = input.previousElementSibling;
+                        if (plus?.classList.contains('plus')) plus.classList.add('active');
+                    }
+                } else {
+                    // Para checkboxes, simplemente toggle
+                    input.checked = !input.checked;
+                    const plus = input.previousElementSibling;
+                    if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
+                }
+
+                updateModalButton(btnToggle, input.checked);
+                updateOrdenResumen();
+            };
+
+            new bootstrap.Modal(document.getElementById('productModal')).show();
+        }
+
+        function updateModalButton(button, selected) {
+            button.textContent = selected ? 'Deseleccionar producto' : 'Seleccionar producto';
+            button.classList.toggle('btn-danger', selected);
+            button.classList.toggle('btn-primary', !selected);
+        }
+
+
+        $('#smartwizard').smartWizard({
+            transition: {
+                animation: 'fade'
+            },
+            toolbarSettings: {
+                toolbarPosition: 'none'
             }
-        } else {
-            // Para checkboxes, simplemente toggle
-            input.checked = !input.checked;
-            const plus = input.previousElementSibling;
-            if (plus?.classList.contains('plus')) plus.classList.toggle('active', input.checked);
-        }
-
-        updateModalButton(btnToggle, input.checked);
-        updateOrdenResumen();
-    };
-
-    new bootstrap.Modal(document.getElementById('productModal')).show();
-}
-
-    function updateModalButton(button, selected) {
-        button.textContent = selected ? 'Deseleccionar producto' : 'Seleccionar producto';
-        button.classList.toggle('btn-danger', selected);
-        button.classList.toggle('btn-primary', !selected);
-    }
-
-
-    $('#smartwizard').smartWizard({
-        transition: {
-            animation: 'fade'
-        },
-        toolbarSettings: {
-            toolbarPosition: 'none'
-        }
-    });
-
-    function tieneSeleccion() {
-        return document.querySelector('input[type="radio"]:checked, input[type="checkbox"]:checked') !== null;
-    }
-
-    function mostrarPopup(mensaje) {
-        Swal.fire({
-            title: '¡Ups!',
-            text: mensaje,
-            icon: 'info',
-            confirmButtonText: 'Entendido',
-            confirmButtonColor: '#3085d6'
         });
-    }
 
-    $('#smartwizard').on("leaveStep", function(e, anchorObject, currentStepIndex, nextStepIndex, stepDirection) {
-        if (currentStepIndex === 0 && stepDirection === 'forward' && !tieneSeleccion()) {
-            mostrarPopup('Por favor selecciona al menos un producto antes de continuar.');
-            return false;
-        }
-    });
-
-    $('#continuar-invitado').on('click', () => {
-        $('#guest-contact-form').slideDown();
-    });
-
-
-    $('#btnConfirmarPedido').on('click', async function(e) {
-        e.preventDefault();
-        $('#btnConfirmarPedido').prop('disabled', true);
-
-        const datosBlade = @json(Auth::user());
-        const direccionBlade = @json(Auth::user()?->direccion);
-        const datosUser = window.datosUsuario || datosBlade || null;
-        const direccionUser = window.direccionUsuario || direccionBlade || null;
-
-
-        const esInvitado = !datosUser;
-        // Datos del cliente
-        const nombre = $('input[name="guest_name"]').val() || datosUser?.name || '';
-        const telefono = $('input[name="guest_phone"]').val() || datosUser?.telefono || '';
-        const direccion = $('input[name="guest_address"]').val() || direccionUser?.direccion || '';
-        const referencia = $('input[name="guest_reference"]').val() || direccionUser?.referencia || '';
-        const lat = parseFloat($('input[name="guest_lat"]').val()) || parseFloat(direccionUser?.lat) || 0;
-        const lon = parseFloat($('input[name="guest_lon"]').val()) || parseFloat(direccionUser?.lon) || 0;
-        const email = datosUser?.email || '';
-        const distrito_id = $('select[name="guest_distrito"]').val() || direccionUser?.id_distrito || null;
-        const user_id = datosUser?.id || null;
-
-
-        const comentarios = $('textarea[name="comentarios"]').val();
-        const orderData = JSON.parse($('#orderData').val());
-        const horaSelect = $('select[name="hora_llegada"] option:selected');
-        const minutosLlegada = parseInt(horaSelect.data('minutos') || 0);
-
-        // Validar pagos
-        const tipoPago = $('select[name="tipo_pago"]').val();
-        const compPago = $('select[name="comprobante_pago"]').val();
-        const hora = $('select[name="hora_llegada"]').val();
-        const vuelto = $('input[name="vuelto"]').val();
-        const documento_comprobante = $('input[name="documento_comprobante"]').val();
-        const desea_comprobante = $('select[name="desea_comprobante"]').val();
-
-
-        if (!nombre || !telefono || !direccion) {
-            $('#btnConfirmarPedido').prop('disabled', false);
-            return Swal.fire('Faltan datos', 'Completa nombre, teléfono y dirección', 'warning');
-
+        function tieneSeleccion() {
+            return document.querySelector('input[type="radio"]:checked, input[type="checkbox"]:checked') !== null;
         }
 
-        if (!tipoPago || !desea_comprobante || !hora) {
-            $('#btnConfirmarPedido').prop('disabled', false);
-            return Swal.fire('Campos incompletos',
-                'Selecciona método de pago, comprobante y hora de llegada', 'warning');
-
+        function mostrarPopup(mensaje) {
+            Swal.fire({
+                title: '¡Ups!',
+                text: mensaje,
+                icon: 'info',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#3085d6'
+            });
         }
 
-        // Si el método de pago es efectivo (1), validar el campo vuelto
-        if (tipoPago === '1' && (!vuelto || vuelto.trim() === '')) {
-            $('#btnConfirmarPedido').prop('disabled', false);
-            return Swal.fire('Falta indicar el vuelto',
-                'Pon con cuánto dinero en efectivo vas a pagar (Para llevarte vuelto).', 'warning');
-        }
+        $('#smartwizard').on("leaveStep", function(e, anchorObject, currentStepIndex, nextStepIndex, stepDirection) {
+            if (currentStepIndex === 0 && stepDirection === 'forward' && !tieneSeleccion()) {
+                mostrarPopup('Por favor selecciona al menos un producto antes de continuar.');
+                return false;
+            }
+        });
 
-        // Si desea comprobante, validar tipo de comprobante y documento
-        if (desea_comprobante === '1') {
-            if (!compPago || !documento_comprobante) {
+        $('#continuar-invitado').on('click', () => {
+            $('#guest-contact-form').slideDown();
+        });
+
+
+        $('#btnConfirmarPedido').on('click', async function(e) {
+            e.preventDefault();
+            $('#btnConfirmarPedido').prop('disabled', true);
+
+            @php
+                $user = Auth::user();
+            @endphp
+
+            const datosBlade = @json($user);
+            const direccionBlade = @json(optional($user)->direccion);
+            const datosUser = window.datosUsuario || datosBlade || null;
+            const direccionUser = window.direccionUsuario || direccionBlade || null;
+
+
+            const esInvitado = !datosUser;
+            // Datos del cliente
+            const nombre = $('input[name="guest_name"]').val() || datosUser?.name || '';
+            const telefono = $('input[name="guest_phone"]').val() || datosUser?.telefono || '';
+            const direccion = $('input[name="guest_address"]').val() || direccionUser?.direccion || '';
+            const referencia = $('input[name="guest_reference"]').val() || direccionUser?.referencia || '';
+            const lat = parseFloat($('input[name="guest_lat"]').val()) || parseFloat(direccionUser?.lat) || 0;
+            const lon = parseFloat($('input[name="guest_lon"]').val()) || parseFloat(direccionUser?.lon) || 0;
+            const email = datosUser?.email || '';
+            const distrito_id = $('select[name="guest_distrito"]').val() || direccionUser?.id_distrito || null;
+            const user_id = datosUser?.id || null;
+
+
+            const comentarios = $('textarea[name="comentarios"]').val();
+            const orderData = JSON.parse($('#orderData').val());
+            const horaSelect = $('select[name="hora_llegada"] option:selected');
+            const minutosLlegada = parseInt(horaSelect.data('minutos') || 0);
+
+            // Validar pagos
+            const tipoPago = $('select[name="tipo_pago"]').val();
+            const compPago = $('select[name="comprobante_pago"]').val();
+            const hora = $('select[name="hora_llegada"]').val();
+            const vuelto = $('input[name="vuelto"]').val();
+            const documento_comprobante = $('input[name="documento_comprobante"]').val();
+            const desea_comprobante = $('select[name="desea_comprobante"]').val();
+
+
+            if (!nombre || !telefono || !direccion) {
                 $('#btnConfirmarPedido').prop('disabled', false);
-                return Swal.fire('Campos incompletos',
-                    'Selecciona el tipo de comprobante e ingresa tu DNI o RUC', 'warning');
+                return Swal.fire('Faltan datos', 'Completa nombre, teléfono y dirección', 'warning');
+
+            }
+
+            if (!tipoPago || !desea_comprobante || !hora) {
+                $('#btnConfirmarPedido').prop('disabled', false);
+                return Swal.fire('Campos incompletos', 'Selecciona método de pago, comprobante y hora de llegada', 'warning');
+
+            }
+
+            // Si el método de pago es efectivo (1), validar el campo vuelto
+            if (tipoPago === '1' && (!vuelto || vuelto.trim() === '')) {
+                $('#btnConfirmarPedido').prop('disabled', false);
+                return Swal.fire('Falta indicar el vuelto','Pon con cuánto dinero en efectivo vas a pagar (Para llevarte vuelto).', 'warning');
+            }
+
+            // Si desea comprobante, validar tipo de comprobante y documento
+            if (desea_comprobante === '1') {
+                if (!compPago || !documento_comprobante) {
+                    $('#btnConfirmarPedido').prop('disabled', false);
+                    return Swal.fire('Campos incompletos','Selecciona el tipo de comprobante e ingresa tu DNI o RUC', 'warning');
+                }
+            }
+
+
+            // Obtener comensales y productos (asumiendo que ya los tienes en JS)
+            const comensales = obtenerComensales(); // función tuya que agrupa los productos por comensal
+            console.log('Comensales:');
+            console.log(comensales);
+            const productos = [];
+            comensales.forEach(com => {
+                com.productos.forEach(prod => productos.push(prod));
+            });
+            if (productos.length === 0) {
+                $('#btnConfirmarPedido').prop('disabled', false);
+                return Swal.fire('Sin productos', 'Debes seleccionar al menos un producto.', 'warning');
+            }
+
+            // Mostrar loading
+            Swal.fire({
+                title: 'Procesando pedido...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+            console.log(comensales);
+            try {
+                const res = await fetch("{{ route('pedido.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        telefono,
+                        direccion,
+                        referencia,
+                        email,
+                        distrito_id,
+                        user_id,
+                        comentarios,
+                        desea_comprobante,
+                        lat,
+                        lon,
+                        tipo_pago: tipoPago,
+                        comprobante_pago: compPago,
+                        hora_llegada: hora,
+                        minutos_llegada: minutosLlegada,
+                        vuelto,
+                        documento_comprobante,
+                        comensales,
+                        productos
+                    })
+                });
+
+                const result = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(result.error || 'Error desconocido');
+                }
+
+                Swal.fire('¡Pedido registrado!', 'Gracias por tu compra.', 'success').then(() => {
+                    window.location.href = '/misordenes'; // redirección
+                });
+
+            } catch (error) {
+                console.error(error);
+                $('#btnConfirmarPedido').prop('disabled', false);
+                Swal.fire('Error', error.message, 'error');
+
+            }
+        });
+
+
+
+        $(document).on('click', '.btn-next-step', function() {
+            const currentStep = $('#smartwizard').smartWizard("getStepIndex");
+            if (currentStep === 0 && !tieneSeleccion()) {
+                mostrarPopup('Por favor selecciona al menos un producto antes de continuar.');
+            } else {
+                $('#smartwizard').smartWizard("next");
+            }
+        });
+
+        function addUnderlineToActiveStep() {
+            const navLinks = document.querySelectorAll('.nav-wizard .nav-link');
+
+            // Limpia posibles subrayados anteriores
+            navLinks.forEach(link => {
+                const underline = link.querySelector('.tab-underline');
+                if (underline) underline.remove();
+            });
+
+            // Busca el paso activo
+            const activeLink = document.querySelector('.nav-wizard .nav-link.active');
+            if (activeLink) {
+                const underline = document.createElement('div');
+                underline.classList.add('tab-underline');
+                activeLink.appendChild(underline);
             }
         }
 
+        // Ejecuta cuando carga la página
+        document.addEventListener("DOMContentLoaded", addUnderlineToActiveStep);
 
-        // Obtener comensales y productos (asumiendo que ya los tienes en JS)
-        const comensales = obtenerComensales(); // función tuya que agrupa los productos por comensal
-        const productos = [];
-        comensales.forEach(com => {
-            com.productos.forEach(prod => productos.push(prod));
+        // También cada vez que se cambie de paso con SmartWizard
+        $('#smartwizard').on("showStep", function(e, anchorObject, stepIndex, stepDirection) {
+            addUnderlineToActiveStep();
         });
-        if (productos.length === 0) {
 
-            $('#btnConfirmarPedido').prop('disabled', false);
-            return Swal.fire('Sin productos', 'Debes seleccionar al menos un producto.', 'warning');
 
+        function loginUsuario() {
+            let email = $('#email').val();
+            let password = $('#password').val();
+
+            if (!email || !password) {
+                Swal.fire('Faltan datos', 'Ingresa tu correo y contraseña.', 'warning');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route("login.ajax") }}',
+                method: 'POST',
+                data: {
+                    email: email,
+                    password: password,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('¡Bienvenido!', 'Sesión iniciada correctamente', 'success');
+
+                        // ✅ Obtener datos del usuario y guardarlos en variables globales
+                        $.get('/check-auth', function(userData) {
+                            if (userData.auth) {
+                                window.datosUsuario = userData.user;
+                                window.direccionUsuario = userData.direccion;
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/partial/header-sidebar',
+                            type: 'GET',
+                            success: function(htmlResponse) {
+                                // Reemplaza el header y sidebar completos
+                                $('#main-header').replaceWith(htmlResponse.header);
+                                $('#main-sidebar').replaceWith(htmlResponse.sidebar);
+                                $('#auth-container').html(htmlResponse.authContainer);
+                                $('#menu')
+                                    .metisMenu(); // <-- Esto reinicializa el comportamiento del menú
+
+                                document.getElementById('main-wrapper')?.classList.add(
+                                    'dlabnav-mini');
+
+                                // Volver a ejecutar dlabnav si existe
+                                if (typeof dlabnav !== 'undefined' && typeof dlabnav ===
+                                    'function') {
+                                    dlabnav();
+                                }
+
+                                // Reasignar hamburguesa si hiciste override
+                                $('.nav-control').off('click').on('click', function() {
+                                    $('#main-wrapper').toggleClass('menu-toggle');
+                                });
+                            }
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Verifica tus credenciales.', 'error');
+                }
+            });
         }
 
-        // Mostrar loading
-        Swal.fire({
-            title: 'Procesando pedido...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-        console.log(comensales);
-        try {
-            const res = await fetch("{{ route('pedido.store') }}", {
+
+
+        $('#btnCrearCuenta').on('click', function() {
+            let nombre = $('#registro_nombre').val();
+            let correo = $('#registro_correo').val();
+            let celular = $('#registro_celular').val();
+            let password = $('#registro_password').val();
+            let repeat = $('#registro_password_repeat').val();
+
+            if (!nombre || !correo || !celular || !password || password !== repeat) {
+                Swal.fire('Verifica los datos', 'Debes llenar todos los campos y que las contraseñas coincidan.',
+                    'warning');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route("register.ajax") }}',
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                data: {
+                    name: nombre,
+                    email: correo,
+                    telefono: celular,
+                    password: password,
+                    _token: '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({
-                    nombre,
-                    telefono,
+                success: function(response) {
+                    if (response.success) {
+                        $('#modalCrearCuenta').modal('hide');
+
+                        // Cargar sidebar y header actualizados
+                        $.ajax({
+                            url: '/partial/header-sidebar',
+                            type: 'GET',
+                            success: function(htmlResponse) {
+                                $('#main-header').replaceWith(htmlResponse.header);
+                                $('#main-sidebar').replaceWith(htmlResponse.sidebar);
+                                $('#auth-container').html(htmlResponse.authContainer);
+
+                                if (typeof dlabnav !== 'undefined') dlabnav();
+
+                                $('.nav-control').off('click').on('click', function() {
+                                    $('#main-wrapper').toggleClass('menu-toggle');
+                                });
+
+                                // Mostrar modal de dirección automáticamente
+                                $('#modalAgregarDireccion').modal('show');
+                            }
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Error del servidor.', 'error');
+                }
+            });
+        });
+
+
+        let marcador = null;
+        let mapa = null;
+
+        let lat;
+        let lng;
+
+        function iniciarMapa() {
+            if (!window.L) {
+                console.error("Leaflet no está cargado");
+                return;
+            }
+
+            if (mapa) {
+                mapa.remove(); // Si ya existía
+            }
+
+            mapa = L.map('mapaDireccion').setView([-12.07, -77.05], 15); // Ubicación inicial Lima
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(mapa);
+
+            marcador = L.marker([-12.07, -77.05], {
+                draggable: true
+            }).addTo(mapa);
+
+            // Guardar coords al mover
+            marcador.on('dragend', function() {
+                const pos = marcador.getLatLng();
+                $('#coordenadasMapa').text(`Lat: ${pos.lat.toFixed(6)}, Lng: ${pos.lng.toFixed(6)}`);
+            });
+        }
+
+        function obtenerUbicacion() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        lat = pos.coords.latitude;
+                        lng = pos.coords.longitude;
+
+                        if (mapa && marcador) {
+                            mapa.setView([lat, lng], 17);
+                            marcador.setLatLng([lat, lng]);
+                        }
+
+                        $('#coordenadasMapa').text(`Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`);
+                    },
+                    () => {
+                        Swal.fire('Ubicación', 'No se pudo obtener tu ubicación.', 'info');
+                    }, {
+                        enableHighAccuracy: true,
+                        maximumAge: 0,
+                        timeout: 10000
+                    }
+                );
+            }
+        }
+
+        let user_id;
+
+        function guardarDireccion() {
+            const tipo = $('#direccion_tipo').val();
+            const distrito_id = $('#direccion_distrito').val();
+            const distrito = $('#direccion_distrito option:selected').text();
+            const direccion = $('#direccion_direccion').val();
+            const referencia = $('#direccion_referencia').val();
+            const coords = $('#coordenadasMapa').text();
+            user_id = (@json(Auth::check())) ? @json(Auth::id()) : null;
+            lat = marcador.getLatLng().lat;
+            lon = marcador.getLatLng().lng;
+
+            if (!tipo || !distrito || !direccion) {
+                Swal.fire('Completa los campos', 'Todos los campos son obligatorios.', 'warning');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route("direccion.guardar") }}',
+                method: 'POST',
+                data: {
+                    tipo,
+                    distrito_id,
                     direccion,
                     referencia,
-                    email,
-                    distrito_id,
                     user_id,
-                    comentarios,
-                    desea_comprobante,
                     lat,
                     lon,
-                    tipo_pago: tipoPago,
-                    comprobante_pago: compPago,
-                    hora_llegada: hora,
-                    minutos_llegada: minutosLlegada,
-                    vuelto,
-                    documento_comprobante,
-                    comensales,
-                    productos
-                })
-            });
-
-            const result = await res.json();
-
-            if (!res.ok) {
-                throw new Error(result.error || 'Error desconocido');
-            }
-
-            Swal.fire('¡Pedido registrado!', 'Gracias por tu compra.', 'success').then(() => {
-                window.location.href = '/misordenes'; // redirección
-            });
-
-        } catch (error) {
-            console.error(error);
-            $('#btnConfirmarPedido').prop('disabled', false);
-            Swal.fire('Error', error.message, 'error');
-
-        }
-    });
-
-
-
-    $(document).on('click', '.btn-next-step', function() {
-        const currentStep = $('#smartwizard').smartWizard("getStepIndex");
-        if (currentStep === 0 && !tieneSeleccion()) {
-            mostrarPopup('Por favor selecciona al menos un producto antes de continuar.');
-        } else {
-            $('#smartwizard').smartWizard("next");
-        }
-    });
-
-    function addUnderlineToActiveStep() {
-        const navLinks = document.querySelectorAll('.nav-wizard .nav-link');
-
-        // Limpia posibles subrayados anteriores
-        navLinks.forEach(link => {
-            const underline = link.querySelector('.tab-underline');
-            if (underline) underline.remove();
-        });
-
-        // Busca el paso activo
-        const activeLink = document.querySelector('.nav-wizard .nav-link.active');
-        if (activeLink) {
-            const underline = document.createElement('div');
-            underline.classList.add('tab-underline');
-            activeLink.appendChild(underline);
-        }
-    }
-
-    // Ejecuta cuando carga la página
-    document.addEventListener("DOMContentLoaded", addUnderlineToActiveStep);
-
-    // También cada vez que se cambie de paso con SmartWizard
-    $('#smartwizard').on("showStep", function(e, anchorObject, stepIndex, stepDirection) {
-        addUnderlineToActiveStep();
-    });
-
-
-    function loginUsuario() {
-        let email = $('#email').val();
-        let password = $('#password').val();
-
-        if (!email || !password) {
-            Swal.fire('Faltan datos', 'Ingresa tu correo y contraseña.', 'warning');
-            return;
-        }
-
-        $.ajax({
-            url: '{{ route("login.ajax") }}',
-            method: 'POST',
-            data: {
-                email: email,
-                password: password,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire('¡Bienvenido!', 'Sesión iniciada correctamente', 'success');
-
-                    // ✅ Obtener datos del usuario y guardarlos en variables globales
-                    $.get('/check-auth', function(userData) {
-                        if (userData.auth) {
-                            window.datosUsuario = userData.user;
-                            window.direccionUsuario = userData.direccion;
-                        }
-                    });
-
-                    $.ajax({
-                        url: '/partial/header-sidebar',
-                        type: 'GET',
-                        success: function(htmlResponse) {
-                            // Reemplaza el header y sidebar completos
-                            $('#main-header').replaceWith(htmlResponse.header);
-                            $('#main-sidebar').replaceWith(htmlResponse.sidebar);
-                            $('#auth-container').html(htmlResponse.authContainer);
-                            $('#menu')
-                                .metisMenu(); // <-- Esto reinicializa el comportamiento del menú
-
-                            document.getElementById('main-wrapper')?.classList.add(
-                                'dlabnav-mini');
-
-                            // Volver a ejecutar dlabnav si existe
-                            if (typeof dlabnav !== 'undefined' && typeof dlabnav ===
-                                'function') {
-                                dlabnav();
-                            }
-
-                            // Reasignar hamburguesa si hiciste override
-                            $('.nav-control').off('click').on('click', function() {
-                                $('#main-wrapper').toggleClass('menu-toggle');
-                            });
-                        }
-                    });
-                } else {
-                    Swal.fire('Error', response.message, 'error');
-                }
-            },
-            error: function() {
-                Swal.fire('Error', 'Verifica tus credenciales.', 'error');
-            }
-        });
-    }
-
-
-
-    $('#btnCrearCuenta').on('click', function() {
-        let nombre = $('#registro_nombre').val();
-        let correo = $('#registro_correo').val();
-        let celular = $('#registro_celular').val();
-        let password = $('#registro_password').val();
-        let repeat = $('#registro_password_repeat').val();
-
-        if (!nombre || !correo || !celular || !password || password !== repeat) {
-            Swal.fire('Verifica los datos', 'Debes llenar todos los campos y que las contraseñas coincidan.',
-                'warning');
-            return;
-        }
-
-        $.ajax({
-            url: '{{ route("register.ajax") }}',
-            method: 'POST',
-            data: {
-                name: nombre,
-                email: correo,
-                telefono: celular,
-                password: password,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-                    $('#modalCrearCuenta').modal('hide');
-
-                    // Cargar sidebar y header actualizados
-                    $.ajax({
-                        url: '/partial/header-sidebar',
-                        type: 'GET',
-                        success: function(htmlResponse) {
-                            $('#main-header').replaceWith(htmlResponse.header);
-                            $('#main-sidebar').replaceWith(htmlResponse.sidebar);
-                            $('#auth-container').html(htmlResponse.authContainer);
-
-                            if (typeof dlabnav !== 'undefined') dlabnav();
-
-                            $('.nav-control').off('click').on('click', function() {
-                                $('#main-wrapper').toggleClass('menu-toggle');
-                            });
-
-                            // Mostrar modal de dirección automáticamente
-                            $('#modalAgregarDireccion').modal('show');
-                        }
-                    });
-                } else {
-                    Swal.fire('Error', response.message, 'error');
-                }
-            },
-            error: function() {
-                Swal.fire('Error', 'Error del servidor.', 'error');
-            }
-        });
-    });
-
-
-    let marcador = null;
-    let mapa = null;
-
-    let lat;
-    let lng;
-
-    function iniciarMapa() {
-        if (!window.L) {
-            console.error("Leaflet no está cargado");
-            return;
-        }
-
-        if (mapa) {
-            mapa.remove(); // Si ya existía
-        }
-
-        mapa = L.map('mapaDireccion').setView([-12.07, -77.05], 15); // Ubicación inicial Lima
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(mapa);
-
-        marcador = L.marker([-12.07, -77.05], {
-            draggable: true
-        }).addTo(mapa);
-
-        // Guardar coords al mover
-        marcador.on('dragend', function() {
-            const pos = marcador.getLatLng();
-            $('#coordenadasMapa').text(`Lat: ${pos.lat.toFixed(6)}, Lng: ${pos.lng.toFixed(6)}`);
-        });
-    }
-
-    function obtenerUbicacion() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                pos => {
-                    lat = pos.coords.latitude;
-                    lng = pos.coords.longitude;
-
-                    if (mapa && marcador) {
-                        mapa.setView([lat, lng], 17);
-                        marcador.setLatLng([lat, lng]);
-                    }
-
-                    $('#coordenadasMapa').text(`Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`);
+                    _token: '{{ csrf_token() }}'
                 },
-                () => {
-                    Swal.fire('Ubicación', 'No se pudo obtener tu ubicación.', 'info');
-                }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 0,
-                    timeout: 10000
+                success: function(response) {
+                    if (response.success) {
+                        const resumen = `<div>
+                                    <div class="address-bx mt-3 mb-3">
+                                        <span class="d-block mb-2">Tu dirección actual (${tipo})</span>
+                                        <div class="d-flex  align-items-center justify-content-between mb-2">
+                                            <h4 class="mb-0">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M20.46 9.63C20.3196 8.16892 19.8032 6.76909 18.9612 5.56682C18.1191 4.36456 16.9801 3.40083 15.655 2.7695C14.3299 2.13816 12.8639 1.86072 11.3997 1.96421C9.93555 2.06769 8.52314 2.54856 7.3 3.36C6.2492 4.06265 5.36706 4.9893 4.71695 6.07339C4.06684 7.15749 3.6649 8.37211 3.54 9.63C3.41749 10.8797 3.57468 12.1409 4.00017 13.3223C4.42567 14.5036 5.1088 15.5755 6 16.46L11.3 21.77C11.393 21.8637 11.5036 21.9381 11.6254 21.9889C11.7473 22.0397 11.878 22.0658 12.01 22.0658C12.142 22.0658 12.2727 22.0397 12.3946 21.9889C12.5164 21.9381 12.627 21.8637 12.72 21.77L18 16.46C18.8912 15.5755 19.5743 14.5036 19.9998 13.3223C20.4253 12.1409 20.5825 10.8797 20.46 9.63ZM16.6 15.05L12 19.65L7.4 15.05C6.72209 14.3721 6.20281 13.5523 5.87947 12.6498C5.55614 11.7472 5.43679 10.7842 5.53 9.83C5.62382 8.86111 5.93177 7.92516 6.43157 7.08985C6.93138 6.25453 7.61056 5.54071 8.42 5C9.48095 4.29524 10.7263 3.9193 12 3.9193C13.2737 3.9193 14.5191 4.29524 15.58 5C16.387 5.53862 17.0647 6.24928 17.5644 7.08094C18.064 7.9126 18.3733 8.84461 18.47 9.81C18.5663 10.7674 18.4484 11.7343 18.125 12.6406C17.8016 13.5468 17.2807 14.3698 16.6 15.05ZM12 6C11.11 6 10.24 6.26392 9.49994 6.75839C8.75992 7.25286 8.18314 7.95566 7.84255 8.77793C7.50195 9.6002 7.41284 10.505 7.58647 11.3779C7.7601 12.2508 8.18869 13.0526 8.81802 13.682C9.44736 14.3113 10.2492 14.7399 11.1221 14.9135C11.995 15.0872 12.8998 14.9981 13.7221 14.6575C14.5443 14.3169 15.2471 13.7401 15.7416 13.0001C16.2361 12.26 16.5 11.39 16.5 10.5C16.4974 9.30734 16.0224 8.16428 15.1791 7.32094C14.3357 6.4776 13.1927 6.00265 12 6ZM12 13C11.5055 13 11.0222 12.8534 10.6111 12.5787C10.2 12.304 9.87952 11.9135 9.6903 11.4567C9.50109 10.9999 9.45158 10.4972 9.54804 10.0123C9.6445 9.52733 9.88261 9.08187 10.2322 8.73224C10.5819 8.38261 11.0273 8.1445 11.5123 8.04804C11.9972 7.95158 12.4999 8.00109 12.9567 8.1903C13.4135 8.37952 13.804 8.69996 14.0787 9.11108C14.3534 9.5222 14.5 10.0056 14.5 10.5C14.5 11.163 14.2366 11.7989 13.7678 12.2678C13.2989 12.7366 12.663 13 12 13Z" fill="var(--primary)"/>
+                                                </svg>
+                                                ${direccion}<br/>${distrito}
+                                            </h4>
+                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="abrirPopupDirecciones()">Cambiar<br/>dirección</a>
+                                        </div>
+                                        <p>${referencia}</p>
+                                        <div id="miniMapa" style="width: 100%; height: 180px;"></div>
+                                    </div>
+                                </div>`;
+
+                        $.get('/check-auth', function(userData) {
+                            if (userData.auth) {
+                                window.datosUsuario = userData.user;
+                                window.direccionUsuario = userData.direccion;
+                            }
+                        });
+
+
+                        // Mostrar en paso 3 debajo de auth-container
+                        $('#auth-container').html(resumen);
+
+                        setTimeout(() => {
+                            lat = marcador.getLatLng().lat;
+                            lng = marcador.getLatLng().lng;
+
+                            const miniMapa = L.map('miniMapa').setView([lat, lng], 15);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(miniMapa);
+                            L.marker([lat, lng]).addTo(miniMapa);
+                            setTimeout(() => {miniMapa.invalidateSize();}, 300);
+                        }, 200);
+
+                        Swal.fire('Dirección guardada', 'Se grabó correctamente tu dirección.', 'success');
+                        $('#modalAgregarDireccion').modal('hide');
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON?.message || 'Ocurrió un error';
+                    Swal.fire('Error', msg, 'error');
                 }
-            );
-        }
-    }
-
-    let user_id;
-
-    function guardarDireccion() {
-        const tipo = $('#direccion_tipo').val();
-        const distrito_id = $('#direccion_distrito').val();
-        const distrito = $('#direccion_distrito option:selected').text();
-        const direccion = $('#direccion_direccion').val();
-        const referencia = $('#direccion_referencia').val();
-        const coords = $('#coordenadasMapa').text();
-        user_id = (@json(Auth::check())) ? @json(Auth::id()) : null;
-        lat = marcador.getLatLng().lat;
-        lon = marcador.getLatLng().lng;
-
-        if (!tipo || !distrito || !direccion) {
-            Swal.fire('Completa los campos', 'Todos los campos son obligatorios.', 'warning');
-            return;
+            });
         }
 
-        $.ajax({
-            url: '{{ route("direccion.guardar") }}',
-            method: 'POST',
-            data: {
-                tipo,
-                distrito_id,
-                direccion,
-                referencia,
-                user_id,
-                lat,
-                lon,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-                    const resumen = `<div>
-								<div class="address-bx mt-3 mb-3">
-									<span class="d-block mb-2">Tu dirección actual (${tipo})</span>
-									<div class="d-flex  align-items-center justify-content-between mb-2">
-										<h4 class="mb-0">
-											<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-												<path d="M20.46 9.63C20.3196 8.16892 19.8032 6.76909 18.9612 5.56682C18.1191 4.36456 16.9801 3.40083 15.655 2.7695C14.3299 2.13816 12.8639 1.86072 11.3997 1.96421C9.93555 2.06769 8.52314 2.54856 7.3 3.36C6.2492 4.06265 5.36706 4.9893 4.71695 6.07339C4.06684 7.15749 3.6649 8.37211 3.54 9.63C3.41749 10.8797 3.57468 12.1409 4.00017 13.3223C4.42567 14.5036 5.1088 15.5755 6 16.46L11.3 21.77C11.393 21.8637 11.5036 21.9381 11.6254 21.9889C11.7473 22.0397 11.878 22.0658 12.01 22.0658C12.142 22.0658 12.2727 22.0397 12.3946 21.9889C12.5164 21.9381 12.627 21.8637 12.72 21.77L18 16.46C18.8912 15.5755 19.5743 14.5036 19.9998 13.3223C20.4253 12.1409 20.5825 10.8797 20.46 9.63ZM16.6 15.05L12 19.65L7.4 15.05C6.72209 14.3721 6.20281 13.5523 5.87947 12.6498C5.55614 11.7472 5.43679 10.7842 5.53 9.83C5.62382 8.86111 5.93177 7.92516 6.43157 7.08985C6.93138 6.25453 7.61056 5.54071 8.42 5C9.48095 4.29524 10.7263 3.9193 12 3.9193C13.2737 3.9193 14.5191 4.29524 15.58 5C16.387 5.53862 17.0647 6.24928 17.5644 7.08094C18.064 7.9126 18.3733 8.84461 18.47 9.81C18.5663 10.7674 18.4484 11.7343 18.125 12.6406C17.8016 13.5468 17.2807 14.3698 16.6 15.05ZM12 6C11.11 6 10.24 6.26392 9.49994 6.75839C8.75992 7.25286 8.18314 7.95566 7.84255 8.77793C7.50195 9.6002 7.41284 10.505 7.58647 11.3779C7.7601 12.2508 8.18869 13.0526 8.81802 13.682C9.44736 14.3113 10.2492 14.7399 11.1221 14.9135C11.995 15.0872 12.8998 14.9981 13.7221 14.6575C14.5443 14.3169 15.2471 13.7401 15.7416 13.0001C16.2361 12.26 16.5 11.39 16.5 10.5C16.4974 9.30734 16.0224 8.16428 15.1791 7.32094C14.3357 6.4776 13.1927 6.00265 12 6ZM12 13C11.5055 13 11.0222 12.8534 10.6111 12.5787C10.2 12.304 9.87952 11.9135 9.6903 11.4567C9.50109 10.9999 9.45158 10.4972 9.54804 10.0123C9.6445 9.52733 9.88261 9.08187 10.2322 8.73224C10.5819 8.38261 11.0273 8.1445 11.5123 8.04804C11.9972 7.95158 12.4999 8.00109 12.9567 8.1903C13.4135 8.37952 13.804 8.69996 14.0787 9.11108C14.3534 9.5222 14.5 10.0056 14.5 10.5C14.5 11.163 14.2366 11.7989 13.7678 12.2678C13.2989 12.7366 12.663 13 12 13Z" fill="var(--primary)"/>
-											</svg>
-											${direccion}<br/>${distrito}
-										</h4>
-										<button type="button" class="btn btn-outline-primary btn-sm" onclick="abrirPopupDirecciones()">Cambiar<br/>dirección</a>
-									</div>
-									<p>${referencia}</p>
-									<div id="miniMapa" style="width: 100%; height: 180px;"></div>
-								</div>
-							</div>`;
-
-                    $.get('/check-auth', function(userData) {
-                        if (userData.auth) {
-                            window.datosUsuario = userData.user;
-                            window.direccionUsuario = userData.direccion;
-                        }
-                    });
 
 
-                    // Mostrar en paso 3 debajo de auth-container
-                    $('#auth-container').html(resumen);
 
-                    setTimeout(() => {
-                        lat = marcador.getLatLng().lat;
-                        lng = marcador.getLatLng().lng;
+        $(document).on('click', '#continuar-invitado', function(e) {
+            e.preventDefault();
+            const guestForm = $('#guest-form-template').html();
+            setTimeout(() => {
+                if ($('#mapaGuest').length) iniciarMapaGuest();
+            }, 300);
+            $('#auth-container').html(guestForm);
+        });
 
-                        const miniMapa = L.map('miniMapa').setView([lat, lng], 15);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(miniMapa);
-                        L.marker([lat, lng]).addTo(miniMapa);
-                        setTimeout(() => {miniMapa.invalidateSize();}, 300);
-                    }, 200);
+        $(document).on('click', '#btn-volver-login', function(e) {
+            e.preventDefault();
 
-                    Swal.fire('Dirección guardada', 'Se grabó correctamente tu dirección.', 'success');
-                    $('#modalAgregarDireccion').modal('hide');
+            // Puedes volver a cargar el blade parcial vía AJAX o regenerar el HTML
+            $.ajax({
+                url: '{{ route("partial.auth.form") }}', // Crea esta ruta que devuelva el contenido de auth-form.blade.php
+                type: 'GET',
+                success: function(html) {
+                    $('#auth-container').html(html);
                 }
-            },
-            error: function(xhr) {
-                const msg = xhr.responseJSON?.message || 'Ocurrió un error';
-                Swal.fire('Error', msg, 'error');
-            }
-        });
-    }
-
-
-
-
-    $(document).on('click', '#continuar-invitado', function(e) {
-        e.preventDefault();
-        const guestForm = $('#guest-form-template').html();
-        setTimeout(() => {
-            if ($('#mapaGuest').length) iniciarMapaGuest();
-        }, 300);
-        $('#auth-container').html(guestForm);
-    });
-
-    $(document).on('click', '#btn-volver-login', function(e) {
-        e.preventDefault();
-
-        // Puedes volver a cargar el blade parcial vía AJAX o regenerar el HTML
-        $.ajax({
-            url: '{{ route("partial.auth.form") }}', // Crea esta ruta que devuelva el contenido de auth-form.blade.php
-            type: 'GET',
-            success: function(html) {
-                $('#auth-container').html(html);
-            }
-        });
-    });
-
-    function openAgregarDireccionModal() {
-        $('#modalAgregarDireccion').modal('show');
-    }
-
-
-    function abrirPopupDirecciones() {
-        $.ajax({
-            url: '/direccion/partial',
-            type: 'GET',
-            success: function(html) {
-                $('#popupDireccionesContainer').html(html); // Insertar el HTML recibido
-                $('#popupDirecciones').modal('show'); // Mostrar el modal
-            },
-            error: function() {
-                Swal.fire('Error', 'No se pudieron cargar tus direcciones. Intenta nuevamente.', 'error');
-            }
-        });
-    }
-
-    let direcciones;
-    let idActual;
-    let seleccionadaId;
-    let mapa2;
-    let marcadores;
-
-
-    function actualizarReloj() {
-        const now = new Date();
-        let horas = now.getHours();
-        const minutos = now.getMinutes();
-        const segundos = now.getSeconds();
-        const ampm = horas >= 12 ? 'PM' : 'AM';
-
-        horas = horas % 12;
-        horas = horas ? horas : 12; // el 0 se convierte en 12
-        const strMin = minutos < 10 ? '0' + minutos : minutos;
-        const parpadeo = segundos % 2 === 0 ? ':' : ' ';
-        const horaActual = `${horas}${parpadeo}${strMin} ${ampm}`;
-
-        document.getElementById('reloj-hora').innerText = horaActual;
-
-        actualizarDesplegableHoras();
-    }
-
-    setInterval(actualizarReloj, 1000);
-
-
-    function actualizarDesplegableHoras() {
-        const selectHora = document.querySelector('select[name="hora_llegada"]');
-        if (!selectHora) return;
-
-        const ahora = new Date();
-        const opciones = selectHora.querySelectorAll('option[data-minutos]');
-
-        opciones.forEach(op => {
-            const minutosSumar = parseInt(op.getAttribute('data-minutos'));
-            const estimado = new Date(ahora.getTime() + minutosSumar * 60000);
-
-            let h = estimado.getHours();
-            let m = estimado.getMinutes();
-            const ampm = h >= 12 ? 'PM' : 'AM';
-            h = h % 12;
-            h = h ? h : 12;
-            m = m < 10 ? '0' + m : m;
-
-            const texto = `${minutosSumar} min (${h}:${m} ${ampm})`;
-            op.textContent = texto;
+            });
         });
 
-        // Si estás usando algún plugin tipo Bootstrap Select:
-        if ($(selectHora).hasClass('selectpicker')) {
-            $(selectHora).selectpicker('refresh');
+        function openAgregarDireccionModal() {
+            $('#modalAgregarDireccion').modal('show');
         }
-    }
 
-    $('#smartwizard').on("showStep", function(e, anchorObject, stepIndex, stepDirection) {
-        if (stepIndex === 2) {
+
+        function abrirPopupDirecciones() {
+            $.ajax({
+                url: '/direccion/partial',
+                type: 'GET',
+                success: function(html) {
+                    $('#popupDireccionesContainer').html(html); // Insertar el HTML recibido
+                    $('#popupDirecciones').modal('show'); // Mostrar el modal
+                },
+                error: function() {
+                    Swal.fire('Error', 'No se pudieron cargar tus direcciones. Intenta nuevamente.', 'error');
+                }
+            });
+        }
+
+        let direcciones;
+        let idActual;
+        let seleccionadaId;
+        let mapa2;
+        let marcadores;
+
+
+        function actualizarReloj() {
+            const now = new Date();
+            let horas = now.getHours();
+            const minutos = now.getMinutes();
+            const segundos = now.getSeconds();
+            const ampm = horas >= 12 ? 'PM' : 'AM';
+
+            horas = horas % 12;
+            horas = horas ? horas : 12; // el 0 se convierte en 12
+            const strMin = minutos < 10 ? '0' + minutos : minutos;
+            const parpadeo = segundos % 2 === 0 ? ':' : ' ';
+            const horaActual = `${horas}${parpadeo}${strMin} ${ampm}`;
+
+            document.getElementById('reloj-hora').innerText = horaActual;
+
             actualizarDesplegableHoras();
-            if (!window.horaTimer) {
-                window.horaTimer = setInterval(actualizarDesplegableHoras, 60000);
-            }
-        }
-    });
-
-    $(document).ready(function() {
-        const $vueltoInputWrapper = $('input[name="vuelto"]').closest('.mb-3');
-        const $documentoInputWrapper = $('#documento_comprobante').closest('.mb-3');
-        const $comprobanteWrapper = $('#comprobante_pago').closest('.mb-3');
-
-        function toggleVuelto() {
-            const tipoPago = $('#tipo_pago').val();
-            if (tipoPago === '1') {
-                $vueltoInputWrapper.show();
-            } else {
-                $vueltoInputWrapper.hide();
-                $('input[name="vuelto"]').val('');
-            }
         }
 
-        function toggleDocumento() {
-            const comp = $('#comprobante_pago').val();
-            if (['1', '2', '3'].includes(comp)) {
-                $documentoInputWrapper.show();
-            } else {
-                $documentoInputWrapper.hide();
-                $('#documento_comprobante').val('');
-            }
-        }
+        setInterval(actualizarReloj, 1000);
 
-        function toggleComprobanteOptions() {
-            const desea = $('#desea_comprobante').val();
-            console.log(desea);
-            if (desea === '1') {
-                $comprobanteWrapper.next('.nice-select').show();
-                toggleDocumento();
-            } else {
-                $comprobanteWrapper.hide();
-                $comprobanteWrapper.next('.nice-select').hide();
-                $documentoInputWrapper.hide();
-                $documentoInputWrapper.next('.nice-select').hide();
-                $('#comprobante_pago').val('');
-                $('#documento_comprobante').val('');
+
+        function actualizarDesplegableHoras() {
+            const selectHora = document.querySelector('select[name="hora_llegada"]');
+            if (!selectHora) return;
+
+            const ahora = new Date();
+            const opciones = selectHora.querySelectorAll('option[data-minutos]');
+
+            opciones.forEach(op => {
+                const minutosSumar = parseInt(op.getAttribute('data-minutos'));
+                const estimado = new Date(ahora.getTime() + minutosSumar * 60000);
+
+                let h = estimado.getHours();
+                let m = estimado.getMinutes();
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12;
+                h = h ? h : 12;
+                m = m < 10 ? '0' + m : m;
+
+                const texto = `${minutosSumar} min (${h}:${m} ${ampm})`;
+                op.textContent = texto;
+            });
+
+            // Si estás usando algún plugin tipo Bootstrap Select:
+            if ($(selectHora).hasClass('selectpicker')) {
+                $(selectHora).selectpicker('refresh');
             }
         }
 
-        // Inicialmente ocultar comprobante y documento
-        toggleComprobanteOptions();
-        toggleVuelto();
-
-        // Eventos
-        $('#tipo_pago').on('change', toggleVuelto);
-        $('#comprobante_pago').on('change', toggleDocumento);
-        $('#desea_comprobante').on('change', toggleComprobanteOptions);
-    });
-
-
-
-    let mapaGuest;
-    let marcadorGuest;
-
-    function iniciarMapaGuest() {
-        if (mapaGuest) {
-            mapaGuest.remove();
-        }
-
-        mapaGuest = L.map('mapaGuest').setView([-12.0464, -77.0428], 15); // Lima por defecto
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaGuest);
-
-        marcadorGuest = L.marker([-12.0464, -77.0428], {
-            draggable: true
-        }).addTo(mapaGuest);
-        marcadorGuest.on('dragend', function(e) {
-            const {
-                lat,
-                lng
-            } = e.target.getLatLng();
-            actualizarLatLonGuest(lat, lng);
+        $('#smartwizard').on("showStep", function(e, anchorObject, stepIndex, stepDirection) {
+            if (stepIndex === 2) {
+                actualizarDesplegableHoras();
+                if (!window.horaTimer) {
+                    window.horaTimer = setInterval(actualizarDesplegableHoras, 60000);
+                }
+            }
         });
-        actualizarLatLonGuest(lat, lon);
 
-        setTimeout(() => {
-            mapaGuest.invalidateSize();
-        }, 300);
-    }
+        $(document).ready(function() {
+            const $vueltoInputWrapper = $('input[name="vuelto"]').closest('.mb-3');
+            const $documentoInputWrapper = $('#documento_comprobante').closest('.mb-3');
+            const $comprobanteWrapper = $('#comprobante_pago').closest('.mb-3');
 
-    function usarUbicacionGuest() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                mapaGuest.setView([lat, lon], 15);
-                marcadorGuest.setLatLng([lat, lon]);
-                $('input[name="guest_lat"]').val(lat);
-                $('input[name="guest_lon"]').val(lon);
-            }, function() {
-                Swal.fire('Error', 'No se pudo obtener tu ubicación', 'error');
+            function toggleVuelto() {
+                const tipoPago = $('#tipo_pago').val();
+                if (tipoPago === '1') {
+                    $vueltoInputWrapper.show();
+                } else {
+                    $vueltoInputWrapper.hide();
+                    $('input[name="vuelto"]').val('');
+                }
+            }
+
+            function toggleDocumento() {
+                const comp = $('#comprobante_pago').val();
+                if (['1', '2', '3'].includes(comp)) {
+                    $documentoInputWrapper.show();
+                } else {
+                    $documentoInputWrapper.hide();
+                    $('#documento_comprobante').val('');
+                }
+            }
+
+            function toggleComprobanteOptions() {
+                const desea = $('#desea_comprobante').val();
+                console.log(desea);
+                if (desea === '1') {
+                    $comprobanteWrapper.next('.nice-select').show();
+                    toggleDocumento();
+                } else {
+                    $comprobanteWrapper.hide();
+                    $comprobanteWrapper.next('.nice-select').hide();
+                    $documentoInputWrapper.hide();
+                    $documentoInputWrapper.next('.nice-select').hide();
+                    $('#comprobante_pago').val('');
+                    $('#documento_comprobante').val('');
+                }
+            }
+
+            // Inicialmente ocultar comprobante y documento
+            toggleComprobanteOptions();
+            toggleVuelto();
+
+            // Eventos
+            $('#tipo_pago').on('change', toggleVuelto);
+            $('#comprobante_pago').on('change', toggleDocumento);
+            $('#desea_comprobante').on('change', toggleComprobanteOptions);
+        });
+
+
+
+        let mapaGuest;
+        let marcadorGuest;
+
+        function iniciarMapaGuest() {
+            if (mapaGuest) {
+                mapaGuest.remove();
+            }
+
+            mapaGuest = L.map('mapaGuest').setView([-12.0464, -77.0428], 15); // Lima por defecto
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaGuest);
+
+            marcadorGuest = L.marker([-12.0464, -77.0428], {
+                draggable: true
+            }).addTo(mapaGuest);
+            marcadorGuest.on('dragend', function(e) {
+                const {
+                    lat,
+                    lng
+                } = e.target.getLatLng();
+                actualizarLatLonGuest(lat, lng);
             });
             actualizarLatLonGuest(lat, lon);
+
+            setTimeout(() => {
+                mapaGuest.invalidateSize();
+            }, 300);
         }
-    }
 
-    function actualizarLatLonGuest(lat, lon) {
-        $('input[name="guest_lat"]').val(lat);
-        $('input[name="guest_lon"]').val(lon);
-        $('#guest-lat-text').text(lat.toFixed(6));
-        $('#guest-lon-text').text(lon.toFixed(6));
-    }
-
-    function obtenerComensales() {
-    const comensales = [];
-    
-    // Calculate extras total first
-    let extrasTotal = 0;
-    $('.extra-item').each(function() {
-        const cantidad = parseInt($(this).find('.extra-qty').val());
-        if (cantidad > 0) {
-            const precio = parseFloat($(this).data('price')) || 0;
-            extrasTotal += cantidad * precio;
-        }
-    });
-
-    for (let i = 0; i < comensalCount; i++) {
-        const nombre = comensalNombres[i] || `Comensal ${i + 1}`;
-        const user_id = (i === 0 && @json(Auth::check())) ? @json(Auth::id()) : null;
-
-        const productos = [];
-        let comensalTotal = 0;
-        let todosLosProductos = [];
-        let menuMasCaro = null;
-        let precioMasCaro = 0;
-        
-        // Same logic as before for menu products
-        const menuProductos = {};
-        
-        document.querySelectorAll(`input[name^="menu_producto[${i}]"]:checked`).forEach(input => {
-            const menuCategoria = input.getAttribute('data-menu-categoria');
-            const precio = parseFloat(input.getAttribute('data-precio'));
-            const menuId = menuCategoria.split('_').pop();
-            
-            if (!menuProductos[menuId]) {
-                menuProductos[menuId] = {
-                    menu: menus.find(m => m.id == menuId),
-                    productos: []
-                };
+        function usarUbicacionGuest() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    mapaGuest.setView([lat, lon], 15);
+                    marcadorGuest.setLatLng([lat, lon]);
+                    $('input[name="guest_lat"]').val(lat);
+                    $('input[name="guest_lon"]').val(lon);
+                }, function() {
+                    Swal.fire('Error', 'No se pudo obtener tu ubicación', 'error');
+                });
+                actualizarLatLonGuest(lat, lon);
             }
-            
-            const productoInfo = {
-                id: parseInt(input.value),
-                precio: precio,
-                menuId: menuId
-            };
-            
-            menuProductos[menuId].productos.push(productoInfo);
-            todosLosProductos.push(productoInfo);
-            
-            productos.push({
-                id: parseInt(input.value),
-                cantidad: 1
-            });
-        });
-
-        // Calculate price for customer
-        if (todosLosProductos.length === 1) {
-            comensalTotal = todosLosProductos[0].precio;
-        } else if (todosLosProductos.length > 1) {
-            Object.keys(menuProductos).forEach(menuId => {
-                const menuInfo = menuProductos[menuId];
-                const menu = menuInfo.menu;
-                
-                if (menuInfo.productos.length > 0) {
-                    const precioMenu = parseFloat(menu.precio);
-                    if (precioMenu > precioMasCaro) {
-                        precioMasCaro = precioMenu;
-                        menuMasCaro = menu;
-                    }
-                }
-            });
-            comensalTotal = precioMasCaro;
         }
-        
-        // Add extras to the first customer only
-        const extras = [];
-        if (i === 0) {
+
+        function actualizarLatLonGuest(lat, lon) {
+            $('input[name="guest_lat"]').val(lat);
+            $('input[name="guest_lon"]').val(lon);
+            $('#guest-lat-text').text(lat.toFixed(6));
+            $('#guest-lon-text').text(lon.toFixed(6));
+        }
+
+        function obtenerComensales() {
+            const comensales = [];
+
+            // Total extras global (bloque de Extras al final del paso 2)
+            let extrasTotal = 0;
             $('.extra-item').each(function() {
-                const cantidad = parseInt($(this).find('.extra-qty').val());
-                if (cantidad > 0) {
-                    extras.push({
-                        id: $(this).data('extra-id'),
-                        cantidad,
-                        es_extra: true, // Mark as extra
-                        precio: $(this).data('price') // Include price data
-                    });
-                }
+                const cantidad = parseInt($(this).find('.extra-qty').val()) || 0;
+                const precio = parseFloat($(this).data('price')) || 0;
+                if (cantidad > 0) extrasTotal += cantidad * precio;
             });
-            
-            if (extras.length > 0) {
-                productos.push(...extras);
-                // Add extras total to first customer's final price ONLY for the calculation
-                if (i === 0) {
-                    comensalTotal += extrasTotal;
+
+            for (let i = 0; i < comensalCount; i++) {
+                const nombre = comensalNombres[i] || `Comensal ${i + 1}`;
+                const productos = [];
+                let precioFinal = 0;
+
+                const entradaSel = document.querySelector(`input[name="entrada[${i}]"]:checked`);
+                const fondoSel   = document.querySelector(`input[name="fondo[${i}]"]:checked`);
+
+                // A) MENÚ (E/F)
+                if (entradaSel && fondoSel) {
+                const entradaMenuId = (entradaSel.dataset.menuCategoria || '').split('_').pop();
+                const fondoMenuId   = (fondoSel.dataset.menuCategoria || '').split('_').pop();
+
+                const entradaMenu = menus.find(m => String(m.id) === String(entradaMenuId));
+                const fondoMenu   = menus.find(m => String(m.id) === String(fondoMenuId));
+
+                const p1 = entradaMenu ? parseFloat(entradaMenu.precio) : 0;
+                const p2 = fondoMenu   ? parseFloat(fondoMenu.precio) : 0;
+                const precioMenuFinal = Math.max(p1, p2); // cruzado cobra el más caro
+
+                precioFinal += precioMenuFinal;
+
+                productos.push({ id: parseInt(entradaSel.value), cantidad: 1, tipo: 'entrada' });
+                productos.push({ id: parseInt(fondoSel.value),   cantidad: 1, tipo: 'fondo' });
+
+                } else if (entradaSel || fondoSel) {
+                const sel = entradaSel || fondoSel;
+                precioFinal += (parseFloat(sel.dataset.precio) || 0);
+                productos.push({ id: parseInt(sel.value), cantidad: 1, tipo: entradaSel ? 'entrada' : 'fondo' });
                 }
+
+                // B) OTRAS CATEGORÍAS (sumatorias)
+                const otros = Array.from(document.querySelectorAll(`input[type="checkbox"][name^="[a-zA-Z]+[${i}]"], input[type="checkbox"][name*="[${i}][]"]`))
+                .filter(inp => inp.checked);
+
+                otros.forEach(input => {
+                const price = parseFloat(input.dataset.precio) || 0;
+                precioFinal += price;
+                productos.push({ id: parseInt(input.value), cantidad: 1, tipo: input.dataset.categoriaTipo || 'otro' });
+                });
+
+                // C) EXTRAS (bloque inferior) — opcional: asignar al comensal 0
+                if (i === 0) {
+                $('.extra-item').each(function() {
+                    const qty = parseInt($(this).find('.extra-qty').val()) || 0;
+                    if (qty > 0) {
+                    productos.push({
+                        id: parseInt($(this).data('extra-id')),
+                        cantidad: qty,
+                        es_extra: true,
+                        precio: parseFloat($(this).data('price')) || 0
+                    });
+                    }
+                });
+                precioFinal += extrasTotal;
+                }
+
+                comensales.push({
+                id: i,
+                nombre,
+                productos,
+                precio_final: precioFinal,
+                extras_total: i === 0 ? extrasTotal : 0
+                });
             }
+
+            return comensales;
         }
 
-        comensales.push({
-            id: i,
-            nombre,
-            user_id,
-            productos,
-            precio_final: comensalTotal,
-            extras_total: i === 0 ? extrasTotal : 0 // Include extras total for clarity
-        });
-    }
-
-    return comensales;
-}
     </script>
 
 </body>

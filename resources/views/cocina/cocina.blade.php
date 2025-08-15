@@ -1214,559 +1214,559 @@
 
 
     <style>
-    .content-body {
-        display: flex;
-        gap: 20px;
-    }
-
-    .sidebar-calendar {
-        width: 280px;
-        background: white;
-        border-radius: 8px;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        position: sticky;
-        top: 20px;
-        align-self: flex-start;
-        margin-bottom: 20px;
-    }
-
-    .calendar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .calendar-header button {
-        background: #2c5aa0;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        width: 30px;
-        height: 30px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    #current-month {
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-    .weekdays {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 10px;
-        font-size: 12px;
-    }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
-    }
-
-    .calendar-day {
-        aspect-ratio: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        cursor: pointer;
-        position: relative;
-        font-size: 14px;
-    }
-
-    .calendar-day:hover {
-        background-color: #f0f0f0;
-    }
-
-    .calendar-day.today {
-        background-color: #2c5aa0;
-        color: white;
-    }
-
-    .calendar-day.selected {
-        background-color: #4a90e2;
-        color: white;
-    }
-
-    .calendar-day.has-orders::after {
-        content: '';
-        position: absolute;
-        bottom: 2px;
-        width: 4px;
-        height: 4px;
-        background-color: #e74c3c;
-        border-radius: 50%;
-    }
-
-    .calendar-day.other-month {
-        color: #ccc;
-    }
-
-    .calendar-footer {
-        margin-top: 15px;
-        text-align: center;
-    }
-
-    #today-btn {
-        background: #2c5aa0;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 5px 15px;
-        cursor: pointer;
-    }
-
-    .dashboard {
-        flex-grow: 1;
-    }
-
-    @media (max-width: 992px) {
         .content-body {
-            flex-direction: column;
+            display: flex;
+            gap: 20px;
         }
 
         .sidebar-calendar {
-            width: 100%;
+            width: 280px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
             margin-bottom: 20px;
-            position: static;
-        }
-    }
-
-
-    /* Estilos personalizados para la carta */
-    .dashboard {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-
-
-    .date {
-        font-size: 18px;
-        margin-bottom: 20px;
-    }
-
-    .section {
-        margin-bottom: 30px;
-    }
-
-    .section-header {
-        background-color: #2c5aa0;
-        color: white;
-        padding: 10px 20px;
-        font-weight: bold;
-        margin-bottom: 15px;
-        display: inline-block;
-        min-width: 200px;
-        text-align: center;
-    }
-
-    .cards-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-        min-height: 200px;
-        padding: 10px;
-        border: 2px dashed #ddd;
-        border-radius: 8px;
-        background-color: #fafafa;
-    }
-
-    .card {
-        background-color: white;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        padding: 15px;
-        transition: all 0.3s ease;
-        position: relative;
-        min-height: 120px;
-    }
-
-    .card:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
-
-    .card.dragging {
-        opacity: 0.5;
-        transform: rotate(5deg);
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .order-number {
-        background-color: #666;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-    }
-
-    .entry-time,
-    .exit-time {
-        font-weight: bold;
-        font-size: 12px;
-        color: #2c5aa0;
-    }
-
-    .time {
-        font-weight: bold;
-        color: #2c5aa0;
-    }
-
-    .customer-name {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .dish-name {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 10px;
-    }
-
-    .status-indicators {
-        display: flex;
-        gap: 5px;
-    }
-
-    .status-green {
-        background-color: #2ecc71;
-    }
-
-    .order-number {
-        background-color: #fff;
-        color: #333;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: bold;
-    }
-
-    .order-items {
-        margin-bottom: 12px;
-    }
-
-    .order-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-        font-size: 13px;
-    }
-
-    .item-image {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        margin-right: 8px;
-        border-radius: 4px;
-        overflow: hidden;
-        background-color: #f5f5f5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .item-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .item-image-placeholder {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        margin-right: 8px;
-        border-radius: 4px;
-        background-color: #f0f0f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #999;
-    }
-
-    .item-name {
-        flex-grow: 1;
-        font-weight: bold;
-    }
-
-    .status-buttons {
-        display: flex;
-        gap: 5px;
-    }
-
-
-    .status-blue {
-        background-color: #4a90e2;
-    }
-
-    .status-red {
-        background-color: #e74c3c;
-    }
-
-    .customer-comment {
-        margin-top: 10px;
-        padding-top: 8px;
-        border-top: 1px solid #eee;
-        font-size: 12px;
-    }
-
-    .comment-label {
-        font-weight: bold;
-        margin-bottom: 4px;
-    }
-
-    .comment-text {
-        color: #666;
-        font-style: italic;
-    }
-
-    .location-info {
-        position: absolute;
-        bottom: 8px;
-        right: 8px;
-        font-size: 11px;
-        color: #666;
-        font-weight: bold;
-    }
-
-    /* Animation for new orders */
-    .card.new-order {
-        animation: highlight 2s ease-in-out;
-    }
-
-    @keyframes highlight {
-        0% {
-            box-shadow: 0 0 0 0 rgba(44, 90, 160, 0.7);
         }
 
-        50% {
-            box-shadow: 0 0 0 10px rgba(44, 90, 160, 0);
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        100% {
-            box-shadow: 0 0 0 0 rgba(44, 90, 160, 0);
+        .calendar-header button {
+            background: #2c5aa0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
         }
-    }
+
+        #current-month {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .calendar-day:hover {
+            background-color: #f0f0f0;
+        }
+
+        .calendar-day.today {
+            background-color: #2c5aa0;
+            color: white;
+        }
+
+        .calendar-day.selected {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .calendar-day.has-orders::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 4px;
+            height: 4px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+        }
+
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+
+        .calendar-footer {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        #today-btn {
+            background: #2c5aa0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+
+        .dashboard {
+            flex-grow: 1;
+        }
+
+        @media (max-width: 992px) {
+            .content-body {
+                flex-direction: column;
+            }
+
+            .sidebar-calendar {
+                width: 100%;
+                margin-bottom: 20px;
+                position: static;
+            }
+        }
+
+
+        /* Estilos personalizados para la carta */
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
 
 
-    .status-dot {
-        width: 20px;
-        height: 20px;
-        border-radius: 3px;
-    }
-
-    .status-blue {
-        background-color: #4a90e2;
-    }
-
-    .status-red {
-        background-color: #e74c3c;
-    }
-
-    .drag-handle {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        cursor: grab;
-        color: #999;
-        font-size: 18px;
-    }
-
-    .drag-handle:active {
-        cursor: grabbing;
-    }
-
-    .cards-container.drag-over {
-        border-color: #2c5aa0;
-        background-color: #e8f0fe;
-    }
-
-    .empty-slot {
-        border: 2px dashed #ccc;
-        background-color: #f9f9f9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #999;
-        font-style: italic;
-        min-height: 120px;
-    }
-
-    .sidebar {
-        position: fixed;
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: white;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 15px;
-        width: 200px;
-    }
-
-    .calendar {
-        text-align: center;
-    }
-
-    .calendar-header {
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 2px;
-        font-size: 12px;
-    }
-
-    .calendar-day {
-        padding: 5px;
-        text-align: center;
-    }
-
-    .calendar-day.today {
-        background-color: #2c5aa0;
-        color: white;
-        border-radius: 3px;
-    }
-
-    @media (max-width: 768px) {
-        .sidebar {
-            position: static;
-            transform: none;
-            width: 100%;
+        .date {
+            font-size: 18px;
             margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: inline-block;
+            min-width: 200px;
+            text-align: center;
         }
 
         .cards-container {
-            grid-template-columns: 1fr;
-        }
-    }
-
-
-    .item-updated {
-        animation: item-flash 1s ease;
-    }
-
-    @keyframes item-flash {
-
-        0%,
-        100% {
-            background-color: transparent;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            min-height: 200px;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
         }
 
-        50% {
-            background-color: rgba(74, 144, 226, 0.2);
-        }
-    }
-
-    .order-completed {
-        animation: complete-flash 1.5s ease;
-    }
-
-    @keyframes complete-flash {
-        0% {
+        .card {
             background-color: white;
-            transform: scale(1);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 120px;
         }
 
-        50% {
-            background-color: #c5e1ff;
-            transform: scale(1.05);
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
-        100% {
+        .card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .order-number {
+            background-color: #666;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .entry-time,
+        .exit-time {
+            font-weight: bold;
+            font-size: 12px;
+            color: #2c5aa0;
+        }
+
+        .time {
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+
+        .customer-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .dish-name {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 5px;
+        }
+
+        .status-green {
+            background-color: #2ecc71;
+        }
+
+        .order-number {
+            background-color: #fff;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .order-items {
+            margin-bottom: 12px;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .item-image {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            margin-right: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-image-placeholder {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            margin-right: 8px;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .item-name {
+            flex-grow: 1;
+            font-weight: bold;
+        }
+
+        .status-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+
+        .status-blue {
             background-color: #4a90e2;
-            transform: scale(0.9);
-            opacity: 0;
-        }
-    }
-
-    /* Make the status buttons more clickable */
-    .status-btn {
-        width: 25px;
-        height: 25px;
-        border-radius: 4px;
-        cursor: pointer;
-        border: 1px solid #ddd;
-        transition: all 0.2s ease;
-        opacity: 0.5;
-    }
-
-    .status-btn:hover {
-        opacity: 1;
-        transform: scale(1.1);
-        box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .status-btn.active {
-        opacity: 1;
-        border: 2px solid #000;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Change animation for rejected orders */
-    .order-completed.rejected {
-        animation: reject-flash 1.5s ease;
-    }
-
-    @keyframes reject-flash {
-        0% {
-            background-color: white;
-            transform: scale(1);
         }
 
-        50% {
-            background-color: #ffcccc;
-            transform: scale(1.05);
-        }
-
-        100% {
+        .status-red {
             background-color: #e74c3c;
-            transform: scale(0.9);
-            opacity: 0;
         }
-    }
 
-    .status-btn.status-blue-unpainted {
-        background-color: #ffffff;
-        border: 1px solid #4a90e2;
-    }
+        .customer-comment {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+        }
 
-    .status-btn.status-red-unpainted {
-        background-color: #ffffff;
-        border: 1px solid #e74c3c;
-    }
+        .comment-label {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
 
-    .status-btn.status-blue.active {
-        background-color: #4a90e2;
-        opacity: 1;
-        border: 2px solid #000;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    }
+        .comment-text {
+            color: #666;
+            font-style: italic;
+        }
 
-    .status-btn.status-red.active {
-        background-color: #e74c3c;
-        opacity: 1;
-        border: 2px solid #000;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    }
+        .location-info {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 11px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        /* Animation for new orders */
+        .card.new-order {
+            animation: highlight 2s ease-in-out;
+        }
+
+        @keyframes highlight {
+            0% {
+                box-shadow: 0 0 0 0 rgba(44, 90, 160, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(44, 90, 160, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(44, 90, 160, 0);
+            }
+        }
+
+
+
+        .status-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .status-blue {
+            background-color: #4a90e2;
+        }
+
+        .status-red {
+            background-color: #e74c3c;
+        }
+
+        .drag-handle {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: grab;
+            color: #999;
+            font-size: 18px;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .cards-container.drag-over {
+            border-color: #2c5aa0;
+            background-color: #e8f0fe;
+        }
+
+        .empty-slot {
+            border: 2px dashed #ccc;
+            background-color: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+            min-height: 120px;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            width: 200px;
+        }
+
+        .calendar {
+            text-align: center;
+        }
+
+        .calendar-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            font-size: 12px;
+        }
+
+        .calendar-day {
+            padding: 5px;
+            text-align: center;
+        }
+
+        .calendar-day.today {
+            background-color: #2c5aa0;
+            color: white;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                transform: none;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        .item-updated {
+            animation: item-flash 1s ease;
+        }
+
+        @keyframes item-flash {
+
+            0%,
+            100% {
+                background-color: transparent;
+            }
+
+            50% {
+                background-color: rgba(74, 144, 226, 0.2);
+            }
+        }
+
+        .order-completed {
+            animation: complete-flash 1.5s ease;
+        }
+
+        @keyframes complete-flash {
+            0% {
+                background-color: white;
+                transform: scale(1);
+            }
+
+            50% {
+                background-color: #c5e1ff;
+                transform: scale(1.05);
+            }
+
+            100% {
+                background-color: #4a90e2;
+                transform: scale(0.9);
+                opacity: 0;
+            }
+        }
+
+        /* Make the status buttons more clickable */
+        .status-btn {
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: all 0.2s ease;
+            opacity: 0.5;
+        }
+
+        .status-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-btn.active {
+            opacity: 1;
+            border: 2px solid #000;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Change animation for rejected orders */
+        .order-completed.rejected {
+            animation: reject-flash 1.5s ease;
+        }
+
+        @keyframes reject-flash {
+            0% {
+                background-color: white;
+                transform: scale(1);
+            }
+
+            50% {
+                background-color: #ffcccc;
+                transform: scale(1.05);
+            }
+
+            100% {
+                background-color: #e74c3c;
+                transform: scale(0.9);
+                opacity: 0;
+            }
+        }
+
+        .status-btn.status-blue-unpainted {
+            background-color: #ffffff;
+            border: 1px solid #4a90e2;
+        }
+
+        .status-btn.status-red-unpainted {
+            background-color: #ffffff;
+            border: 1px solid #e74c3c;
+        }
+
+        .status-btn.status-blue.active {
+            background-color: #4a90e2;
+            opacity: 1;
+            border: 2px solid #000;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-btn.status-red.active {
+            background-color: #e74c3c;
+            opacity: 1;
+            border: 2px solid #000;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
     </style>
 
 </body>

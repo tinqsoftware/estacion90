@@ -75,8 +75,12 @@ public function redirectPath()
                     return '/motorizado/moto';
                 case 4: // CHEF
                     return '/cocina';
+                case 5: // CHEF
+                    return '/banners';
+                case 6: // CHEF
+                    return '/cocina';
                 default:
-                    return '/inicio';
+                    return '/menuSemanal';
             }
         }
         

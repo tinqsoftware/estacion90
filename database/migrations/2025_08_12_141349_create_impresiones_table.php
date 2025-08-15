@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('impresiones', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_pedido');
+            $table->unsignedInteger('id_pedido');
             $table->enum('estado', ['pendiente', 'impreso'])->default('pendiente');
             $table->timestamp('fecha_generacion');
             $table->timestamp('fecha_impresion')->nullable();
