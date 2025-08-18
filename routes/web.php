@@ -16,13 +16,13 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Inicio;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PlaneacionMenuController;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DespachoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\OrdenController;
 use App\Http\Controllers\QzController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -37,6 +37,10 @@ Route::get('/', function () {
                 return redirect('/motorizado/moto');
             case 4: // CHEF
                 return redirect('/cocina');
+            case 5: // MARKETING
+                return redirect('/banners');
+            case 6: // IMPRESION
+                return redirect('/impresiones');
             default:
                 return redirect('/inicio');
         }
@@ -131,10 +135,10 @@ Route::middleware(['auth'])->group(function () {
 
     //verificar si tiene sesión abierta con ajax
     Route::get('/check-auth', function () {
-    return response()->json([
-            'auth' => auth()->check(),
-            'user' => auth()->user(),
-            'direccion' => auth()->user()?->direccion
+        return response()->json([
+            'auth' => Auth::check(),
+            'user' => Auth::user(),
+            'direccion' => Auth::user()?->direccion,
         ]);
     })->middleware('auth');
 
@@ -207,6 +211,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/despacho/pedido/en-camino', [DespachoController::class, 'marcarPedidoEnCamino'])->name('despacho.en-camino');
     Route::get('/despacho/estado-pedidos', [DespachoController::class, 'obtenerEstadoPedidos'])->name('despacho.estado-pedidos');
     Route::get('/despacho/pedido/imprimir/{id}', [DespachoController::class, 'imprimirPedido'])->name('despacho.imprimir');
+
+    // Panel de Impresiones (rol 6)
+    Route::get('/impresiones', [DespachoController::class, 'vistaImpresiones'])->name('impresiones.panel');
+    Route::get('/api/impresiones/pendientes', [DespachoController::class, 'obtenerImpresionesPendientes'])->name('impresiones.pendientes');
+    Route::post('/api/impresiones/{id}/marcar-impresa', [DespachoController::class, 'marcarImpresionComoImpresa'])->name('impresiones.marcar');
+    Route::get('/impresiones/{id}/preview', [DespachoController::class, 'previewImpresion'])->name('impresiones.preview');
 
     // QZ Tray security endpoints
     Route::get('/qz/certificate', [QzController::class, 'certificate'])->name('qz.certificate');

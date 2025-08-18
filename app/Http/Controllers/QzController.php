@@ -35,6 +35,14 @@ class QzController extends Controller
     {
         $keyPath = env('QZ_PRIVATE_KEY_PATH') ?: storage_path('app/qz/private-key.pem');
         $keyPass = env('QZ_PRIVATE_KEY_PASSWORD'); // optional
+        $algoHeader = $request->header('X-QZ-ALGO');
+        $algoEnv = env('QZ_SIGN_ALGO', 'SHA256');
+        $algoName = strtoupper($algoHeader ?: $algoEnv);
+        // Map algorithm name to OpenSSL constant
+        $algoConst = match ($algoName) {
+            'SHA512', 'SHA-512' => defined('OPENSSL_ALGO_SHA512') ? OPENSSL_ALGO_SHA512 : OPENSSL_ALGO_SHA256,
+            default => OPENSSL_ALGO_SHA256,
+        };
 
         if (!file_exists($keyPath) || !is_readable($keyPath)) {
             Log::error('[QZ] Private key missing/unreadable', [
@@ -69,12 +77,12 @@ class QzController extends Controller
         }
 
         $signature = '';
-        $ok = openssl_sign($payload, $signature, $privateKey, OPENSSL_ALGO_SHA256);
+        $ok = openssl_sign($payload, $signature, $privateKey, $algoConst);
         openssl_free_key($privateKey);
 
         if (!$ok) {
             $err = function_exists('openssl_error_string') ? openssl_error_string() : null;
-            Log::error('[QZ] Failed to sign payload', [ 'payload_prefix' => substr($payload, 0, 64), 'openssl_error' => $err ]);
+            Log::error('[QZ] Failed to sign payload', [ 'payload_prefix' => substr($payload, 0, 64), 'algo' => $algoName, 'openssl_error' => $err ]);
             return response('Failed to sign payload', 500)->header('Content-Type', 'text/plain');
         }
 

@@ -11,10 +11,10 @@
 
 <div id="main-header">
     <div class="nav-header">
-        <a href="index.html" class="brand-logo">
+    <a href="/" class="brand-logo">
             <div class="logo-abbr" width="39" height="31" viewBox="0 0 39 31" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
-                <img src="access/images/logo_white.png" style="height: 50px;" alt="" />
+        <img src="{{ asset('access/images/logo_white.png') }}" style="height: 50px;" alt="Logo" />
             </div>
         </a>
         <div class="nav-control">
@@ -44,7 +44,7 @@
                                     <a class="nav-link " href="javascript:void(0);" role="button" data-bs-toggle="dropdown">
                                         <div class="header-info2 d-flex align-items-center">
                                             @if(Auth::user())
-                                            <img src="access/images/banner-img/user.png" alt="">
+                                            <img src="{{ asset('access/images/banner-img/user.png') }}" alt="Usuario">
                                             @endif
                                             <div class="d-flex align-items-center sidebar-info">
                                                 <div>
