@@ -122,47 +122,62 @@
             // Certificado
             qz.security.setCertificatePromise(function() {
                 log('🔐 Obteniendo certificado personalizado desde servidor...');
-                return fetch('/qz/certificate', { 
-                    credentials: 'same-origin',
-                    headers: { 'Accept': 'text/plain' }
-                })
-                .then(async resp => {
-                    if (!resp.ok) {
-                        const body = await resp.text().catch(() => '');
-                        throw new Error(`HTTP ${resp.status}: ${resp.statusText} ${body ? '- ' + body : ''}`);
-                    }
-                    const cert = await resp.text();
-                    log('✅ Certificado personalizado obtenido (estacion90-qz)', 'success');
-                    return cert;
-                });
+                // qz-tray espera que devolvamos una función (resolver) y NO una Promise directa
+                return function(resolve, reject) {
+                    fetch('/qz/certificate', {
+                        credentials: 'same-origin',
+                        headers: { 'Accept': 'text/plain' }
+                    })
+                    .then(async resp => {
+                        if (!resp.ok) {
+                            const body = await resp.text().catch(() => '');
+                            throw new Error(`HTTP ${resp.status}: ${resp.statusText} ${body ? '- ' + body : ''}`);
+                        }
+                        return resp.text();
+                    })
+                    .then(cert => {
+                        log('✅ Certificado personalizado obtenido (estacion90-qz)', 'success');
+                        resolve(cert);
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+                };
             });
             // Firma
-                qz.security.setSignaturePromise(function(toSign) {
+            qz.security.setSignaturePromise(function(toSign) {
                 log('✍️ Firmando request con clave privada...');
-                // IMPORTANTE: enviar el string EXACTO que QZ entrega, sin JSON.stringify ni alteraciones
-                return fetch('/qz/sign', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                // Devolver función (resolve, reject) según API de qz-tray
+                return function(resolve, reject) {
+                    fetch('/qz/sign', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'text/plain',
                             'X-QZ-ALGO': qzSigningAlgorithm
-                    },
-                    credentials: 'same-origin',
-                    cache: 'no-store',
-                    body: (typeof toSign === 'string' ? toSign : String(toSign))
-                })
-                .then(async resp => {
-                    if (!resp.ok) {
-                        const body = await resp.text().catch(() => '');
-                        throw new Error(`HTTP ${resp.status}: ${resp.statusText} ${body ? '- ' + body : ''}`);
-                    }
-                    const sig = await resp.text();
-                    if (!sig || !sig.trim()) {
-                        throw new Error('Firma vacía desde /qz/sign');
-                    }
-                    return sig.trim();
-                });
+                        },
+                        credentials: 'same-origin',
+                        cache: 'no-store',
+                        body: (typeof toSign === 'string' ? toSign : String(toSign))
+                    })
+                    .then(async resp => {
+                        if (!resp.ok) {
+                            const body = await resp.text().catch(() => '');
+                            throw new Error(`HTTP ${resp.status}: ${resp.statusText} ${body ? '- ' + body : ''}`);
+                        }
+                        return resp.text();
+                    })
+                    .then(sig => {
+                        if (!sig || !sig.trim()) {
+                            throw new Error('Firma vacía desde /qz/sign');
+                        }
+                        resolve(sig.trim());
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+                };
             });
             qzSecurityConfigured = true;
             log('🔧 QZ Security configurado con certificado + firma');
@@ -285,7 +300,9 @@
                 }
                 
                 // Reconfigurar security
-                qz.security.setCertificatePromise(() => Promise.resolve(cert));
+                qz.security.setCertificatePromise(function() {
+                    return function(resolve) { resolve(cert); };
+                });
                 log('🔐 Security reconfigurado con certificado personalizado', 'success');
                 
                 // Test de conexión segura
