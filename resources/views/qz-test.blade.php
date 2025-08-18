@@ -98,13 +98,23 @@
         
         // Configurar QZ Security (reutilizable para carga normal o fallback)
         let qzSecurityConfigured = false;
+        let qzSigningAlgorithm = 'SHA512'; // usar SHA512 por compatibilidad; haremos fallback a SHA256 si falla
+        function setSigningAlgorithm(algo) {
+            try {
+                qzSigningAlgorithm = algo;
+                qz.security.setSignatureAlgorithm(algo);
+                log('🔐 Algoritmo de firma activo: ' + algo);
+            } catch (e) {
+                log('⚠️ No se pudo fijar algoritmo ' + algo + ': ' + e.message, 'warning');
+            }
+        }
         function configureQzSecurity() {
             if (!window.qz || !qz.security) {
                 log('❌ QZ no disponible para configurar seguridad', 'error');
                 return;
             }
-            // Asegurar algoritmo de firma consistente con el servidor
-            try { qz.security.setSignatureAlgorithm('SHA256'); } catch (e) { log('⚠️ No se pudo fijar algoritmo SHA256: ' + e.message, 'warning'); }
+            // Asegurar algoritmo de firma consistente con el servidor (por defecto SHA512)
+            setSigningAlgorithm(qzSigningAlgorithm);
             // Certificado
             qz.security.setCertificatePromise(function() {
                 log('🔐 Obteniendo certificado personalizado desde servidor...');
@@ -123,24 +133,31 @@
                 });
             });
             // Firma
-            qz.security.setSignaturePromise(function(toSign) {
+                qz.security.setSignaturePromise(function(toSign) {
                 log('✍️ Firmando request con clave privada...');
+                // IMPORTANTE: enviar el string EXACTO que QZ entrega, sin JSON.stringify ni alteraciones
                 return fetch('/qz/sign', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'text/plain'
+                            'Accept': 'text/plain',
+                            'X-QZ-ALGO': qzSigningAlgorithm
                     },
                     credentials: 'same-origin',
-                    body: (typeof toSign === 'string' ? toSign : JSON.stringify(toSign))
+                    cache: 'no-store',
+                    body: (typeof toSign === 'string' ? toSign : String(toSign))
                 })
                 .then(async resp => {
                     if (!resp.ok) {
                         const body = await resp.text().catch(() => '');
                         throw new Error(`HTTP ${resp.status}: ${resp.statusText} ${body ? '- ' + body : ''}`);
                     }
-                    return resp.text();
+                    const sig = await resp.text();
+                    if (!sig || !sig.trim()) {
+                        throw new Error('Firma vacía desde /qz/sign');
+                    }
+                    return sig.trim();
                 });
             });
             qzSecurityConfigured = true;
@@ -320,7 +337,26 @@
                 }
                 
                 log('Buscando impresoras...');
-                const printers = await qz.printers.find();
+                let printers;
+                try {
+                    printers = await qz.printers.find();
+                } catch (err) {
+                    // Si falla la firma, intentamos con algoritmo alternativo
+                    const msg = (err && err.message) ? err.message : String(err);
+                    if (msg.toLowerCase().includes('failed to sign') || msg.toLowerCase().includes('sign')) {
+                        const alt = qzSigningAlgorithm === 'SHA512' ? 'SHA256' : 'SHA512';
+                        log(`⚠️ Falla de firma con ${qzSigningAlgorithm}. Probando algoritmo alternativo: ${alt}`, 'warning');
+                        setSigningAlgorithm(alt);
+                        // reconectar no debería ser necesario, pero por si acaso
+                        if (qz.websocket.isActive()) {
+                            await qz.websocket.disconnect();
+                            await qz.websocket.connect();
+                        }
+                        printers = await qz.printers.find();
+                    } else {
+                        throw err;
+                    }
+                }
                 const defaultPrinter = await qz.printers.getDefault();
                 
                 log(`Encontradas ${printers.length} impresoras:`, 'success');
@@ -335,6 +371,7 @@
                 
             } catch (error) {
                 log(`Error listando impresoras: ${error.message}`, 'error');
+                log('Sugerencia: Verifica que el algoritmo del servidor coincida (SHA512/SHA256) y que /qz/sign firme el string exacto.', 'info');
             }
         }
         
