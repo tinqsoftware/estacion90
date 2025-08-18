@@ -98,12 +98,16 @@
         
         // Configurar QZ Security (reutilizable para carga normal o fallback)
         let qzSecurityConfigured = false;
-        let qzSigningAlgorithm = 'SHA512'; // usar SHA512 por compatibilidad; haremos fallback a SHA256 si falla
+        let qzSigningAlgorithm = 'SHA256'; // valor estable por defecto; compatible con la mayoría de builds
         function setSigningAlgorithm(algo) {
             try {
                 qzSigningAlgorithm = algo;
-                qz.security.setSignatureAlgorithm(algo);
-                log('🔐 Algoritmo de firma activo: ' + algo);
+                if (window.qz && qz.security && typeof qz.security.setSignatureAlgorithm === 'function') {
+                    qz.security.setSignatureAlgorithm(algo);
+                    log('🔐 Algoritmo de firma activo: ' + algo);
+                } else {
+                    log('ℹ️ qz.security.setSignatureAlgorithm no disponible en esta versión; usando valor por defecto interno', 'info');
+                }
             } catch (e) {
                 log('⚠️ No se pudo fijar algoritmo ' + algo + ': ' + e.message, 'warning');
             }
@@ -113,7 +117,7 @@
                 log('❌ QZ no disponible para configurar seguridad', 'error');
                 return;
             }
-            // Asegurar algoritmo de firma consistente con el servidor (por defecto SHA512)
+            // Asegurar algoritmo de firma consistente con el servidor (por defecto SHA256)
             setSigningAlgorithm(qzSigningAlgorithm);
             // Certificado
             qz.security.setCertificatePromise(function() {
@@ -341,13 +345,11 @@
                 try {
                     printers = await qz.printers.find();
                 } catch (err) {
-                    // Si falla la firma, intentamos con algoritmo alternativo
-                    const msg = (err && err.message) ? err.message : String(err);
-                    if (msg.toLowerCase().includes('failed to sign') || msg.toLowerCase().includes('sign')) {
-                        const alt = qzSigningAlgorithm === 'SHA512' ? 'SHA256' : 'SHA512';
-                        log(`⚠️ Falla de firma con ${qzSigningAlgorithm}. Probando algoritmo alternativo: ${alt}`, 'warning');
-                        setSigningAlgorithm(alt);
-                        // reconectar no debería ser necesario, pero por si acaso
+                    const msg = (err && err.message) ? err.message.toLowerCase() : String(err).toLowerCase();
+                    if (msg.includes('failed to sign') || msg.includes('sign')) {
+                        // Forzar SHA256 en cliente y servidor y reintentar una vez
+                        log('⚠️ Falla de firma. Forzando SHA256 extremo a extremo y reintentando...', 'warning');
+                        setSigningAlgorithm('SHA256');
                         if (qz.websocket.isActive()) {
                             await qz.websocket.disconnect();
                             await qz.websocket.connect();
