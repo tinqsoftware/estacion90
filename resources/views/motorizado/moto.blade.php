@@ -287,15 +287,16 @@
 
                 <!-- Orders counter -->
                 <div class="orders-counter">
-                    {{ count($pedidos) }} PEDIDOS ASIGNADOS
+                    <span id="orders-count">{{ count($pedidos) }}</span> PEDIDOS ASIGNADOS
                 </div>
 
                 <div class="row">
                     <!-- Order Cards Section -->
                     <div class="col-lg-6 order-2 order-lg-1">
+                        <div id="orders-container">
                         @if(count($pedidos) > 0)
                         @foreach($pedidos as $pedido)
-                        <div class="order-card {{ $loop->first ? 'active' : '' }}">
+                        <div class="order-card {{ $loop->first ? 'active' : '' }}" data-pedido-id="{{ $pedido['id'] }}">
                             <div class="order-status-flag">{{ $pedido['estado'] == 4 ? 'ASIGNADO' : 'EN CAMINO' }}</div>
                             <div class="order-header">
                                 <div class="order-title">PEDIDO #{{ $pedido['id'] }} - {{ $pedido['fecha'] }}</div>
@@ -392,8 +393,9 @@
                         </div>
                         @endforeach
                         @else
-                        <div class="alert alert-info">No tienes pedidos asignados actualmente</div>
+                        <div class="alert alert-info no-orders">No tienes pedidos asignados actualmente</div>
                         @endif
+                        </div>
                     </div>
 
                     <!-- Map Section -->
@@ -438,6 +440,9 @@
     <script src="{{ asset('access/js/custom.js') }}"></script>
     <script src="{{ asset('access/js/demo.js') }}"></script>
 
+    <!-- Datos iniciales de pedidos para JS -->
+    <script id="pedidos-data" type="application/json">@json($pedidos)</script>
+
     <script>
     $(document).ready(function() {
         // Variables para control de actualización
@@ -446,8 +451,131 @@
         let mapInitialized = false;
         let map, markers = [];
 
+        // Estado actual en el cliente
+        let currentPedidos = [];
+        try {
+            const dataEl = document.getElementById('pedidos-data');
+            if (dataEl) {
+                currentPedidos = JSON.parse(dataEl.textContent) || [];
+            }
+        } catch (e) {
+            currentPedidos = [];
+        }
+        let existingOrderIds = new Set(currentPedidos.map(p => p.id));
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderPedidoCard(pedido) {
+            const estadoTexto = (Number(pedido.estado) === 4) ? 'ASIGNADO' : 'EN CAMINO';
+            const isAsignado = Number(pedido.estado) === 4;
+
+            const comensalesHtml = (pedido.comensales || []).map(c => {
+                const itemsHtml = (c.items || []).map(it => `
+                    <div class="order-item">- ${escapeHtml(it.nombre)} (S/ ${Number(it.precio).toFixed(2)})</div>
+                `).join('');
+                return `
+                    <div class="person-order">
+                        <div class="person-name">${escapeHtml(c.nombre)}: (S/ ${Number(c.total).toFixed(2)})</div>
+                        ${itemsHtml}
+                    </div>
+                `;
+            }).join('');
+
+            const referenciaHtml = pedido.referencia ? `<div>${escapeHtml(pedido.referencia)}</div>` : '';
+            const vueltoHtml = pedido.vuelto ? `
+                <div class="payment-row">
+                    <div>Vuelto de:</div>
+                    <div><strong>${escapeHtml(pedido.vuelto)} soles</strong></div>
+                </div>` : '';
+            const tipoCompHtml = pedido.tipo_comprobante ? `
+                <div class="payment-row">
+                    <div>Tipo:</div>
+                    <div><strong>${escapeHtml(pedido.tipo_comprobante)}</strong></div>
+                </div>` : '';
+            const docHtml = pedido.documento ? `
+                <div class="payment-row">
+                    <div>Nº documento:</div>
+                    <div><strong>${escapeHtml(pedido.documento)}</strong></div>
+                </div>` : '';
+            const comentarioHtml = pedido.comentarios ? `
+                <div class="customer-section">
+                    <div style="margin-bottom: 5px;">Comentario cliente</div>
+                    <div>${escapeHtml(pedido.comentarios)}</div>
+                </div>` : '';
+
+            const wazeHref = `https://waze.com/ul?ll=${pedido.lat},${pedido.lon}&navigate=yes`;
+            const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${pedido.lat},${pedido.lon}`;
+
+            return `
+            <div class="order-card" data-pedido-id="${pedido.id}">
+                <div class="order-status-flag">${estadoTexto}</div>
+                <div class="order-header">
+                    <div class="order-title">PEDIDO #${pedido.id} - ${escapeHtml(pedido.fecha)}</div>
+                    <div class="order-time-container">
+                        <div class="order-time">Hora pedido: <strong>${escapeHtml(pedido.hora_pedido)}</strong></div>
+                        <div class="order-time-delivery">Hora entrega aprox: <strong>${escapeHtml(pedido.hora_entrega)}</strong></div>
+                    </div>
+                </div>
+                <div class="order-body">
+                    <div class="order-left-column">
+                        <div>${comensalesHtml}</div>
+                        <div class="order-totals">
+                            <div>Delivery: S/ 1.00</div>
+                            <div class="order-total">TOTAL: S/ ${Number(pedido.monto_total).toFixed(2)}</div>
+                        </div>
+                        <div class="action-buttons">
+                            <a href="${wazeHref}" target="_blank" class="action-button btn-waze">IR WAZE</a>
+                            <a href="${mapsHref}" target="_blank" class="action-button btn-map">IR MAPS</a>
+                        </div>
+                        <div class="action-buttons">
+                            ${isAsignado
+                                ? `<a href="#" class="action-button btn-status" data-id="${pedido.id}">MARCAR EN CAMINO</a>`
+                                : `<a href="#" class="action-button btn-status" data-id="${pedido.id}" style="background-color: #4caf50;">FINALIZAR ENTREGA</a>`}
+                        </div>
+                    </div>
+                    <div class="order-right-column">
+                        <div class="customer-section">
+                            <div class="customer-header">
+                                <div class="customer-name">${escapeHtml(pedido.nombre_contacto || '')}</div>
+                                <div>TEL: ${escapeHtml(pedido.telefono_contacto || '')}</div>
+                            </div>
+                            <div>${escapeHtml(pedido.direccion || '')}</div>
+                            ${referenciaHtml}
+                            <div>${escapeHtml(pedido.distrito || '')}</div>
+                        </div>
+                        <div class="payment-section">
+                            <div class="payment-row">
+                                <div>Método pago:</div>
+                                <div><strong>${escapeHtml(pedido.metodo_pago || '')}</strong></div>
+                            </div>
+                            ${vueltoHtml}
+                            <div class="payment-row">
+                                <div>Comprobante pago:</div>
+                                <div><strong>${escapeHtml(pedido.comprobante || '')}</strong></div>
+                            </div>
+                            ${tipoCompHtml}
+                            ${docHtml}
+                        </div>
+                        ${comentarioHtml}
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function updateOrdersCounter() {
+            $('#orders-count').text($('.order-card').length);
+        }
+
         // Inicializar mapa
-        function initializeMap() {
+    function initializeMap() {
             // Crear mapa solo si no está ya inicializado
             if (!mapInitialized) {
                 map = L.map('map').setView([-12.0464, -77.0428], 12); // Lima coordinates
@@ -465,8 +593,8 @@
             markers.forEach(marker => map.removeLayer(marker));
             markers = [];
 
-            // Añadir marcadores para cada pedido
-            const pedidos = @json($pedidos);
+            // Añadir marcadores para cada pedido actual en el cliente
+            const pedidos = currentPedidos || [];
             let bounds = [];
 
             if (pedidos.length > 0) {
@@ -498,7 +626,7 @@
         // Inicializar mapa al cargar la página
         initializeMap();
 
-        // Función para verificar nuevos pedidos o cambios
+    // Función para verificar nuevos pedidos o cambios
         function verificarActualizaciones() {
             if (actualizacionEnProceso) return;
 
@@ -514,10 +642,36 @@
                 success: function(response) {
                     ultimaActualizacion = response.ultima_actualizacion;
 
-                    if (response.pedidos.length > 0) {
-                        // Hay nuevos pedidos o cambios - recargar la página
-                        // Opcionalmente podríamos actualizar solo la sección de pedidos
-                        location.reload();
+                    if (response.pedidos && response.pedidos.length > 0) {
+                        const $container = $('#orders-container');
+                        // Ocultar mensaje sin pedidos si existe
+                        $container.find('.no-orders').remove();
+
+                        response.pedidos.forEach(p => {
+                            // Si no existe, agregar al final
+                            if (!existingOrderIds.has(p.id)) {
+                                existingOrderIds.add(p.id);
+                                currentPedidos.push(p);
+                                $container.append(renderPedidoCard(p));
+                            } else {
+                                // Si existe, actualizar estado visual mínimo
+                                const $card = $container.find(`.order-card[data-pedido-id="${p.id}"]`);
+                                if ($card.length) {
+                                    if (String(p.estado) === '5') {
+                                        $card.find('.order-status-flag').text('EN CAMINO');
+                                        const $btn = $card.find('.btn-status');
+                                        $btn.text('FINALIZAR ENTREGA').css('background-color', '#4caf50');
+                                    }
+                                }
+                                // Actualizar en currentPedidos
+                                const idx = currentPedidos.findIndex(x => x.id === p.id);
+                                if (idx >= 0) currentPedidos[idx] = p;
+                            }
+                        });
+
+                        // Actualizar contador y mapa
+                        updateOrdersCounter();
+                        initializeMap();
                     }
 
                     actualizacionEnProceso = false;
@@ -677,18 +831,15 @@
                                         function() {
                                             $(this).remove();
 
-                                            // Actualizar el contador de pedidos
-                                            const nuevaCantidad = $(
-                                                '.order-card').length;
-                                            $('.orders-counter').text(
-                                                nuevaCantidad +
-                                                ' PEDIDOS ASIGNADOS');
+                                            // Quitar del estado del cliente
+                                            const idNum = Number(pedidoId);
+                                            currentPedidos = currentPedidos.filter(p => Number(p.id) !== idNum);
+                                            existingOrderIds.delete(idNum);
 
-                                            // Si no quedan pedidos, mostrar mensaje
-                                            if (nuevaCantidad === 0) {
-                                                $('.col-lg-6.order-2').html(
-                                                    '<div class="alert alert-info">No tienes pedidos asignados actualmente</div>'
-                                                );
+                                            // Actualizar el contador de pedidos y mensaje vacío
+                                            updateOrdersCounter();
+                                            if ($('.order-card').length === 0) {
+                                                $('#orders-container').append('<div class="alert alert-info no-orders">No tienes pedidos asignados actualmente</div>');
                                             }
 
                                             // Actualizar el mapa
