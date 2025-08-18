@@ -10,7 +10,7 @@ class QzController extends Controller
     /**
      * Return the QZ certificate public content.
      */
-    public function certificate()
+    public function certificate(Request $request)
     {
         $certPath = env('QZ_CERT_PATH') ?: storage_path('app/qz/public-cert.pem');
 
@@ -25,6 +25,11 @@ class QzController extends Controller
         }
 
         $contents = file_get_contents($certPath);
+        if ($request->boolean('download')) {
+            return response($contents, 200)
+                ->header('Content-Type', 'application/x-pem-file')
+                ->header('Content-Disposition', 'attachment; filename="public-cert.pem"');
+        }
         return response($contents, 200)->header('Content-Type', 'text/plain');
     }
 
