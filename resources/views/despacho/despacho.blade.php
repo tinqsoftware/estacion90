@@ -891,8 +891,7 @@
                     <button class="btn-expand" onclick="toggleDetalles(${pedido.id})">
                         <span id="toggle-icon-${pedido.id}">▼</span> Detalles
                     </button>
-                    <button class="btn-print" onclick="imprimirPedido(${pedido.id})">Imprimir</button>
-                    <button class="btn-print" onclick="imprimirPedidoQZ(${pedido.id})">Imprimir QZ Tray</button>
+                    <button class="btn-print" onclick="imprimirPedidoSegunMetodo(${pedido.id})">Imprimir</button>
                     ${estado === 2 ? `<button class="btn-ready" onclick="marcarPreparado(${pedido.id})">Listo</button>` : ''}
                 </div>
 
@@ -998,6 +997,19 @@
                             showConfirmButton: false,
                             timer: 3000
                         });
+
+                        // Impresión automática según configuración
+                        try {
+                            if (Number(impresionAutomatica) === 1) {
+                                if (metodoImpresion === 'qztray') {
+                                    imprimirPedidoQZ(pedidoId);
+                                } else if (metodoImpresion === 'servicio' && Number(mostrarPdf) === 1) {
+                                    imprimirPedido(pedidoId);
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Auto-impresión falló', e);
+                        }
                     }
                 }
             },
@@ -1305,30 +1317,75 @@
         }
     }
 
+    // Unificar flujo de impresión según configuración
+    function imprimirPedidoSegunMetodo(pedidoId) {
+        if (metodoImpresion === 'qztray') {
+            // No abrir nueva pestaña ni PDF, imprimir directo con QZ
+            imprimirPedidoQZ(pedidoId);
+        } else {
+            // Método servicio: abrir PDF en nueva pestaña
+            imprimirPedido(pedidoId);
+        }
+    }
+
     // =====================
     // QZ Tray Integration
     // =====================
     let qzConnected = false;
     let qzConnecting = false;
+    // Config de método de impresión (se cargará desde Admin); defaults seguros
+    let metodoImpresion = 'qztray'; // 'qztray' | 'servicio'
+    let impresionAutomatica = 0;    // 0 | 1
+    let mostrarPdf = 1;             // 0 | 1
 
-    // Configure QZ security (certificate, signature) from backend endpoints
+    // Cargar configuración de impresión del Admin
+    function cargarConfigImpresion() {
+        $.getJSON("{{ route('admin.configuracion.obtenerImpresiones') }}")
+            .done(function(cfg) {
+                if (cfg && typeof cfg === 'object') {
+                    if (cfg.metodo_impresion) metodoImpresion = String(cfg.metodo_impresion);
+                    if (typeof cfg.impresion_automatica !== 'undefined') impresionAutomatica = Number(cfg.impresion_automatica);
+                    if (typeof cfg.mostrar_pdf !== 'undefined') mostrarPdf = Number(cfg.mostrar_pdf);
+                    console.log('Config impresión:', { metodoImpresion, impresionAutomatica, mostrarPdf });
+                }
+            })
+            .fail(function(err) {
+                console.warn('No se pudo cargar configuración de impresión', err);
+            });
+    }
+
+    // Configure QZ security (certificate, signature) from backend endpoints (resolver functions)
     (function configureQzSecurity(){
         if (!window.qz || !qz.security) return;
         try {
             qz.security.setCertificatePromise(function() {
-                return fetch("{{ route('qz.certificate') }}", { credentials: 'same-origin' })
-                    .then(function(resp){ if(!resp.ok) throw new Error('No se pudo obtener el certificado QZ'); return resp.text(); });
+                return function(resolve, reject) {
+                    fetch("{{ route('qz.certificate') }}", {
+                        credentials: 'same-origin',
+                        headers: { 'Accept': 'text/plain' }
+                    })
+                    .then(function(resp){ if(!resp.ok) throw new Error('No se pudo obtener el certificado QZ'); return resp.text(); })
+                    .then(function(cert){ resolve(cert); })
+                    .catch(function(err){ reject(err); });
+                };
             });
             qz.security.setSignaturePromise(function(toSign) {
-                return fetch("{{ route('qz.sign') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                    },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({ request: toSign })
-                }).then(function(resp){ if(!resp.ok) throw new Error('No se pudo firmar la solicitud QZ'); return resp.text(); });
+                return function(resolve, reject) {
+                    fetch("{{ route('qz.sign') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain',
+                            'Accept': 'text/plain',
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        },
+                        credentials: 'same-origin',
+                        cache: 'no-store',
+                        body: (typeof toSign === 'string' ? toSign : String(toSign))
+                    })
+                    .then(function(resp){ if(!resp.ok) throw new Error('No se pudo firmar la solicitud QZ'); return resp.text(); })
+                    .then(function(sig){ resolve((sig || '').trim()); })
+                    .catch(function(err){ reject(err); });
+                };
             });
         } catch (e) {
             console.warn('QZ security setup failed', e);
@@ -1379,15 +1436,14 @@
             .catch(function(err){
                 console.warn('Fallo QZ con certificados, intentando modo inseguro...', err);
                 
-                // Intentar modo inseguro como fallback
+                // Intentar modo inseguro como fallback (sin abrir PDF)
                 tryInsecureQzPrint(pedidoId)
                     .then(function() {
                         Swal.fire({ title: 'Impresión enviada (modo inseguro)', icon: 'warning', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
                     })
                     .catch(function(err2) {
-                        console.warn('Fallo QZ completamente, usando navegador', err2);
-                        Swal.fire({ title: 'QZ no disponible', text: 'Usando impresión del navegador', icon: 'info', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
-                        imprimirPedido(pedidoId);
+                        console.warn('Fallo QZ completamente', err2);
+                        Swal.fire({ title: 'QZ no disponible', text: 'Verifique QZ Tray y certificados', icon: 'error', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
                     });
             });
     }
@@ -1426,6 +1482,8 @@
 
     // Inicialización del documento
     $(document).ready(function() {
+    // Cargar configuración de impresión
+    cargarConfigImpresion();
         // Cargar datos iniciales
         @php
         $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
