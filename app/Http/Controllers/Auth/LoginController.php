@@ -77,8 +77,8 @@ public function redirectPath()
                     return '/cocina';
                 case 5: // CHEF
                     return '/banners';
-                case 6: // CHEF
-                    return '/cocina';
+                case 6: // IMPRESION
+                    return '/impresiones';
                 default:
                     return '/menuSemanal';
             }

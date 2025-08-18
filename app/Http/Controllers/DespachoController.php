@@ -8,6 +8,7 @@ use App\Models\Impresiones;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\HistorialEstadoService;
+use Illuminate\Support\Facades\Auth;
 
 class DespachoController extends Controller
 {
@@ -215,8 +216,8 @@ private function getMotorizadosActivos()
         if ($estadoAnterior !== $nuevoEstado) {
             HistorialEstadoService::registrarCambioEstado($pedido->id, $nuevoEstado);
             
-            // Si el nuevo estado es 3 (Listo para reparto), crear registro de impresión
-            if ($nuevoEstado == 3) {
+            // Si el nuevo estado es 2 (Listo para despacho), crear registro de impresión
+            if ($nuevoEstado == 2) {
                 $this->crearRegistroImpresion($pedido->id);
             }
         }
@@ -295,8 +296,8 @@ public function marcarPedidoEnCamino(Request $request)
     $pedido->save();
     
     // Registrar cambio de estado en el historial solo si cambió
-    if ($estadoAnterior !== '5') {
-        HistorialEstadoService::registrarCambioEstado($pedido->id, '5');
+    if ($estadoAnterior !== 5) {
+        HistorialEstadoService::registrarCambioEstado($pedido->id, 5);
     }
     
     return response()->json([
@@ -345,29 +346,36 @@ public function imprimirPedido($id)
     return view('despacho.imprimir-pedido', compact('pedido'));
 }
 
-/**
- * Crear registro en la tabla de impresiones cuando el pedido pasa a estado 3
- *
- * @param int $pedidoId
- * @return void
- */
-private function crearRegistroImpresion($pedidoId)
-{
-    // Verificar si ya existe un registro para este pedido
-    $impresionExistente = Impresiones::where('id_pedido', $pedidoId)->first();
-    
-    if (!$impresionExistente) {
-        Impresiones::create([
-            'id_pedido' => $pedidoId,
-            'estado' => 'pendiente', // pendiente, impreso
-            'fecha_generacion' => Carbon::now(),
-            'fecha_impresion' => null
-        ]);
+    /**
+     * Crear registro en la tabla de impresiones cuando el pedido pasa a estado 2
+     */
+    private function crearRegistroImpresion($pedidoId)
+    {
+        $impresionExistente = Impresiones::where('id_pedido', $pedidoId)->first();
+        if (!$impresionExistente) {
+            Impresiones::create([
+                'id_pedido' => $pedidoId,
+                'estado' => Impresiones::ESTADO_INGRESADO,
+                'fecha_generacion' => Carbon::now(),
+                'fecha_impresion' => null,
+                'impresora' => null,
+            ]);
+        }
     }
-}
+
+    /**
+     * Vista del panel de impresiones (solo rol 6)
+     */
+    public function vistaImpresiones()
+    {
+        if (!Auth::check() || Auth::user()->id_rol !== 6) {
+            abort(403, 'No autorizado');
+        }
+        return view('users.users_impresion');
+    }
 
 /**
- * Marcar una impresión como realizada
+ * Marcar una impresión como realizada por id_pedido
  *
  * @param int $pedidoId
  * @return void
@@ -375,11 +383,10 @@ private function crearRegistroImpresion($pedidoId)
 private function marcarComoImpreso($pedidoId)
 {
     $impresion = Impresiones::where('id_pedido', $pedidoId)->first();
-    
-    if ($impresion && $impresion->estado === 'pendiente') {
+    if ($impresion && (int) $impresion->estado === Impresiones::ESTADO_INGRESADO) {
         $impresion->update([
-            'estado' => 'impreso',
-            'fecha_impresion' => Carbon::now()
+            'estado' => Impresiones::ESTADO_IMPRESO,
+            'fecha_impresion' => Carbon::now(),
         ]);
     }
 }
@@ -403,13 +410,44 @@ public function obtenerEstadoImpresion($pedidoId)
  */
 public function obtenerImpresionesPendientes()
 {
-    $impresiones = Impresiones::with('pedido')
-        ->where('estado', 'pendiente')
+    $impresiones = Impresiones::with('pedido.distritoContacto')
+        ->where('estado', Impresiones::ESTADO_INGRESADO)
         ->whereDate('fecha_generacion', Carbon::today())
         ->orderBy('fecha_generacion', 'desc')
         ->get();
-    
     return response()->json($impresiones);
+}
+
+/**
+ * Marcar una impresión (por ID de impresiones) como impresa
+ */
+public function marcarImpresionComoImpresa($impresionId)
+{
+    $impresion = Impresiones::with('pedido')->find($impresionId);
+    if (!$impresion) {
+        return response()->json(['success' => false, 'message' => 'Impresión no encontrada'], 404);
+    }
+    if ((int) $impresion->estado === Impresiones::ESTADO_IMPRESO) {
+        return response()->json(['success' => true, 'message' => 'Ya estaba marcada como impresa']);
+    }
+    $impresion->estado = Impresiones::ESTADO_IMPRESO;
+    $impresion->fecha_impresion = Carbon::now();
+    $impresion->save();
+    return response()->json(['success' => true]);
+}
+
+/**
+ * Preview del contenido a imprimir sin marcar como impreso
+ */
+public function previewImpresion($impresionId)
+{
+    $impresion = Impresiones::with('pedido.detalles.producto', 'pedido.detalles.comensal', 'pedido.comensales', 'pedido.tipoPago', 'pedido.comprobantePago', 'pedido.distritoContacto')
+        ->findOrFail($impresionId);
+    if (!$impresion->pedido) {
+        abort(404, 'Pedido asociado no encontrado');
+    }
+    $pedido = $this->formatearPedidoParaImpresion($impresion->pedido);
+    return view('despacho.imprimir-pedido', compact('pedido'));
 }
 
 /**

@@ -135,7 +135,7 @@
                                     <span class="nav-text">Gestión</span>
                                 </a>
                                 <ul aria-expanded="false">
-                                    <li><a href="/impresion">Impresion</a></li>
+                                    <li><a href="/impresiones">Impresion</a></li>
                                 </ul>
                             </li>
                         @endif
