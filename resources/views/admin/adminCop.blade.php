@@ -211,7 +211,32 @@
                                 <div class="alert alert-info mb-3">
                                     <strong>Información:</strong> Configura el comportamiento de las impresiones en el módulo de despacho.
                                 </div>
-                                
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Método de Impresión:</label>
+                                        <select id="selectMetodoImpresion" class="form-select">
+                                            <option value="qztray">QZ Tray (Desktop)</option>
+                                            <option value="servicio">Servicio Directo (Servidor)</option>
+                                        </select>
+                                        <small class="text-muted">Elige cómo se enviarán las impresiones.</small>
+                                    </div>
+                                    <div class="col-md-6" id="qzActions" style="display:none;">
+                                        <label class="form-label">QZ Tray - Certificados</label>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <a class="btn btn-outline-primary" href="{{ route('qz.certificate') }}?download=1">
+                                                <i class="fa fa-download"></i> Descargar Certificado
+                                            </a>
+                                            <a class="btn btn-outline-secondary" href="{{ url('/qz-test') }}" target="_blank">
+                                                <i class="fa fa-vial"></i> Probar QZ Tray
+                                            </a>
+                                            <button type="button" id="btnInstruccionesQZ" class="btn btn-outline-info">
+                                                <i class="fa fa-circle-info"></i> Instrucciones
+                                            </button>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">Importa el certificado en QZ Tray y autoriza el origen.</small>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -635,9 +660,12 @@
                 success: function(response) {
                     var impresionAutomatica = response.impresion_automatica === '1';
                     var mostrarPdf = response.mostrar_pdf === '1';
+                    var metodo = response.metodo_impresion || 'qztray';
                     
                     $('#switchImpresionAutomatica').prop('checked', impresionAutomatica);
                     $('#switchMostrarPdf').prop('checked', mostrarPdf);
+                    $('#selectMetodoImpresion').val(metodo);
+                    toggleQzActions(metodo);
                     
                     // Actualizar labels
                     $('#labelImpresionAutomatica').text(impresionAutomatica ? 'Sí' : 'No');
@@ -660,6 +688,14 @@
                     console.error('Error al cargar configuración de impresiones');
                 }
             });
+        }
+
+        function toggleQzActions(metodo) {
+            if (metodo === 'qztray') {
+                $('#qzActions').slideDown(150);
+            } else {
+                $('#qzActions').slideUp(150);
+            }
         }
 
         // Acciones en tablas
@@ -839,6 +875,49 @@
                         icon: 'error'
                     });
                 }
+            });
+        });
+
+        // Cambiar método de impresión
+        $('#selectMetodoImpresion').on('change', function() {
+            var metodo = $(this).val();
+            $.ajax({
+                url: '{{ route("admin.configuracion.cambiarMetodoImpresion") }}',
+                method: 'POST',
+                data: { metodo_impresion: metodo },
+                success: function(response) {
+                    toggleQzActions(metodo);
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: response.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                },
+                error: function() {
+                    Swal.fire({ title:'Error', text:'No se pudo cambiar el método', icon:'error' });
+                    // revertir
+                    cargarConfiguracionImpresiones();
+                }
+            });
+        });
+
+        // Instrucciones QZ
+        $('#btnInstruccionesQZ').on('click', function() {
+            var qzTestUrl = "{{ url('/qz-test') }}";
+            Swal.fire({
+                title: 'Configurar QZ Tray',
+                html: '<div style="text-align:left">'
+                    + '<ol>'
+                    + '<li>Descarga e instala QZ Tray (Windows/macOS/Linux).</li>'
+                    + '<li>Descarga el certificado y en QZ: Settings → Security → Certificates → Import.</li>'
+                    + '<li>En Security → Allowed Origins, añade tu dominio (p.ej. http://localhost).</li>'
+                    + '<li>Abre la página de prueba y autoriza el origen si te lo pide.</li>'
+                    + '</ol>'
+                    + '<a target="_blank" href="' + qzTestUrl + '">Abrir página de prueba</a>'
+                    + '</div>',
+                icon: 'info'
             });
         });
 
