@@ -9,7 +9,7 @@
             onerror="console.error('No se pudo cargar /js/qz-tray.min.js')"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .status { font-size: 18px; font-weight: bold; margin: 10px 0; }
+        .status { font-size: 16px; font-weight: bold; margin: 10px 0; }
         .success { color: green; }
         .error { color: red; }
         .warning { color: orange; }
@@ -212,16 +212,20 @@
                     log('✅ Conexión establecida exitosamente', 'success');
                 }
                 
+                // CRÍTICO: Reconfigurar seguridad DESPUÉS de conectar
+                log('🔐 Configurando seguridad después de conexión...');
+                configureQzSecurity();
+                
                 updateStatus(`Conectado ✅ (v${qz.version})`, 'success');
                 log(`📊 QZ Tray versión: ${qz.version}`, 'success');
                 log(`🌐 WebSocket activo: ${qz.websocket.isActive()}`, 'success');
                 
-                // Verificar configuración de seguridad (sin usar getters inexistentes)
+                // Verificar configuración de seguridad
                 log('🔐 Verificando configuración de seguridad...');
                 if (qzSecurityConfigured === true) {
                     log('✅ Certificado y Firma configurados', 'success');
                 } else {
-                    log('⚠️ Seguridad no configurada aún (si el script cargó por fallback, se configurará automáticamente)', 'warning');
+                    log('⚠️ Seguridad no configurada aún', 'warning');
                 }
                 
             } catch (error) {
@@ -358,6 +362,16 @@
                 if (!qz.websocket.isActive()) {
                     log('Conectando primero...');
                     await qz.websocket.connect();
+                    // Reconfigurar seguridad después de reconectar
+                    configureQzSecurity();
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Esperar configuración
+                }
+                
+                // Verificar que la seguridad esté configurada
+                if (!qzSecurityConfigured) {
+                    log('🔐 Configurando seguridad antes de listar impresoras...');
+                    configureQzSecurity();
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar configuración
                 }
                 
                 log('Buscando impresoras...');
@@ -373,6 +387,8 @@
                         if (qz.websocket.isActive()) {
                             await qz.websocket.disconnect();
                             await qz.websocket.connect();
+                            configureQzSecurity(); // Reconfigurar después de reconectar
+                            await new Promise(resolve => setTimeout(resolve, 500));
                         }
                         printers = await qz.printers.find();
                     } else {
@@ -475,10 +491,11 @@
             log('🚀 Página de prueba QZ Tray cargada');
             
             // Verificar carga del script QZ
-                if (window.qz) {
+            if (window.qz) {
                 log('✅ QZ Tray script cargado correctamente', 'success');
                 log('📊 QZ versión disponible: ' + (qz.version || 'desconocida'));
                 
+                // NO configurar seguridad aquí - esperar a que se conecte
                 setTimeout(() => {
                     log('🔄 Iniciando auto-test...');
                     testConnection();
@@ -515,12 +532,12 @@
                 
                 const script = document.createElement('script');
                 script.src = cdnUrl;
-        script.onload = function() {
+                script.onload = function() {
                     log(`✅ QZ Script cargado desde CDN ${currentCdn + 1}`, 'success');
                     if (window.qz) {
                         log('✅ QZ Tray ahora disponible', 'success');
-            try { configureQzSecurity(); } catch (e) { log('⚠️ No se pudo configurar seguridad: ' + e.message, 'warning'); }
-            setTimeout(testConnection, 500);
+                        // NO configurar seguridad aquí - esperar a conectar primero
+                        setTimeout(testConnection, 500);
                     }
                 };
                 script.onerror = function() {
