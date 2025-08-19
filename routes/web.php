@@ -224,6 +224,7 @@ Route::middleware(['auth'])->group(function () {
     // QZ Tray security endpoints
     Route::get('/qz/certificate', [QzController::class, 'certificate'])->name('qz.certificate');
     Route::post('/qz/sign', [QzController::class, 'sign'])->name('qz.sign')->middleware('throttle:600,1');
+    Route::get('/qz/info', [QzController::class, 'info'])->name('qz.info');
     
     // QZ Tray test page
     Route::get('/qz-test', function () {
