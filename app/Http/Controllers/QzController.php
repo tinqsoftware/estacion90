@@ -93,4 +93,70 @@ class QzController extends Controller
 
         return response(base64_encode($signature), 200)->header('Content-Type', 'text/plain');
     }
+
+    /**
+     * Diagnostic: return certificate subject, SHA-256 fingerprint and whether private key matches.
+     */
+    public function info(Request $request)
+    {
+        $certPath = env('QZ_CERT_PATH') ?: storage_path('app/qz/public-cert.pem');
+        $keyPath = env('QZ_PRIVATE_KEY_PATH') ?: storage_path('app/qz/private-key.pem');
+
+        $result = [
+            'cert' => [
+                'path' => $certPath,
+                'exists' => file_exists($certPath),
+                'subject' => null,
+                'fingerprint_sha256' => null,
+            ],
+            'key' => [
+                'path' => $keyPath,
+                'exists' => file_exists($keyPath),
+            ],
+            'match' => null,
+            'error' => null,
+        ];
+
+        try {
+            if ($result['cert']['exists']) {
+                $certContent = file_get_contents($certPath);
+                $x509 = @openssl_x509_read($certContent);
+                if ($x509) {
+                    $parsed = openssl_x509_parse($x509);
+                    $result['cert']['subject'] = $parsed['subject'] ?? null;
+                    // Fingerprint
+                    $der = null;
+                    if (@openssl_x509_export($x509, $pem)) {
+                        $der = preg_replace('/\-+BEGIN CERTIFICATE\-+|\-+END CERTIFICATE\-+|\s+/', '', $pem);
+                        $der = base64_decode($der);
+                        $result['cert']['fingerprint_sha256'] = strtoupper(implode(':', str_split(hash('sha256', $der), 2)));
+                    }
+                }
+            }
+
+            // Compare modulus of public vs private
+            if ($result['cert']['exists'] && $result['key']['exists']) {
+                $certContent = file_get_contents($certPath);
+                $x509 = @openssl_x509_read($certContent);
+                $pub = $x509 ? @openssl_pkey_get_public($x509) : null;
+                $pubDetails = $pub ? @openssl_pkey_get_details($pub) : null;
+
+                $keyContent = file_get_contents($keyPath);
+                $priv = @openssl_pkey_get_private($keyContent, env('QZ_PRIVATE_KEY_PASSWORD'));
+                $privDetails = $priv ? @openssl_pkey_get_details($priv) : null;
+
+                if (($pubDetails['type'] ?? null) === OPENSSL_KEYTYPE_RSA && ($privDetails['type'] ?? null) === OPENSSL_KEYTYPE_RSA) {
+                    $nPub = $pubDetails['rsa']['n'] ?? null;
+                    $nPriv = $privDetails['rsa']['n'] ?? null;
+                    if ($nPub && $nPriv) {
+                        $result['match'] = hash('sha256', $nPub) === hash('sha256', $nPriv);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            $result['error'] = $e->getMessage();
+        }
+
+        return response()->json($result);
+    }
 }

@@ -38,9 +38,12 @@
         <button onclick="forceTrustCertificate()">🆕 Forzar Certificado</button>
         <button onclick="testInsecureMode()" class="btn-alt">🔓 Modo Inseguro (Dev)</button>
         <br>
-        <button onclick="listPrinters()">3. 🖨️ Listar Impresoras</button>
-        <button onclick="testPrint()">4. 📄 Imprimir Prueba</button>
+    <button onclick="listPrinters()">3. 🖨️ Listar Impresoras</button>
+    <select id="printerSelect" style="min-width:260px"></select>
+    <button onclick="setSelectedPrinter()">💾 Usar impresora</button>
+    <button onclick="testPrint()">4. 📄 Imprimir Prueba</button>
         <button onclick="downloadQzScript()" class="btn-secondary">📥 Descargar QZ Script</button>
+    <button onclick="showQzInfo()">ℹ️ Diagnóstico Cert/Key</button>
         <button onclick="clearOutput()">🗑️ Limpiar</button>
     </div>
     
@@ -383,6 +386,16 @@
                     const isDefault = printer === defaultPrinter ? ' 🌟 (por defecto)' : '';
                     log(`  ${i + 1}. ${printer}${isDefault}`);
                 });
+
+                // Poblar selector
+                const sel = document.getElementById('printerSelect');
+                sel.innerHTML = '';
+                printers.forEach((p) => {
+                    const opt = document.createElement('option');
+                    opt.value = p; opt.textContent = p;
+                    if (p === defaultPrinter) opt.selected = true;
+                    sel.appendChild(opt);
+                });
                 
                 if (!defaultPrinter) {
                     log('⚠️ No hay impresora por defecto configurada', 'warning');
@@ -391,6 +404,18 @@
             } catch (error) {
                 log(`Error listando impresoras: ${error.message}`, 'error');
                 log('Sugerencia: Verifica que el algoritmo del servidor coincida (SHA512/SHA256) y que /qz/sign firme el string exacto.', 'info');
+            }
+        }
+
+        function setSelectedPrinter() {
+            const sel = document.getElementById('printerSelect');
+            const val = sel && sel.value;
+            if (!val) { log('Selecciona una impresora del listado', 'warning'); return; }
+            try {
+                localStorage.setItem('qzPrinterName', val);
+                log('✅ Impresora establecida: ' + val, 'success');
+            } catch (e) {
+                log('❌ No se pudo guardar impresora: ' + e.message, 'error');
             }
         }
         
@@ -409,7 +434,8 @@
                 log(`Enviando página de prueba a: ${printer}`);
                 
                 const config = qz.configs.create(printer, {
-                    copies: 1
+                    copies: 1,
+                    rasterize: true // fuerza rasterizado del HTML para compatibilidad
                 });
                 
                 const testHtml = `
@@ -429,8 +455,15 @@
                     data: testHtml
                 }];
                 
-                await qz.print(config, data);
-                log('✅ Página de prueba enviada a la impresora', 'success');
+                try {
+                    await qz.print(config, data);
+                    log('✅ Página de prueba enviada a la impresora (HTML)', 'success');
+                } catch (htmlErr) {
+                    log(`⚠️ Falló impresión HTML, probando texto RAW: ${htmlErr?.message || htmlErr}`, 'warning');
+                    const rawData = [{ type: 'raw', format: 'plain', data: `Test Estación 90\nFecha: ${new Date().toLocaleString()}\nImpresora: ${printer}\nOK ✅\n` }];
+                    await qz.print(config, rawData);
+                    log('✅ Página de prueba enviada (RAW)', 'success');
+                }
                 
             } catch (error) {
                 log(`Error imprimiendo: ${error.message}`, 'error');
@@ -499,6 +532,24 @@
             }
             
             tryNextCdn();
+        }
+
+        async function showQzInfo() {
+            try {
+                const resp = await fetch('/qz/info');
+                const info = await resp.json();
+                log('--- QZ INFO ---');
+                log('Cert path: ' + info.cert.path);
+                log('Cert exists: ' + info.cert.exists);
+                if (info.cert.subject) log('Cert subject CN: ' + (info.cert.subject.CN || JSON.stringify(info.cert.subject)));
+                if (info.cert.fingerprint_sha256) log('Cert SHA256: ' + info.cert.fingerprint_sha256);
+                log('Key path: ' + info.key.path);
+                log('Key exists: ' + info.key.exists);
+                if (typeof info.match === 'boolean') log('Key matches cert: ' + info.match);
+                if (info.error) log('Error: ' + info.error, 'error');
+            } catch (e) {
+                log('❌ No se pudo obtener /qz/info: ' + e.message, 'error');
+            }
         }
     </script>
 </body>
