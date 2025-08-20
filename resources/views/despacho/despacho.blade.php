@@ -811,13 +811,41 @@
     <script src="{{ asset('access/js/custom.js') }}"></script>
     <script src="{{ asset('access/js/demo.js') }}"></script>
     <!-- QZ Tray library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qz-tray/2.2.4/qz-tray.js" integrity="sha512-T5k2OQpRhsT1uWgkC8oLemP6hCysEJ6vD2Ju6sS75+0/90P8IV3N0t8Tt4N+Kk9I+8zIMa+z6BCEq1X0r1y6Ow==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.min.js"></script>
 
     <script>
+    // Variables globales para QZ
+    window.qzLoaded = false;
+    window.qzSecurityConfigured = false;
+    window.qzTrusted = false;
+
     let displayedOrderIds = [];
     let allPedidos = [];
     let filteredPedidos = [];
     let userInteracting = false; // Flag para evitar actualizaciones durante interacción
+
+    // Esperar a que QZ esté disponible
+    function esperarQzTray() {
+        return new Promise((resolve, reject) => {
+            let intentos = 0;
+            const maxIntentos = 30;
+            
+            function verificarQz() {
+                if (window.qz && qz.websocket) {
+                    console.log('✅ QZ Tray script cargado y disponible en despacho');
+                    window.qzLoaded = true;
+                    resolve();
+                } else if (intentos < maxIntentos) {
+                    intentos++;
+                    setTimeout(verificarQz, 100);
+                } else {
+                    reject('QZ Tray no se cargó después de 3 segundos');
+                }
+            }
+            
+            verificarQz();
+        });
+    }
 
     // Función para crear tarjeta compacta de pedido
     function crearTarjetaCompacta(pedido, ordenEntrega = null) {
@@ -1337,6 +1365,7 @@
     let metodoImpresion = 'qztray'; // 'qztray' | 'servicio'
     let impresionAutomatica = 0;    // 0 | 1
     let mostrarPdf = 1;             // 0 | 1
+    let impresoraPrincipal = '';    // Impresora configurada en Admin
 
     // Cargar configuración de impresión del Admin
     function cargarConfigImpresion() {
@@ -1346,7 +1375,8 @@
                     if (cfg.metodo_impresion) metodoImpresion = String(cfg.metodo_impresion);
                     if (typeof cfg.impresion_automatica !== 'undefined') impresionAutomatica = Number(cfg.impresion_automatica);
                     if (typeof cfg.mostrar_pdf !== 'undefined') mostrarPdf = Number(cfg.mostrar_pdf);
-                    console.log('Config impresión:', { metodoImpresion, impresionAutomatica, mostrarPdf });
+                    if (cfg.impresora_principal) impresoraPrincipal = String(cfg.impresora_principal);
+                    console.log('Config impresión:', { metodoImpresion, impresionAutomatica, mostrarPdf, impresoraPrincipal });
                 }
             })
             .fail(function(err) {
@@ -1354,136 +1384,390 @@
             });
     }
 
+    // Variables de control para QZ
+    var qzSecurityConfigured = false;
+    var qzTrusted = false;
+
     // Configure QZ security (certificate, signature) from backend endpoints (resolver functions)
-    (function configureQzSecurity(){
-        if (!window.qz || !qz.security) return;
-        try {
-            qz.security.setCertificatePromise(function() {
-                return function(resolve, reject) {
-                    fetch("{{ route('qz.certificate') }}", {
-                        credentials: 'same-origin',
-                        headers: { 'Accept': 'text/plain' }
-                    })
-                    .then(function(resp){ if(!resp.ok) throw new Error('No se pudo obtener el certificado QZ'); return resp.text(); })
-                    .then(function(cert){ resolve(cert); })
-                    .catch(function(err){ reject(err); });
-                };
-            });
-            qz.security.setSignaturePromise(function(toSign) {
-                return function(resolve, reject) {
-                    fetch("{{ route('qz.sign') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'text/plain',
-                            'Accept': 'text/plain',
-                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                        },
-                        credentials: 'same-origin',
-                        cache: 'no-store',
-                        body: (typeof toSign === 'string' ? toSign : String(toSign))
-                    })
-                    .then(function(resp){ if(!resp.ok) throw new Error('No se pudo firmar la solicitud QZ'); return resp.text(); })
-                    .then(function(sig){ resolve((sig || '').trim()); })
-                    .catch(function(err){ reject(err); });
-                };
-            });
-        } catch (e) {
-            console.warn('QZ security setup failed', e);
+    function configurarSeguridadQz() {
+        if (!window.qzLoaded || !window.qz || !qz.security) {
+            console.warn('QZ no disponible para configurar seguridad');
+            return Promise.reject('QZ no disponible');
         }
-    })();
+        
+        // Evitar configuración duplicada
+        if (qzSecurityConfigured && qzTrusted) {
+            console.log('QZ Security ya configurado y confiado, omitiendo...');
+            return Promise.resolve();
+        }
+        
+        return new Promise((resolve, reject) => {
+            try {
+                qz.security.setCertificatePromise(function() {
+                    return function(resolveInner, rejectInner) {
+                        fetch("{{ route('qz.certificate') }}", {
+                            credentials: 'same-origin',
+                            headers: { 'Accept': 'text/plain' }
+                        })
+                        .then(resp => resp.ok ? resp.text() : Promise.reject('Error obteniendo certificado'))
+                        .then(cert => {
+                            qzTrusted = true;
+                            resolveInner(cert);
+                        })
+                        .catch(err => rejectInner(err));
+                    };
+                });
+                
+                qz.security.setSignaturePromise(function(toSign) {
+                    return function(resolveInner, rejectInner) {
+                        fetch("{{ route('qz.sign') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'text/plain',
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                                'Accept': 'text/plain'
+                            },
+                            credentials: 'same-origin',
+                            body: toSign
+                        })
+                        .then(resp => resp.ok ? resp.text() : Promise.reject('Error firmando'))
+                        .then(sig => {
+                            qzTrusted = true;
+                            resolveInner(sig.trim());
+                        })
+                        .catch(err => rejectInner(err));
+                    };
+                });
+                
+                qzSecurityConfigured = true;
+                console.log('✅ QZ Security configurado para despacho');
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
 
     function ensureQzConnected() {
-        if (!window.qz) return Promise.reject(new Error('QZ Tray no está cargado'));
-        if (qz.websocket && qz.websocket.isActive()) { qzConnected = true; return Promise.resolve(); }
+        if (!window.qzLoaded || !window.qz) {
+            return Promise.reject(new Error('QZ Tray no está cargado - espera a que se cargue completamente'));
+        }
+        
+        if (qz.websocket && qz.websocket.isActive()) { 
+            qzConnected = true; 
+            return Promise.resolve(); 
+        }
+        
         if (qzConnecting) {
             return new Promise((resolve, reject) => {
                 let tries = 0;
                 const id = setInterval(() => {
                     tries++;
-                    if (qz.websocket.isActive()) { clearInterval(id); qzConnected = true; resolve(); }
-                    else if (tries > 30) { clearInterval(id); reject(new Error('Timeout conectando a QZ')); }
+                    if (qz.websocket.isActive()) { 
+                        clearInterval(id); 
+                        qzConnected = true; 
+                        resolve(); 
+                    }
+                    else if (tries > 30) { 
+                        clearInterval(id); 
+                        reject(new Error('Timeout conectando a QZ')); 
+                    }
                 }, 200);
             });
         }
+        
         qzConnecting = true;
-        return qz.websocket.connect().then(function(){
-            qzConnected = true; qzConnecting = false;
-        }).catch(function(err){ qzConnecting = false; return Promise.reject(err); });
+        
+        // Configurar seguridad primero, luego conectar
+        return configurarSeguridadQz()
+            .then(() => {
+                return qz.websocket.connect();
+            })
+            .then(() => {
+                qzConnected = true; 
+                qzConnecting = false;
+                console.log('✅ QZ conectado exitosamente en despacho');
+            })
+            .catch(err => { 
+                qzConnecting = false; 
+                console.error('❌ Error conectando QZ:', err);
+                return Promise.reject(err); 
+            });
     }
 
     function getPrinterName() {
+        // Prioridad: 1. Impresora configurada en Admin, 2. Guardada en localStorage, 3. Predeterminada del sistema
+        if (impresoraPrincipal && impresoraPrincipal.trim()) {
+            console.log('Usando impresora configurada en Admin:', impresoraPrincipal);
+            
+            // Verificar si es una impresora virtual problemática
+            if (esImpresoraVirtual(impresoraPrincipal)) {
+                console.warn('⚠️ Impresora virtual detectada:', impresoraPrincipal);
+                console.log('🔄 Buscando impresora física alternativa...');
+                return buscarImpresoraFisica();
+            }
+            
+            return Promise.resolve(impresoraPrincipal);
+        }
+        
         const saved = localStorage.getItem('qzPrinterName');
-        if (saved) return Promise.resolve(saved);
-        return qz.printers.getDefault();
+        if (saved) {
+            console.log('Usando impresora guardada en localStorage:', saved);
+            
+            // Verificar si es una impresora virtual problemática
+            if (esImpresoraVirtual(saved)) {
+                console.warn('⚠️ Impresora virtual en localStorage:', saved);
+                console.log('🔄 Buscando impresora física alternativa...');
+                return buscarImpresoraFisica();
+            }
+            
+            return Promise.resolve(saved);
+        }
+        
+        console.log('Buscando impresora predeterminada del sistema');
+        return buscarImpresoraFisica();
+    }
+    
+    // Función para detectar impresoras virtuales problemáticas
+    function esImpresoraVirtual(nombreImpresora) {
+        const impresorasVirtuales = [
+            'Microsoft Print to PDF',
+            'Microsoft XPS Document Writer',
+            'Fax',
+            'OneNote',
+            'Send To OneNote',
+            'Adobe PDF'
+        ];
+        
+        return impresorasVirtuales.some(virtual => 
+            nombreImpresora.toLowerCase().includes(virtual.toLowerCase())
+        );
+    }
+    
+    // Función para buscar una impresora física
+    function buscarImpresoraFisica() {
+        return qz.printers.find()
+            .then(function(printers) {
+                console.log('🖨️ Impresoras disponibles:', printers);
+                
+                // Buscar la primera impresora que NO sea virtual
+                for (let printer of printers) {
+                    if (!esImpresoraVirtual(printer)) {
+                        console.log('✅ Impresora física encontrada:', printer);
+                        return printer;
+                    }
+                }
+                
+                // Si no hay impresoras físicas, advertir y usar la predeterminada
+                console.warn('⚠️ No se encontraron impresoras físicas');
+                console.log('📄 Usando impresora predeterminada (puede ser virtual)');
+                return qz.printers.getDefault();
+            })
+            .catch(function(err) {
+                console.error('❌ Error al buscar impresoras:', err);
+                return qz.printers.getDefault();
+            });
     }
 
     // Intenta imprimir con QZ (HTML directo); si falla, usa la impresión del navegador
     function imprimirPedidoQZ(pedidoId) {
+        console.log('🖨️ Iniciando impresión QZ para pedido:', pedidoId);
+        
         ensureQzConnected()
             .then(getPrinterName)
             .then(function(printerName){
                 if (!printerName) throw new Error('No hay impresora seleccionada');
-                const cfg = qz.configs.create(printerName, {
-                    copies: 1
-                });
+                console.log('📄 Imprimiendo en:', printerName);
+                
+                // Verificar si es impresora virtual antes de continuar
+                if (esImpresoraVirtual(printerName)) {
+                    console.warn('⚠️ Detectada impresora virtual, usando método alternativo');
+                    return imprimirConMetodoAlternativo(pedidoId, printerName);
+                }
+                
+                let cfg;
+                try {
+                    cfg = qz.configs.create(printerName, {
+                        copies: 1
+                    });
+                    
+                    if (!cfg) {
+                        throw new Error('No se pudo crear la configuración de QZ');
+                    }
+                    
+                    console.log('🔧 Configuración QZ creada:', cfg);
+                } catch (configError) {
+                    console.error('❌ Error al crear configuración QZ:', configError);
+                    throw new Error('Error al configurar impresora: ' + configError.message);
+                }
+                
                 const url = "{{ url('despacho/pedido/imprimir') }}/" + pedidoId;
-                const data = [{ type: 'html', format: 'file', data: url }];
-                return qz.print(cfg, data);
+                console.log('🔗 URL de impresión:', url);
+                
+                // Verificar que la URL sea accesible primero
+                return fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Error al obtener contenido: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(htmlContent => {
+                        if (!htmlContent || htmlContent.trim().length === 0) {
+                            throw new Error('El contenido HTML está vacío');
+                        }
+                        console.log('✅ Contenido HTML obtenido:', htmlContent.length, 'caracteres');
+                        
+                        // Verificar si el contenido tiene elementos HTML válidos
+                        const hasHtmlTags = /<[^>]+>/.test(htmlContent);
+                        console.log('🏷️ Contiene tags HTML:', hasHtmlTags);
+                        
+                        // Crear el array de datos para QZ Tray con validación adicional
+                        const printData = { 
+                            type: 'html', 
+                            format: 'plain', 
+                            data: htmlContent 
+                        };
+                        
+                        console.log('🔍 Datos para QZ:', printData);
+                        console.log('🔍 Configuración QZ:', cfg);
+                        
+                        // Verificar que QZ esté disponible antes de imprimir
+                        if (!window.qz || !qz.print) {
+                            throw new Error('QZ Tray no está disponible para imprimir');
+                        }
+                        
+                        try {
+                            console.log('🎯 Ejecutando qz.print...');
+                            const printPromise = qz.print(cfg, [printData]);
+                            console.log('🎯 qz.print devolvió:', printPromise);
+                            return printPromise;
+                        } catch (printError) {
+                            console.error('💥 Error directo en qz.print:', printError);
+                            
+                            // Si falla con impresora virtual, intentar método alternativo
+                            if (esImpresoraVirtual(printerName)) {
+                                console.log('🔄 Reintentando con método alternativo para impresora virtual');
+                                return imprimirConMetodoAlternativo(pedidoId, printerName);
+                            }
+                            
+                            throw printError;
+                        }
+                    });
             })
             .then(function(){
-                Swal.fire({ title: 'Impresión enviada', icon: 'success', toast: true, position: 'top-end', timer: 1800, showConfirmButton: false });
+                console.log('✅ Impresión QZ enviada exitosamente');
+                Swal.fire({ 
+                    title: 'Impresión enviada', 
+                    text: 'El pedido se está imprimiendo',
+                    icon: 'success', 
+                    toast: true, 
+                    position: 'top-end', 
+                    timer: 1800, 
+                    showConfirmButton: false 
+                });
             })
             .catch(function(err){
-                console.warn('Fallo QZ con certificados, intentando modo inseguro...', err);
+                console.error('⚠️ Error detallado con QZ Tray:', {
+                    message: err.message,
+                    name: err.name,
+                    stack: err.stack,
+                    error: err
+                });
                 
-                // Intentar modo inseguro como fallback (sin abrir PDF)
-                tryInsecureQzPrint(pedidoId)
-                    .then(function() {
-                        Swal.fire({ title: 'Impresión enviada (modo inseguro)', icon: 'warning', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
-                    })
-                    .catch(function(err2) {
-                        console.warn('Fallo QZ completamente', err2);
-                        Swal.fire({ title: 'QZ no disponible', text: 'Verifique QZ Tray y certificados', icon: 'error', toast: true, position: 'top-end', timer: 2500, showConfirmButton: false });
+                // Mostrar error específico según el tipo
+                if (err.message.includes('no está cargado') || err.message.includes('no está disponible')) {
+                    Swal.fire({ 
+                        title: 'QZ Tray no disponible', 
+                        text: 'El sistema de impresión no está listo. Prueba en unos segundos.', 
+                        icon: 'warning', 
+                        toast: true, 
+                        position: 'top-end', 
+                        timer: 3000, 
+                        showConfirmButton: false 
                     });
+                } else if (err.message.includes('impresora')) {
+                    Swal.fire({ 
+                        title: 'Error de impresora', 
+                        text: 'Verifica que la impresora configurada esté disponible.', 
+                        icon: 'error', 
+                        toast: true, 
+                        position: 'top-end', 
+                        timer: 3000, 
+                        showConfirmButton: false 
+                    });
+                } else {
+                    // Para errores con impresoras virtuales, ofrecer alternativa
+                    console.log('🔄 Error con QZ, intentando impresión tradicional...');
+                    imprimirPedido(pedidoId); // Fallback a impresión del navegador
+                    
+                    Swal.fire({ 
+                        title: 'Impresión alternativa', 
+                        text: 'Se abrió el documento en el navegador para imprimir manualmente.', 
+                        icon: 'info', 
+                        toast: true, 
+                        position: 'top-end', 
+                        timer: 4000, 
+                        showConfirmButton: false 
+                    });
+                }
             });
     }
     
-    // Función auxiliar para intentar impresión en modo inseguro
-    function tryInsecureQzPrint(pedidoId) {
-        return new Promise((resolve, reject) => {
-            if (!window.qz) return reject(new Error('QZ no disponible'));
+    // Función alternativa para impresoras virtuales problemáticas
+    function imprimirConMetodoAlternativo(pedidoId, printerName) {
+        console.log('🔄 Usando método alternativo para:', printerName);
+        
+        // Para Microsoft Print to PDF, abrir en el navegador
+        if (printerName.includes('Microsoft Print to PDF')) {
+            console.log('📄 Abriendo PDF en navegador para descarga');
+            imprimirPedido(pedidoId);
             
-            // Limpiar configuración de seguridad
-            qz.security.setCertificatePromise(null);
-            qz.security.setSignaturePromise(null);
+            return Promise.resolve().then(() => {
+                Swal.fire({ 
+                    title: 'Documento preparado', 
+                    text: 'Se abrió el documento para generar PDF manualmente.', 
+                    icon: 'info', 
+                    toast: true, 
+                    position: 'top-end', 
+                    timer: 3000, 
+                    showConfirmButton: false 
+                });
+            });
+        }
+        
+        // Para otras impresoras virtuales, intentar con configuración básica
+        try {
+            const basicConfig = qz.configs.create(printerName);
+            const simpleData = [{ 
+                type: 'html', 
+                format: 'plain', 
+                data: `<h3>Pedido #${pedidoId}</h3><p>Imprimir desde: <a href="{{ url('despacho/pedido/imprimir') }}/${pedidoId}">Ver Documento</a></p>` 
+            }];
             
-            // Reconectar e imprimir
-            const reconnectAndPrint = () => {
-                qz.websocket.connect()
-                    .then(() => qz.printers.getDefault())
-                    .then(printerName => {
-                        if (!printerName) throw new Error('No hay impresora');
-                        const cfg = qz.configs.create(printerName, { copies: 1 });
-                        const url = "{{ url('despacho/pedido/imprimir') }}/" + pedidoId;
-                        const data = [{ type: 'html', format: 'file', data: url }];
-                        return qz.print(cfg, data);
-                    })
-                    .then(() => resolve())
-                    .catch(err => reject(err));
-            };
-            
-            if (qz.websocket.isActive()) {
-                qz.websocket.disconnect().then(reconnectAndPrint).catch(reconnectAndPrint);
-            } else {
-                reconnectAndPrint();
-            }
-        });
+            return qz.print(basicConfig, simpleData);
+        } catch (alternativeError) {
+            console.error('❌ Error en método alternativo:', alternativeError);
+            // Último recurso: abrir en navegador
+            imprimirPedido(pedidoId);
+            return Promise.resolve();
+        }
     }
-
+    
+    // Función auxiliar para intentar impresión en modo inseguro
     // Inicialización del documento
     $(document).ready(function() {
-    // Cargar configuración de impresión
-    cargarConfigImpresion();
+        // Cargar configuración de impresión
+        cargarConfigImpresion();
+        
+        // Inicializar QZ Tray después de que se cargue
+        esperarQzTray()
+            .then(() => {
+                console.log('🔧 QZ Tray listo en despacho');
+            })
+            .catch(error => {
+                console.warn('⚠️ QZ Tray no disponible en despacho:', error);
+            });
         // Cargar datos iniciales
         @php
         $pedidosJs = isset($pedidos) ? json_encode($pedidos) : '[]';
@@ -1638,6 +1922,12 @@
                 
                 data.forEach(function(pedidoServidor) {
                     const pedidoLocal = allPedidos.find(p => p.id === pedidoServidor.id);
+                    
+                    // Verificar que el estado del servidor sea válido
+                    if (!pedidoServidor.estado && pedidoServidor.estado !== 0) {
+                        console.warn(`Pedido ${pedidoServidor.id} sin estado válido del servidor, omitiendo actualización`);
+                        return;
+                    }
                     
                     if (pedidoLocal && pedidoLocal.estado !== pedidoServidor.estado) {
                         console.log(`Estado actualizado para pedido ${pedidoLocal.id}: ${pedidoLocal.estado} -> ${pedidoServidor.estado}`);

@@ -223,11 +223,13 @@ public function obtenerConfiguracionImpresiones()
         $impresionAutomatica = ConfiguracionSistema::obtenerConfiguracion('impresion_automatica', '0');
         $mostrarPdf = ConfiguracionSistema::obtenerConfiguracion('mostrar_pdf', '0');
         $metodoImpresion = ConfiguracionSistema::obtenerConfiguracion('metodo_impresion', 'qztray');
+        $impresoraPrincipal = ConfiguracionSistema::obtenerConfiguracion('impresora_principal', '');
         
         return response()->json([
             'impresion_automatica' => $impresionAutomatica,
             'mostrar_pdf' => $mostrarPdf,
-            'metodo_impresion' => $metodoImpresion
+            'metodo_impresion' => $metodoImpresion,
+            'impresora_principal' => $impresoraPrincipal
         ]);
     } catch (\Exception $e) {
         return response()->json(['error' => 'Error al obtener configuración'], 500);
@@ -280,21 +282,62 @@ public function cambiarMostrarPdf(Request $request)
     }
 }
 
-public function cambiarMetodoImpresion(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'metodo_impresion' => 'required|in:qztray,servicio'
-    ]);
+    public function cambiarMetodoImpresion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'metodo_impresion' => 'required|in:qztray,servicio'
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        try {
+            ConfiguracionSistema::guardarConfiguracion('metodo_impresion', $request->metodo_impresion);
+            return response()->json(['message' => 'Método de impresión actualizado']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al cambiar método de impresión'], 500);
+        }
     }
 
-    try {
-        ConfiguracionSistema::guardarConfiguracion('metodo_impresion', $request->metodo_impresion);
-        return response()->json(['message' => 'Método de impresión actualizado']);
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Error al cambiar método de impresión'], 500);
+    public function cambiarImpresoraPrincipal(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'impresora_principal' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        try {
+            ConfiguracionSistema::guardarConfiguracion('impresora_principal', $request->impresora_principal);
+            return response()->json([
+                'message' => 'Impresora principal configurada: ' . $request->impresora_principal,
+                'impresora' => $request->impresora_principal
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al configurar impresora principal'], 500);
+        }
     }
-}
+
+    public function listarImpresoras(Request $request)
+    {
+        try {
+            // Esta función utiliza la misma lógica que QZ Tray para obtener impresoras
+            // En un entorno real, esto podría conectarse directamente a QZ Tray
+            // o usar una API del servidor para obtener las impresoras disponibles
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Para obtener las impresoras, usa el botón "Cargar" que se conecta a QZ Tray',
+                'impresoras' => []
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al listar impresoras: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

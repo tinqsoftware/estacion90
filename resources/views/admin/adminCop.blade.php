@@ -237,6 +237,32 @@
                                     </div>
                                 </div>
 
+                                <!-- Nueva sección para configuración de impresora -->
+                                <div class="row mb-4" id="sectionImpresoraPrincipal">
+                                    <div class="col-md-8">
+                                        <label class="form-label">Impresora Principal del Sistema:</label>
+                                        <div class="input-group">
+                                            <select id="selectImpresoraPrincipal" class="form-select">
+                                                <option value="">Seleccionar impresora...</option>
+                                            </select>
+                                            <button type="button" id="btnCargarImpresoras" class="btn btn-outline-secondary">
+                                                <i class="fa fa-sync"></i> Cargar
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Esta impresora se usará automáticamente en el módulo de despacho. <span id="statusImpresora" class="text-info"></span></small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Estado de Conexión:</label>
+                                        <div class="d-flex align-items-center">
+                                            <span id="estadoQzTray" class="badge bg-secondary">Cargando script...</span>
+                                            <button type="button" id="btnTestConexion" class="btn btn-sm btn-outline-primary ms-2">
+                                                <i class="fa fa-plug"></i> Probar
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Verifica la conexión con QZ Tray.</small>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -393,6 +419,9 @@
     <script src="{{ asset('access/vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('access/vendor/jquery-nice-select/js/jquery.nice-select.min.js') }}"></script>
     <script src="{{ asset('access/vendor/swiper/js/swiper-bundle.min.js') }}"></script>
+    
+    <!-- QZ Tray Script -->
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.min.js"></script>
 
     <!-- Datatable -->
     <script src="{{ asset('access/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
@@ -404,12 +433,109 @@
     <script src="{{ asset('access/js/demo.js') }}"></script>
 
     <script>
+    // Variables globales para QZ
+    window.qzLoaded = false;
+    window.qzSecurityConfigured = false;
+    window.qzTrusted = false;
+
     $(document).ready(function() {
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
+
+        // Esperar a que QZ esté disponible
+        function esperarQzTray() {
+            return new Promise((resolve, reject) => {
+                let intentos = 0;
+                const maxIntentos = 20;
+                
+                function verificarQz() {
+                    if (window.qz && qz.websocket) {
+                        console.log('✅ QZ Tray script cargado y disponible');
+                        window.qzLoaded = true;
+                        resolve();
+                    } else if (intentos < maxIntentos) {
+                        intentos++;
+                        setTimeout(verificarQz, 100);
+                    } else {
+                        reject('QZ Tray no se cargó después de 2 segundos');
+                    }
+                }
+                
+                verificarQz();
+            });
+        }
+
+        // Inicializar QZ cuando esté listo
+        esperarQzTray()
+            .then(() => {
+                console.log('🔧 QZ Tray listo para usar');
+                $('#estadoQzTray').removeClass().addClass('badge bg-info').text('QZ Disponible');
+                
+                // Auto-restaurar estado después de que QZ esté listo
+                setTimeout(() => {
+                    autoReconectarYCargarImpresoras();
+                }, 500);
+            })
+            .catch(error => {
+                console.error('❌ Error cargando QZ Tray:', error);
+                $('#estadoQzTray').removeClass().addClass('badge bg-warning').text('QZ no disponible');
+            });
+
+        // Función para auto-reconectar y cargar impresoras al recargar página
+        function autoReconectarYCargarImpresoras() {
+            // Solo auto-reconectar si el método es QZ Tray
+            if ($('#selectMetodoImpresion').val() !== 'qztray') {
+                return;
+            }
+            
+            console.log('🔄 Auto-reconectando QZ Tray...');
+            $('#estadoQzTray').removeClass().addClass('badge bg-warning').text('Reconectando...');
+            
+            configurarSeguridadQzAdmin()
+                .then(() => {
+                    return qz.websocket.connect();
+                })
+                .then(() => {
+                    console.log('✅ QZ reconectado automáticamente');
+                    $('#estadoQzTray').removeClass().addClass('badge bg-success').text('Conectado ✓');
+                    
+                    // Auto-cargar impresoras
+                    return autoCargarImpresoras();
+                })
+                .catch(error => {
+                    console.log('⚠️ No se pudo auto-reconectar QZ:', error);
+                    $('#estadoQzTray').removeClass().addClass('badge bg-info').text('QZ Disponible');
+                });
+        }
+
+        // Función para auto-cargar impresoras sin afectar UI
+        function autoCargarImpresoras() {
+            return qz.printers.find()
+                .then(printers => {
+                    console.log('🖨️ Auto-cargando', printers.length, 'impresoras...');
+                    
+                    // Limpiar y cargar opciones
+                    $('#selectImpresoraPrincipal').empty().append('<option value="">Seleccionar impresora...</option>');
+                    printers.forEach(printer => {
+                        $('#selectImpresoraPrincipal').append(new Option(printer, printer));
+                    });
+                    
+                    // Restaurar impresora configurada desde la base de datos
+                    var impresoraConfigurada = $('#selectImpresoraPrincipal').data('current');
+                    if (impresoraConfigurada && printers.includes(impresoraConfigurada)) {
+                        $('#selectImpresoraPrincipal').val(impresoraConfigurada);
+                        $('#statusImpresora').text('Configurada: ' + impresoraConfigurada).removeClass('text-warning text-danger').addClass('text-success');
+                    }
+                    
+                    console.log('✅ Impresoras auto-cargadas y estado restaurado');
+                })
+                .catch(error => {
+                    console.log('⚠️ Error auto-cargando impresoras:', error);
+                });
+        }
 
         // DataTables Inicialización
         var opcionesTabla = {
@@ -661,11 +787,24 @@
                     var impresionAutomatica = response.impresion_automatica === '1';
                     var mostrarPdf = response.mostrar_pdf === '1';
                     var metodo = response.metodo_impresion || 'qztray';
+                    var impresoraPrincipal = response.impresora_principal || '';
                     
                     $('#switchImpresionAutomatica').prop('checked', impresionAutomatica);
                     $('#switchMostrarPdf').prop('checked', mostrarPdf);
                     $('#selectMetodoImpresion').val(metodo);
                     toggleQzActions(metodo);
+                    toggleSeccionImpresora(metodo);
+                    
+                    // Configurar impresora principal
+                    if (impresoraPrincipal) {
+                        // Guardar como data attribute para restaurar después
+                        $('#selectImpresoraPrincipal').data('current', impresoraPrincipal);
+                        $('#selectImpresoraPrincipal').append(new Option(impresoraPrincipal, impresoraPrincipal, true, true));
+                        $('#statusImpresora').text('Configurada: ' + impresoraPrincipal).removeClass('text-danger').addClass('text-success');
+                    } else {
+                        $('#selectImpresoraPrincipal').data('current', '');
+                        $('#statusImpresora').text('No configurada').removeClass('text-success').addClass('text-warning');
+                    }
                     
                     // Actualizar labels
                     $('#labelImpresionAutomatica').text(impresionAutomatica ? 'Sí' : 'No');
@@ -695,6 +834,14 @@
                 $('#qzActions').slideDown(150);
             } else {
                 $('#qzActions').slideUp(150);
+            }
+        }
+
+        function toggleSeccionImpresora(metodo) {
+            if (metodo === 'qztray') {
+                $('#sectionImpresoraPrincipal').slideDown(150);
+            } else {
+                $('#sectionImpresoraPrincipal').slideUp(150);
             }
         }
 
@@ -887,6 +1034,7 @@
                 data: { metodo_impresion: metodo },
                 success: function(response) {
                     toggleQzActions(metodo);
+                    toggleSeccionImpresora(metodo);
                     Swal.fire({
                         title: 'Éxito',
                         text: response.message,
@@ -909,15 +1057,287 @@
             Swal.fire({
                 title: 'Configurar QZ Tray',
                 html: '<div style="text-align:left">'
+                    + '<h6>Pasos de configuración:</h6>'
                     + '<ol>'
                     + '<li>Descarga e instala QZ Tray (Windows/macOS/Linux).</li>'
                     + '<li>Descarga el certificado y en QZ: Settings → Security → Certificates → Import.</li>'
                     + '<li>En Security → Allowed Origins, añade tu dominio (p.ej. http://localhost).</li>'
-                    + '<li>Abre la página de prueba y autoriza el origen si te lo pide.</li>'
+                    + '<li><strong>Importante:</strong> Abre la página de prueba QZ y autoriza el origen.</li>'
+                    + '<li>Luego regresa aquí y usa el botón "Cargar" para obtener las impresoras.</li>'
                     + '</ol>'
-                    + '<a target="_blank" href="' + qzTestUrl + '">Abrir página de prueba</a>'
+                    + '<div class="alert alert-warning mt-2">'
+                    + '<strong>Nota:</strong> Debes usar la página de prueba QZ al menos una vez antes de configurar impresoras aquí.'
+                    + '</div>'
+                    + '<a target="_blank" href="' + qzTestUrl + '" class="btn btn-primary">Abrir página de prueba QZ</a>'
                     + '</div>',
-                icon: 'info'
+                icon: 'info',
+                width: '600px'
+            });
+        });
+
+        // Cargar impresoras desde QZ Tray
+        $('#btnCargarImpresoras').on('click', function() {
+            var btn = $(this);
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Cargando...');
+            $('#estadoQzTray').removeClass().addClass('badge bg-warning').text('Conectando...');
+            
+            // Verificar si QZ está disponible
+            if (!window.qzLoaded || !window.qz) {
+                $('#estadoQzTray').removeClass().addClass('badge bg-danger').text('QZ no disponible');
+                btn.prop('disabled', false).html('<i class="fa fa-sync"></i> Cargar');
+                Swal.fire({
+                    title: 'QZ Tray no disponible',
+                    text: 'El script QZ no se ha cargado completamente. Espera unos segundos e inténtalo de nuevo.',
+                    icon: 'warning',
+                    confirmButtonText: 'Abrir QZ Test',
+                    showCancelButton: true,
+                    cancelButtonText: 'Reintentar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.open('{{ url("/qz-test") }}', '_blank');
+                    } else if (result.isDismissed) {
+                        // Reintentar después de un momento
+                        setTimeout(() => {
+                            if (window.qz) {
+                                window.qzLoaded = true;
+                                $('#btnCargarImpresoras').click();
+                            }
+                        }, 1000);
+                    }
+                });
+                return;
+            }
+            
+            // Si ya está conectado, solo recargar impresoras
+            if (qz.websocket.isActive()) {
+                console.log('QZ ya conectado, recargando impresoras...');
+                $('#estadoQzTray').removeClass().addClass('badge bg-success').text('Conectado ✓');
+                listarImpresorasDisponibles(btn);
+                return;
+            }
+            
+            conectarYCargarImpresoras(btn);
+        });
+
+        // Configurar seguridad QZ para admin (simplificado)
+        function configurarSeguridadQzAdmin() {
+            // Solo configurar si QZ está disponible y no se ha configurado ya
+            if (!window.qz || !qz.security) {
+                console.log('QZ no disponible para configurar seguridad');
+                return Promise.reject('QZ no disponible');
+            }
+            
+            // Verificar si ya está configurado globalmente
+            if (window.qzSecurityConfigured && window.qzTrusted) {
+                console.log('QZ ya configurado globalmente');
+                return Promise.resolve();
+            }
+            
+            return new Promise((resolve, reject) => {
+                try {
+                    qz.security.setCertificatePromise(function() {
+                        return function(resolveInner, rejectInner) {
+                            fetch('{{ route("qz.certificate") }}', {
+                                credentials: 'same-origin',
+                                headers: { 'Accept': 'text/plain' }
+                            })
+                            .then(resp => resp.ok ? resp.text() : Promise.reject('Error obteniendo certificado'))
+                            .then(cert => resolveInner(cert))
+                            .catch(err => rejectInner(err));
+                        };
+                    });
+                    
+                    qz.security.setSignaturePromise(function(toSign) {
+                        return function(resolveInner, rejectInner) {
+                            fetch('{{ route("qz.sign") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'text/plain',
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                                    'Accept': 'text/plain'
+                                },
+                                body: toSign
+                            })
+                            .then(resp => resp.ok ? resp.text() : Promise.reject('Error firmando'))
+                            .then(sig => resolveInner(sig.trim()))
+                            .catch(err => rejectInner(err));
+                        };
+                    });
+                    
+                    resolve();
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }
+
+        function conectarYCargarImpresoras(btn) {
+            // Verificar si ya está conectado
+            if (qz.websocket.isActive()) {
+                console.log('QZ ya está conectado, listando impresoras...');
+                $('#estadoQzTray').removeClass().addClass('badge bg-success').text('Conectado ✓');
+                listarImpresorasDisponibles(btn);
+                return;
+            }
+            
+            // Configurar seguridad y conectar
+            configurarSeguridadQzAdmin()
+                .then(() => {
+                    console.log('Seguridad configurada, conectando...');
+                    return qz.websocket.connect();
+                })
+                .then(() => {
+                    console.log('Conexión establecida, listando impresoras...');
+                    $('#estadoQzTray').removeClass().addClass('badge bg-success').text('Conectado ✓');
+                    return listarImpresorasDisponibles(btn);
+                })
+                .catch(error => {
+                    console.error('Error en conexión QZ:', error);
+                    $('#estadoQzTray').removeClass().addClass('badge bg-danger').text('Error');
+                    Swal.fire({
+                        title: 'Error de Conexión', 
+                        text: 'No se pudo conectar con QZ Tray. Asegúrate de que esté ejecutándose y que hayas autorizado el certificado.',
+                        icon: 'error',
+                        footer: '<a href="{{ url("/qz-test") }}" target="_blank">Abrir página de prueba QZ</a>'
+                    });
+                    btn.prop('disabled', false).html('<i class="fa fa-sync"></i> Cargar');
+                });
+        }
+        
+        function listarImpresorasDisponibles(btn) {
+            return qz.printers.find()
+                .then(printers => {
+                    console.log('Impresoras encontradas:', printers);
+                    
+                    // Guardar selección actual antes de limpiar
+                    var seleccionActual = $('#selectImpresoraPrincipal').val();
+                    var impresoraConfigurada = $('#selectImpresoraPrincipal').data('current');
+                    
+                    $('#selectImpresoraPrincipal').empty().append('<option value="">Seleccionar impresora...</option>');
+                    
+                    printers.forEach(printer => {
+                        $('#selectImpresoraPrincipal').append(new Option(printer, printer));
+                    });
+                    
+                    // Restaurar selección en orden de prioridad: actual > configurada
+                    var impresoraARestaurar = seleccionActual || impresoraConfigurada;
+                    if (impresoraARestaurar && printers.includes(impresoraARestaurar)) {
+                        $('#selectImpresoraPrincipal').val(impresoraARestaurar);
+                        if (impresoraARestaurar === impresoraConfigurada) {
+                            $('#statusImpresora').text('Configurada: ' + impresoraARestaurar).removeClass('text-warning text-danger').addClass('text-success');
+                        }
+                    }
+                    
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: `Se encontraron ${printers.length} impresora(s) disponible(s)`,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                })
+                .catch(error => {
+                    console.error('Error listando impresoras:', error);
+                    Swal.fire('Error', 'No se pudieron listar las impresoras: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    if (btn) {
+                        btn.prop('disabled', false).html('<i class="fa fa-sync"></i> Cargar');
+                    }
+                });
+        }
+
+        // Test de conexión QZ
+        $('#btnTestConexion').on('click', function() {
+            var btn = $(this);
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+            $('#estadoQzTray').removeClass().addClass('badge bg-warning').text('Probando...');
+            
+            if (!window.qzLoaded || !window.qz) {
+                $('#estadoQzTray').removeClass().addClass('badge bg-danger').text('QZ no cargado');
+                btn.prop('disabled', false).html('<i class="fa fa-plug"></i> Probar');
+                Swal.fire({
+                    title: 'QZ Tray no disponible',
+                    text: 'El script QZ no se ha cargado completamente. Espera unos segundos o abre la página de prueba QZ.',
+                    icon: 'warning',
+                    confirmButtonText: 'Abrir QZ Test',
+                    showCancelButton: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.open('{{ url("/qz-test") }}', '_blank');
+                    }
+                });
+                return;
+            }
+            
+            // Si ya está conectado, solo verificar
+            if (qz.websocket.isActive()) {
+                $('#estadoQzTray').removeClass().addClass('badge bg-success').text('✓ Conectado');
+                btn.prop('disabled', false).html('<i class="fa fa-plug"></i> Probar');
+                Swal.fire({
+                    title: 'Conexión Activa',
+                    text: 'QZ Tray ya está conectado y funcionando correctamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                return;
+            }
+            
+            // Intentar conectar
+            configurarSeguridadQzAdmin()
+                .then(() => qz.websocket.connect())
+                .then(() => {
+                    $('#estadoQzTray').removeClass().addClass('badge bg-success').text('✓ Conectado');
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: 'Conexión con QZ Tray establecida correctamente',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                })
+                .catch(error => {
+                    $('#estadoQzTray').removeClass().addClass('badge bg-danger').text('✗ Error');
+                    Swal.fire({
+                        title: 'Error de Conexión', 
+                        text: 'No se pudo conectar: ' + error.message,
+                        icon: 'error',
+                        footer: '<a href="{{ url("/qz-test") }}" target="_blank">Abrir página de prueba QZ</a>'
+                    });
+                })
+                .finally(() => {
+                    btn.prop('disabled', false).html('<i class="fa fa-plug"></i> Probar');
+                });
+        });
+
+        // Cambio de impresora principal
+        $('#selectImpresoraPrincipal').on('change', function() {
+            var impresora = $(this).val();
+            
+            if (!impresora) {
+                $('#statusImpresora').text('No seleccionada').removeClass('text-success').addClass('text-warning');
+                return;
+            }
+            
+            $.ajax({
+                url: '{{ route("admin.configuracion.cambiarImpresoraPrincipal") }}',
+                method: 'POST',
+                data: { impresora_principal: impresora },
+                success: function(response) {
+                    $('#statusImpresora').text('Configurada: ' + impresora).removeClass('text-warning text-danger').addClass('text-success');
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: response.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                },
+                error: function() {
+                    $('#statusImpresora').text('Error al configurar').removeClass('text-success text-warning').addClass('text-danger');
+                    Swal.fire('Error', 'No se pudo configurar la impresora principal', 'error');
+                }
             });
         });
 
