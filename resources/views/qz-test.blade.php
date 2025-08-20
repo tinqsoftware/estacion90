@@ -101,6 +101,7 @@
         
         // Configurar QZ Security (reutilizable para carga normal o fallback)
         let qzSecurityConfigured = false;
+        let qzTrusted = false; // Nueva variable para evitar diálogos repetidos
         let qzSigningAlgorithm = 'SHA256'; // valor estable por defecto; compatible con la mayoría de builds
         function setSigningAlgorithm(algo) {
             try {
@@ -120,6 +121,13 @@
                 log('❌ QZ no disponible para configurar seguridad', 'error');
                 return;
             }
+            
+            // Evitar configuración duplicada
+            if (qzSecurityConfigured && qzTrusted) {
+                log('✅ Seguridad ya configurada y confiada, omitiendo...', 'info');
+                return;
+            }
+            
             // Asegurar algoritmo de firma consistente con el servidor (por defecto SHA256)
             setSigningAlgorithm(qzSigningAlgorithm);
             // Certificado
@@ -140,6 +148,7 @@
                     })
                     .then(cert => {
                         log('✅ Certificado personalizado obtenido (estacion90-qz)', 'success');
+                        qzTrusted = true; // Marcar como confiado al obtener certificado exitosamente
                         resolve(cert);
                     })
                     .catch(err => {
@@ -175,6 +184,7 @@
                         if (!sig || !sig.trim()) {
                             throw new Error('Firma vacía desde /qz/sign');
                         }
+                        qzTrusted = true; // Marcar como confiado al firmar exitosamente
                         resolve(sig.trim());
                     })
                     .catch(err => {
@@ -187,7 +197,10 @@
         }
 
         if (window.qz) {
-            configureQzSecurity();
+            // Solo configurar si no se ha hecho antes
+            if (!qzSecurityConfigured) {
+                configureQzSecurity();
+            }
         } else {
             log('❌ QZ Tray script no cargado', 'error');
         }
@@ -206,15 +219,20 @@
                 
                 if (qz.websocket.isActive()) {
                     log('✅ QZ ya estaba conectado', 'success');
+                    // Solo reconfigurar si no está configurado aún
+                    if (!qzSecurityConfigured || !qzTrusted) {
+                        log('🔐 Configurando seguridad...');
+                        configureQzSecurity();
+                    }
                 } else {
                     log('🔄 Intentando conectar a QZ Tray...');
                     await qz.websocket.connect();
                     log('✅ Conexión establecida exitosamente', 'success');
+                    
+                    // CRÍTICO: Configurar seguridad DESPUÉS de conectar
+                    log('🔐 Configurando seguridad después de conexión...');
+                    configureQzSecurity();
                 }
-                
-                // CRÍTICO: Reconfigurar seguridad DESPUÉS de conectar
-                log('🔐 Configurando seguridad después de conexión...');
-                configureQzSecurity();
                 
                 updateStatus(`Conectado ✅ (v${qz.version})`, 'success');
                 log(`📊 QZ Tray versión: ${qz.version}`, 'success');
@@ -362,12 +380,14 @@
                 if (!qz.websocket.isActive()) {
                     log('Conectando primero...');
                     await qz.websocket.connect();
-                    // Reconfigurar seguridad después de reconectar
-                    configureQzSecurity();
-                    await new Promise(resolve => setTimeout(resolve, 500)); // Esperar configuración
+                    // Solo configurar seguridad si no está ya configurada
+                    if (!qzSecurityConfigured || !qzTrusted) {
+                        configureQzSecurity();
+                        await new Promise(resolve => setTimeout(resolve, 500)); // Esperar configuración
+                    }
                 }
                 
-                // Verificar que la seguridad esté configurada
+                // Verificar que la seguridad esté configurada (solo si es necesario)
                 if (!qzSecurityConfigured) {
                     log('🔐 Configurando seguridad antes de listar impresoras...');
                     configureQzSecurity();

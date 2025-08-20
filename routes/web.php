@@ -175,6 +175,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/configuracion/impresion-automatica', [AdministradorController::class, 'cambiarImpresionAutomatica'])->name('admin.configuracion.cambiarImpresionAutomatica');
     Route::post('/admin/configuracion/mostrar-pdf', [AdministradorController::class, 'cambiarMostrarPdf'])->name('admin.configuracion.cambiarMostrarPdf');
     Route::post('/admin/configuracion/metodo-impresion', [AdministradorController::class, 'cambiarMetodoImpresion'])->name('admin.configuracion.cambiarMetodoImpresion');
+    Route::post('/admin/configuracion/impresora-principal', [AdministradorController::class, 'cambiarImpresoraPrincipal'])->name('admin.configuracion.cambiarImpresoraPrincipal');
+    Route::get('/admin/configuracion/listar-impresoras', [AdministradorController::class, 'listarImpresoras'])->name('admin.configuracion.listarImpresoras');
     // opcional: página de prueba QZ
     Route::get('/qz-test', function(){ return view('qz-test'); });
 
