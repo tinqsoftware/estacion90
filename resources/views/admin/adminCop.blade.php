@@ -1054,24 +1054,38 @@
         // Instrucciones QZ
         $('#btnInstruccionesQZ').on('click', function() {
             var qzTestUrl = "{{ url('/qz-test') }}";
+            var certificateUrl = "{{ url('/qz/certificate?download=1') }}";
             Swal.fire({
                 title: 'Configurar QZ Tray',
                 html: '<div style="text-align:left">'
-                    + '<h6>Pasos de configuración:</h6>'
+                    + '<h6>📋 Pasos de configuración:</h6>'
                     + '<ol>'
-                    + '<li>Descarga e instala QZ Tray (Windows/macOS/Linux).</li>'
-                    + '<li>Descarga el certificado y en QZ: Settings → Security → Certificates → Import.</li>'
-                    + '<li>En Security → Allowed Origins, añade tu dominio (p.ej. http://localhost).</li>'
-                    + '<li><strong>Importante:</strong> Abre la página de prueba QZ y autoriza el origen.</li>'
-                    + '<li>Luego regresa aquí y usa el botón "Cargar" para obtener las impresoras.</li>'
+                    + '<li><strong>Descargar QZ Tray:</strong> Instala desde <a href="https://qz.io/download/" target="_blank">qz.io/download</a></li>'
+                    + '<li><strong>Descargar certificado:</strong> <a href="' + certificateUrl + '" target="_blank">Haz clic aquí para descargar</a></li>'
+                    + '<li><strong>Instalar certificado:</strong> En QZ Tray → Advanced → Trusted Sites → Add Certificate</li>'
+                    + '<li><strong>Reiniciar QZ Tray:</strong> Cierra y abre QZ Tray completamente</li>'
+                    + '<li><strong>Autorizar sitio:</strong> Ve a <a href="' + qzTestUrl + '" target="_blank">página de prueba QZ</a> y autoriza</li>'
+                    + '<li><strong>Configurar aquí:</strong> Regresa y usa "Cargar Impresoras"</li>'
                     + '</ol>'
-                    + '<div class="alert alert-warning mt-2">'
-                    + '<strong>Nota:</strong> Debes usar la página de prueba QZ al menos una vez antes de configurar impresoras aquí.'
+                    + '<div class="alert alert-success mt-2">'
+                    + '<strong>✅ Certificado Multi-Dominio:</strong> Funciona tanto para desarrollo (estacion90.test) como producción (estacion90.pe).'
                     + '</div>'
-                    + '<a target="_blank" href="' + qzTestUrl + '" class="btn btn-primary">Abrir página de prueba QZ</a>'
+                    + '<div class="alert alert-info mt-2">'
+                    + '<strong>🔄 Automático:</strong> El mismo certificado funcionará en ambos entornos sin cambios.'
+                    + '</div>'
+                    + '<div class="alert alert-warning mt-2">'
+                    + '<strong>⚠️ Importante:</strong> Si ya tenías un certificado anterior, elimínalo primero.'
+                    + '</div>'
                     + '</div>',
                 icon: 'info',
-                width: '600px'
+                width: '700px',
+                confirmButtonText: 'Entendido',
+                showCancelButton: true,
+                cancelButtonText: 'Ir a página de prueba'
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.open(qzTestUrl, '_blank');
+                }
             });
         });
 
