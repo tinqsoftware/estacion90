@@ -223,16 +223,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/impresiones/{id}/marcar-impresa', [DespachoController::class, 'marcarImpresionComoImpresa'])->name('impresiones.marcar');
     Route::get('/impresiones/{id}/preview', [DespachoController::class, 'previewImpresion'])->name('impresiones.preview');
 
-    // QZ Tray security endpoints
-    Route::get('/qz/certificate', [QzController::class, 'certificate'])->name('qz.certificate');
-    Route::post('/qz/sign', [QzController::class, 'sign'])->name('qz.sign')->middleware('throttle:600,1');
-    Route::get('/qz/info', [QzController::class, 'info'])->name('qz.info');
-    
-    // QZ Tray test page
-    Route::get('/qz-test', function () {
-        return view('qz-test');
-    })->name('qz.test');
-
 // Delivery
     Route::get('/motorizado/moto', [MotoController::class, 'showMoto'])->name('motorizado.moto');
     Route::post('/motorizado/marcar-en-camino', [MotoController::class, 'marcarEnCamino'])->name('motorizado.marcar-en-camino');
@@ -262,8 +252,17 @@ Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('client
 Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
 
 // Apis rutas_ordenes
-
     Route::get('/estado-pedido/{id}', [ApisController::class, 'obtenerEstadoPedido'])->name('api.pedido.estado')->middleware('auth');
     Route::post('/reordenar/{id}', [ApisController::class, 'reordenarPedido'])->name('api.pedido.reordenar')->middleware('auth');
 
 });
+
+// QZ Tray security endpoints (públicos - sin autenticación requerida)
+Route::get('/qz/certificate', [QzController::class, 'certificate'])->name('qz.certificate');
+Route::post('/qz/sign', [QzController::class, 'sign'])->name('qz.sign')->middleware('throttle:600,1');
+Route::get('/qz/info', [QzController::class, 'info'])->name('qz.info');
+
+// QZ Tray test page (público para desarrollo)
+Route::get('/qz-test', function () {
+    return view('qz-test');
+})->name('qz.test');
