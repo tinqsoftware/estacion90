@@ -148,6 +148,17 @@
         </div>
     </div>
 </div>
+
+@role('impresion')
+  @include('partials.qz-setup')
+  <script>
+    // Arrancador ultra-liviano para mantener QZ conectado.
+    (async function(){
+      try { await qzEnsureConnected(); } catch(e) {}
+    })();
+  </script>
+@endrole
+
 <!--**********************************
     Sidebar end
 ***********************************-->

@@ -126,34 +126,26 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center impresiones-header">
-                                <h4 class="card-title impresiones-title">
-                                    <i class="fa-regular fa-clock"></i>
-                                    <span>Cola De Impresiones (Pendientes)</span>
-                                </h4>
-                                <div class="header-right-tools">
-                                    <span class="status-badge" id="lastRefresh">Actualizado: --:--</span>
-                                    <span class="pending-pill" id="pendingCount">0 pendientes</span>
-                                </div>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <strong>🖨️ Cola De Impresiones (Pendientes)</strong>
+                                <small id="lastUpdate">Actualizado: --</small>
                             </div>
                             <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-striped table-sm align-middle mb-0" id="tabla-impresiones">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Pedido</th>
-                                                <th>Generado</th>
-                                                <th>Cliente</th>
-                                                <th>Total</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Se rellena por JS -->
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                    <th>#</th>
+                                    <th>Pedido</th>
+                                    <th>Generado</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="impTable">
+                                    <tr><td colspan="6" class="text-center text-muted p-4">Cargando…</td></tr>
+                                </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -164,6 +156,8 @@
             
         </div>
     </div>
+
+    @include('partials.qz-setup')
     
     <!-- Vendor Scripts -->
     <script src="{{ asset('access/vendor/global/global.min.js') }}"></script>
@@ -174,97 +168,101 @@
     <script src="{{ asset('access/js/custom.js') }}"></script>
 
     <script>
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const API_LIST = "{{ route('impresiones.pendientes') }}";
-        const API_MARK = (id) => `{{ url('/api/impresiones') }}/${id}/marcar-impresa`;
-        const URL_PREVIEW = (id) => `{{ url('/impresiones') }}/${id}/preview`;
+async function qzEnsureConnected(){ if(!qz.websocket.isActive()) await qz.websocket.connect(); }
+async function getDefaultPrinter(){ await qzEnsureConnected(); return await qz.printers.getDefault(); }
 
-        async function fetchPendientes() {
-            try {
-                const res = await fetch(API_LIST, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) throw new Error('Error listando impresiones');
-                const data = await res.json();
-                renderTabla(data);
-                document.getElementById('lastRefresh').textContent = `Actualizado: ${new Date().toLocaleTimeString()}`;
-                const countEl = document.getElementById('pendingCount');
-                if (countEl) countEl.textContent = `${data?.length ?? 0} pendientes`;
-            } catch (e) {
-                console.error(e);
-            }
-        }
+async function printPdfViaBase64(pdfUrl, printerName){
+  const resp = await fetch(pdfUrl, { credentials:'include' });
+  if(!resp.ok) throw new Error('PDF HTTP '+resp.status);
+  const blob = await resp.blob();
+  const buf  = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let bin = ''; for(let i=0;i<bytes.byteLength;i++) bin += String.fromCharCode(bytes[i]);
+  const b64 = btoa(bin);
+  const cfg  = qz.configs.create(printerName, { rasterize:true });
+  const data = [{ type:'pdf', data:'base64,'+b64 }];
+  await qz.print(cfg, data);
+}
 
-        function renderTabla(items) {
-            const tbody = document.querySelector('#tabla-impresiones tbody');
-            tbody.innerHTML = '';
-            if (!items || !items.length) {
-                const tr = document.createElement('tr');
-                const td = document.createElement('td');
-                td.colSpan = 6;
-                td.className = 'text-center text-muted py-4';
-                td.textContent = 'No hay impresiones pendientes';
-                tr.appendChild(td);
-                tbody.appendChild(tr);
-                return;
-            }
-            items.forEach((imp) => {
-                const tr = document.createElement('tr');
-                const pedido = imp.pedido || {};
-                const fecha = imp.fecha_generacion ? new Date(imp.fecha_generacion) : null;
-                const totalRaw = Number(pedido.monto_total ?? 0);
-                const totalFmtNumber = (isFinite(totalRaw) ? totalRaw.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00');
+async function marcarImpresa(id){
+  const r = await fetch(`/api/impresiones/${id}/marcar-impresa`, {
+    method:'POST',
+    headers:{ 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+              'Accept':'application/json' },
+    credentials:'include'
+  });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j = await r.json(); if(!j.ok) throw new Error('No se pudo marcar id '+id);
+}
 
-                tr.innerHTML = `
-                    <td data-label="#">${imp.id}</td>
-                    <td data-label="Pedido">
-                        <div class="text-truncate-1" style="color:#0d6efd;"><strong>Pedido #${pedido.id ?? ''}</strong></div>
-                        <small class="text-muted">${pedido.distritoContacto?.nombre ?? ''}</small>
-                    </td>
-                    <td data-label="Generado">${fecha ? fecha.toLocaleString() : ''}</td>
-                    <td data-label="Cliente">
-                        <div class="text-truncate-1">${pedido.nombre_contacto ?? '-'}</div>
-                        <small class="text-muted">${pedido.telefono_contacto ?? ''}</small>
-                    </td>
-                    <td data-label="Total">
-                        <span class="money">
-                            <span class="money-symbol">S/</span>
-                            <span class="text-money">${totalFmtNumber}</span>
-                        </span>
-                    </td>
-                    <td data-label="Acciones" class="actions-cell">
-                        <div class="btn-group btn-group-sm actions-flex" role="group">
-                            <a class="btn btn-outline-orange btn-icon" href="${URL_PREVIEW(imp.id)}" target="_blank" title="Preview">
-                                <i class="fa fa-eye"></i>
-                            </a>
-                            <button class="btn btn-success btn-icon" onclick="marcarImpresa(${imp.id})" title="Marcar como impresa">
-                                <i class="fa fa-check"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+async function fetchPendientes(limit=5){
+  const r = await fetch(`/api/impresiones/pendientes?limit=${limit}`, { credentials:'include' });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j = await r.json(); return j.items || [];
+}
 
-        async function marcarImpresa(id) {
-            try {
-                const res = await fetch(API_MARK(id), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({})
-                });
-                if (!res.ok) throw new Error('No se pudo marcar como impresa');
-                await fetchPendientes();
-            } catch (e) {
-                console.error(e);
-            }
-        }
+async function printHtmlViaQZ(htmlString, printerName){
+  await qzEnsureConnected();
+  const cfg  = qz.configs.create(printerName, { rasterize: true });
+  const data = [{ type: 'html', format: 'plain', data: htmlString }];
+  await qz.print(cfg, data);
+}
 
-        // Auto refresh cada 5s (solo reemplaza cuerpo de tabla)
-        fetchPendientes();
-    setInterval(fetchPendientes, 5000);
-    </script>
+async function imprimirItemCola(it){
+  const printer = await getDefaultPrinter();
+  if(!printer) throw new Error('No hay impresora por defecto');
+
+  // Descarga el HTML de la vista (no PDF)
+  const resp = await fetch(`/despacho/pedido/imprimir/${it.pedido_id}`, { credentials:'include' });
+  if(!resp.ok) throw new Error('HTML HTTP '+resp.status);
+  const html = await resp.text();
+
+  await printHtmlViaQZ(html, printer);
+  await marcarImpresa(it.id);
+}
+
+const $tbody = document.getElementById('impTable');
+const $stamp = document.getElementById('lastUpdate');
+function rowHtml(it){ return `
+  <tr data-id="${it.id}">
+    <td>${it.id}</td><td>#${it.pedido_id}</td><td>${it.generado??''}</td>
+    <td>${it.cliente??''}</td><td>${it.total??''}</td>
+    <td><button class="btn btn-sm btn-outline-primary"
+      data-action="imprimir-pendiente" data-id="${it.id}" data-pedido="${it.pedido_id}">Imprimir</button></td>
+  </tr>`; }
+async function renderTabla(items){
+  $stamp.textContent = 'Actualizado: '+ new Date().toLocaleString();
+  $tbody.innerHTML = items.length ? items.map(rowHtml).join('') :
+    `<tr><td colspan="6" class="text-center text-muted p-4">No hay impresiones pendientes</td></tr>`;
+}
+
+let busy=false, printedRecently=new Set();
+async function cicloAuto(ms=4000,batch=5){
+  if(busy) return; busy=true;
+  try{
+    const items = await fetchPendientes(batch);
+    await renderTabla(items);
+    for(const it of items){
+      if(printedRecently.has(it.id)) continue;
+      try{ await imprimirItemCola(it); printedRecently.add(it.id); }
+      catch(e){ console.error('Error imprimiendo', it.id, e); }
+    }
+    setTimeout(()=>printedRecently.clear(), 60000);
+  }catch(e){ console.error('Autoimpresión', e); }
+  finally{ busy=false; setTimeout(()=>cicloAuto(ms,batch), ms); }
+}
+
+document.addEventListener('click', async e=>{
+  const btn = e.target.closest('[data-action="imprimir-pendiente"]'); if(!btn) return;
+  try{ await imprimirItemCola({ id:btn.dataset.id, pedido_id:btn.dataset.pedido }); }
+  catch(err){ console.error(err); alert('No se pudo imprimir: '+(err.message||err)); }
+});
+
+window.addEventListener('load', async ()=>{
+  try{ await qzEnsureConnected(); cicloAuto(4000,5); }
+  catch(e){ console.error('QZ connect:', e); }
+});
+</script>
+
+
 </body>

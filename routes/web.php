@@ -215,13 +215,26 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/despacho/pedido/asignar-moto', [DespachoController::class, 'asignarPedidoAMoto'])->name('despacho.asignar-moto');
     Route::post('/despacho/pedido/en-camino', [DespachoController::class, 'marcarPedidoEnCamino'])->name('despacho.en-camino');
     Route::get('/despacho/estado-pedidos', [DespachoController::class, 'obtenerEstadoPedidos'])->name('despacho.estado-pedidos');
-    Route::get('/despacho/pedido/imprimir/{id}', [DespachoController::class, 'imprimirPedido'])->name('despacho.imprimir');
+    //Route::get('/despacho/pedido/imprimir/{id}', [DespachoController::class, 'imprimirPedido'])->name('despacho.imprimir');
 
     // Panel de Impresiones (rol 6)
-    Route::get('/impresiones', [DespachoController::class, 'vistaImpresiones'])->name('impresiones.panel');
-    Route::get('/api/impresiones/pendientes', [DespachoController::class, 'obtenerImpresionesPendientes'])->name('impresiones.pendientes');
-    Route::post('/api/impresiones/{id}/marcar-impresa', [DespachoController::class, 'marcarImpresionComoImpresa'])->name('impresiones.marcar');
+    //Route::get('/impresiones', [DespachoController::class, 'vistaImpresiones'])->name('impresiones.panel');
+    //Route::get('/api/impresiones/pendientes', [DespachoController::class, 'obtenerImpresionesPendientes'])->name('impresiones.pendientes');
+    //Route::post('/api/impresiones/{id}/marcar-impresa', [DespachoController::class, 'marcarImpresionComoImpresa'])->name('impresiones.marcar');
     Route::get('/impresiones/{id}/preview', [DespachoController::class, 'previewImpresion'])->name('impresiones.preview');
+
+
+    // Vista del panel (rol impresión)
+    Route::get('/impresiones', [DespachoController::class, 'vistaImpresiones'])->name('impresiones.panel');
+
+    // API: cola de pendientes
+    Route::get('/api/impresiones/pendientes', [DespachoController::class, 'obtenerImpresionesPendientes'])->name('impresiones.pendientes');
+
+    // API: marcar una impresión como impresa
+    Route::post('/api/impresiones/{id}/marcar-impresa', [DespachoController::class, 'marcarImpresionComoImpresa'])->name('impresiones.marcar');
+
+    // (ya existe) PDF del pedido que usas en despacho:
+    Route::get('/despacho/pedido/imprimir/{id}', [DespachoController::class, 'imprimirPedido'])->middleware(['auth'])->name('despacho.imprimir');
 
 // Delivery
     Route::get('/motorizado/moto', [MotoController::class, 'showMoto'])->name('motorizado.moto');

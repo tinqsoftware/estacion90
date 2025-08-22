@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\HistorialEstadoService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DespachoController extends Controller
 {
@@ -230,294 +231,310 @@ private function getMotorizadosActivos()
     }
 
     public function asignarPedidoAMoto(Request $request)
-{
-    $pedidoId = $request->input('pedido_id');
-    $motoId = $request->input('moto_id'); 
-    
-    $pedido = Pedido::find($pedidoId);
-    if (!$pedido) {
-        return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
+    {
+        $pedidoId = $request->input('pedido_id');
+        $motoId = $request->input('moto_id'); 
+        
+        $pedido = Pedido::find($pedidoId);
+        if (!$pedido) {
+            return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
+        }
+        
+        $estadoAnterior = $pedido->estado;
+        $pedido->id_user_moto = $motoId;
+        
+        if ($motoId > 0) {
+            $pedido->estado = 4; // Asignado a motorizado
+        } else {
+            $pedido->estado = 3; // Por asignar
+        }
+        
+        $pedido->save();
+        
+        // Registrar cambio de estado en el historial solo si cambió
+        if ($estadoAnterior !== $pedido->estado) {
+            HistorialEstadoService::registrarCambioEstado($pedido->id, $pedido->estado);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Pedido asignado a moto $motoId correctamente",
+            'pedido' => $pedido
+        ]);
     }
-    
-    $estadoAnterior = $pedido->estado;
-    $pedido->id_user_moto = $motoId;
-    
-    if ($motoId > 0) {
-        $pedido->estado = 4; // Asignado a motorizado
-    } else {
-        $pedido->estado = 3; // Por asignar
-    }
-    
-    $pedido->save();
-    
-    // Registrar cambio de estado en el historial solo si cambió
-    if ($estadoAnterior !== $pedido->estado) {
-        HistorialEstadoService::registrarCambioEstado($pedido->id, $pedido->estado);
-    }
-    
-    return response()->json([
-        'success' => true,
-        'message' => "Pedido asignado a moto $motoId correctamente",
-        'pedido' => $pedido
-    ]);
-}
 
-private function getPedidosAsignadosAMoto($motoId)
-{
-    $pedidosDB = Pedido::with([
-        'detalles.producto', 
-        'detalles.comensal', 
-        'comensales',
-        'tipoPago',
-        'comprobantePago',
-        'distritoContacto'
-    ])
-    ->where('id_user_moto', $motoId)
-    ->whereIn('estado', [4, 5]) 
-    ->whereDate('created_at', Carbon::today())
-    ->orderBy('created_at', 'desc')
-    ->get();
-    
-    return $this->formatearPedidos($pedidosDB);
-}
-
-
-public function marcarPedidoEnCamino(Request $request)
-{
-    $pedidoId = $request->input('pedido_id');
-    
-    $pedido = Pedido::find($pedidoId);
-    if (!$pedido) {
-        return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
-    }
-    
-    $estadoAnterior = $pedido->estado;
-    $pedido->estado = 5; // En camino
-    $pedido->save();
-    
-    // Registrar cambio de estado en el historial solo si cambió
-    if ($estadoAnterior !== 5) {
-        HistorialEstadoService::registrarCambioEstado($pedido->id, 5);
-    }
-    
-    return response()->json([
-        'success' => true,
-        'message' => 'Pedido marcado como en camino',
-        'pedido' => $pedido
-    ]);
-}
-
-public function obtenerEstadoPedidos()
-{
-    // Solo retornar pedidos activos en el dashboard (estados 4 y 5)
-    // Los estados 6, 10, 11 se consideran finalizados y no se muestran
-    $pedidosDB = Pedido::whereIn('estado', [4, 5])
+    private function getPedidosAsignadosAMoto($motoId)
+    {
+        $pedidosDB = Pedido::with([
+            'detalles.producto', 
+            'detalles.comensal', 
+            'comensales',
+            'tipoPago',
+            'comprobantePago',
+            'distritoContacto'
+        ])
+        ->where('id_user_moto', $motoId)
+        ->whereIn('estado', [4, 5]) 
         ->whereDate('created_at', Carbon::today())
-        ->select('id', 'estado', 'id_user_moto', 'orden_entrega')
+        ->orderBy('created_at', 'desc')
         ->get();
-    
-    return response()->json($pedidosDB);
-}
+        
+        return $this->formatearPedidos($pedidosDB);
+    }
 
 
-/**
- * Generar vista de impresión para un pedido
- *
- * @param int $id
- * @return \Illuminate\View\View
- */
-public function imprimirPedido($id)
-{
-    $pedidoDB = Pedido::with([
-        'detalles.producto', 
-        'detalles.comensal', 
-        'comensales',
-        'tipoPago',
-        'comprobantePago',
-        'distritoContacto'
-    ])->findOrFail($id);
-    
-    // Formatear los datos para la vista de impresión
-    $pedido = $this->formatearPedidoParaImpresion($pedidoDB);
-    
-    // Marcar como impreso en la tabla de impresiones
-    $this->marcarComoImpreso($id);
-    
-    return view('despacho.imprimir-pedido', compact('pedido'));
-}
+    public function marcarPedidoEnCamino(Request $request)
+    {
+        $pedidoId = $request->input('pedido_id');
+        
+        $pedido = Pedido::find($pedidoId);
+        if (!$pedido) {
+            return response()->json(['error' => 'Pedido no encontrado', 'success' => false], 404);
+        }
+        
+        $estadoAnterior = $pedido->estado;
+        $pedido->estado = 5; // En camino
+        $pedido->save();
+        
+        // Registrar cambio de estado en el historial solo si cambió
+        if ($estadoAnterior !== 5) {
+            HistorialEstadoService::registrarCambioEstado($pedido->id, 5);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Pedido marcado como en camino',
+            'pedido' => $pedido
+        ]);
+    }
+
+    public function obtenerEstadoPedidos()
+    {
+        // Solo retornar pedidos activos en el dashboard (estados 4 y 5)
+        // Los estados 6, 10, 11 se consideran finalizados y no se muestran
+        $pedidosDB = Pedido::whereIn('estado', [4, 5])
+            ->whereDate('created_at', Carbon::today())
+            ->select('id', 'estado', 'id_user_moto', 'orden_entrega')
+            ->get();
+        
+        return response()->json($pedidosDB);
+    }
+
 
     /**
-     * Crear registro en la tabla de impresiones cuando el pedido pasa a estado 2
+     * Generar vista de impresión para un pedido
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
      */
-    private function crearRegistroImpresion($pedidoId)
+    public function imprimirPedido($id)
     {
-        $impresionExistente = Impresiones::where('id_pedido', $pedidoId)->first();
-        if (!$impresionExistente) {
-            Impresiones::create([
-                'id_pedido' => $pedidoId,
-                'estado' => Impresiones::ESTADO_INGRESADO,
-                'fecha_generacion' => Carbon::now(),
-                'fecha_impresion' => null,
-                'impresora' => null,
+        $pedidoDB = Pedido::with([
+            'detalles.producto', 
+            'detalles.comensal', 
+            'comensales',
+            'tipoPago',
+            'comprobantePago',
+            'distritoContacto'
+        ])->findOrFail($id);
+        
+        // Formatear los datos para la vista de impresión
+        $pedido = $this->formatearPedidoParaImpresion($pedidoDB);
+        
+        // Marcar como impreso en la tabla de impresiones
+        $this->marcarComoImpreso($id);
+        
+        return view('despacho.imprimir-pedido', compact('pedido'));
+    }
+
+        /**
+         * Crear registro en la tabla de impresiones cuando el pedido pasa a estado 2
+         */
+        private function crearRegistroImpresion($pedidoId)
+        {
+            $impresionExistente = Impresiones::where('id_pedido', $pedidoId)->first();
+            if (!$impresionExistente) {
+                Impresiones::create([
+                    'id_pedido' => $pedidoId,
+                    'estado' => Impresiones::ESTADO_INGRESADO,
+                    'fecha_generacion' => Carbon::now(),
+                    'fecha_impresion' => null,
+                    'impresora' => null,
+                ]);
+            }
+        }
+
+        /**
+         * Vista del panel de impresiones (solo rol 6)
+         */
+        public function vistaImpresiones()
+        {
+            if (!Auth::check() || Auth::user()->id_rol !== 6) {
+                abort(403, 'No autorizado');
+            }
+            return view('users.users_impresion');
+        }
+
+    /**
+     * Marcar una impresión como realizada por id_pedido
+     *
+     * @param int $pedidoId
+     * @return void
+     */
+    private function marcarComoImpreso($pedidoId)
+    {
+        $impresion = Impresiones::where('id_pedido', $pedidoId)->first();
+        if ($impresion && (int) $impresion->estado === Impresiones::ESTADO_INGRESADO) {
+            $impresion->update([
+                'estado' => Impresiones::ESTADO_IMPRESO,
+                'fecha_impresion' => Carbon::now(),
             ]);
         }
     }
 
     /**
-     * Vista del panel de impresiones (solo rol 6)
+     * Obtener el estado de impresión de un pedido
+     *
+     * @param int $pedidoId
+     * @return string|null
      */
-    public function vistaImpresiones()
+    public function obtenerEstadoImpresion($pedidoId)
     {
-        if (!Auth::check() || Auth::user()->id_rol !== 6) {
-            abort(403, 'No autorizado');
-        }
-        return view('users.users_impresion');
+        $impresion = Impresiones::where('id_pedido', $pedidoId)->first();
+        return $impresion ? $impresion->estado : null;
     }
 
-/**
- * Marcar una impresión como realizada por id_pedido
- *
- * @param int $pedidoId
- * @return void
- */
-private function marcarComoImpreso($pedidoId)
-{
-    $impresion = Impresiones::where('id_pedido', $pedidoId)->first();
-    if ($impresion && (int) $impresion->estado === Impresiones::ESTADO_INGRESADO) {
-        $impresion->update([
-            'estado' => Impresiones::ESTADO_IMPRESO,
-            'fecha_impresion' => Carbon::now(),
+    /**
+     * Listar todas las impresiones pendientes
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function obtenerImpresionesPendientes(Request $r)
+    {
+        $limit = (int) $r->query('limit', 10);
+
+        $rows = DB::table('impresiones')
+            ->where('estado', 'pendiente')
+            ->orderBy('id')           // FIFO: primero en entrar, primero en salir
+            ->limit($limit)
+            ->get(['id', 'id_pedido', 'fecha_generacion']);
+
+        // Solo devolvemos lo necesario
+        $items = $rows->map(function ($i) {
+            return [
+                'id'        => $i->id, // id de la tabla impresiones
+                'pedido_id' => $i->id_pedido,
+                'generado'  => Carbon::parse($i->fecha_generacion)->toDateTimeString(),
+                'pdf_url'   => route('despacho.imprimir', ['id' => $i->id_pedido]), // usa tu mismo imprimirPedido
+            ];
+        });
+
+        return response()->json([
+            'now'   => now()->toDateTimeString(),
+            'count' => $items->count(),
+            'items' => $items,
         ]);
     }
-}
 
-/**
- * Obtener el estado de impresión de un pedido
- *
- * @param int $pedidoId
- * @return string|null
- */
-public function obtenerEstadoImpresion($pedidoId)
-{
-    $impresion = Impresiones::where('id_pedido', $pedidoId)->first();
-    return $impresion ? $impresion->estado : null;
-}
+    /**
+     * Marcar una impresión (por ID de impresiones) como impresa
+     */
+    public function marcarImpresionComoImpresa(Request $r, $id)
+    {
+        $updated = DB::table('impresiones')
+            ->where('id', $id)
+            ->where('estado', 'pendiente')
+            ->update([
+                'estado'          => 'impreso',
+                'fecha_impresion' => now(),
+                'updated_at'      => now(),
+            ]);
 
-/**
- * Listar todas las impresiones pendientes
- *
- * @return \Illuminate\Http\JsonResponse
- */
-public function obtenerImpresionesPendientes()
-{
-    $impresiones = Impresiones::with('pedido.distritoContacto')
-        ->where('estado', Impresiones::ESTADO_INGRESADO)
-        ->whereDate('fecha_generacion', Carbon::today())
-        ->orderBy('fecha_generacion', 'desc')
-        ->get();
-    return response()->json($impresiones);
-}
-
-/**
- * Marcar una impresión (por ID de impresiones) como impresa
- */
-public function marcarImpresionComoImpresa($impresionId)
-{
-    $impresion = Impresiones::with('pedido')->find($impresionId);
-    if (!$impresion) {
-        return response()->json(['success' => false, 'message' => 'Impresión no encontrada'], 404);
+        return response()->json(['ok' => (bool) $updated]);
     }
-    if ((int) $impresion->estado === Impresiones::ESTADO_IMPRESO) {
-        return response()->json(['success' => true, 'message' => 'Ya estaba marcada como impresa']);
-    }
-    $impresion->estado = Impresiones::ESTADO_IMPRESO;
-    $impresion->fecha_impresion = Carbon::now();
-    $impresion->save();
-    return response()->json(['success' => true]);
-}
 
-/**
- * Preview del contenido a imprimir sin marcar como impreso
- */
-public function previewImpresion($impresionId)
-{
-    $impresion = Impresiones::with('pedido.detalles.producto', 'pedido.detalles.comensal', 'pedido.comensales', 'pedido.tipoPago', 'pedido.comprobantePago', 'pedido.distritoContacto')
-        ->findOrFail($impresionId);
-    if (!$impresion->pedido) {
-        abort(404, 'Pedido asociado no encontrado');
+    /**
+     * Preview del contenido a imprimir sin marcar como impreso
+     */
+    public function previewImpresion($impresionId)
+    {
+        $impresion = Impresiones::with('pedido.detalles.producto', 'pedido.detalles.comensal', 'pedido.comensales', 'pedido.tipoPago', 'pedido.comprobantePago', 'pedido.distritoContacto')
+            ->findOrFail($impresionId);
+        if (!$impresion->pedido) {
+            abort(404, 'Pedido asociado no encontrado');
+        }
+        $pedido = $this->formatearPedidoParaImpresion($impresion->pedido);
+        return view('despacho.imprimir-pedido', compact('pedido'));
     }
-    $pedido = $this->formatearPedidoParaImpresion($impresion->pedido);
-    return view('despacho.imprimir-pedido', compact('pedido'));
-}
 
-/**
- * Formatear un pedido para la vista de impresión
- * 
- * @param Pedido $pedidoDB
- * @return array
- */
-private function formatearPedidoParaImpresion($pedidoDB)
-{
-    // Agrupar los detalles por comensal
-    $comensalesDatos = [];
-    $totalPedido = 0;
-    
-    foreach ($pedidoDB->comensales as $comensal) {
-        $items = [];
-        $totalComensal = 0;
+    /**
+     * Formatear un pedido para la vista de impresión
+     * 
+     * @param Pedido $pedidoDB
+     * @return array
+     */
+    private function formatearPedidoParaImpresion($pedidoDB)
+    {
+        // Agrupar los detalles por comensal
+        $comensalesDatos = [];
+        $totalPedido = 0;
         
-        // Obtener los items de este comensal
-        foreach ($pedidoDB->detalles as $detalle) {
-            if ($detalle->id_comensal == $comensal->id) {
-                $nombreProducto = $detalle->producto ? $detalle->producto->nombre : 'Producto no disponible';
-                $precioUnitario = $detalle->precio;
-                
-                $items[] = [
-                    'nombre' => $nombreProducto,
-                    'precio' => $precioUnitario,
-                    'cantidad' => $detalle->cantidad,
-                    'subtotal' => $precioUnitario * $detalle->cantidad
-                ];
-                
-                $totalComensal += ($precioUnitario * $detalle->cantidad);
+        foreach ($pedidoDB->comensales as $comensal) {
+            $items = [];
+            $totalComensal = 0;
+            
+            // Obtener los items de este comensal
+            foreach ($pedidoDB->detalles as $detalle) {
+                if ($detalle->id_comensal == $comensal->id) {
+                    $nombreProducto = $detalle->producto ? $detalle->producto->nombre : 'Producto no disponible';
+                    $precioUnitario = $detalle->precio;
+                    
+                    $items[] = [
+                        'nombre' => $nombreProducto,
+                        'precio' => $precioUnitario,
+                        'cantidad' => $detalle->cantidad,
+                        'subtotal' => $precioUnitario * $detalle->cantidad
+                    ];
+                    
+                    $totalComensal += ($precioUnitario * $detalle->cantidad);
+                }
             }
+            
+            $comensalesDatos[] = [
+                'nombre' => $comensal->nombre_comensal,
+                'total' => $totalComensal,
+                'items' => $items
+            ];
+            
+            $totalPedido += $totalComensal;
         }
         
-        $comensalesDatos[] = [
-            'nombre' => $comensal->nombre_comensal,
-            'total' => $totalComensal,
-            'items' => $items
-        ];
+        // Formatear la fecha para mostrar
+        $fechaPedido = Carbon::parse($pedidoDB->created_at);
+        $fechaEntrega = $pedidoDB->hora_programada ? 
+            Carbon::parse($pedidoDB->hora_programada) : 
+            $fechaPedido->copy()->addMinutes(45);
         
-        $totalPedido += $totalComensal;
+        return [
+            'id' => $pedidoDB->id,
+            'fecha' => $fechaPedido->format('d/m/Y'),
+            'hora_pedido' => $fechaPedido->format('h:i A'),
+            'hora_entrega' => $fechaEntrega->format('h:i A'),
+            'nombre_contacto' => $pedidoDB->nombre_contacto,
+            'telefono_contacto' => $pedidoDB->telefono_contacto,
+            'direccion' => $pedidoDB->direccion_contacto,
+            'referencia' => $pedidoDB->referencia_contacto,
+            'distrito' => $pedidoDB->distritoContacto ? $pedidoDB->distritoContacto->nombre : '',
+            'metodo_pago' => $pedidoDB->tipoPago ? $pedidoDB->tipoPago->nombre : $pedidoDB->metodo_pago,
+            'vuelto' => $pedidoDB->vuelto,
+            'comprobante' => $pedidoDB->desea_comprobante ? 'Sí' : 'No',
+            'tipo_comprobante' => $pedidoDB->comprobantePago ? $pedidoDB->comprobantePago->nombre : '',
+            'documento' => $pedidoDB->datos_comprobante ? json_decode($pedidoDB->datos_comprobante)->numero_documento ?? '' : '',
+            'comentarios' => $pedidoDB->comentarios,
+            'estado' => $pedidoDB->estado,
+            'total' => $pedidoDB->monto_total, // Usar el monto_total del pedido en lugar de calcular
+            'comensales' => $comensalesDatos,
+        ];
     }
-    
-    // Formatear la fecha para mostrar
-    $fechaPedido = Carbon::parse($pedidoDB->created_at);
-    $fechaEntrega = $pedidoDB->hora_programada ? 
-        Carbon::parse($pedidoDB->hora_programada) : 
-        $fechaPedido->copy()->addMinutes(45);
-    
-    return [
-        'id' => $pedidoDB->id,
-        'fecha' => $fechaPedido->format('d/m/Y'),
-        'hora_pedido' => $fechaPedido->format('h:i A'),
-        'hora_entrega' => $fechaEntrega->format('h:i A'),
-        'nombre_contacto' => $pedidoDB->nombre_contacto,
-        'telefono_contacto' => $pedidoDB->telefono_contacto,
-        'direccion' => $pedidoDB->direccion_contacto,
-        'referencia' => $pedidoDB->referencia_contacto,
-        'distrito' => $pedidoDB->distritoContacto ? $pedidoDB->distritoContacto->nombre : '',
-        'metodo_pago' => $pedidoDB->tipoPago ? $pedidoDB->tipoPago->nombre : $pedidoDB->metodo_pago,
-        'vuelto' => $pedidoDB->vuelto,
-        'comprobante' => $pedidoDB->desea_comprobante ? 'Sí' : 'No',
-        'tipo_comprobante' => $pedidoDB->comprobantePago ? $pedidoDB->comprobantePago->nombre : '',
-        'documento' => $pedidoDB->datos_comprobante ? json_decode($pedidoDB->datos_comprobante)->numero_documento ?? '' : '',
-        'comentarios' => $pedidoDB->comentarios,
-        'estado' => $pedidoDB->estado,
-        'total' => $pedidoDB->monto_total, // Usar el monto_total del pedido en lugar de calcular
-        'comensales' => $comensalesDatos,
-    ];
-}
 
 }
