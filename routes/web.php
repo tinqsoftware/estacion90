@@ -244,12 +244,12 @@ Route::middleware(['auth'])->group(function () {
 // CLIENTES
 
     Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
-Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create');
-Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store'); // Cambié /clientes/store por /clientes
-Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('clientes.show'); // Agregué esta ruta
-Route::get('/clientes/{id}/edit', [ClienteController::class, 'edit'])->name('clientes.edit');
-Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
-Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+    Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create');
+    Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store'); // Cambié /clientes/store por /clientes
+    Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('clientes.show'); // Agregué esta ruta
+    Route::get('/clientes/{id}/edit', [ClienteController::class, 'edit'])->name('clientes.edit');
+    Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
+    Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
 
 // Apis rutas_ordenes
     Route::get('/estado-pedido/{id}', [ApisController::class, 'obtenerEstadoPedido'])->name('api.pedido.estado')->middleware('auth');
