@@ -15,11 +15,11 @@
         font-size: 12px;
         color: #333;
     }
-    .ticket {
-        width: 100%;
-        max-width: 138mm; /* Reducido para compensar los márgenes de página */
-        min-height: 190mm; /* Reducido para compensar los márgenes de página */
-        margin: 0 auto; /* Centrar el ticket */
+    /* En la vista del ticket */
+    .ticket { width: 45mm; margin:0; padding:0; }
+    @media print {
+    @page { size: 45mm auto; margin:0; }
+    html, body { width:45mm; margin:0; padding:0; }
     }
     .logo {
         text-align: center;
