@@ -39,35 +39,7 @@
 
     <style>
 
-          /* --- Reglas SOLO impresora --- */
-    @media print {
-      @page {
-        /* ancho real del papel de la ticketera */
-        size: 45mm auto;
-        margin: 0;                 /* sin márgenes */
-      }
-      html, body {
-        width: 45mm;
-        margin: 0;
-        padding: 0;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-
-      /* tipografías y espaciamientos pensados para 203 dpi */
-      body { font-size: 12px; line-height: 1.25; }
-      .ticket { width: 45mm; padding: 0; margin: 0; }
-      .row   { display:block; }
-      .mt-0, .mb-0, .pt-0, .pb-0 { margin:0; padding:0; }
-
-      /* Evita que “encuadre” o meta márgenes invisibles */
-      * { box-sizing: border-box; }
-      img, canvas { max-width: 100%; height: auto; }
-
-      /* Evitar saltos raros */
-      .no-break { page-break-inside: avoid; }
-    }
-
+      
         /* Better table visuals */
         #tabla-impresiones {
             width: 100%;
