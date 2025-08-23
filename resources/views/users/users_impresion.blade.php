@@ -205,9 +205,14 @@
       async function getDefaultPrinter(){ await qzEnsureConnected(); return await qz.printers.getDefault(); }
 
       /* ===== Util: milímetros a píxeles (203dpi ≈ 8 px/mm) ===== */
-      const PX_PER_MM = 203 / 25.4;                  // ≈ 7.99
-      const TICKET_MM = 45;                          // ancho del rollo
-      const TICKET_PX = Math.round(TICKET_MM * PX_PER_MM); // ≈ 360px
+      const DPI = 203;                          // tu impresora
+      const PX_PER_MM = DPI / 25.4;             // ≈ 7.99 px por mm
+      const TICKET_MM = 45;                     // ancho del rollo
+      const TICKET_PX = Math.round(TICKET_MM * PX_PER_MM);
+
+      // Altura máxima que permite tu driver (p. ej. 100 mm)
+      const MAX_MM = 100;                       // ajústalo si cambias el driver
+      const MAX_PX = Math.round(MAX_MM * PX_PER_MM);
 
       /* ===== Carga el HTML del ticket en un iframe oculto =====
         Apunta a tu propia vista de impresión. Idealmente esa vista
@@ -243,27 +248,31 @@
         });
       }
 
-      /* ===== Renderiza el ticket a PNG (base64) ===== */
       async function ticketToBase64Png(node){
+        node.style.width = TICKET_PX + 'px';
+        node.style.margin = '0';
+        node.style.padding = '0';
+
         const canvas = await html2canvas(node, {
-          scale: 2,                    // mejora nitidez en térmicas 203dpi
+          scale: 2,                // nitidez
           useCORS: true,
-          backgroundColor: '#ffffff',
+          backgroundColor: '#fff',
           width: TICKET_PX,
           windowWidth: TICKET_PX
         });
-        return canvas.toDataURL('image/png').split(',')[1];  // base64 puro
+        return canvas.toDataURL('image/png').split(',')[1]; // sólo la parte base64
       }
 
       /* ===== Imprime imagen con QZ a 45mm de ancho ===== */
       async function printPngBase64WithQZ(b64, printerName){
         const cfg = qz.configs.create(printerName, {
           rasterize: true,
-          size: { width: TICKET_MM, units: 'mm' },   // ancho físico exacto
+          size: { width: 45, /* height opcional, ver punto C */ units: 'mm' },
           scaleContent: true,
           copies: 1
         });
-        const data = [{ type: 'image', format: 'png', data: 'base64,' + b64 }];
+        // 👇 OJO: data:image/png;base64,  (no solo "base64,")
+        const data = [{ type: 'image', data: 'data:image/png;base64,' + b64 }];
         await qz.print(cfg, data);
       }
 

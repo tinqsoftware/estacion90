@@ -222,7 +222,7 @@
     <script>
         window.onload = function() {
             setTimeout(function() {
-                window.print();
+                //window.print();
                 setTimeout(function() {
                     window.close();
                 }, 500);
