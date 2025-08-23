@@ -40,34 +40,33 @@
     <style>
 
           /* --- Reglas SOLO impresora --- */
-        @media print {
-          @page {
-            /* ancho real del papel de la ticketera */
-            size: 45mm auto;
-            margin: 0;                 /* sin márgenes */
-          }
-          html, body {
-            width: 45mm;
-            margin: 0;
-            padding: 0;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
+    @media print {
+      @page {
+        /* ancho real del papel de la ticketera */
+        size: 45mm auto;
+        margin: 0;                 /* sin márgenes */
+      }
+      html, body {
+        width: 45mm;
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
 
-          /* tipografías y espaciamientos pensados para 203 dpi */
-          body { font-size: 12px; line-height: 1.25; }
-          .ticket { width: 45mm; padding: 0; margin: 0; }
-          .row   { display:block; }
-          .mt-0, .mb-0, .pt-0, .pb-0 { margin:0; padding:0; }
+      /* tipografías y espaciamientos pensados para 203 dpi */
+      body { font-size: 12px; line-height: 1.25; }
+      .ticket { width: 45mm; padding: 0; margin: 0; }
+      .row   { display:block; }
+      .mt-0, .mb-0, .pt-0, .pb-0 { margin:0; padding:0; }
 
-          /* Evita que “encuadre” o meta márgenes invisibles */
-          * { box-sizing: border-box; }
-          img, canvas { max-width: 100%; height: auto; }
+      /* Evita que “encuadre” o meta márgenes invisibles */
+      * { box-sizing: border-box; }
+      img, canvas { max-width: 100%; height: auto; }
 
-          /* Evitar saltos raros */
-          .no-break { page-break-inside: avoid; }
-        }
-
+      /* Evitar saltos raros */
+      .no-break { page-break-inside: avoid; }
+    }
 
         /* Better table visuals */
         #tabla-impresiones {
@@ -197,190 +196,103 @@
     <script src="{{ asset('access/vendor/swiper/js/swiper-bundle.min.js') }}"></script>
     <script src="{{ asset('access/js/dlabnav-init.js') }}"></script>
     <script src="{{ asset('access/js/custom.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <script>
-      /* ===== Conexión QZ ===== */
-      async function qzEnsureConnected(){ if(!qz.websocket.isActive()) await qz.websocket.connect(); }
-      async function getDefaultPrinter(){ await qzEnsureConnected(); return await qz.printers.getDefault(); }
+async function qzEnsureConnected(){ if(!qz.websocket.isActive()) await qz.websocket.connect(); }
+async function getDefaultPrinter(){ await qzEnsureConnected(); return await qz.printers.getDefault(); }
 
-      /* ===== Util: milímetros a píxeles (203dpi ≈ 8 px/mm) ===== */
-      const DPI = 203;                          // tu impresora
-      const PX_PER_MM = DPI / 25.4;             // ≈ 7.99 px por mm
-      const TICKET_MM = 45;                     // ancho del rollo
-      const TICKET_PX = Math.round(TICKET_MM * PX_PER_MM);
+async function printPdfViaBase64(pdfUrl, printerName){
+  const resp = await fetch(pdfUrl, { credentials:'include' });
+  if(!resp.ok) throw new Error('PDF HTTP '+resp.status);
+  const blob = await resp.blob();
+  const buf  = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let bin = ''; for(let i=0;i<bytes.byteLength;i++) bin += String.fromCharCode(bytes[i]);
+  const b64 = btoa(bin);
+  const cfg  = qz.configs.create(printerName, { rasterize:true });
+  const data = [{ type:'pdf', data:'base64,'+b64 }];
+  await qz.print(cfg, data);
+}
 
-      // Altura máxima que permite tu driver (p. ej. 100 mm)
-      const MAX_MM = 100;                       // ajústalo si cambias el driver
-      const MAX_PX = Math.round(MAX_MM * PX_PER_MM);
+async function marcarImpresa(id){
+  const r = await fetch(`/api/impresiones/${id}/marcar-impresa`, {
+    method:'POST',
+    headers:{ 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+              'Accept':'application/json' },
+    credentials:'include'
+  });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j = await r.json(); if(!j.ok) throw new Error('No se pudo marcar id '+id);
+}
 
-      /* ===== Carga el HTML del ticket en un iframe oculto =====
-        Apunta a tu propia vista de impresión. Idealmente esa vista
-        solo renderiza el ticket (sin header/sidebar). Si quieres,
-        agrega un query ?embed=1 y en la vista ocultas cualquier layout. */
-      async function loadTicketInIframe(pedidoId){
-        return new Promise((resolve, reject) => {
-          const iframe = document.createElement('iframe');
-          iframe.style.position = 'fixed';
-          iframe.style.left = '-99999px';
-          iframe.style.width = TICKET_PX + 'px';  // mismo ancho que renderizaremos
-          iframe.style.height = '10px';
-          iframe.setAttribute('aria-hidden', 'true');
+async function fetchPendientes(limit=5){
+  const r = await fetch(`/api/impresiones/pendientes?limit=${limit}`, { credentials:'include' });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j = await r.json(); return j.items || [];
+}
 
-          // Usa tu misma ruta; si puedes, agrega ?embed=1 para servir SOLO el ticket
-          iframe.src = `/despacho/pedido/imprimir/${pedidoId}?embed=1`;
+async function printHtmlViaQZ(htmlString, printerName){
+  await qzEnsureConnected();
+  const cfg  = qz.configs.create(printerName, { rasterize: true });
+  const data = [{ type: 'html', format: 'plain', data: htmlString }];
+  await qz.print(cfg, data);
+}
 
-          iframe.onload = () => {
-            try {
-              const doc = iframe.contentDocument || iframe.contentWindow.document;
-              // Busca un contenedor del ticket. Ajusta el selector a tu vista:
-              const node = doc.querySelector('.ticket') || doc.body;
+async function imprimirItemCola(it){
+  const printer = await getDefaultPrinter();
+  if(!printer) throw new Error('No hay impresora por defecto');
 
-              // Asegura el ancho exacto para el render
-              node.style.width = TICKET_PX + 'px';
-              node.style.margin = '0';
-              node.style.padding = '0';
-              resolve({ iframe, node });
-            } catch (e) { reject(e); }
-          };
-          iframe.onerror = () => reject(new Error('No se pudo cargar el ticket en iframe'));
-          document.body.appendChild(iframe);
-        });
-      }
+  // Descarga el HTML de la vista (no PDF)
+  const resp = await fetch(`/despacho/pedido/imprimir/${it.pedido_id}`, { credentials:'include' });
+  if(!resp.ok) throw new Error('HTML HTTP '+resp.status);
+  const html = await resp.text();
 
-      async function ticketToBase64Png(node){
-        node.style.width = TICKET_PX + 'px';
-        node.style.margin = '0';
-        node.style.padding = '0';
+  await printHtmlViaQZ(html, printer);
+  await marcarImpresa(it.id);
+}
 
-        const canvas = await html2canvas(node, {
-          scale: 2,                // nitidez
-          useCORS: true,
-          backgroundColor: '#fff',
-          width: TICKET_PX,
-          windowWidth: TICKET_PX
-        });
-        return canvas.toDataURL('image/png').split(',')[1]; // sólo la parte base64
-      }
+const $tbody = document.getElementById('impTable');
+const $stamp = document.getElementById('lastUpdate');
+function rowHtml(it){ return `
+  <tr data-id="${it.id}">
+    <td>${it.id}</td><td>#${it.pedido_id}</td><td>${it.generado??''}</td>
+    <td>${it.cliente??''}</td><td>${it.total??''}</td>
+    <td><button class="btn btn-sm btn-outline-primary"
+      data-action="imprimir-pendiente" data-id="${it.id}" data-pedido="${it.pedido_id}">Imprimir</button></td>
+  </tr>`; }
+async function renderTabla(items){
+  $stamp.textContent = 'Actualizado: '+ new Date().toLocaleString();
+  $tbody.innerHTML = items.length ? items.map(rowHtml).join('') :
+    `<tr><td colspan="6" class="text-center text-muted p-4">No hay impresiones pendientes</td></tr>`;
+}
 
-      /* ===== Imprime imagen con QZ a 45mm de ancho ===== */
-      async function printPngBase64WithQZ(b64, printerName){
-        const cfg = qz.configs.create(printerName, {
-          rasterize: true,
-          size: { width: 45, /* height opcional, ver punto C */ units: 'mm' },
-          scaleContent: true,
-          copies: 1
-        });
-        // 👇 OJO: data:image/png;base64,  (no solo "base64,")
-        const data = [{ type: 'image', data: 'data:image/png;base64,' + b64 }];
-        await qz.print(cfg, data);
-      }
+let busy=false, printedRecently=new Set();
+async function cicloAuto(ms=4000,batch=5){
+  if(busy) return; busy=true;
+  try{
+    const items = await fetchPendientes(batch);
+    await renderTabla(items);
+    for(const it of items){
+      if(printedRecently.has(it.id)) continue;
+      try{ await imprimirItemCola(it); printedRecently.add(it.id); }
+      catch(e){ console.error('Error imprimiendo', it.id, e); }
+    }
+    setTimeout(()=>printedRecently.clear(), 60000);
+  }catch(e){ console.error('Autoimpresión', e); }
+  finally{ busy=false; setTimeout(()=>cicloAuto(ms,batch), ms); }
+}
 
-      /* ===== Marca como impreso en tu API ===== */
-      async function marcarImpresa(id){
-        const r = await fetch(`/api/impresiones/${id}/marcar-impresa`, {
-          method:'POST',
-          headers:{
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept':'application/json'
-          },
-          credentials:'include'
-        });
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        const j = await r.json(); if(!j.ok) throw new Error('No se pudo marcar id '+id);
-      }
+document.addEventListener('click', async e=>{
+  const btn = e.target.closest('[data-action="imprimir-pendiente"]'); if(!btn) return;
+  try{ await imprimirItemCola({ id:btn.dataset.id, pedido_id:btn.dataset.pedido }); }
+  catch(err){ console.error(err); alert('No se pudo imprimir: '+(err.message||err)); }
+});
 
-      /* ===== Obtiene pendientes ===== */
-      async function fetchPendientes(limit=5){
-        const r = await fetch(`/api/impresiones/pendientes?limit=${limit}`, { credentials:'include' });
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        const j = await r.json(); return j.items || [];
-      }
-
-      /* ===== Imprimir un item de la cola ===== */
-      async function imprimirItemCola(it){
-        const printer = await getDefaultPrinter();
-        if(!printer) throw new Error('No hay impresora por defecto');
-
-        // 1) cargar HTML en iframe oculto
-        const { iframe, node } = await loadTicketInIframe(it.pedido_id);
-        try {
-          // 2) convertir ese HTML (el contenedor .ticket) a PNG base64
-          const b64 = await ticketToBase64Png(node);
-
-          // 3) mandar a QZ como imagen
-          await printPngBase64WithQZ(b64, printer);
-
-          // 4) marcar impreso y limpiar iframe
-          await marcarImpresa(it.id);
-        } finally {
-          iframe.remove();
-        }
-
-        // 5) quitar de la tabla si existe
-        const tr = document.querySelector(`tr[data-id="${it.id}"]`);
-        if(tr) tr.remove();
-      }
-
-      /* ===== UI/cola (igual que ya tenías) ===== */
-      const $tbody = document.getElementById('impTable');
-      const $stamp = document.getElementById('lastUpdate');
-
-      function rowHtml(it){ return `
-        <tr data-id="${it.id}">
-          <td>${it.id}</td><td>#${it.pedido_id}</td><td>${it.generado??''}</td>
-          <td>${it.cliente??''}</td><td>${it.total??''}</td>
-          <td><button class="btn btn-sm btn-outline-primary"
-            data-action="imprimir-pendiente" data-id="${it.id}" data-pedido="${it.pedido_id}">Imprimir</button></td>
-        </tr>`; }
-
-      async function renderTabla(items){
-        $stamp.textContent = 'Actualizado: ' + new Date().toLocaleString();
-        $tbody.innerHTML = items.length
-          ? items.map(rowHtml).join('')
-          : `<tr><td colspan="6" class="text-center text-muted p-4">No hay impresiones pendientes</td></tr>`;
-      }
-
-      let busy=false, printedRecently=new Set();
-      async function cicloAuto(ms=4000,batch=5){
-        if(busy) return; busy=true;
-        try{
-          const items = await fetchPendientes(batch);
-          await renderTabla(items);
-          for(const it of items){
-            if(printedRecently.has(it.id)) continue;
-            try{
-              await imprimirItemCola(it);
-              printedRecently.add(it.id);
-            }catch(e){
-              console.error('Error imprimiendo', it.id, e);
-            }
-          }
-          setTimeout(()=>printedRecently.clear(), 60000);
-        }catch(e){
-          console.error('Autoimpresión', e);
-        }finally{
-          busy=false;
-          setTimeout(()=>cicloAuto(ms,batch), ms);
-        }
-      }
-
-      document.addEventListener('click', async e=>{
-        const btn = e.target.closest('[data-action="imprimir-pendiente"]'); if(!btn) return;
-        try{
-          await imprimirItemCola({ id:btn.dataset.id, pedido_id:btn.dataset.pedido });
-        }catch(err){
-          console.error(err);
-          alert('No se pudo imprimir: '+(err.message||err));
-        }
-      });
-
-      window.addEventListener('load', async ()=>{
-        try{ await qzEnsureConnected(); cicloAuto(4000,5); }
-        catch(e){ console.error('QZ connect:', e); }
-      });
-    </script>
-
+window.addEventListener('load', async ()=>{
+  try{ await qzEnsureConnected(); cicloAuto(4000,5); }
+  catch(e){ console.error('QZ connect:', e); }
+});
+</script>
 
 
 </body>
