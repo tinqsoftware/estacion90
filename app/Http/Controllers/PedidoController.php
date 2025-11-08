@@ -99,23 +99,38 @@ class PedidoController extends Controller
         $pedido->lat_contacto = $data['lat'];
         $pedido->lon_contacto = $data['lon'];
         $pedido->id_tipopago = $data['tipo_pago'];
-        $pedido->comentarios = $data['comentarios'];
+        $pedido->comentarios = $data['comentarios'] ?? null;
         $pedido->id_comprobantepago = $data['comprobante_pago'];
         $pedido->datos_comprobante = $data['documento_comprobante'] ?? null;
-        $pedido->id_horallegada = $data['hora_llegada'];
-        $pedido->vuelto = $data['vuelto'] ?? null;
-        
-        // Determinar el estado inicial según la configuración del flujo
-        $flujoPedidos = ConfiguracionSistema::obtenerFlujoPedidos();
-        if ($flujoPedidos === 'despacho') {
-            $pedido->estado = '3'; // Ir directo a despacho (listo para reparto)
-        } else {
-            $pedido->estado = '0'; // Flujo normal: ir a cocina
-        }
-        
-        $pedido->fecha_programada = $fechaHoy;
-        $pedido->hora_programada = $now->addMinutes((int)($data['minutos_llegada'] ?? 0))->format('H:i:s');
-        $pedido->save();
+    $pedido->id_horallegada = $data['hora_llegada'];
+    $pedido->vuelto = $data['vuelto'] ?? null;
+
+    // FECHA de hoy
+    $pedido->fecha_programada = $fechaHoy;
+
+    // Hora programada según tipo de HoraLlegada
+    $horaSel = HoraLlegada::find($data['hora_llegada'] ?? null);
+    if ($horaSel && $horaSel->tipo === 'hora') {
+        // Minutos desde ahora (tomar desde la tabla, no desde el cliente)
+        $min = (int)($horaSel->valor ?? 0);
+        $pedido->hora_programada = now()->copy()->addMinutes($min)->format('H:i:s');
+    } elseif ($horaSel && $horaSel->tipo === 'rango') {
+        // Rango: NO calcular hora exacta; se gestiona por el id_horallegada
+        $pedido->hora_programada = null;
+    } else {
+        // Sin selección válida: dejar null (evita cálculos erróneos)
+        $pedido->hora_programada = null;
+    }
+
+    // Determinar el estado inicial según la configuración del flujo
+    $flujoPedidos = ConfiguracionSistema::obtenerFlujoPedidos();
+    if ($flujoPedidos === 'despacho') {
+        $pedido->estado = '3'; // Ir directo a despacho (listo para reparto)
+    } else {
+        $pedido->estado = '0'; // Flujo normal: ir a cocina
+    }
+
+    $pedido->save();
 
         // Registrar el estado inicial en el historial
         HistorialEstadoService::registrarCambioEstado($pedido->id, $pedido->estado, $data['user_id'] ?? null);

@@ -11,9 +11,16 @@ class Distrito extends Model
 
     protected $fillable = [
         'nombre',
+        'estado',
         'created_at',
         'updated_at',
     ];
+
+    // Scope: solo distritos activos (estado = 1)
+    public function scopeActivos($query)
+    {
+        return $query->where('estado', 1);
+    }
 
     // Relación: Un distrito tiene muchas direcciones de usuario
     public function direcciones()

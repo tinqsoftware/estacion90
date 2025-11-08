@@ -88,7 +88,7 @@ class Inicio extends Controller
         $horasLlegada = HoraLlegada::where('estado', 1)->get();
         $tiposPago = TipoPago::where('estado', 1)->get();
         $comprobantesPago = ComprobantePago::where('estado', 1)->get();
-        $distrito = Distrito::all();
+        $distrito = Distrito::activos()->orderBy('nombre')->get();
 
         $menus = Menu::with(['categorias.productos' => function($query) use ($hoy) {
         $query->select(

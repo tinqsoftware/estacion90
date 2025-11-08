@@ -6,9 +6,11 @@ use App\Models\ComprobantePago;
 use App\Models\HoraLlegada;
 use App\Models\TipoPago;
 use App\Models\ConfiguracionSistema;
+use App\Models\Distrito;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AdministradorController extends Controller
 {
@@ -112,27 +114,67 @@ class AdministradorController extends Controller
 
     public function guardarHoraLlegada(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'valor' => 'required|string|max:255|unique:horallegada,valor'
-        ]);
+        $tipo = $request->input('tipo', 'hora');
+
+        $rules = [
+            'tipo' => 'required|in:hora,rango',
+        ];
+
+        if ($tipo === 'hora') {
+            $rules['valor'] = [
+                'required','integer','min:1','max:1440',
+                Rule::unique('horallegada','valor')->where(fn($q)=>$q->where('tipo','hora')),
+            ];
+        } else {
+            $rules['inicio_rango'] = ['required','date_format:H:i'];
+            $rules['fin_rango']    = ['required','date_format:H:i'];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        // Validación extra para rangos
+        $validator->after(function ($v) use ($request, $tipo) {
+            if ($tipo === 'rango') {
+                $inicio = $request->input('inicio_rango');
+                $fin    = $request->input('fin_rango');
+
+                if ($inicio && $fin && $inicio >= $fin) {
+                    $v->errors()->add('fin_rango', 'La hora fin debe ser mayor que la hora inicio.');
+                }
+
+                if ($inicio && $fin) {
+                    $exists = \App\Models\HoraLlegada::where([
+                        ['tipo','=','rango'],
+                        ['inicio_rango','=',$inicio],
+                        ['fin_rango','=',$fin],
+                    ])->exists();
+
+                    if ($exists) {
+                        $v->errors()->add('inicio_rango', 'Este rango ya existe.');
+                    }
+                }
+            }
+        });
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $hora = HoraLlegada::create([
-            'valor' => $request->valor,
-            'estado' => 1,
-            'id_user_create' => Auth::id()
+            'tipo'          => $tipo,
+            'valor'         => $tipo === 'hora'  ? (int)$request->valor : null,
+            'inicio_rango'  => $tipo === 'rango' ? $request->inicio_rango : null,
+            'fin_rango'     => $tipo === 'rango' ? $request->fin_rango : null,
+            'estado'        => 1,
+            'id_user_create'=> Auth::id(),
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Hora de llegada creada correctamente',
-            'hora' => $hora
+            'hora'    => $hora,
         ]);
     }
-
     public function obtenerHoraLlegada(Request $request)
     {
         $hora = HoraLlegada::findOrFail($request->id);
@@ -141,25 +183,67 @@ class AdministradorController extends Controller
 
     public function actualizarHoraLlegada(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'valor' => 'required|string|max:255|unique:horallegada,valor,'.$request->id
-        ]);
+        $tipo = $request->input('tipo', 'hora');
+
+        $rules = [
+            'id'   => 'required|integer|exists:horallegada,id',
+            'tipo' => 'required|in:hora,rango',
+        ];
+
+        if ($tipo === 'hora') {
+            $rules['valor'] = [
+                'required','integer','min:1','max:1440',
+                Rule::unique('horallegada','valor')
+                    ->where(fn($q)=>$q->where('tipo','hora'))
+                    ->ignore($request->id,'id'),
+            ];
+        } else {
+            $rules['inicio_rango'] = ['required','date_format:H:i'];
+            $rules['fin_rango']    = ['required','date_format:H:i'];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        $validator->after(function ($v) use ($request, $tipo) {
+            if ($tipo === 'rango') {
+                $inicio = $request->input('inicio_rango');
+                $fin    = $request->input('fin_rango');
+
+                if ($inicio && $fin && $inicio >= $fin) {
+                    $v->errors()->add('fin_rango', 'La hora fin debe ser mayor que la hora inicio.');
+                }
+
+                if ($inicio && $fin) {
+                    $exists = \App\Models\HoraLlegada::where([
+                        ['tipo','=','rango'],
+                        ['inicio_rango','=',$inicio],
+                        ['fin_rango','=',$fin],
+                    ])->where('id','!=',$request->id)->exists();
+
+                    if ($exists) {
+                        $v->errors()->add('inicio_rango', 'Este rango ya existe.');
+                    }
+                }
+            }
+        });
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $hora = HoraLlegada::findOrFail($request->id);
-        $hora->valor = $request->valor;
+        $hora->tipo         = $tipo;
+        $hora->valor        = $tipo === 'hora'  ? (int)$request->valor : null;
+        $hora->inicio_rango = $tipo === 'rango' ? $request->inicio_rango : null;
+        $hora->fin_rango    = $tipo === 'rango' ? $request->fin_rango : null;
         $hora->save();
 
         return response()->json([
             'success' => true,
             'message' => 'Hora de llegada actualizada correctamente',
-            'hora' => $hora
+            'hora'    => $hora,
         ]);
     }
-
     public function cambiarEstadoHoraLlegada(Request $request)
     {
         $hora = HoraLlegada::findOrFail($request->id);
@@ -170,6 +254,36 @@ class AdministradorController extends Controller
             'success' => true,
             'message' => 'Estado actualizado correctamente',
             'estado' => $hora->estado
+        ]);
+    }
+
+    // ======================
+    // Distritos (activos / admin)
+    // ======================
+    public function listarDistritosActivos()
+    {
+        $distritos = Distrito::where('estado', 1)->orderBy('nombre')->get(['id','nombre','estado','created_at']);
+        return response()->json($distritos);
+    }
+
+    public function listarDistritos()
+    {
+        $distritos = Distrito::orderBy('nombre')->get(['id','nombre','estado','created_at']);
+        return response()->json($distritos);
+    }
+
+    public function cambiarEstadoDistrito(Request $request)
+    {
+        $request->validate(['id' => 'required|integer|exists:distrito,id']);
+        $distrito = Distrito::findOrFail($request->id);
+        $distrito->estado = ($distrito->estado == 1 ? 0 : 1);
+        $distrito->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado actualizado correctamente',
+            'estado'  => (int)$distrito->estado,
+            'id'      => (int)$distrito->id,
         ]);
     }
 

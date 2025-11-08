@@ -161,6 +161,33 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Distritos disponibles -->
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <h4 class="card-title mb-0">Distritos disponibles</h4>
+                                <button type="button" id="btnAdministrarDistritos" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDistritos">
+                                    <i class="fa fa-pen"></i> Administrar
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="tablaDistritosActivos" class="display" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Nombre</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <small class="text-muted">Se muestran solo los distritos activos. Para activar o desactivar distritos, usa el botón "Administrar".</small>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Configuración de Flujo de Pedidos -->
                     <div class="col-lg-12">
                         <div class="card">
@@ -351,6 +378,35 @@
         </div>
 
         <!-- Modal Hora Llegada -->
+        <!-- Modal Distritos -->
+        <div class="modal fade" id="modalDistritos">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Administrar Distritos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table id="tablaDistritosAdmin" class="display" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nombre</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal fade" id="modalHoraLlegada">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -360,13 +416,43 @@
                     </div>
                     <form id="formHoraLlegada">
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label class="text-black font-w500">Valor</label>
-                                <input type="hidden" id="horaId" name="id">
-                                <input type="text" id="horaValor" name="valor" class="form-control">
-                                <div class="invalid-feedback" id="horaValorError"></div>
+                            <input type="hidden" id="horaId" name="id">
+
+                            <div class="form-group mb-3">
+                            <label class="text-black font-w500">Tipo</label>
+                            <select id="horaTipo" name="tipo" class="form-control">
+                                <option value="hora" selected>Minutos (ej. 15, 30, 45)</option>
+                                <option value="rango">Rango horario (HH:MM - HH:MM)</option>
+                            </select>
+                            <div class="invalid-feedback" id="horaTipoError"></div>
+                            </div>
+
+                            <!-- Minutos -->
+                            <div class="form-group mb-3 campo-hora">
+                            <label class="text-black font-w500">Valor (minutos)</label>
+                            <input type="number" id="horaValor" name="valor" class="form-control" min="1" max="1440" placeholder="Ej. 15">
+                            <div class="invalid-feedback" id="horaValorError"></div>
+                            </div>
+
+                            <!-- Rango -->
+                            <div class="row campo-rango" style="display:none;">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                <label class="text-black font-w500">Inicio</label>
+                                <input type="time" id="horaInicio" name="inicio_rango" class="form-control" step="60">
+                                <div class="invalid-feedback" id="horaInicioError"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                <label class="text-black font-w500">Fin</label>
+                                <input type="time" id="horaFin" name="fin_rango" class="form-control" step="60">
+                                <div class="invalid-feedback" id="horaFinError"></div>
+                                </div>
+                            </div>
                             </div>
                         </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger light" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Guardar</button>
@@ -552,6 +638,11 @@
         var tablaTiposPago = $('#tablaTiposPago').DataTable(opcionesTabla);
         var tablaComprobantes = $('#tablaComprobantes').DataTable(opcionesTabla);
         var tablaHorasLlegada = $('#tablaHorasLlegada').DataTable(opcionesTabla);
+        var tablaDistritosActivos = $('#tablaDistritosActivos').DataTable($.extend(true, {}, opcionesTabla, {
+            pageLength: 5,
+            lengthChange: false
+        }));
+        var tablaDistritosAdmin = $('#tablaDistritosAdmin').DataTable(opcionesTabla);
 
         // Cargar datos iniciales
         cargarTiposPago();
@@ -559,6 +650,84 @@
         cargarHorasLlegada();
         cargarConfiguracionFlujo();
         cargarConfiguracionImpresiones();
+        cargarDistritosActivos();
+        function cargarDistritosActivos() {
+            $.ajax({
+                url: '{{ route("admin.distritos.activos") }}',
+                method: 'GET',
+                success: function(response) {
+                    tablaDistritosActivos.clear();
+                    $.each(response, function(index, item) {
+                        var estadoBadge = item.estado == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>';
+                        tablaDistritosActivos.row.add([
+                            item.id,
+                            item.nombre,
+                            estadoBadge
+                        ]).draw(false);
+                    });
+                }
+            });
+        }
+
+        function cargarDistritosAdmin() {
+            $.ajax({
+                url: '{{ route("admin.distritos.listar") }}',
+                method: 'GET',
+                success: function(response) {
+                    tablaDistritosAdmin.clear();
+                    $.each(response, function(index, item) {
+                        var estadoBadge = item.estado == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>';
+                        var btn = '<button class="btn btn-info btn-sm toggleEstadoDistrito" data-id="'+ item.id +'">Cambiar estado</button>';
+                        tablaDistritosAdmin.row.add([
+                            item.id,
+                            item.nombre,
+                            estadoBadge,
+                            btn
+                        ]).draw(false);
+                    });
+                }
+            });
+        }
+
+        // Abrir modal y cargar distritos
+        $('#modalDistritos').on('shown.bs.modal', function(){
+            cargarDistritosAdmin();
+        });
+
+        // Cambiar estado distrito
+        $(document).on('click', '.toggleEstadoDistrito', function(){
+            var id = $(this).data('id');
+            $.ajax({
+                url: '{{ route("admin.distritos.cambiarEstado") }}',
+                method: 'POST',
+                data: { id: id },
+                success: function(resp){
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: resp.message,
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    cargarDistritosAdmin();
+                    cargarDistritosActivos();
+                }
+            });
+        });
+
+        // Toggle de campos por tipo (hora vs rango)
+        function toggleCamposHoraTipo() {
+            var tipo = $('#horaTipo').val();
+            if (tipo === 'rango') {
+                $('.campo-hora').hide();
+                $('.campo-rango').show();
+            } else {
+                $('.campo-rango').hide();
+                $('.campo-hora').show();
+            }
+        }
+        $(document).on('change', '#horaTipo', toggleCamposHoraTipo);
+        $('#modalHoraLlegada').on('show.bs.modal', toggleCamposHoraTipo);
 
         // Formulario Tipo Pago
         $('#formTipoPago').on('submit', function(e) {
@@ -661,9 +830,24 @@
                     if (xhr.status === 422) {
                         var errors = xhr.responseJSON.errors;
 
+                        $('#horaTipo, #horaValor, #horaInicio, #horaFin').removeClass('is-invalid');
+                        $('#horaTipoError, #horaValorError, #horaInicioError, #horaFinError').text('');
+
+                        if (errors.tipo) {
+                            $('#horaTipo').addClass('is-invalid');
+                            $('#horaTipoError').text(errors.tipo[0]);
+                        }
                         if (errors.valor) {
                             $('#horaValor').addClass('is-invalid');
                             $('#horaValorError').text(errors.valor[0]);
+                        }
+                        if (errors.inicio_rango) {
+                            $('#horaInicio').addClass('is-invalid');
+                            $('#horaInicioError').text(errors.inicio_rango[0]);
+                        }
+                        if (errors.fin_rango) {
+                            $('#horaFin').addClass('is-invalid');
+                            $('#horaFinError').text(errors.fin_rango[0]);
                         }
                     }
                 }
@@ -741,7 +925,15 @@
 
                         tablaHorasLlegada.row.add([
                             item.id,
-                            item.valor,
+                            (function(){
+                                var badge = (item.tipo === 'rango')
+                                    ? '<span class="badge bg-secondary me-1">Rango</span>'
+                                    : '<span class="badge bg-primary me-1">Min</span>';
+                                var texto = (item.tipo === 'rango')
+                                    ? ((item.inicio_rango || '').toString().substring(0,5) + ' - ' + (item.fin_rango || '').toString().substring(0,5))
+                                    : (((item.valor != null) ? item.valor : '') + ' min');
+                                return badge + texto;
+                            })(),
                             item.creador ? item.creador.name : 'N/A',
                             formatFecha(item.created_at),
                             estadoBtn,
@@ -902,8 +1094,22 @@
                     id: id
                 },
                 success: function(response) {
+                    $('#horaTipo, #horaValor, #horaInicio, #horaFin').removeClass('is-invalid');
+                    $('#horaTipoError, #horaValorError, #horaInicioError, #horaFinError').text('');
+
                     $('#horaId').val(response.id);
-                    $('#horaValor').val(response.valor);
+                    $('#horaTipo').val(response.tipo || 'hora').trigger('change');
+
+                    if ((response.tipo || 'hora') === 'hora') {
+                        $('#horaValor').val(response.valor || '');
+                        $('#horaInicio').val('');
+                        $('#horaFin').val('');
+                    } else {
+                        $('#horaValor').val('');
+                        $('#horaInicio').val(response.inicio_rango || '');
+                        $('#horaFin').val(response.fin_rango || '');
+                    }
+
                     $('#modalHoraLlegada').modal('show');
                     $('#modalHoraLlegada .modal-title').text('Editar Hora de Llegada');
                 }
@@ -946,8 +1152,12 @@
 
         $('#modalHoraLlegada').on('hidden.bs.modal', function() {
             $('#formHoraLlegada')[0].reset();
-            $('#horaValor').removeClass('is-invalid');
             $('#horaId').val('');
+            $('#horaTipo').val('hora');
+            $('.campo-rango').hide();
+            $('.campo-hora').show();
+            $('#horaTipo, #horaValor, #horaInicio, #horaFin').removeClass('is-invalid');
+            $('#horaTipoError, #horaValorError, #horaInicioError, #horaFinError').text('');
             $('#modalHoraLlegada .modal-title').text('Agregar Hora de Llegada');
         });
 
@@ -1403,12 +1613,27 @@
                 },
                 error: function(xhr) {
                     if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        
-                        if (errors.password) {
-                            $('#passwordFlujo').addClass('is-invalid');
-                            $('#passwordFlujoError').text(errors.password[0]);
-                        }
+                    var errors = xhr.responseJSON.errors;
+
+                    $('#horaTipo, #horaValor, #horaInicio, #horaFin').removeClass('is-invalid');
+                    $('#horaTipoError, #horaValorError, #horaInicioError, #horaFinError').text('');
+
+                    if (errors.tipo) {
+                        $('#horaTipo').addClass('is-invalid');
+                        $('#horaTipoError').text(errors.tipo[0]);
+                    }
+                    if (errors.valor) {
+                        $('#horaValor').addClass('is-invalid');
+                        $('#horaValorError').text(errors.valor[0]);
+                    }
+                    if (errors.inicio_rango) {
+                        $('#horaInicio').addClass('is-invalid');
+                        $('#horaInicioError').text(errors.inicio_rango[0]);
+                    }
+                    if (errors.fin_rango) {
+                        $('#horaFin').addClass('is-invalid');
+                        $('#horaFinError').text(errors.fin_rango[0]);
+                    }
                     } else if (xhr.status === 403) {
                         $('#passwordFlujo').addClass('is-invalid');
                         $('#passwordFlujoError').text('Contraseña incorrecta');
@@ -1437,6 +1662,23 @@
             return date.toLocaleString();
         }
     });
+
+    function toggleCamposHoraTipo() {
+        var tipo = $('#horaTipo').val();
+        if (tipo === 'rango') {
+            $('.campo-hora').hide();
+            $('.campo-rango').show();
+        } else {
+            $('.campo-rango').hide();
+            $('.campo-hora').show();
+        }
+    }
+    $(document).on('change', '#horaTipo', toggleCamposHoraTipo);
+    $('#modalHoraLlegada').on('show.bs.modal', function () {
+        if (!$('#horaTipo').val()) $('#horaTipo').val('hora');
+        toggleCamposHoraTipo();
+    });
+
     </script>
 </body>
 

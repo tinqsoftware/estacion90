@@ -230,7 +230,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 		.marquee {
 			display: inline-flex;
-			animation: scroll-left 80s linear infinite;
+			animation: scroll-left var(--marquee-duration, 80s) linear infinite;
 			will-change: transform;
 			backface-visibility: hidden;
 			transform: translateZ(0);
@@ -859,7 +859,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 			/* Configuración específica del marquee para móviles */
 			.marquee {
-				animation: scroll-left 80s linear infinite;
+				animation: scroll-left var(--marquee-duration, 80s) linear infinite;
 			}
 
 			/* Alternar la altura */
@@ -1398,6 +1398,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			window.open(url, '_blank');
 		}
 
+		(function () {
+			// Velocidad deseada en píxeles por segundo
+			const PX_PER_SECOND = 80;
+
+			function applyMarqueeDurations() {
+				document.querySelectorAll('.marquee').forEach(el => {
+					// Distancia total que recorrerá: ancho real del contenido
+					const width = el.scrollWidth || el.offsetWidth;
+					// Duración = distancia / velocidad (en segundos)
+					const duration = Math.max(10, width / PX_PER_SECOND);
+					el.style.setProperty('--marquee-duration', `${duration}s`);
+				});
+			}
+
+			// Aplicar al cargar
+			window.addEventListener('load', applyMarqueeDurations);
+
+			// Recalcular en redimensionado (con ligera espera para performance)
+			let resizeTimer;
+			window.addEventListener('resize', () => {
+				clearTimeout(resizeTimer);
+				resizeTimer = setTimeout(applyMarqueeDurations, 150);
+			});
+		})();
+
 		
 	</script>
 
@@ -1406,3 +1431,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 </body>
 </html>
+
+		

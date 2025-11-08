@@ -617,11 +617,41 @@
                         
                         @foreach($pedidos->whereNotIn('estado', [6, 10, 11]) as $pedidoActual)
                         @php
-                        $horaCreacion = Carbon::parse($pedidoActual->created_at)->format('H:i');
-                        $tiempoEstimado = 45; // Minutos de tiempo estimado
-                        $idPedido = $pedidoActual->id;
-                        $estado = (int) $pedidoActual->estado; // Convertir a entero
-                        $total = number_format($pedidoActual->monto_total, 2);
+                            $idPedido = $pedidoActual->id;
+                            $estado   = (int) $pedidoActual->estado; // Convertir a entero
+                            $total    = number_format($pedidoActual->monto_total, 2);
+
+                            // Fecha programada (fecha) y hora de creación (hora)
+                            $fechaProgramada   = $pedidoActual->fecha_programada ? Carbon::parse($pedidoActual->fecha_programada) : Carbon::parse($pedidoActual->created_at);
+                            $fechaProgramadaTx = $fechaProgramada->format('d M Y');
+
+                            $horaCreacion      = Carbon::parse($pedidoActual->created_at);
+                            $horaCreacionTx    = $horaCreacion->format('H:i');
+
+                            // Construir etiqueta de tiempo estimado
+                            $horaLlegada = $pedidoActual->horaLlegada; // relación
+                            $tiempoEstimadoTx = '—';
+
+                            if ($horaLlegada) {
+                                if (($horaLlegada->tipo ?? 'hora') === 'hora' && !empty($horaLlegada->valor)) {
+                                    $estimada = $horaCreacion->copy()->addMinutes((int)$horaLlegada->valor);
+                                    if ($fechaProgramada->isSameDay($horaCreacion)) {
+                                        // mismo día: mostrar solo hora estimada + (min)
+                                        $tiempoEstimadoTx = $estimada->format('H:i') . ' hrs (' . (int)$horaLlegada->valor . ' min)';
+                                    } else {
+                                        // día distinto: mostrar fecha programada + hora estimada + (min)
+                                        $tiempoEstimadoTx = $fechaProgramada->format('d M Y') . ' ' . $estimada->format('H:i') . ' hrs (' . (int)$horaLlegada->valor . ' min)';
+                                    }
+                                } elseif (($horaLlegada->tipo ?? '') === 'rango') {
+                                    $inicio = substr((string)($horaLlegada->inicio_rango ?? ''), 0, 5);
+                                    $fin    = substr((string)($horaLlegada->fin_rango ?? ''), 0, 5);
+                                    if ($fechaProgramada->isSameDay($horaCreacion)) {
+                                        $tiempoEstimadoTx = $inicio . ' - ' . $fin;
+                                    } else {
+                                        $tiempoEstimadoTx = $fechaProgramada->format('d M Y') . ' ' . $inicio . ' - ' . $fin;
+                                    }
+                                }
+                            }
                         @endphp
 
                         <div id="pedido-tracking-{{ $idPedido }}" class="tracking-container mb-4">
@@ -629,7 +659,7 @@
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
                                         <h3 class="mb-0">Pedido #{{ $idPedido }}</h3>
-                                        <p class="mb-0">Realizado: {{ $horaCreacion }} - Tiempo estimado: {{ $tiempoEstimado }} min</p>
+                                        <p class="mb-0">Realizado: {{ $fechaProgramadaTx }} {{ $horaCreacionTx }} hrs - Tiempo estimado: {{ $tiempoEstimadoTx }}</p>
                                         <h4 class="mb-0">Total: S/ {{ $total }}</h4>
                                     </div>
                                     <div class="col-md-4 text-end">

@@ -10,11 +10,20 @@ class HoraLlegada extends Model
 
     protected $fillable = [
         'valor',
+        'inicio_rango',
+        'fin_rango',
+        'tipo',            // 'hora' (minutos) | 'rango' (HH:MM - HH:MM)
         'estado',
         'id_user_create',
         'created_at',
         'updated_at'
     ];
+
+    protected $casts = [
+        'inicio_rango' => 'string',
+        'fin_rango'    => 'string',
+    ];
+
 
     public function creador()
     {

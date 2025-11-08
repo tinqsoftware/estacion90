@@ -6,24 +6,25 @@
     <style>
     @page {
         size: A5;
-        margin: 10mm; /* Añadir margen a la página impresa */
+        margin: 1mm; /* Añadir margen a la página impresa */
     }
     body {
         font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 15px; /* Aumentado de 15px a 20px */
+        margin: 0px;
+        padding: 0px; /* Aumentado de 15px a 20px */
         font-size: 12px;
         color: #333;
     }
     .ticket {
         width: 100%;
-        max-width: 138mm; /* Reducido para compensar los márgenes de página */
-        min-height: 190mm; /* Reducido para compensar los márgenes de página */
+        padding: 0px;
+        max-width: 98%; /* Reducido para compensar los márgenes de página */
+        min-height: 98%; /* Reducido para compensar los márgenes de página */
         margin: 0 auto; /* Centrar el ticket */
     }
     .logo {
         text-align: center;
-        margin-bottom: 10px; /* Aumentado de 10px a 15px */
+        margin-bottom: 1px; /* Aumentado de 10px a 15px */
     }
     .logo img {
         max-width: 100px; /* Aumentado un poco */
@@ -31,17 +32,17 @@
     }
     .header {
         text-align: center;
-        margin-bottom: 15px; /* Aumentado de 15px a 20px */
+        margin-bottom: 0px; /* Aumentado de 15px a 20px */
         border-bottom: 1px dashed #000;
-        padding-bottom: 10px; /* Aumentado de 10px a 15px */
+        padding-bottom: 1px; /* Aumentado de 10px a 15px */
     }
     .header h1 {
         font-size: 18px;
-        margin: 5px 0; /* Aumentado de 5px a 8px */
+        margin: 1px 0; /* Aumentado de 5px a 8px */
     }
     .header p {
         font-size: 14px;
-        margin: 5px 0; /* Aumentado de 5px a 8px */
+        margin: 1px 0; /* Aumentado de 5px a 8px */
     }
     .details {
         margin-bottom: 15px; /* Aumentado de 15px a 20px */
@@ -50,19 +51,18 @@
         margin-bottom: 5px; /* Aumentado de 5px a 8px */
     }
     .customer {
-        border: 1px solid #ddd;
-        padding: 10px; /* Aumentado de 10px a 15px */
-        margin-bottom: 15px; /* Aumentado de 15px a 20px */
+        border: 0px;
+        padding: 5px 0px; /* Aumentado de 10px a 15px */
         border-radius: 5px; /* Aumentado de 5px a 8px */
     }
     .items {
         border-top: 1px solid #ddd;
         border-bottom: 1px solid #ddd;
         margin-bottom: 15px; /* Aumentado de 15px a 20px */
-        padding: 10px 0; /* Aumentado de 10px a 15px */
+        padding: 2px 0; /* Aumentado de 10px a 15px */
     }
     .comensal {
-        margin-bottom: 15px; /* Aumentado de 15px a 20px */
+        margin-bottom: 2px; /* Aumentado de 15px a 20px */
     }
     .comensal-name {
         font-weight: bold;
@@ -80,7 +80,7 @@
     }
     .totals {
         text-align: right;
-        margin-top: 25px; /* Aumentado de 20px a 25px */
+        margin-top: 2px; /* Aumentado de 20px a 25px */
     }
     .delivery {
         margin-bottom: 5px; /* Aumentado de 5px a 8px */
@@ -90,16 +90,16 @@
         font-size: 16px;
     }
     .payment {
-        border: 1px solid #ddd;
-        padding: 10px; /* Aumentado de 10px a 15px */
-        margin-bottom: 15px; /* Aumentado de 15px a 20px */
+        border: 0px solid #ddd;
+        padding: 0px; /* Aumentado de 10px a 15px */
+        margin-bottom: 0px; /* Aumentado de 15px a 20px */
         border-radius: 5px; /* Aumentado de 5px a 8px */
     }
     .footer {
         text-align: center;
-        margin-top: 20px; /* Aumentado de 20px a 25px */
+        margin-top: 1px; /* Aumentado de 20px a 25px */
         border-top: 1px dashed #000;
-        padding-top: 10px; /* Aumentado de 10px a 15px */
+        padding-top: 1px; /* Aumentado de 10px a 15px */
         font-size: 11px;
     }
     .row {
@@ -109,7 +109,7 @@
     }
     @media print {
         body {
-            padding: 1px; /* Mantenemos algo de padding al imprimir */
+            padding: 0px; /* Mantenemos algo de padding al imprimir */
             -webkit-print-color-adjust: exact;
         }
         .no-print {
@@ -122,20 +122,13 @@
 </style>
 </head>
 <body>
-    <div class="no-print" style="text-align: center; margin-bottom: 20px;">
-        <button onclick="window.print()">Imprimir Ticket</button>
-        <button onclick="window.close()">Cerrar</button>
-    </div>
-    
     <div class="ticket">
         <div class="logo">
             <img src="{{ asset('access/images/logo-full_top.png') }}" alt="Estación 90">
         </div>
         
         <div class="header">
-            <h1>ESTACIÓN 90 RESTAURANT</h1>
-            <p>Av. Principal 1234, Lima</p>
-            <p>Tel: 01 234 5678</p>
+            <p>Cel: 987654321</p>
             <p>PEDIDO #{{ $pedido['id'] }}</p>
             <p>{{ $pedido['fecha'] }} {{ $pedido['hora_pedido'] }}</p>
         </div>
@@ -201,12 +194,12 @@
         </div>
         
         <div class="totals">
-            <div class="delivery">Delivery: S/ 1.00</div>
+            <!--<div class="delivery">Delivery: S/ 1.00</div>-->
             <div class="total">TOTAL: S/ {{ number_format($pedido['total'], 2) }}</div>
         </div>
         
         @if($pedido['comentarios'])
-        <div class="details" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
+        <div class="details" style="margin-top: 1px; border-top: 1px solid #ddd; padding-top: 1px;">
             <div><strong>Comentarios:</strong></div>
             <div>{{ $pedido['comentarios'] }}</div>
         </div>
@@ -214,7 +207,6 @@
         
         <div class="footer">
             <p>Hora de entrega aproximada: {{ $pedido['hora_entrega'] }}</p>
-            <p>¡Gracias por su preferencia!</p>
             <p>www.estacion90.com</p>
         </div>
     </div>

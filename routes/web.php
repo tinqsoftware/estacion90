@@ -206,6 +206,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/horallegada/actualizar', [AdministradorController::class, 'actualizarHoraLlegada'])->name('admin.horaLlegada.actualizar');
     Route::post('/admin/horallegada/cambiarestado', [AdministradorController::class, 'cambiarEstadoHoraLlegada'])->name('admin.horaLlegada.cambiarEstado');
 
+    // Distritos
+    Route::get('/admin/distritos/activos', [AdministradorController::class, 'listarDistritosActivos'])->name('admin.distritos.activos');
+    Route::get('/admin/distritos/listar',  [AdministradorController::class, 'listarDistritos'])->name('admin.distritos.listar');
+    Route::post('/admin/distritos/cambiarestado', [AdministradorController::class, 'cambiarEstadoDistrito'])->name('admin.distritos.cambiarEstado');
+
 // Despacho
 
     Route::get('/despacho', [DespachoController:: class, 'despacho'])->name('despacho.despacho');

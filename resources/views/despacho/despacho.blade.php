@@ -940,7 +940,7 @@
                                 ${pedido.comensales.map(comensal => 
                                     `<li><strong>${comensal.nombre}:</strong> S/ ${parseFloat(comensal.total).toFixed(2)}
                                         <ul>${comensal.items.map(item => 
-                                            `<li class="order-item-compact">- ${item.nombre} (S/ ${parseFloat(item.precio).toFixed(2)})</li>`
+                                            `<li class="order-item-compact">- ${item.nombre} </li>`
                                         ).join('')}</ul>
                                     </li>`
                                 ).join('')}

@@ -12,20 +12,20 @@ use Illuminate\Support\Facades\Log;
 class EditUserController extends Controller
 {
     public function index()
-{
-    
-    $user = Auth::user();
-    
-    $direcciones = DireccionUser::where('id_user', $user->id)
-                    ->with('distrito')
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-    
-    // Obtener todos los distritos para el formulario
-    $distritos = Distrito::all();
-    
-    return view('usuarios.edit_usuario', compact('user', 'direcciones', 'distritos'));
-}
+    {
+        
+        $user = Auth::user();
+        
+        $direcciones = DireccionUser::where('id_user', $user->id)
+                        ->with('distrito')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+        
+        // Obtener solo los distritos activos para el formulario
+        $distritos = Distrito::activos()->orderBy('nombre')->get();
+        
+        return view('usuarios.edit_usuario', compact('user', 'direcciones', 'distritos'));
+    }
 
 
     public function update(Request $request)

@@ -320,8 +320,10 @@
 
                                                 <div class="card-footer  pt-0 border-0" id="orderTotals">
                                                     <div class="d-flex align-items-center justify-content-between">
+                                                        <!--
                                                         <p>Delivery</p>
                                                         <h4 class="font-w500">+ S/ 1.00</h4>
+                                                        -->
                                                     </div>
                                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                                         <h1 class="font-w500">Total</h1>
@@ -454,18 +456,72 @@
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-6">
-                                                                            <select name="hora_llegada"
+                                                                            <select id="hora_llegada" name="hora_llegada"
                                                                                 class="form-control default-select ms-0 py-4 mb-xl-0 mb-3"
                                                                                 required>
-                                                                                <option value="">Hora de llegada
-                                                                                </option>
-                                                                                @foreach($horasLlegada as $hora)
-                                                                                <option value="{{ $hora->id }}"
-                                                                                    data-minutos="{{ $hora->valor }}">
-                                                                                    {{ $hora->valor }} min</option>
+                                                                                <option value="">Hora de llegada</option>
+
+                                                                                @php
+                                                                                    $minutos = $horasLlegada->where('tipo','hora')->where('estado',1)->sortBy('valor');
+                                                                                    $rangos  = $horasLlegada->where('tipo','rango')->where('estado',1)->sortBy('inicio_rango');
+                                                                                @endphp
+
+                                                                                {{-- Minutos --}}
+                                                                                @foreach($minutos as $h)
+                                                                                    <option value="{{ $h->id }}" data-tipo="hora" data-min="{{ $h->valor }}">
+                                                                                        {{ $h->valor }}min
+                                                                                    </option>
+                                                                                @endforeach
+
+                                                                                {{-- Rangos --}}
+                                                                                @foreach($rangos as $h)
+                                                                                    <option value="{{ $h->id }}" data-tipo="rango" data-inicio="{{ $h->inicio_rango }}" data-fin="{{ $h->fin_rango }}">
+                                                                                        {{ \Illuminate\Support\Str::of($h->inicio_rango)->substr(0,5) }} - {{ \Illuminate\Support\Str::of($h->fin_rango)->substr(0,5) }} 
+                                                                                    </option>
                                                                                 @endforeach
                                                                             </select>
                                                                         </div>
+                                                                        <script>
+                                                                        (function(){
+                                                                            function pad(n){ return String(n).padStart(2,'0'); }
+                                                                            function refreshHoraLlegadaLabels(){
+                                                                                var sel = document.getElementById('hora_llegada');
+                                                                                if(!sel) return;
+                                                                                var now = new Date();
+
+                                                                                Array.from(sel.options).forEach(function(opt){
+                                                                                    var tipo = opt.dataset.tipo;
+                                                                                    if (tipo === 'hora') {
+                                                                                        var base = opt.dataset.baseLabel || opt.textContent.split(' (')[0];
+                                                                                        opt.dataset.baseLabel = base;
+
+                                                                                        var min = parseInt(opt.dataset.min || '0', 10);
+                                                                                        var d = new Date(now.getTime() + min*60000);
+                                                                                        var etiqueta = base + ' (' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ')';
+                                                                                        opt.textContent = etiqueta;
+                                                                                    } else if (tipo === 'rango') {
+                                                                                        var inicio = (opt.dataset.inicio || '').toString().substring(0,5);
+                                                                                        var fin    = (opt.dataset.fin || '').toString().substring(0,5);
+                                                                                        opt.textContent = inicio + '-' + fin+' (rango)';
+                                                                                    }
+                                                                                });
+
+                                                                                // Si usa nice-select, actualizar visualmente (seguro)
+                                                                                try {
+                                                                                    if (window.jQuery && $.fn.niceSelect) {
+                                                                                        var $sel = $('#hora_llegada');
+                                                                                        if ($sel.length && $sel.next('.nice-select').length) {
+                                                                                            $sel.niceSelect('update');
+                                                                                        }
+                                                                                    }
+                                                                                } catch(e){}
+                                                                            }
+                                                                            document.addEventListener('DOMContentLoaded', function(){
+                                                                                refreshHoraLlegadaLabels();
+                                                                                setInterval(refreshHoraLlegadaLabels, 60000); // refrescar cada minuto
+                                                                            });
+                                                                        })();
+                                                                        </script>
                                                                         <div class="col-6">
                                                                             <select id="desea_comprobante"
                                                                                 name="desea_comprobante"

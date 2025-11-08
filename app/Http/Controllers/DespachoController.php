@@ -85,7 +85,7 @@ private function getMotorizadosActivos()
             ])
             ->whereIn('estado', [2, 8]) // Filtrar pedidos con estado 2 o 8
             ->whereDate('created_at', Carbon::today()) // Filtrar solo pedidos de hoy
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->take(10) // Limitar la cantidad para rendimiento
             ->get();
         
@@ -330,20 +330,21 @@ private function getMotorizadosActivos()
     public function imprimirPedido($id)
     {
         $pedidoDB = Pedido::with([
-            'detalles.producto', 
-            'detalles.comensal', 
+            'detalles.producto',
+            'detalles.comensal',
             'comensales',
             'tipoPago',
             'comprobantePago',
-            'distritoContacto'
+            'distritoContacto',
+            'horaLlegada'
         ])->findOrFail($id);
-        
+
         // Formatear los datos para la vista de impresión
         $pedido = $this->formatearPedidoParaImpresion($pedidoDB);
-        
+
         // Marcar como impreso en la tabla de impresiones
         $this->marcarComoImpreso($id);
-        
+
         return view('despacho.imprimir-pedido', compact('pedido'));
     }
 
@@ -458,8 +459,15 @@ private function getMotorizadosActivos()
      */
     public function previewImpresion($impresionId)
     {
-        $impresion = Impresiones::with('pedido.detalles.producto', 'pedido.detalles.comensal', 'pedido.comensales', 'pedido.tipoPago', 'pedido.comprobantePago', 'pedido.distritoContacto')
-            ->findOrFail($impresionId);
+        $impresion = Impresiones::with(
+            'pedido.detalles.producto',
+            'pedido.detalles.comensal',
+            'pedido.comensales',
+            'pedido.tipoPago',
+            'pedido.comprobantePago',
+            'pedido.distritoContacto',
+            'pedido.horaLlegada'
+        )->findOrFail($impresionId);
         if (!$impresion->pedido) {
             abort(404, 'Pedido asociado no encontrado');
         }
@@ -478,48 +486,64 @@ private function getMotorizadosActivos()
         // Agrupar los detalles por comensal
         $comensalesDatos = [];
         $totalPedido = 0;
-        
+
         foreach ($pedidoDB->comensales as $comensal) {
             $items = [];
             $totalComensal = 0;
-            
+
             // Obtener los items de este comensal
             foreach ($pedidoDB->detalles as $detalle) {
                 if ($detalle->id_comensal == $comensal->id) {
                     $nombreProducto = $detalle->producto ? $detalle->producto->nombre : 'Producto no disponible';
                     $precioUnitario = $detalle->precio;
-                    
+
                     $items[] = [
                         'nombre' => $nombreProducto,
                         'precio' => $precioUnitario,
                         'cantidad' => $detalle->cantidad,
                         'subtotal' => $precioUnitario * $detalle->cantidad
                     ];
-                    
+
                     $totalComensal += ($precioUnitario * $detalle->cantidad);
                 }
             }
-            
+
             $comensalesDatos[] = [
                 'nombre' => $comensal->nombre_comensal,
                 'total' => $totalComensal,
                 'items' => $items
             ];
-            
+
             $totalPedido += $totalComensal;
         }
-        
-        // Formatear la fecha para mostrar
+
+        // Formatear la fecha y la hora de entrega aproximada
         $fechaPedido = Carbon::parse($pedidoDB->created_at);
-        $fechaEntrega = $pedidoDB->hora_programada ? 
-            Carbon::parse($pedidoDB->hora_programada) : 
-            $fechaPedido->copy()->addMinutes(45);
-        
+
+        // Determinar etiqueta de hora de entrega según horaLlegada (minutos vs rango)
+        $horaEntregaLabel = '';
+        if ($pedidoDB->horaLlegada && ($pedidoDB->horaLlegada->tipo ?? 'hora') === 'rango') {
+            // Mostrar rango HH:MM - HH:MM
+            $inicio = substr((string)($pedidoDB->horaLlegada->inicio_rango ?? ''), 0, 5);
+            $fin    = substr((string)($pedidoDB->horaLlegada->fin_rango ?? ''), 0, 5);
+            $horaEntregaLabel = trim($inicio . ' - ' . $fin);
+        } else {
+            // Minutos: usar hora_programada si existe; si no, calcular con created_at + valor; fallback 45 min
+            if (!empty($pedidoDB->hora_programada)) {
+                $horaEntregaLabel = Carbon::parse($pedidoDB->hora_programada)->format('h:i A');
+            } elseif ($pedidoDB->horaLlegada && !empty($pedidoDB->horaLlegada->valor)) {
+                $estimada = $fechaPedido->copy()->addMinutes((int)$pedidoDB->horaLlegada->valor);
+                $horaEntregaLabel = $estimada->format('h:i A');
+            } else {
+                $horaEntregaLabel = $fechaPedido->copy()->addMinutes(45)->format('h:i A');
+            }
+        }
+
         return [
             'id' => $pedidoDB->id,
             'fecha' => $fechaPedido->format('d/m/Y'),
             'hora_pedido' => $fechaPedido->format('h:i A'),
-            'hora_entrega' => $fechaEntrega->format('h:i A'),
+            'hora_entrega' => $horaEntregaLabel,
             'nombre_contacto' => $pedidoDB->nombre_contacto,
             'telefono_contacto' => $pedidoDB->telefono_contacto,
             'direccion' => $pedidoDB->direccion_contacto,
