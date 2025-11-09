@@ -637,6 +637,7 @@
                     <img src="/access/images/logo-full.png" class="food-img p-5" alt="">
                     <h5>Crear cuenta</h5>
                     <input type="text" id="registro_nombre" class="form-control my-2" placeholder="Nombres">
+                    <input type="text" id="registro_apellido" class="form-control my-2" placeholder="Apellidos">
                     <input type="email" id="registro_correo" class="form-control my-2" placeholder="Correo">
                     <input type="text" id="registro_celular" class="form-control my-2" placeholder="Celular">
                     <input type="password" id="registro_password" class="form-control my-2" placeholder="Contraseña">
@@ -1922,12 +1923,13 @@
 
         $('#btnCrearCuenta').on('click', function() {
             let nombre = $('#registro_nombre').val();
+            let apellido = $('#registro_apellido').val();
             let correo = $('#registro_correo').val();
             let celular = $('#registro_celular').val();
             let password = $('#registro_password').val();
             let repeat = $('#registro_password_repeat').val();
 
-            if (!nombre || !correo || !celular || !password || password !== repeat) {
+            if (!nombre || !apellido || !correo || !celular || !password || password !== repeat) {
                 Swal.fire('Verifica los datos', 'Debes llenar todos los campos y que las contraseñas coincidan.',
                     'warning');
                 return;
@@ -1938,6 +1940,7 @@
                 method: 'POST',
                 data: {
                     name: nombre,
+                    apellido: apellido,
                     email: correo,
                     telefono: celular,
                     password: password,
@@ -1970,8 +1973,22 @@
                         Swal.fire('Error', response.message, 'error');
                     }
                 },
-                error: function() {
-                    Swal.fire('Error', 'Error del servidor.', 'error');
+                error: function(xhr, status, error) {
+                    console.error('Error en registro:', xhr.responseText);
+                    let errorMessage = 'Error del servidor.';
+                    
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.responseText) {
+                        try {
+                            const errorData = JSON.parse(xhr.responseText);
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = 'Error del servidor. Código: ' + xhr.status;
+                        }
+                    }
+                    
+                    Swal.fire('Error', errorMessage, 'error');
                 }
             });
         });

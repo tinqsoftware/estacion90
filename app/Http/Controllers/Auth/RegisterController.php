@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
 {
@@ -39,7 +40,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest')->except('registerAjax');
     }
 
     /**
@@ -78,30 +79,46 @@ class RegisterController extends Controller
 
     public function registerAjax(Request $request)
     {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'telefono' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8',
-        ]);
+        try {
+            $request->validate([
+                'name'     => 'required|string|max:255',
+                'apellido' => 'required|string|max:100',
+                'email'    => 'required|string|email|max:255|unique:users',
+                'telefono' => 'nullable|string|max:20',
+                'password' => 'required|string|min:8',
+            ]);
 
+            if (User::where('email', $request->email)->exists()) {
+                return response()->json(['success' => false, 'message' => 'El correo ya está registrado']);
+            }
 
-        if (User::where('email', $request->email)->exists()) {
-            return response()->json(['success' => false, 'message' => 'El correo ya está registrado']);
+            $user = User::create([
+                'name' => $request->name,
+                'apellido' => $request->apellido,
+                'email' => $request->email,
+                'telefono' => $request->telefono,
+                'password' => Hash::make($request->password),
+                'id_rol' => 2, // Cliente
+                'estado' => 1, // Activo
+            ]);
+
+            Auth::login($user);
+
+            return response()->json(['success' => true, 'message' => 'Usuario registrado exitosamente']);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error en registro AJAX: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error interno del servidor: ' . $e->getMessage()
+            ], 500);
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'telefono' => $request->telefono,
-            'password' => Hash::make($request->password),
-            'id_rol' => '2',
-            'estado' => '1',
-        ]);
-
-        Auth::login($user);
-
-        return response()->json(['success' => true]);
     }
 
 }
