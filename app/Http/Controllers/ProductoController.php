@@ -23,18 +23,13 @@ public function productos_tab()
     // Define categorías que deben mostrar precio
     $categoriasConPrecio = [5, 6, 7, 8, 9];
     
-    // Para cada categoría, cargamos sus productos con paginación
+    // Para cada categoría, cargamos todos los productos sin paginación
     foreach ($categorias as $categoria) {
-        // Usar un prefijo único para la paginación de cada categoría
-        $categoria->productosPaginados = Producto::where('id_categoria', $categoria->id)
-            ->where('estado', 1)  // Solo mostrar productos activos
-            ->orderBy('nombre', 'asc')  // Ordenar alfabéticamente por nombre
-            ->paginate(15, ['*'], 'categoria_'.$categoria->id);
-        
-        // Importante: Asegurarse que los links de paginación mantengan el tab activo
-        $categoria->productosPaginados->appends(['tab_id' => $activeTabId]);
-        
-        // Marcar si esta categoría debe mostrar columna de precio
+        $categoria->productosListado = Producto::with('creador')
+            ->where('id_categoria', $categoria->id)
+            ->where('estado', 1)
+            ->orderBy('nombre', 'asc')
+            ->get();
         $categoria->mostrarPrecio = in_array($categoria->id, $categoriasConPrecio);
     }
 

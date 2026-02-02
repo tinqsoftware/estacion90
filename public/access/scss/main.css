@@ -22045,7 +22045,7 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
   .accordion-header.collapsed .accordion-header-indicator.style_two::before {
     content: "\e64b"; }
 .accordion-body-text {
-  padding: 0.875rem 1.25rem; }
+  padding: 0.6rem; }
 .accordion-bordered .accordion__body {
   border: 0.0625rem solid #f5f5f5;
   border-top: none;

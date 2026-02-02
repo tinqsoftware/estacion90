@@ -23,6 +23,13 @@ class MenuController extends Controller
 
     public function store(Request $request)
     {
+        if (!Auth::check() || Auth::user()->id_rol != 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado'
+            ], 403);
+        }
+
         // Validar contraseña del usuario
         if (!Hash::check($request->password, Auth::user()->password)) {
             return response()->json([
@@ -33,7 +40,7 @@ class MenuController extends Controller
 
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
-            'precio' => 'required|numeric|min:0',
+            'precio' => 'nullable|numeric|min:0',
             'imagen' => 'nullable|file|max:10240',
             'categorias_existentes' => 'nullable|array',
             'categorias_existentes.*' => 'exists:categorias,id',
@@ -70,7 +77,7 @@ class MenuController extends Controller
             // Crear menú
             $menu = Menu::create([
                 'nombre' => $request->nombre,
-                'precio' => $request->precio,
+                'precio' => $request->filled('precio') ? $request->precio : null,
                 'url_imagen' => $nombreImagen
             ]);
 
@@ -117,6 +124,12 @@ class MenuController extends Controller
     public function edit($id)
     {
         try {
+            if (!Auth::check() || Auth::user()->id_rol != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No autorizado'
+                ], 403);
+            }
             $menu = Menu::with('categorias')->findOrFail($id);
             return response()->json([
                 'menu' => $menu,
@@ -132,6 +145,13 @@ class MenuController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!Auth::check() || Auth::user()->id_rol != 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado'
+            ], 403);
+        }
+
         // Validar contraseña del usuario
         if (!Hash::check($request->password, Auth::user()->password)) {
             return response()->json([
@@ -142,7 +162,7 @@ class MenuController extends Controller
 
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
-            'precio' => 'required|numeric|min:0',
+            'precio' => 'nullable|numeric|min:0',
             'imagen' => 'nullable|file|max:10240',
             'categorias_existentes' => 'nullable|array',
             'categorias_existentes.*' => 'exists:categorias,id',
@@ -165,7 +185,7 @@ class MenuController extends Controller
             
             // Actualizar campos básicos
             $menu->nombre = $request->nombre;
-            $menu->precio = $request->precio;
+            $menu->precio = $request->filled('precio') ? $request->precio : null;
 
             // Subir nueva imagen si existe
             if ($request->hasFile('imagen')) {
@@ -233,6 +253,13 @@ class MenuController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        if (!Auth::check() || Auth::user()->id_rol != 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado'
+            ], 403);
+        }
+
         // Validar contraseña del usuario
         if (!Hash::check($request->password, Auth::user()->password)) {
             return response()->json([
@@ -268,4 +295,3 @@ class MenuController extends Controller
         }
     }
 }
-

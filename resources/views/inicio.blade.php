@@ -90,6 +90,68 @@
         .dishe-bx .border-0 {
             margin-top: auto !important;
         }
+        .widget-media .timeline li.no-divider,
+        .widget-media .timeline li.no-divider:last-child {
+            border-bottom: none !important;
+        }
+        .widget-media .timeline li.no-divider:before,
+        .widget-media .timeline li.no-divider:after {
+            display: none !important;
+        }
+
+        .swiper-wrap {
+            position: relative;
+            overflow: visible;
+        }
+        .swiper,
+        .mySwiper-3,
+        .swiper-wrapper,
+        .swiper-slide {
+            overflow: visible !important;
+        }
+        .default-tab,
+        .default-tab .tab-content,
+        .default-tab .tab-pane,
+        .default-tab .card,
+        .default-tab .card-body {
+            overflow: visible !important;
+        }
+        .tab-content,
+        .tab-pane {
+            overflow: visible;
+        }
+        .swiper-nav-btn {
+            position: absolute;
+            top: 60%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #4394ff;
+            border: 1px solid #4394ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgb(67 148 255);
+            animation: pulseArrow 1.1s ease-in-out infinite;
+        }
+
+        .swiper-nav-btn.btn-prev {
+            left: 0px;
+        }
+        .swiper-nav-btn.btn-next {
+            right: 0px;
+        }
+        .swiper-nav-btn i {
+            color: #ffffff;
+            font-size: 13px;
+        }
+        @keyframes pulseArrow {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.25); }
+        }
 
         .dishe-bx h6 {
             font-size: 14px !important;
@@ -187,14 +249,14 @@
 
                             <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div>
-                                    <h1>Hoy {{ \Carbon\Carbon::now()->translatedFormat('d F') }}</h1>
+                                    <h1>Hoy {{ \Carbon\Carbon::now()->locale('es')->translatedFormat('d F') }}</h1>
                                 </div>
                                 <ul class="grid-tab nav nav-pills" id="list-tab" role="tablist">
-                                    <li class="nav-item "
+                                    <li class="nav-item d-none"
                                         style=" text-align: right; margin-right: 10px; margin-top: 3px; font-weight: 500;">
                                         Menu<br>semanal
                                     </li>
-                                    <li class="nav-item" role="presentation">
+                                    <li class="nav-item d-none" role="presentation">
                                         <span class="nav-link me-3 active" id="pills-home-tab" data-bs-toggle="pill"
                                             data-bs-target="#pills-list" type="button" role="tab"
                                             aria-controls="pills-list" aria-selected="true">
@@ -274,6 +336,7 @@
                                                 </div>
                                                 <hr>
                                                 <!-- Extras: Productos de categoría Extras (id=6) -->
+                                                @if(isset($extras) && $extras->count() > 0)
                                                 <div class="col-xl-12">
                                                     <div class="card dlab-bg dlab-position">
                                                         <div class="card-header border-0 pb-0">
@@ -317,6 +380,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                @endif
 
                                                 <div class="card-footer  pt-0 border-0" id="orderTotals">
                                                     <div class="d-flex align-items-center justify-content-between">
@@ -954,11 +1018,16 @@
         function createComensalContent(index) {
             let menuTabs = '';
             let menuContent = '';
+
+            const menusDisponibles = menus.filter(menu => {
+                if (!menu || !menu.categorias) return false;
+                return menu.categorias.some(cat => cat.productos && cat.productos.length > 0);
+            });
             
-            // Crear tabs para cada menú
-            menus.forEach((menu, menuIndex) => {
+            // Crear tabs para cada menú disponible
+            menusDisponibles.forEach((menu, menuIndex) => {
                 const isActive = menuIndex === 0 ? 'active' : '';
-                const widthPercent = (100 / menus.length).toFixed(2);
+                const widthPercent = (100 / menusDisponibles.length).toFixed(2);
                 
                 menuTabs += `
                     <li class="nav-item" style="width: ${widthPercent}%; text-align: center;">
@@ -971,33 +1040,52 @@
                 // Crear contenido para cada menú
                 let categoriasContent = '';
                 menu.categorias.forEach(categoria => {
-                    if (categoria.productos && categoria.productos.length > 0) {
-                        categoriasContent += `
-                            <div class="mb-4">
-                                <h4 class="cate-title">${categoria.productos.length} ${categoria.nombre}</h4>
-                                <a class="text-primary">Desliza a la derecha <i class="fa-solid fa-angle-right ms-2"></i></a>
-                                <div class="swiper mySwiper-3">
+                    if (!categoria.productos || categoria.productos.length === 0) {
+                        return;
+                    }
+                    const swiperId = `swiper_${menu.id}_${categoria.id || menuIndex}_${index}`;
+                    categoriasContent += `
+                        <div class="mb-4">
+                            <h4 class="cate-title">${categoria.nombre}</h4>
+                            <div class="swiper-wrap" data-count="${categoria.productos.length}">
+                                <div class="swiper mySwiper-3" id="${swiperId}">
                                     <div class="swiper-wrapper">
                                         ${renderProductos(categoria.productos, `${categoria.nombre.toLowerCase()}_${menu.id}`, index)}
                                     </div>
                                     <div class="swiper-pagination"></div>
                                 </div>
+                                <div class="swiper-nav-btn btn-prev" data-target="${swiperId}">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </div>
+                                <div class="swiper-nav-btn btn-next" data-target="${swiperId}">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </div>
                             </div>
-                        `;
-                    }
+                        </div>
+                    `;
                 });
                 
-                // Solo mostrar precio si el menú tiene 2 o más categorías
+                // Solo mostrar precio si el menú tiene 2 o más categorías y no es Menu 90/Ejecutivo
                 const mostrarPrecio = menu.categorias && menu.categorias.length >= 2;
-                const precioTexto = mostrarPrecio ? `<h4 class="text-primary">S/ ${menu.precio}</h4>` : '';
+                const nombreMenu = (menu.nombre || '').toLowerCase();
+                const ocultarPrecioMenu = nombreMenu.includes('menu 90') || nombreMenu.includes('menú 90')
+                    || nombreMenu.includes('menu ejecutivo') || nombreMenu.includes('menú ejecutivo');
+                const precioTexto = (mostrarPrecio && !ocultarPrecioMenu)
+                    ? `<h4 class="text-primary">S/ ${menu.precio}</h4>`
+                    : '';
                 
+                const nombreMenuDesc = (menu.nombre || '').toLowerCase();
+                const menu90Desc = nombreMenuDesc.includes('menu 90') || nombreMenuDesc.includes('menú 90')
+                    ? `<small class="text-muted d-block">(Entrada + Fondo + Refresco del día)</small>`
+                    : '';
+
                 menuContent += `
                     <div id="menu${menu.id}-${index}" class="tab-pane ${isActive}">
                         <div class="menu-info mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h3>${menu.nombre}</h3>
+                            <div class="d-flex justify-content-end align-items-center">
                                 ${precioTexto}
                             </div>
+                            ${menu90Desc}
                         </div>
                         ${categoriasContent}
                     </div>
@@ -1023,6 +1111,9 @@
             const menuId = menuCategoria.split('_').pop();
             const menuActual = menus.find(m => m.id == menuId);
             const precioMenu = menuActual ? parseFloat(menuActual.precio) : 0;
+            const menuNombre = (menuActual?.nombre || '').toLowerCase();
+            const ocultarPrecioMenu = menuNombre.includes('menu 90') || menuNombre.includes('menú 90')
+                || menuNombre.includes('menu ejecutivo') || menuNombre.includes('menú ejecutivo');
             
             // Determinar tipo de input y agrupación
             let tipoInput = 'checkbox'; // Por defecto checkbox
@@ -1044,6 +1135,11 @@
             
             let html = '';
             productos.forEach(prod => {
+                const descSafe = String(prod.descripcion || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
                 // Imagen por defecto si no tiene imagen o es null/vacía
                 const imagenProducto = (prod.imagen && prod.imagen !== 'null' && prod.imagen.trim() !== '') 
                     ? prod.imagen 
@@ -1080,11 +1176,12 @@
                                         data-menu-categoria="${menuCategoria}"
                                         data-precio="${precioProducto}"
                                         data-img="${imagenProducto}"
+                                        data-desc="${descSafe}"
                                         data-categoria-tipo="${categoriaBase}">
                                     <div style="cursor:pointer;" onclick="openProductModal('${inputId}','${prod.id}','${prod.nombre}','${prod.descripcion}','${imagenProducto}')">
                                         <img style="display:none;" src="${imagenProducto}" alt="${prod.nombre}">
                                         <h6>${prod.nombre}</h6>
-                                        <h4 class="font-w700 mb-0 text-primary">S/ ${precioProducto.toFixed(2)}</h4>
+                                        ${ocultarPrecioMenu ? '' : `<h4 class="font-w700 mb-0 text-primary">S/ ${precioProducto.toFixed(2)}</h4>`}
                                     </div>
                                 </div>
                             </div>
@@ -1191,18 +1288,23 @@
                     // Force layout recalculation before initializing Swiper
                     el.offsetHeight;
                     
-                    new Swiper(el, {
+                    const wrap = el.closest('.swiper-wrap');
+                    const prevBtn = wrap ? wrap.querySelector('.btn-prev') : null;
+                    const nextBtn = wrap ? wrap.querySelector('.btn-next') : null;
+                    const count = wrap ? parseInt(wrap.getAttribute('data-count') || '0', 10) : 0;
+
+                    const swiper = new Swiper(el, {
                         slidesPerView: 3,
                         spaceBetween: 30,
                         observer: true,           // Add this to detect DOM changes
                         observeParents: true,     // Add this to detect parent element changes
-                        autoplay: {
-                            delay: 5000,
-                            disableOnInteraction: false,
-                        },
                         pagination: {
                             el: ".swiper-pagination",
                             clickable: true
+                        },
+                        navigation: {
+                            nextEl: nextBtn,
+                            prevEl: prevBtn
                         },
                         breakpoints: {
                             250: {
@@ -1229,10 +1331,35 @@
                                 slidesPerView: 5,
                                 spaceBetween: 20
                             },
+                        },
+                        on: {
+                            init: function() {
+                                updateNavVisibility(this, prevBtn, nextBtn, count);
+                            },
+                            slideChange: function() {
+                                updateNavVisibility(this, prevBtn, nextBtn, count);
+                            },
+                            reachBeginning: function() {
+                                updateNavVisibility(this, prevBtn, nextBtn, count);
+                            },
+                            reachEnd: function() {
+                                updateNavVisibility(this, prevBtn, nextBtn, count);
+                            }
                         }
                     });
                 });
             }, 100); // Small delay helps ensure DOM is ready
+        }
+
+        function updateNavVisibility(swiper, prevBtn, nextBtn, count) {
+            if (!prevBtn || !nextBtn) return;
+            if (count <= 3) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                return;
+            }
+            prevBtn.style.display = swiper.isBeginning ? 'none' : 'flex';
+            nextBtn.style.display = swiper.isEnd ? 'none' : 'flex';
         }
 
         // ===============================
@@ -1267,7 +1394,8 @@
                 const precio = parseFloat(input.dataset.precio) || 0;
                 const categoria = (input.dataset.categoriaTipo || '').toLowerCase();
                 const imagen = input.dataset.img || '/access/images/logo-full.png';
-                return { nombre, precio, categoria, imagen };
+                const descripcion = input.dataset.desc || '';
+                return { nombre, precio, categoria, imagen, descripcion };
                 });
 
                 let itemsHTML = '';
@@ -1280,16 +1408,18 @@
                 if (entradaSel) {
                 const nombre = entradaSel.closest('.card')?.querySelector('h6')?.innerText || 'Entrada';
                 const imagen = entradaSel.dataset.img || '/access/images/logo-full.png';
+                const descripcion = entradaSel.dataset.desc || '';
                 const precio = parseFloat(entradaSel.dataset.precio) || 0; // usado si es suelto
-                itemsHTML += itemLineaResumen('Entrada', nombre, imagen, (fondoSel ? null : precio));
+                itemsHTML += itemLineaResumen('Entrada', nombre, descripcion, imagen, (fondoSel ? null : precio), fondoSel ? 'no-divider' : '');
                 agregoEntrada = true;
                 }
 
                 if (fondoSel) {
                 const nombre = fondoSel.closest('.card')?.querySelector('h6')?.innerText || 'Fondo';
                 const imagen = fondoSel.dataset.img || '/access/images/logo-full.png';
+                const descripcion = fondoSel.dataset.desc || '';
                 const precio = parseFloat(fondoSel.dataset.precio) || 0; // usado si es suelto
-                itemsHTML += itemLineaResumen('Fondo', nombre, imagen, (entradaSel ? null : precio));
+                itemsHTML += itemLineaResumen('Fondo', nombre, descripcion, imagen, (entradaSel ? null : precio));
                 agregoFondo = true;
                 }
 
@@ -1315,7 +1445,7 @@
                 // ===== 3) Independientes (sumatorias) =====
                 independientes.forEach(p => {
                 comensalTotal += p.precio;
-                itemsHTML += itemLineaResumen(p.categoria || 'Extra', p.nombre, p.imagen, p.precio);
+                itemsHTML += itemLineaResumen(p.categoria || 'Extra', p.nombre, p.descripcion, p.imagen, p.precio);
                 });
 
                 totalGeneral += comensalTotal;
@@ -1371,12 +1501,15 @@
         }
 
         // Helpers para el layout del resumen
-        function itemLineaResumen(label, nombre, imagen, precioDerecha /* puede ser null */) {
+        function itemLineaResumen(label, nombre, descripcion, imagen, precioDerecha /* puede ser null */, liClass = '') {
             const priceHTML = (typeof precioDerecha === 'number')
-                ? `<small class="text-muted" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);">S/ ${precioDerecha.toFixed(2)}</small>`
+                ? `<small style="position:absolute; right:10px; top:50%; transform:translateY(-50%); font-weight:700; color:#ff7a00; font-size:13px;">S/ ${precioDerecha.toFixed(2)}</small>`
+                : '';
+            const descHTML = descripcion
+                ? `<p class="mb-0 text-muted" style="font-size:11px; font-weight:400; margin-top:-2px; line-height:1.2; white-space:pre-line;">${descripcion}</p>`
                 : '';
             return `
-                <li>
+                <li class="${liClass}">
                 <div class="timeline-panel" style="position:relative;">
                     <div class="media me-2">
                     <img alt="image" width="50" height="50" style="object-fit:cover" src="${imagen}">
@@ -1384,6 +1517,7 @@
                     <div class="media-body">
                     <span>${capitalize(label)}:</span>
                     <h5 class="mb-1">${nombre}</h5>
+                    ${descHTML}
                     </div>
                     ${priceHTML}
                 </div>
@@ -1393,9 +1527,9 @@
         function itemTotalMenu(texto) {
             return `
                 <li>
-                <div class="timeline-panel" style="border:none; padding-top:0;">
+                <div class="timeline-panel" style="border:none; padding-top:0; box-shadow:none; border-top:none;">
                     <div class="media-body" style="padding-left:12px;">
-                    <span style="font-weight:700; display:inline-block; margin-top:4px;">${texto}</span>
+                    <span style="font-weight:700; color:#ff7a00; display:inline-block; margin-top:4px;">${texto}</span>
                     </div>
                 </div>
                 </li>`;

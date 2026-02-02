@@ -149,7 +149,7 @@
     </div>
 </div>
 
-@role('impresion')
+@if(auth()->check() && auth()->user()->id_rol == 6)
   @include('partials.qz-setup')
   <script>
     // Arrancador ultra-liviano para mantener QZ conectado.
@@ -157,7 +157,7 @@
       try { await qzEnsureConnected(); } catch(e) {}
     })();
   </script>
-@endrole
+@endif
 
 <!--**********************************
     Sidebar end

@@ -24115,7 +24115,7 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
     content: "\e64b"; }
 
 .accordion-body-text {
-  padding: 0.875rem 1.25rem; }
+  padding: 0.6rem; }
 
 .accordion-bordered .accordion__body {
   border: 0.0625rem solid #DBDBDB;
